@@ -127,7 +127,6 @@ void render_vt(pixel *pic, int psx, int psy, int px, int py, vt100 *vt)
                     fg.p,t.p);
             }
         }
-/*
     x=vt->cx;
     y=vt->cy;
     if (x>=vt->sx)
@@ -135,7 +134,6 @@ void render_vt(pixel *pic, int psx, int psy, int px, int py, vt100 *vt)
     fg.v=0x80808080;
     bg.v=0xff000000;
     draw_char(pic,'_',psx,psy,px+x*chx,py+y*chy,fg.p,bg.p);
-*/
 }
 
 void render_pic(pixel *pic, int psx, int psy, int px, int py, pixel *src, int ssx, int ssy)

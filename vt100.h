@@ -1,21 +1,40 @@
+#define VT100_DEBUG
+
+typedef unsigned int ucs;
+
 typedef struct 
 {
-    int ch;
+    ucs ch;
     int attr;
 } attrchar;
+
+typedef unsigned short *charset;
 
 #define VT100_MAXTOK 10
 
 typedef struct
 {
-    int sx,sy;
-    int s1,s2;
-    int cx,cy;
-    attrchar *scr;
-    int attr;
+    int sx,sy;	           /* screen size */
+    int s1,s2;             /* scrolling region */
+    int cx,cy;             /* cursor position */
+    int save_cx,save_cy;   /* saved cursor position */
+    attrchar *scr;         /* screen buffer */
+    int attr;              /* current attribute */
+    charset G[2];          /* G0 and G1 charsets */
+    charset transl;        /* current charset */
+    int chs;               /* current charset as G# */
+    /* UTF-8 state */
+    int utf;               /* UTF-8 on/off */
+    ucs utf_char;
+    int utf_count;
+    /* parser state */
     int ntok;
     int tok[VT100_MAXTOK];
     int state;
+    /* flags */
+    int opt_auto_wrap;     /* ?7: auto wrap at right margin */
+    int opt_cursor;        /* ?25: show/hide cursor */
+    int opt_kpad;          /* keypad: application/numeric */
 } vt100;
 
 #define VT100_ATTR_BOLD		0x010000
@@ -27,6 +46,7 @@ typedef struct
 
 void vt100_init(vt100 *vt);
 int vt100_resize(vt100 *vt, int nsx, int nsy);
+void vt100_reset(vt100 *vt);
 void vt100_free(vt100 *vt);
 // void vt100_scroll(vt100 *vt, int nl);
 void vt100_write(vt100 *vt, char *buf, int len);

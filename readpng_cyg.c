@@ -3,15 +3,13 @@
 #include <stdlib.h>
 #include "trend.h"
 
-typedef int(*lpfn)();
-
 extern HWND wnd;
 
-lpfn f(char *fun_name)
+FARPROC f(char *fun_name)
 {
     HINSTANCE dll;
     
-    dll=LoadLibrary("libpng12.dll");
+    dll=LoadLibrary("cygpng12.dll");
     if (!dll)
     {
         MessageBox(wnd, "Can't load cygpng12.dll", "Missing DLL", MB_ICONERROR);
@@ -32,12 +30,12 @@ pixel *read_png(char *file_name, int *width, int *height)
     if (!(fp=fopen(file_name, "rb")))
         return 0;
 
-    png_structp png_ptr = (*f("png_create_read_struct"))
+    png_structp png_ptr = (png_structp)(*f("png_create_read_struct"))
                           (PNG_LIBPNG_VER_STRING, 0,0,0);
     if (!png_ptr)
         return 0;
 
-    png_infop info_ptr = (*f("png_create_info_struct"))(png_ptr);
+    png_infop info_ptr = (png_infop)(*f("png_create_info_struct"))(png_ptr);
     if (!info_ptr)
     {
         (*f("png_destroy_read_struct"))(&png_ptr, 0, 0);
@@ -45,7 +43,7 @@ pixel *read_png(char *file_name, int *width, int *height)
         return 0;
     }
 
-    png_infop end_info = (*f("png_create_info_struct"))(png_ptr);
+    png_infop end_info = (png_infop)(*f("png_create_info_struct"))(png_ptr);
     if (!end_info)
     {
         (*f("png_destroy_read_struct"))(&png_ptr, &info_ptr, 0);
@@ -68,7 +66,7 @@ pixel *read_png(char *file_name, int *width, int *height)
         return 0;
     }
 
-    row_pointers = (*f("png_malloc"))(png_ptr, (*height)*sizeof(png_bytep));
+    row_pointers = (png_bytepp)(*f("png_malloc"))(png_ptr, (*height)*sizeof(png_bytep));
     for (i=0; i<*height; i++)
         row_pointers[i]=(png_bytep)(pic+i*(*width));
     (*f("png_set_rows"))(png_ptr, info_ptr, row_pointers);

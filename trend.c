@@ -44,16 +44,14 @@ void draw_char(pixel *pic, char ch, int psx, int psy, int px, int py, pixel fg, 
         for(x=0;x<chx;x++)
         {
             v=trend_data[((unsigned int)(unsigned char)ch)*chx*chy+y*chx+x];
-            p.r=(fg.r*v+bg.r*(255-v))/255;
-            p.g=(fg.g*v+bg.g*(255-v))/255;
-            p.b=(fg.b*v+bg.b*(255-v))/255;
-            p.a=(fg.a*v+bg.a*(255-v))/255;
+            p.r=blend(fg.r, bg.r, v);
+            p.g=blend(fg.g, bg.g, v);
+            p.b=blend(fg.b, bg.b, v);
             o=pic[(py+y)*psx+px+x];
             v=p.a;
-            p.r=(o.r*v+p.r*(255-v))/255;
-            p.g=(o.g*v+p.g*(255-v))/255;
-            p.b=(o.b*v+p.b*(255-v))/255;
-            p.a=(o.a*v+p.a*(255-v))/255;
+            p.r=blend(o.r, p.r, v);
+            p.g=blend(o.g, p.g, v);
+            p.b=blend(o.b, p.b, v);
             pic[(py+y)*psx+px+x]=p;
         }
 }
@@ -89,17 +87,17 @@ void draw_char(pixel *pic, char ch, int psx, int psy, int px, int py, pixel fg, 
         for(x=0;x<chx;x++)
         {
             t=trend_data[((unsigned int)(unsigned char)ch)*chx*chy+y*chx+x];
-            p.r=(fg.r*t.r+bg.r*(255-t.r))/255;
-            p.g=(fg.g*t.g+bg.g*(255-t.g))/255;
-            p.b=(fg.b*t.b+bg.b*(255-t.b))/255;
-            p.a=(fg.a*t.a+bg.a*(255-t.a))/255;
+            p.r=blend(fg.r, bg.r, t.r);
+            p.g=blend(fg.g, bg.g, t.g);
+            p.b=blend(fg.b, bg.b, t.b);
+            p.a=blend(fg.a, bg.a, t.a);
             o=pic[(py+y)*psx+px+x];
             v=p.a;
             
-            p.r=(o.r*v+p.r*(255-v))/255;
-            p.g=(o.g*v+p.g*(255-v))/255;
-            p.b=(o.b*v+p.b*(255-v))/255;
-            p.a=o.a*v/255;
+            p.r=blend(o.r, p.r, v);
+            p.g=blend(o.g, p.g, v);
+            p.b=blend(o.b, p.b, v);
+            p.a=(((unsigned int)o.a)*v+255)>>8;
             pic[(py+y)*psx+px+x]=p;
         }
 }
@@ -155,8 +153,8 @@ void draw_pic(pixel *pic, int psx, int psy, int px, int py, pixel *src, int ssx,
         mx=psx-px;
     if (py+(my=ssy)>psy)
         my=psy-py;
-    for (y=(py<0)?-py:0;y<my;y++)
-        for (x=(px<0)?-px:0;x<mx;x++)
+    for (y=0;y<my;y++)
+        for (x=0;x<mx;x++)
         {
             o=pic[(py+y)*psx+px+x];
             p=src[y*ssx+x];
@@ -181,16 +179,16 @@ void overlay_pic(pixel *pic, int psx, int psy, int px, int py, pixel *src, int s
         mx=psx-px;
     if (py+(my=ssy)>psy)
         my=psy-py;
-    for (y=(py<0)?-py:0;y<my;y++)
-        for (x=(px<0)?-px:0;x<mx;x++)
+    for (y=0;y<my;y++)
+        for (x=0;x<mx;x++)
         {
             o=pic[(py+y)*psx+px+x];
             p=src[y*ssx+x];
-            v=255-(255-p.a)*opacity/255;
+            v=255-((255+(255-p.a)*opacity)>>8);
             
-            p.r=(o.r*v+p.r*(255-v))/255;
-            p.g=(o.g*v+p.g*(255-v))/255;
-            p.b=(o.b*v+p.b*(255-v))/255;
+            p.r=blend(o.r, p.r, v);
+            p.g=blend(o.g, p.g, v);
+            p.b=blend(o.b, p.b, v);
             p.a=o.a*v/255;
             pic[(py+y)*psx+px+x]=p;
         }

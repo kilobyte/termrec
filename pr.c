@@ -86,13 +86,7 @@ void create_window(int nCmdShow)
         layered?WS_EX_LAYERED:0,"DieDieDie!", "Szkolniki",
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT,
-        CW_USEDEFAULT, CW_USEDEFAULT, NULL,
-#ifdef SYSMENU
-        0,
-#else
-        CreateMenu(),
-#endif
-        inst,
+        CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, inst,
         NULL);
 
     if (wnd == NULL)
@@ -114,8 +108,6 @@ void create_window(int nCmdShow)
     else
         UpdateWindow(wnd);
 }
-
-#define GETMENU(wnd) GetMenu(wnd)
 
 int APIENTRY WinMain(HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -325,10 +317,10 @@ void premult_alpha(pixel *pic, int psx, int psy, RECT *rect)
         while(x--)
         {
             pic->a=255-pic->a;
-#if 0
-            pic->r=((unsigned int)pic->r)*pic->a/255;
-            pic->g=((unsigned int)pic->g)*pic->a/255;
-            pic->b=((unsigned int)pic->b)*pic->a/255;
+#if 1
+            pic->r=(((unsigned int)pic->r)*pic->a+255)>>8;
+            pic->g=(((unsigned int)pic->g)*pic->a+255)>>8;
+            pic->b=(((unsigned int)pic->b)*pic->a+255)>>8;
 #else
             pic->r=multable[pic->a][pic->r];
             pic->g=multable[pic->a][pic->g];
@@ -576,8 +568,8 @@ void set_spam()
 {
     HMENU menu;
     MENUITEMINFO mii;
-
-    menu=GETMENU(wnd);
+    
+    menu=GetSystemMenu(wnd,0);
     mii.cbSize=sizeof(MENUITEMINFO);
     mii.fMask=MIIM_STATE;
     GetMenuItemInfo(menu,MID_SPAM,0,&mii);
@@ -596,7 +588,7 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         {
             HMENU smenu,rmenu;
             
-            smenu=GETMENU(hwnd);
+            smenu=GetSystemMenu(hwnd,0);
             InsertMenu(smenu,-1,MF_BYPOSITION|MF_SEPARATOR,0,0);
             InsertMenu(smenu,-1,MF_BYPOSITION|MF_STRING,MID_CHANGEFONT,"Change &font");
             InsertMenu(smenu,-1,MF_BYPOSITION|MF_STRING,MID_PNGFONT,"&PNG &font");
@@ -684,12 +676,8 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 create_window(wndpl.showCmd);
             }
             return 0;
-
-#ifdef SYSMENU        
+        
         case WM_SYSCOMMAND:
-#else
-        case WM_COMMAND:
-#endif
             switch(wParam)
             {
             case MID_CHANGEFONT:
