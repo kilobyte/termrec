@@ -1,6 +1,7 @@
 #include "config.h"
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 #ifdef IS_WIN32
 # include <windows.h>
 #endif

@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <string.h>
 #include "utils.h"
 #include "threads.h"
 #include "name_out.h"
@@ -159,8 +160,8 @@ void workthread(struct workstate *ws)
         }
         /* FIXME: No error handling. */
     }
-    shutdown(ws->fd[who], SD_RECEIVE);
-    shutdown(ws->fd[1-who], SD_SEND);
+    shutdown(ws->fd[who], SHUT_RD);
+    shutdown(ws->fd[1-who], SHUT_WR);
 }
 
 
@@ -269,7 +270,9 @@ int main(int argc, char **argv)
         if (record_name)
         {
             connthread(s);
+#ifdef IS_WIN32
             reap_threads();
+#endif
             exit(0);
         }
         thread_create_detached(th, connthread, s);

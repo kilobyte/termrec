@@ -15,6 +15,7 @@
 #endif
 #include <stdlib.h>
 #include <signal.h>
+#include <stdio.h>
 #include "utils.h"
 
 extern char **environ;
@@ -213,6 +214,7 @@ int run(char *command, int sx, int sy)
     ws.ws_col=sx;
     ws.ws_xpixel=0;
     ws.ws_ypixel=0;
+
     switch(forkpty(&fd,0,&ta,(sx&&sy)?&ws:0))
     {
     case -1:
@@ -221,10 +223,10 @@ int run(char *command, int sx, int sy)
         {
             char *argv[4], *cmd;
             
-            asprintf(cmd, "exec %s", command);
+            asprintf(&cmd, "exec %s", command);
             argv[0]="sh";
             argv[1]="-c";
-            argv[2]="exec bash"; // FIXME
+            argv[2]=cmd;
             argv[3]=0;
             execve("/bin/sh",argv,environ);
             fprintf(stderr,"#ERROR: Couldn't exec `%s'\n",command);
@@ -274,7 +276,7 @@ FILE *mypopen(const char *command, const char *wr)
                 signal(SIGHUP, SIG_IGN);
                 signal(SIGTSTP, SIG_IGN);
             }
-            asprintf(cmd, "exec %s", command);
+            asprintf(&cmd, "exec %s", command);
             argv[0]="sh";
             argv[1]="-c";
             argv[2]=cmd;

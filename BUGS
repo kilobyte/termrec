@@ -1,0 +1,20 @@
+* play: constant full-screen redraw
+
+* win32/play: full prefetch
+
+* play: snapshots are created but not used
+
+* win32/play: ugly cursor
+
+* win32/rec: on Win95/98/ME, scrolling does a full screen dump
+
+* win32/play: no way to select the plugin except for file extensions
+
+* rec,proxy: no --append
+
+* unix/rec: no information about UTF-8
+* unix/rec: SIGINT and friends should be passed to the child
+
+* docs: no manpages
+
+* docs: no README

@@ -5,13 +5,14 @@
 #include <stdlib.h>
 #include "utils.h"
 #include "formats.h"
-#include "stream_in.h"
+#include "stream.h"
 #include "synch.h"
 
 FILE *play_f;
 
 struct timeval t0,tw;
 int speed;
+char *name;
 
 void synch_init_wait(struct timeval *ts)
 {
@@ -32,7 +33,7 @@ void synch_wait(struct timeval *tv)
     if (tv->tv_sec>=5)
         tv->tv_sec=5, tv->tv_usec=0;
     
-    fprintf(stderr, "Waiting for %lu.%06lu\n", tv->tv_sec, tv->tv_usec);
+//    fprintf(stderr, "Waiting for %lu.%06lu\n", tv->tv_sec, tv->tv_usec);
     do
     {
         gettimeofday(&tc, 0);
@@ -69,11 +70,14 @@ void synch_print(char *buf, int len)
 
 int main()
 {
-    if (!(play_f=stream_open("out.ttyrec")))
-    {
-        fprintf(stderr, "Can't open out.ttyrec\n");
-        exit(1);
-    }
-    playfile(0);
+    int codec;
+
+    name="out.ttyrec";
+    if (!(play_f=stream_open(fopen(name, "rb"), name, "rb", decompressors, 0)))
+        error("Can't open %s\n", name);
+    codec=codec_from_ext_play(name);
+    if (codec==-1)
+        codec=0;
+    play[codec].play(play_f);
     return 0;
 }

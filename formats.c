@@ -1,3 +1,68 @@
+/*
+This file defines the "plugins".
+
+There is no need to provide both recorder and a player.  Read-only or
+write-only plugins are fine.
+To create one, implement:
+
+
++ player:
+
+void play_xxx(FILE *f);
+You are guaranteed to be running in a thread-equivalent on your own.
+    *f
+      is the file you're reading from, don't expect it to be seekable.
+    void synch_init_wait(struct timeval *ts);
+      you may call this to mark the starting time of the stream.  It's purely
+      optional, and its only use is to mention the date of the recording, if
+      known.
+    void synch_wait(struct timeval *tv);
+      call this to convey timing information.  The value given is the _delay_
+      since the last call, not the absolute time.
+    void synch_print(char *buf, int len);
+      call this to write the actual output.
+
+
++ recorder:
+
+void* record_xxx_init(FILE *f, struct timeval *tm);
+Will be called exactly once per stream.
+    *f
+      is the file you're supposed to write the stream to.  Don't expect it to
+      be seekable.
+    *tm
+      is the date of the recording, if known.  tm will be a null pointer if
+      this information is not available -- in this case, all timing data will
+      be relative to 0:0.
+    You may allocate some memory for keeping track of the state.  In this case,
+    return the pointer to that memory, it will be passed in every subsequent
+    call.  It may be arbitrary data, and is never used outside your code.
+
+void record_xxx(FILE *f, void* state, struct timeval *tm, char *buf, int len);
+Will be called every time a new chunk of input comes.
+    *f
+      is the file we're recording to.
+    *state
+      is the pointer returned by record_xxx_init().
+    *tm
+      is the "current" time of the chunk, as an absolute value (_not_ the delay
+      since the last call).  It usually will be measured as the real time since
+      the Epoch, but in some cases, it may start at 0:0.
+    *buf
+      is the chunk to be written.  It won't be terminated with a \0.
+    len
+      is the length of the chunk.
+
+void record_xxx_finish(FILE *f, void* state);
+Will be called when the recording ends.
+    *f
+      is the file we're recording to.
+    *state
+      is the pointer returned by record_xxx_init().
+    At this point, you need to free any memory you've allocated.
+
+*/
+
 #include "config.h"
 #ifdef HAVE_SYS_TIME_H
 # include <sys/time.h>

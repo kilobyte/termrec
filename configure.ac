@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(termrec, 0.10, [kilobyte@angband.pl])
+AC_INIT(termrec, 0.11, [kilobyte@angband.pl])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([formats.c])
 AC_CONFIG_HEADER([config.h])
@@ -22,7 +22,7 @@ AC_HEADER_STDC
 AC_HEADER_TIOCGWINSZ
 AC_CREATE_STDINT_H
 AC_HEADER_TIME
-AC_CHECK_HEADERS([fcntl.h stdlib.h string.h strings.h sys/ioctl.h termios.h unistd.h bzlib.h zlib.h sys/time.h getopt.h])
+AC_CHECK_HEADERS([fcntl.h stdlib.h string.h strings.h sys/ioctl.h termios.h unistd.h bzlib.h zlib.h sys/time.h getopt.h sys/select.h])
 AC_CHECK_DECLS([O_BINARY], , , [#include <fcntl.h>])
 
 # Checks for typedefs, structures, and compiler characteristics.

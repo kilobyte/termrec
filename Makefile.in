@@ -14,7 +14,7 @@
 
 @SET_MAKE@
 
-SOURCES = $(proxy_SOURCES) $(rec_SOURCES) $(term_SOURCES)
+SOURCES = $(proxyrec_SOURCES) $(termplay_SOURCES) $(termrec_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -38,7 +38,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = term$(EXEEXT) rec$(EXEEXT) proxy$(EXEEXT)
+bin_PROGRAMS = termrec$(EXEEXT) proxyrec$(EXEEXT) termplay$(EXEEXT)
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
 	$(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS \
@@ -62,29 +62,30 @@ CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
-am_proxy_OBJECTS = logproxy.$(OBJEXT)
-proxy_OBJECTS = $(am_proxy_OBJECTS)
-proxy_DEPENDENCIES = no_play.o formats.o utils.o stream.o compress.o \
-	logproxy.coff name_out.o
-am__rec_SOURCES_DIST = ttyr.c pty.c name_out.c winrec.c
-@WIN32_FALSE@am_rec_OBJECTS = ttyr.$(OBJEXT) pty.$(OBJEXT) \
-@WIN32_FALSE@	name_out.$(OBJEXT)
-@WIN32_TRUE@am_rec_OBJECTS = winrec.$(OBJEXT) name_out.$(OBJEXT)
-rec_OBJECTS = $(am_rec_OBJECTS)
-@WIN32_FALSE@rec_DEPENDENCIES = stream.o compress.o formats.o \
-@WIN32_FALSE@	no_play.o
-@WIN32_TRUE@rec_DEPENDENCIES = no_play.o formats.o utils.o stream.o \
-@WIN32_TRUE@	compress.o termrec.coff
-am__term_SOURCES_DIST = dumbplay.c term.c draw.c timeline.c timeline.h \
-	draw.h vt100.c vt100.h charsets.h
-@WIN32_FALSE@am_term_OBJECTS = dumbplay.$(OBJEXT)
-@WIN32_TRUE@am_term_OBJECTS = term.$(OBJEXT) draw.$(OBJEXT) \
-@WIN32_TRUE@	timeline.$(OBJEXT) vt100.$(OBJEXT)
-term_OBJECTS = $(am_term_OBJECTS)
-@WIN32_FALSE@term_DEPENDENCIES = stream.o compress.o formats.o \
-@WIN32_FALSE@	no_record.o
-@WIN32_TRUE@term_DEPENDENCIES = stream.o compress.o formats.o \
+am_proxyrec_OBJECTS = proxy.$(OBJEXT)
+proxyrec_OBJECTS = $(am_proxyrec_OBJECTS)
+@WIN32_TRUE@am__DEPENDENCIES_1 = proxyrec.coff
+proxyrec_DEPENDENCIES = no_play.o formats.o utils.o stream.o \
+	compress.o $(am__DEPENDENCIES_1) name_out.o
+am__termplay_SOURCES_DIST = dumbplay.c name_in.c term.c draw.c \
+	timeline.c timeline.h draw.h vt100.c
+@WIN32_FALSE@am_termplay_OBJECTS = dumbplay.$(OBJEXT) \
+@WIN32_FALSE@	name_in.$(OBJEXT)
+@WIN32_TRUE@am_termplay_OBJECTS = term.$(OBJEXT) draw.$(OBJEXT) \
+@WIN32_TRUE@	timeline.$(OBJEXT) vt100.$(OBJEXT) \
+@WIN32_TRUE@	name_in.$(OBJEXT)
+termplay_OBJECTS = $(am_termplay_OBJECTS)
+@WIN32_FALSE@termplay_DEPENDENCIES = stream.o compress.o formats.o \
+@WIN32_FALSE@	no_record.o utils.o
+@WIN32_TRUE@termplay_DEPENDENCIES = stream.o compress.o formats.o \
 @WIN32_TRUE@	no_record.o utils.o termplay.coff
+am__termrec_SOURCES_DIST = ttyr.c pty.c winrec.c
+@WIN32_FALSE@am_termrec_OBJECTS = ttyr.$(OBJEXT) pty.$(OBJEXT)
+@WIN32_TRUE@am_termrec_OBJECTS = winrec.$(OBJEXT)
+termrec_OBJECTS = $(am_termrec_OBJECTS)
+@WIN32_TRUE@am__DEPENDENCIES_2 = termrec.coff
+termrec_DEPENDENCIES = stream.o compress.o formats.o no_play.o \
+	name_out.o utils.o $(am__DEPENDENCIES_2)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I.
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -92,9 +93,9 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(proxy_SOURCES) $(rec_SOURCES) $(term_SOURCES)
-DIST_SOURCES = $(proxy_SOURCES) $(am__rec_SOURCES_DIST) \
-	$(am__term_SOURCES_DIST)
+SOURCES = $(proxyrec_SOURCES) $(termplay_SOURCES) $(termrec_SOURCES)
+DIST_SOURCES = $(proxyrec_SOURCES) $(am__termplay_SOURCES_DIST) \
+	$(am__termrec_SOURCES_DIST)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -198,25 +199,28 @@ sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 AM_CFLAGS = -Wall
-#proxy_LDFLAGS = -Xlinker --subsystem -Xlinker windows
-@WIN32_FALSE@term_SOURCES = dumbplay.c
-@WIN32_TRUE@term_SOURCES = term.c draw.c timeline.c timeline.h draw.h vt100.c vt100.h charsets.h
-@WIN32_FALSE@term_LDADD = stream.o compress.o formats.o no_record.o
-@WIN32_TRUE@term_LDADD = stream.o compress.o formats.o no_record.o utils.o -lcomdlg32 -lcomctl32 -lgdi32 termplay.coff @LIBBZ2@ @LIBZ@
-@WIN32_TRUE@term_LDFLAGS = -Xlinker --subsystem -Xlinker windows
-@WIN32_FALSE@rec_SOURCES = ttyr.c pty.c name_out.c
-@WIN32_TRUE@rec_SOURCES = winrec.c name_out.c
-@WIN32_FALSE@rec_LDADD = stream.o compress.o formats.o no_play.o
-@WIN32_TRUE@rec_LDADD = no_play.o formats.o utils.o stream.o compress.o termrec.coff @LIBBZ2@ @LIBZ@
-proxy_SOURCES = logproxy.c
-proxy_LDADD = no_play.o formats.o utils.o stream.o compress.o logproxy.coff name_out.o @LIBBZ2@ @LIBZ@
-term_RES = termplay.rc termplay.ico termplay.manifest open.bmp rewind.bmp pause.bmp play.bmp wood1.bmp
-rec_RES = termrec.rc termrec.ico
-proxy_RES = logproxy.rc logproxy.ico
-COMMON = stream.c stream.h compress.c formats.c formats.h no_play.c no_record.c utils.c utils.h synch.h winutils.c name_out.h threads.h
-EXTRA_DIST = ${COMMON} ${term_RES} ${rec_RES} ${proxy_RES}
+@WIN32_FALSE@termplay_SOURCES = dumbplay.c name_in.c
+@WIN32_TRUE@termplay_SOURCES = term.c draw.c timeline.c timeline.h draw.h vt100.c name_in.c
+@WIN32_FALSE@termplay_LDADD = stream.o compress.o formats.o no_record.o utils.o
+@WIN32_TRUE@termplay_LDADD = stream.o compress.o formats.o no_record.o utils.o -lcomdlg32 -lcomctl32 -lgdi32 termplay.coff @LIBBZ2@ @LIBZ@
+@WIN32_TRUE@termplay_LDFLAGS = -Xlinker --subsystem -Xlinker windows
+@WIN32_FALSE@termrec_SOURCES = ttyr.c pty.c
+@WIN32_TRUE@termrec_SOURCES = winrec.c
+@WIN32_TRUE@termrec_LDADD_ARCH = termrec.coff
+@WIN32_TRUE@proxyrec_LDADD_ARCH = proxyrec.coff
+@WIN32_TRUE@proxyrec_LDFLAGS_ARCH = -Xlinker --subsystem -Xlinker windows
+termrec_LDADD = stream.o compress.o formats.o no_play.o name_out.o utils.o ${termrec_LDADD_ARCH} @LIBBZ2@ @LIBZ@
+proxyrec_SOURCES = proxy.c
+proxyrec_LDADD = no_play.o formats.o utils.o stream.o compress.o ${proxyrec_LDADD_ARCH} name_out.o @LIBBZ2@ @LIBZ@ @PTHREAD_LIBS@
+proxyrec_LDFLAGS = ${proxyrec_LDFLAGS_ARCH} @PTHREAD_CFLAGS@
+termplay_RES = termplay.rc termplay.ico termplay.manifest open.bmp rewind.bmp pause.bmp play.bmp wood1.bmp
+termrec_RES = termrec.rc termrec.ico
+proxyrec_RES = proxyrec.rc proxyrec.ico
+CHEADERS = stream.h formats.h utils.h synch.h name_out.h threads.h pty.h name_in.h vt100.h charsets.h
+COMMON = stream.c compress.c formats.c no_play.c no_record.c utils.c winutils.c name_out.c
+EXTRA_DIST = ${CHEADERS} ${COMMON} ${termplay_RES} ${termrec_RES} ${proxyrec_RES} BUGS
 DISTCLEANFILES = _stdint.h
-CLEANFILES = termplay.coff termrec.coff logproxy.coff
+CLEANFILES = termplay.coff termrec.coff proxyrec.coff
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -295,15 +299,15 @@ uninstall-binPROGRAMS:
 
 clean-binPROGRAMS:
 	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
-proxy$(EXEEXT): $(proxy_OBJECTS) $(proxy_DEPENDENCIES) 
-	@rm -f proxy$(EXEEXT)
-	$(LINK) $(proxy_LDFLAGS) $(proxy_OBJECTS) $(proxy_LDADD) $(LIBS)
-rec$(EXEEXT): $(rec_OBJECTS) $(rec_DEPENDENCIES) 
-	@rm -f rec$(EXEEXT)
-	$(LINK) $(rec_LDFLAGS) $(rec_OBJECTS) $(rec_LDADD) $(LIBS)
-term$(EXEEXT): $(term_OBJECTS) $(term_DEPENDENCIES) 
-	@rm -f term$(EXEEXT)
-	$(LINK) $(term_LDFLAGS) $(term_OBJECTS) $(term_LDADD) $(LIBS)
+proxyrec$(EXEEXT): $(proxyrec_OBJECTS) $(proxyrec_DEPENDENCIES) 
+	@rm -f proxyrec$(EXEEXT)
+	$(LINK) $(proxyrec_LDFLAGS) $(proxyrec_OBJECTS) $(proxyrec_LDADD) $(LIBS)
+termplay$(EXEEXT): $(termplay_OBJECTS) $(termplay_DEPENDENCIES) 
+	@rm -f termplay$(EXEEXT)
+	$(LINK) $(termplay_LDFLAGS) $(termplay_OBJECTS) $(termplay_LDADD) $(LIBS)
+termrec$(EXEEXT): $(termrec_OBJECTS) $(termrec_DEPENDENCIES) 
+	@rm -f termrec$(EXEEXT)
+	$(LINK) $(termrec_LDFLAGS) $(termrec_OBJECTS) $(termrec_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -313,8 +317,8 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/draw.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dumbplay.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/logproxy.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/name_out.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/name_in.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/proxy.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pty.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/term.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/timeline.Po@am__quote@
@@ -611,15 +615,15 @@ uninstall-am: uninstall-binPROGRAMS uninstall-info-am
 	uninstall-info-am
 
 
-termplay.coff: termplay.rc ${term_RES}
+termplay.coff: termplay.rc ${termplay_RES}
 	builddir=`pwd` && cd $(srcdir) && \
 	  $(WINDRES) termplay.rc "$$builddir/termplay.coff"
-termrec.coff: termrec.rc ${rec_RES}
+termrec.coff: termrec.rc ${termrec_RES}
 	builddir=`pwd` && cd $(srcdir) && \
 	  $(WINDRES) termrec.rc "$$builddir/termrec.coff"
-logproxy.coff: logproxy.rc ${logproxy_RES}
+proxyrec.coff: proxyrec.rc ${proxyrec_RES}
 	builddir=`pwd` && cd $(srcdir) && \
-	  $(WINDRES) logproxy.rc "$$builddir/logproxy.coff"
+	  $(WINDRES) proxyrec.rc "$$builddir/proxyrec.coff"
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

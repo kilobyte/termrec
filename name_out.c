@@ -1,10 +1,13 @@
 #include "config.h"
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
 #include <ctype.h>
+#include <string.h>
+#include <stdlib.h>
 #include "utils.h"
 #include "formats.h"
 #include "stream.h"
@@ -14,7 +17,7 @@
 extern char *optarg;
 extern int optopt;
 
-int codec_from_ext(char *name)
+int codec_from_ext_rec(char *name)
 {
     int i,len;
 
@@ -194,7 +197,7 @@ finish_args:
     {
         record_name=argv[argc-1];
         if (codec==-1)
-            if ((codec=codec_from_ext(record_name))==-1)
+            if ((codec=codec_from_ext_rec(record_name))==-1)
                 codec=1;  /* default to ttyrec */
     }
     else

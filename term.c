@@ -465,7 +465,6 @@ void replay_abort()
 int start_file(char *name)
 {
     char buf[MAXFILENAME+20];
-    int i,len;
     
     if (play_f)
     {
@@ -479,20 +478,9 @@ int start_file(char *name)
     play_f=stream_open(fopen(name, "rb"), name, "rb", decompressors, 0);
     if (!play_f)
         return 0;
-    len=0;
-    for (i=0;decompressors[i].name;i++)
-        if (match_suffix(name, decompressors[i].ext, 0))
-        {
-            len=strlen(decompressors[i].ext);
-            break;
-        }
-    codec=0;
-    for (i=0;play[i].name;i++)
-        if (match_suffix(name, play[i].ext, len))
-        {
-            codec=i;
-            break;
-        }
+    codec=codec_from_ext_play(name);
+    if (codec==-1)
+        codec=0;
     replay_start(codec);
     sprintf(buf, "Termplay: %s (%s)", filename, play[codec].name);
     SetWindowText(wnd, buf);
@@ -560,41 +548,6 @@ void print_banner()
     vt100_printf(&vt, "Replay plugins:\n");
     for (i=0;play[i].name;i++)
         vt100_printf(&vt, "* %s\n", play[i].name);
-}
-
-
-int APIENTRY WinMain(HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
-{
-    inst = instance;
-    
-    win32_init();
-    
-    speed=1000;
-    play_f=0;
-    play_state=-1;
-    tsx=tsy=0;
-    
-    vt100_init(&vt);
-    
-    strncpy(filename, lpCmdLine, MAXFILENAME-1);
-    filename[MAXFILENAME-1]=0;
-
-    defsx=80;
-    defsy=25;
-    
-    create_window(nCmdShow);
-    
-    vt100_resize(&vt, defsx, defsy);
-    print_banner();
-    draw_size();
-    UpdateWindow(wnd);
-
-    timeline_init();
-
-    while(message_loop(&timer, 1)==0)
-        do_replay();
-    return 0;
-    UNREFERENCED_PARAMETER(hPrevInstance);
 }
 
 
@@ -774,13 +727,6 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	    create_toolbar(hwnd);
             create_term(hwnd);
 
-            if (*filename)
-                if (!start_file(filename))
-                {
-                    fprintf(stderr, "Can't open %s\n", filename);
-                    return -1;
-                }
-
             return 0;
         
         case WM_SIZE:
@@ -912,6 +858,7 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
+
 LRESULT APIENTRY TermWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg) {
@@ -923,4 +870,47 @@ LRESULT APIENTRY TermWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             return DefWindowProc(hwnd, uMsg, wParam, lParam);
     }
     return 0;
+}
+
+
+int APIENTRY WinMain(HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+{
+    inst = instance;
+    
+    win32_init();
+    
+    speed=1000;
+    play_f=0;
+    play_state=-1;
+    tsx=tsy=0;
+    
+    vt100_init(&vt);
+    
+    strncpy(filename, lpCmdLine, MAXFILENAME-1);
+    filename[MAXFILENAME-1]=0;
+
+    defsx=80;
+    defsy=25;
+    
+    create_window(nCmdShow);
+    
+    vt100_resize(&vt, defsx, defsy);
+    print_banner();
+    draw_size();
+    UpdateWindow(wnd);
+
+    timeline_init();
+
+    if (*filename)
+        if (!start_file(filename))
+        {
+            vt100_printf(&vt, "\n\e[41;1mFile not found: %s\e[0m\n", filename);
+            *filename=0;
+            redraw_term();
+        }
+
+    while(message_loop(&timer, 1)==0)
+        do_replay();
+    return 0;
+    UNREFERENCED_PARAMETER(hPrevInstance);
 }

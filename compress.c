@@ -3,6 +3,7 @@
 #include "config.h"
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #ifdef HAVE_BZLIB_H
 # include <bzlib.h>
 #else

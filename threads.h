@@ -4,8 +4,11 @@
 # include <windows.h>
 #else
 # include <sys/socket.h>
+# include <arpa/inet.h>
 # include <netdb.h>
-# include <pthreads.h>
+# include <pthread.h>
+# include <unistd.h>
+# include <stdlib.h>
 #endif
 
 #ifdef IS_WIN32
@@ -44,6 +47,9 @@ static inline void sockets_init()
     WSAStartup(MAKEWORD(2,2), &wsaData);
 }
 
+#define SHUT_RD SD_RECEIVE
+#define SHUT_WR SD_SEND
+
 /* Win32 */
 #else
 /* Unix */
@@ -56,11 +62,26 @@ static inline void sockets_init()
 
 #define thread_t pthread_t
 #define thread_create_joinable(th,start,arg)	\
-    (pthread_create(&th, start, arg))
-#define thread_join(th) pthread_join
+    (unix_pthread_create(&(th), PTHREAD_CREATE_JOINABLE, (start), (void*)(arg)))
+#define thread_join(th) pthread_join(th, 0)
 #define thread_create_detached(th,start,arg)	\
+    (unix_pthread_create(&(th), PTHREAD_CREATE_DETACHED, (start), (void*)(arg)))
 
 #define sockets_init()
+#define closesocket(x) close(x)
+
+static inline int unix_pthread_create(pthread_t *th, int det, void *start, void *arg)
+{
+    pthread_attr_t attr;
+    int ret;
+    
+    pthread_attr_init(&attr);
+    pthread_attr_setdetachstate(&attr, det);
+    ret=pthread_create(th, &attr, start, arg);
+    pthread_attr_destroy(&attr);
+    
+    return ret;
+}
 
 /* Unix */
 #endif
