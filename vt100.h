@@ -1,4 +1,6 @@
-//#define VT100_DEBUG
+/*#define VT100_DEBUG*/
+
+#define VT100_DEFAULT_CHARSET charset_cp437
 
 typedef unsigned int ucs;
 
@@ -48,6 +50,6 @@ void vt100_init(vt100 *vt);
 int vt100_resize(vt100 *vt, int nsx, int nsy);
 void vt100_reset(vt100 *vt);
 void vt100_free(vt100 *vt);
-// void vt100_scroll(vt100 *vt, int nl);
 void vt100_write(vt100 *vt, char *buf, int len);
 void vt100_printf(vt100 *vt, const char *fmt, ...);
+int vt100_copy(vt100 *vt, vt100 *nvt);

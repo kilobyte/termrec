@@ -170,9 +170,8 @@ void draw_init()
     dc=GetDC(0);
     
     memset(&lf,0,sizeof(LOGFONT));
-//    lf.lfHeight=20;
-//    lf.lfWidth=10;
-//    strcpy(lf.lfFaceName, "CODE2001");
+    lf.lfHeight=16;
+    strcpy(lf.lfFaceName, "Courier New");
     lf.lfPitchAndFamily=FIXED_PITCH;
     lf.lfQuality=ANTIALIASED_QUALITY;
     lf.lfOutPrecision=OUT_TT_ONLY_PRECIS;

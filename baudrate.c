@@ -1,4 +1,7 @@
 #include <sys/time.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include "utils.h"
 
 int bps,wait;
 int n,d,dtime;
@@ -15,7 +18,7 @@ int main(int argc,char **argv)
 	gettimeofday(&lv,0);
 	dtime=0;
 	
-	while (n=read(0,buf,1024))
+	while ((n=read(0,buf,1024)))
 	{
 		if (n==-1)
 			return 1;

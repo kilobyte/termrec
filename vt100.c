@@ -57,6 +57,15 @@ void vt100_free(vt100 *vt)
     free(vt->scr);
 }
 
+int vt100_copy(vt100 *vt, vt100 *nvt)
+{
+    memcpy(nvt, vt, sizeof(vt100));
+    if (!(nvt->scr=malloc(SX*SY*sizeof(attrchar))))
+        return 0;
+    memcpy(nvt->scr, vt->scr, SX*SY*sizeof(attrchar));
+    return 1;
+}
+
 static void vt100_clear_region(vt100 *vt, int st, int l)
 {
     attrchar *c;
@@ -80,9 +89,9 @@ void vt100_reset(vt100 *vt)
     vt->opt_auto_wrap=1;
     vt->opt_cursor=1;
     vt->opt_kpad=0;
-    vt->G[0]=charset_8859_1;
+    vt->G[0]=VT100_DEFAULT_CHARSET;
     vt->G[1]=charset_vt100;
-    vt->transl=charset_8859_1;
+    vt->transl=VT100_DEFAULT_CHARSET;
     vt->chs=0;
     vt->utf=0;
     vt->utf_count=0;
@@ -126,7 +135,7 @@ static void set_charset(vt100 *vt, int g, char x)
         case 'A': UK hash-less -- go away, bad thing.
 */
         case 'B':
-            cs=/*charset_8859_1*/charset_cp437;
+            cs=/*charset_8859_1*/VT100_DEFAULT_CHARSET;
             break;
         case 'U':
             cs=charset_cp437;
@@ -141,6 +150,12 @@ static void set_charset(vt100 *vt, int g, char x)
     vt->G[g]=cs;
     if (vt->chs==g)
         vt->transl=cs;
+}
+
+
+static void vt100_set_size(vt100 *vt, int nx, int ny)
+{
+    // TODO: resize
 }
 
 
@@ -569,6 +584,26 @@ void vt100_write(vt100 *vt, char *buf, int len)
             case 'c':	/* ESC[c -> reset to power-on defaults */
                 vt100_reset(vt);
                 break;
+            
+            case 't':	/* ESC[t -> window manipulation */
+                vt->state=0;
+                switch(vt->tok[0])
+                {
+                case 8:	    /* ESC8;<h>;<w>t -> resize */
+                    while(vt->ntok<2)
+                        vt->tok[++vt->ntok]=0;
+                    if (vt->tok[1]<=0)
+                        vt->tok[1]=SY;
+                    if (vt->tok[2]<=0)
+                        vt->tok[2]=SX;
+                    vt100_set_size(vt, vt->tok[2], vt->tok[1]);
+                    break;
+#ifdef VT100_DEBUG
+                default:
+                    printf("Unknown extended window manipulation: %d\n", vt->tok[0]);
+#endif
+                }
+                break;
                 
             default:
                 goto error;
@@ -645,10 +680,16 @@ void vt100_write(vt100 *vt, char *buf, int len)
             {
             case '@':	/* ESC % @ -> disable UTF-8 */
                 vt->utf=0;
+#ifdef VT100_DEBUG
+                printf("Disabling UTF-8.\n");
+#endif
                 break;
             case '8':	/* ESC % 8, ESC % g -> enable UTF-8 */
             case 'G':
                 vt->utf=1;
+#ifdef VT100_DEBUG
+                printf("Enabling UTF-8.\n");
+#endif
                 break;
             default:
                 goto error;
