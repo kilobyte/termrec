@@ -8,6 +8,7 @@ typedef void (record_func_finish)(FILE *f, void* state);
 typedef struct
 {
     char		*name;
+    char		*ext;
     record_func_init	*init;
     record_func		*write;
     record_func_finish	*finish;
@@ -16,6 +17,7 @@ typedef struct
 typedef struct
 {
     char		*name;
+    char		*ext;
     play_func		*play;
 } player_info;
 

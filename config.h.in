@@ -12,11 +12,21 @@
 /* Define to 1 if you have the `ctime_r' function. */
 #undef HAVE_CTIME_R
 
+/* Define to 1 if you have the declaration of `O_BINARY', and to 0 if you
+   don't. */
+#undef HAVE_DECL_O_BINARY
+
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
 
 /* Define to 1 if you have the `forkpty' function. */
 #undef HAVE_FORKPTY
+
+/* Define to 1 if you have the <getopt.h> header file. */
+#undef HAVE_GETOPT_H
+
+/* Define to 1 if you have the `getopt_long' function. */
+#undef HAVE_GETOPT_LONG
 
 /* Define to 1 if you have the `getpt' function. */
 #undef HAVE_GETPT

@@ -39,7 +39,7 @@ void play_baudrate(FILE *f)
     
     tv.tv_sec=0;
     tv.tv_usec=200000;
-    while((b=fread(buf, 1, 10, f))>0)
+    while((b=fread(buf, 1, 60, f))>0)	/* 2400 baud */
     {
         synch_print(buf, b);
         
@@ -218,7 +218,7 @@ void record_nh_recorder(FILE *f, void* state, struct timeval *tm, char *buf, int
 {
     int32_t i;
     i=(tm->tv_sec-((struct timeval*)state)->tv_sec)*100+
-      (tm->tv_usec-((struct timeval*)state)->tv_usec)/100;
+      (tm->tv_usec-((struct timeval*)state)->tv_usec)/10000;
     
     fwrite(buf, 1, len, f);
     fwrite("\0", 1, 1, f);
@@ -232,15 +232,15 @@ void record_nh_recorder_finish(FILE *f, void* state)
 
 
 recorder_info rec[]={
-{"baudrate",	record_baudrate_init,record_baudrate,record_baudrate_finish},
-{"ttyrec",	record_ttyrec_init,record_ttyrec,record_ttyrec_finish},
-{"nh_recorder",	record_nh_recorder_init,record_nh_recorder,record_nh_recorder_finish},
+{"ansi",".txt",record_baudrate_init,record_baudrate,record_baudrate_finish},
+{"ttyrec",".ttyrec",record_ttyrec_init,record_ttyrec,record_ttyrec_finish},
+{"nh_recorder",".nh",record_nh_recorder_init,record_nh_recorder,record_nh_recorder_finish},
 {0, 0, 0, 0},
 };
 
 player_info play[]={
-{"baudrate",	play_baudrate},
-{"ttyrec",	play_ttyrec},
-{"nh_recorder",	play_nh_recorder},
+{"baudrate",".txt",play_baudrate},
+{"ttyrec",".ttyrec",play_ttyrec},
+{"nh_recorder",".nh",play_nh_recorder},
 {0, 0},
 };

@@ -7,18 +7,11 @@
 #include "utils.h"
 #include "stream.h"
 
-typedef void(read_decompressor)(FILE *,int);
-
-void read_bz2(FILE *f, int fd);
-void read_gz(FILE *f, int fd);
-void write_bz2(FILE *f, int fd);
-void write_gz(FILE *f, int fd);
-
 #ifdef IS_WIN32
 // A fork(), a fork(), my kingdom for a fork()!
 typedef struct
 {
-    read_decompressor *decomp;
+    compress_func *decomp;
     FILE *f;
     int fd;
     HANDLE sem;
@@ -57,12 +50,11 @@ void reap_threads()
 #endif
 
 
-FILE* stream_open(char *name, char *mode)
+FILE* stream_open(FILE *f, char *name, char *mode, compress_info *comptable, int nodetach)
 {
-    FILE *f;
-    int len;
-    read_decompressor *decomp;
+    compress_func *decomp;
     int p[2];
+    compress_info *ci;
 #ifdef IS_WIN32
     SP args;
     DWORD dummy;
@@ -71,40 +63,29 @@ FILE* stream_open(char *name, char *mode)
 #endif
     int wr=*mode!='r';
     
-    f=fopen(name, mode);
     if (!f)
         return 0;
-    
-    len=strlen(name);
-#if (defined HAVE_LIBBZ2) || (defined SHIPPED_LIBBZ2)
-    if (len>4 &&
-          name[len-4]=='.' &&
-          name[len-3]=='b' &&
-          name[len-2]=='z' &&
-          name[len-1]=='2')
-        decomp=wr?write_bz2:read_bz2;
-    else
-#endif
-#if (defined HAVE_LIBZ) || (defined SHIPPED_LIBZ)
-    if (len>3 &&
-          name[len-3]=='.' &&
-          name[len-2]=='g' &&
-          name[len-1]=='z')
-        decomp=wr?write_gz:read_gz;
-    else
-#endif
-    return f;
+
+    decomp=0;
+    for(ci=comptable;ci->name;ci++)
+        if (match_suffix(name, ci->ext, 0))
+        {
+            decomp=ci->comp;
+            break;
+        }
+    if (!decomp)
+        return f;
 
 #ifdef IS_WIN32
 # ifdef __CYGWIN__
-#warning stream_in: using CygWin path
+#warning stream_open: using CygWin path
     if (pipe(p))
     {
         fclose(f);
         return 0;
     }
 # else
-#warning stream_in: using Win32-native path
+#warning stream_open: using Win32-native path
     if (!CreatePipe((PHANDLE)p, (PHANDLE)p+1, 0, 0))
     {
         fclose(f);
@@ -120,14 +101,14 @@ FILE* stream_open(char *name, char *mode)
     args.sem=sem;
     th=CreateThread(0, 0, (LPTHREAD_START_ROUTINE)StreamThreadFunc, (LPVOID)&args,
         0, &dummy);
-    if (wr)
+    if (nodetach)
         register_thread(th);
     else
         CloseHandle(th);
     WaitForSingleObject(sem, INFINITE);
     CloseHandle(sem);
 #else
-#warning stream_in: using Unix path
+#warning stream_open: using Unix path
     pipe(p);
     switch(fork())
     {

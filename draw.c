@@ -139,15 +139,19 @@ void draw_vt(HDC dc, int px, int py, vt100 *vt)
             ch++;
         }
     }
-#if 0
     x=vt->cx;
     y=vt->cy;
     if (x>=vt->sx)
         x=vt->sx-1;
-    fg.v=0x80808080;
-    bg.v=0xff000000;
-    draw_char(pic,'_',psx,psy,px+x*chx,py+y*chy,fg.p,bg.p);
-#endif
+    if (vt->opt_cursor)
+    {
+        r.left=x*chx;
+        r.top=y*chy+chy-2;
+        r.right=x*chx+chx;
+        r.bottom=y*chy+chy;
+        DrawFocusRect(dc, &r);
+    }
+/*
     r.left=chx*vt->sx;
     r.top=0;
     r.right=px;
@@ -157,6 +161,7 @@ void draw_vt(HDC dc, int px, int py, vt100 *vt)
     r.top=r.bottom;
     r.bottom=py;
     FillRect(dc, &r, bg_brush);
+*/
     SelectObject(dc, oldfont);
 }
 
@@ -197,4 +202,25 @@ void draw_init()
     default:
         bg_brush=CreateSolidBrush(bpal[0]&0xffffff);
     }
+}
+
+void draw_border(HDC dc, vt100 *vt)
+{
+    int sx,sy;
+    HPEN pen, oldpen;
+    
+    sx=vt->sx*chx;
+    sy=vt->sy*chy;
+
+    pen=CreatePen(PS_SOLID, 0, clWoodenDown);
+    oldpen=SelectObject(dc, pen);
+    MoveToEx(dc, sx, 0, 0);
+    LineTo(dc, sx, sy);
+    LineTo(dc, -1, sy);
+    pen=CreatePen(PS_SOLID, 0, clWoodenMid);
+    DeleteObject(SelectObject(dc, pen));
+    MoveToEx(dc, sx+1, 0, 0);
+    LineTo(dc, sx+1, sy+1);
+    LineTo(dc, -1, sy+1);
+    DeleteObject(SelectObject(dc, oldpen));
 }

@@ -28,6 +28,7 @@ typedef struct
     /* UTF-8 state */
     int utf;               /* UTF-8 on/off */
     ucs utf_char;
+    ucs utf_surrogate;
     int utf_count;
     /* parser state */
     int ntok;

@@ -156,6 +156,7 @@ static void set_charset(vt100 *vt, int g, char x)
 static void vt100_set_size(vt100 *vt, int nx, int ny)
 {
     // TODO: resize
+    vt100_resize(vt, nx, ny);
 }
 
 
@@ -273,6 +274,33 @@ void vt100_write(vt100 *vt, char *buf, int len)
                          */
                         if (c<0xA0)
                             c=0xFFFD;
+                        if (c==0xFFEF)	/* BOM */
+                            continue;
+                            
+                        /* The following code deals with malformed UTF-16
+                         * surrogates encoded in UTF-8 text.  While the
+                         * standard explicitely forbids this, some (usually
+                         * Windows) programs generate them, and thus we'll
+                         * better support such encapsulation anyway.
+                         * We don't go out of our way to detect unpaired
+                         * surrogates, though.
+                         */
+                        if (c>=0xD800 && c<=0xDFFF)	/* UTF-16 surrogates */
+                        {
+                            if (c<0xDC00)	/* lead surrogate */
+                            {
+                                vt->utf_surrogate=c;
+                                continue;
+                            }
+                            else		/* trailing surrogate */
+                            {
+                                c=(vt->utf_surrogate<<10)+c+
+                                    (0x10000 - (0xD800 << 10) - 0xDC00);
+                                vt->utf_surrogate=0;
+                                if (c<0x10000)	/* malformed pair */
+                                    continue;
+                            }
+                        }
                     }
                     else
                     {
@@ -484,7 +512,7 @@ void vt100_write(vt100 *vt, char *buf, int len)
                 vt->state=0;
                 break;
                 
-            case 'C':	/* ESC[C -> move cursor right */
+            case 'C':	case 'a':	/* ESC[C -> move cursor right */
                 i=vt->tok[0];
                 if (i<1)
                     i=1;
@@ -578,6 +606,24 @@ void vt100_write(vt100 *vt, char *buf, int len)
                     CX=0;
                 else if (CX>=SX)
                     CX=SX-1;
+                vt->state=0;
+                break;
+            
+            case 'G': case '`':	/* ESC[G, ESC[` -> move cursor horizontally */
+                CX=vt->tok[0]-1;
+                if (CX<0)
+                    CX=0;
+                else if (CX>=SX)
+                    CX=SX-1;
+                vt->state=0;
+                break;
+            
+            case 'd':	/* ESC[d -> move cursor vertically */
+                CY=vt->tok[0]-1;
+                if (CY<0)
+                    CY=0;
+                else if (CY>=SY)
+                    CY=SY-1;
                 vt->state=0;
                 break;
             

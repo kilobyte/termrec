@@ -12,3 +12,9 @@ void timeline_unlock();
 
 void timeline_init();
 void timeline_clear();
+void replay_pause();
+void replay_resume();
+void replay_seek();
+int replay_play(struct timeval *delay);
+extern struct timeval tr;
+int defsx, defsy;

@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(termplay, 0.01, [kilobyte@mimuw.edu.pl])
+AC_INIT(termrec, 0.10, [kilobyte@angband.pl])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([formats.c])
 AC_CONFIG_HEADER([config.h])
@@ -15,13 +15,15 @@ AC_PROG_CC
 AC_CHECK_WIN32
 AC_CHECK_TOOL(WINDRES, windres, :)
 AM_CONDITIONAL(WIN32, test x$ac_cv_is_win32 = xyes)
+AC_LIB_WINSOCK2
 
 # Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_TIOCGWINSZ
 AC_CREATE_STDINT_H
 AC_HEADER_TIME
-AC_CHECK_HEADERS([fcntl.h stdlib.h string.h strings.h sys/ioctl.h termios.h unistd.h bzlib.h zlib.h sys/time.h])
+AC_CHECK_HEADERS([fcntl.h stdlib.h string.h strings.h sys/ioctl.h termios.h unistd.h bzlib.h zlib.h sys/time.h getopt.h])
+AC_CHECK_DECLS([O_BINARY], , , [#include <fcntl.h>])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -34,7 +36,7 @@ AC_PTYRANGES
 ACX_PTHREAD
 
 # Checks for library functions.
-AC_CHECK_FUNCS([getpt ptsname snprintf vsnprintf _getpty grantpt forkpty asprintf gettimeofday usleep ctime_r])
+AC_CHECK_FUNCS([getpt ptsname snprintf vsnprintf _getpty grantpt forkpty asprintf gettimeofday usleep ctime_r getopt_long])
 AC_CHECK_LIB([bz2], [BZ2_bzBuffToBuffCompress], , [
   AC_SHIPPED_LIB(LIBBZ2, libbz2.a, bzlib.h, [BZ2_bzRead(0,0,0,0)])])
 AC_SUBST([LIBBZ2])

@@ -75,3 +75,15 @@ int message_loop(HANDLE* lphObjects, int cObjects)
         }
     }
 }
+
+void error(const char *txt, ...)
+{
+    va_list ap;
+    char buf[1024];
+
+    va_start(ap, txt);
+    vsnprintf(buf, 1024, txt, ap);
+    MessageBox(0, buf, "TermRec", MB_ICONERROR);
+    exit(1);
+    va_end(ap); /* make ugly compilers happy */
+}

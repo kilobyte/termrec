@@ -7,10 +7,9 @@
 #include "utils.h"
 #include "formats.h"
 #include "stream.h"
+#include "name_out.h"
 
-//#define EVDEBUG
-#define OUTFILE "out.ttyrec.bz2"
-
+#define EVDEBUG
 
 FILE *record_f;
 void* record_state;
@@ -32,7 +31,6 @@ short vtrec_attr;
 typedef CHAR_INFO SCREEN[0x10000]; // the SDK says we can't even think of bigger consoles
 SCREEN cscr;
 char vtrec_buf[0x10000], *vb;
-int codec;
 
 
 
@@ -59,7 +57,7 @@ void vtrec_printf(const char *fmt, ...)
 // FIXME: make it damn sure we don't have any buffer overflows
 
 
-void vtrec_utf8(unsigned short uv)
+static inline void vtrec_utf8(unsigned short uv)
 {	// Larry Wall style.  The similarities in formatting are, uhm,
         // purely accidental.
     if (uv<0x80)
@@ -150,7 +148,7 @@ static inline void vtrec_outchar(CHAR_INFO c)
 void vtrec_char(int x, int y, CHAR_INFO c)
 {
 #ifdef EVDEBUG
-    if (x<0 || x>=80 || y<0 || y>=25)
+    if (x<0 || x>=vtrec_cols || y<0 || y>=vtrec_rows)
         fprintf(evlog, "Out of bounds: %d,%d\n", x, y);
 #endif
     if (x!=vtrec_cx || y!=vtrec_cy)
@@ -222,6 +220,8 @@ void vtrec_dump(int full)
     }
     if (vtrec_rows*vtrec_cols>0x10000)
         return;
+    vtrec_wx=cbi.dwCursorPosition.X-vtrec_x1;
+    vtrec_wy=cbi.dwCursorPosition.Y-vtrec_y1;
 #ifdef EVDEBUG
     fprintf(evlog, "===dump%s===\n", full?" (full)":"");
 #endif
@@ -356,6 +356,8 @@ void vtrec_scroll(int d)
     vtrec_y1=cbi.srWindow.Top;
     vtrec_x2=cbi.srWindow.Right;
     vtrec_y2=cbi.srWindow.Bottom;
+    vtrec_wx=cbi.dwCursorPosition.X-vtrec_x1;
+    vtrec_wy=cbi.dwCursorPosition.Y-vtrec_y1;
     vtrec_realize_cursor();
     vtrec_commit();
 }
@@ -514,7 +516,7 @@ int check_console()
     printf("termrec version " PACKAGE_VERSION "\n"
            "Recording through %s to %s.\n"
            "Console size: %dx%d.\n",
-        rec[codec].name, OUTFILE,
+        rec[codec].name, record_name,
         cbi.srWindow.Right-cbi.srWindow.Left+1,
         cbi.srWindow.Bottom-cbi.srWindow.Top+1);
     return 1;
@@ -581,9 +583,17 @@ void spawn_process()
     memset(&si, 0, sizeof(si));
     si.cb=sizeof(STARTUPINFO);
     memset(&pi, 0, sizeof(pi));
-#define CRAP getenv("comspec")
-    printf("Trying to spawn [%s]\n", CRAP);
-    if (!CreateProcess(CRAP, "",
+
+    if (!command)
+        command=getenv("COMSPEC");
+    if (!command)
+    {
+        fprintf(stderr, "No command given and no COMSPEC set, aborting.\n");
+        finish_up();
+        exit(1);
+    }
+    printf("Trying to spawn [%s]\n", command);
+    if (!CreateProcess(0, command,
           0, 0, 0,
           CREATE_DEFAULT_ERROR_MODE,
           0, 0, &si, &pi))
@@ -597,21 +607,21 @@ void spawn_process()
 }
 
 
-int main()
+int main(int argc, char **argv)
 {
     struct timeval tv;
-    
+
 #ifdef EVDEBUG
     evlog=fopen("evlog", "w");
 #endif
-    record_f=stream_open(OUTFILE, "wb");
+    get_parms(argc, argv, 0);
+    record_f=fopen_out(&record_name, 1);
     if (!record_f)
     {
-        fprintf(stderr, "Can't open %s\n", OUTFILE);
+        fprintf(stderr, "Can't open %s\n", record_name);
         return 1;
     }
     utf8=1;
-    codec=1;
 
     if (!check_console())
         if (!create_console() || !check_console())

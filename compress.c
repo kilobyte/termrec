@@ -17,6 +17,7 @@
 #  include "lib/zlib.h"
 # endif
 #endif
+#include "stream.h"
 
 #define ERRORMSG(x) write(fd,(x),strlen(x))
 
@@ -33,7 +34,7 @@ void read_bz2(FILE *f, int fd)
     b = BZ2_bzReadOpen ( &bzerror, f, 0, 0, NULL, 0 );
     if (bzerror != BZ_OK) {
        BZ2_bzReadClose ( &bzerror, b );
-       /* handle error */
+       /* error */
        ERRORMSG("Invalid .bz2 file.\n");
        return;
     }
@@ -46,7 +47,7 @@ void read_bz2(FILE *f, int fd)
     }
     if (bzerror != BZ_STREAM_END) {
        BZ2_bzReadClose ( &bzerror, b );
-       /* handle error */
+       /* error */
        ERRORMSG("\e[0mbzip2: Error during decompression.\n");
     } else {
        BZ2_bzReadClose ( &bzerror, b );
@@ -63,8 +64,8 @@ void write_bz2(FILE *f, int fd)
     b = BZ2_bzWriteOpen ( &bzerror, f, 9, 0, 0 );
     if (bzerror != BZ_OK) {
        BZ2_bzWriteClose ( &bzerror, b, 0,0,0 );
-       /* handle error */
-       // the writer will get smited with sigpipe
+       /* error */
+       /* the writer will get smitten with sigpipe */
        return;
     }
 
@@ -129,3 +130,23 @@ void write_gz(FILE *f, int fd)
     gzclose(g);
 }
 #endif
+
+compress_info compressors[]={
+#if (defined HAVE_LIBZ) || (SHIPPED_LIBZ)
+{"gzip",	".gz",	write_gz},
+#endif
+#if (defined HAVE_LIBBZ2) || (defined SHIPPED_LIBBZ2)
+{"bzip2",	".bz2",	write_bz2},
+#endif
+{0, 0, 0},
+};
+
+compress_info decompressors[]={
+#if (defined HAVE_LIBZ) || (SHIPPED_LIBZ)
+{"gzip",	".gz",	read_gz},
+#endif
+#if (defined HAVE_LIBBZ2) || (defined SHIPPED_LIBBZ2)
+{"bzip2",	".bz2",	read_bz2},
+#endif
+{0, 0, 0},
+};
