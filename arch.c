@@ -4,16 +4,19 @@
 #ifdef WIN32
 
 static DWORD tm;
+int speed;
+HANDLE pth;
 
-void init_wait()
+void synch_init_wait()
 {
     tm=GetTickCount();
 }
 
-void timed_wait(struct timeval *tv)
+void synch_wait(struct timeval *tv)
 {
     DWORD tn,tw;
-    
+
+    // FIXME: round-up errors    
     tn=tm;
     tm=GetTickCount();
     tn=tm-tn;
@@ -24,9 +27,39 @@ void timed_wait(struct timeval *tv)
 */
     if (tw>5000)
         tw=5000;	// FIXME
-    if (tn<tw)
-        Sleep(tw-tn);
+    tw-=tn;
+    tn=speed;
+    if (tn)
+        tw=(tw>0)?tw*1000/tn:0;
+    else
+        tw=INFINITE;
+    if (WaitForSingleObject(changes, tw)==WAIT_OBJECT_0)
+    {
+        if (cancel)
+            ExitThread(0);
+        ReleaseMutex(changes);
+    }
     tm=GetTickCount();
 }
 
+void synch_speed(int sp)
+{
+    speed=sp;
+    ReleaseMutex(changes);
+    WaitForSingleObject(changes, INFINITE);
+}
+
+void synch_seek(size_t where)
+{
+    cancel=1;
+    ReleaseMutex(changes);
+    WaitForSingleObject(changes, INFINITE);
+}
+
+LPTHREAD_START_ROUTINE playfile();
+
+void synch_start(size_t where, int arg)
+{
+    pth=CreateThread(0, 0, (LPTHREAD_START_ROUTINE)playfile, 0, 0, (LPDWORD)arg);
+}
 #endif

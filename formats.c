@@ -14,7 +14,7 @@ void play_baudrate()
     size_t b;
     struct timeval tv;
     
-    init_wait();
+    synch_init_wait();
     
     tv.tv_sec=0;
     tv.tv_usec=200000;
@@ -24,7 +24,7 @@ void play_baudrate()
         vt100_write(&vt, buf, b);
         VT100_UNLOCK;
         
-        timed_wait(&tv);
+        synch_wait(&tv);
     }
 }
 
@@ -66,7 +66,7 @@ void play_ttyrec()
         {
             tv.tv_sec=to_little_endian(head.sec);
             tv.tv_usec=to_little_endian(head.usec);
-            init_wait();
+            synch_init_wait();
             first=0;
         }
         else
@@ -80,7 +80,7 @@ void play_ttyrec()
                 tl.tv_usec+=1000000;
                 tl.tv_sec--;
             }
-            timed_wait(&tl);
+            synch_wait(&tl);
             
             while(w>0)
             {
@@ -138,11 +138,10 @@ void play_nh_recorder()
                 {
                     tp=t;
                     t=to_little_endian(*(uint32*)(buf+i+1));
-                    printf("Timestamp: %u\n", t);
                     i0=i+=4;
                     tv.tv_sec=(t-tp)/100;
                     tv.tv_usec=(t-tp)%100*10000;
-                    timed_wait(&tv);
+                    synch_wait(&tv);
                 }
             }
         if (i0<i)

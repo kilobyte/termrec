@@ -1,4 +1,4 @@
-#define VT100_DEBUG
+//#define VT100_DEBUG
 
 typedef unsigned int ucs;
 

@@ -13,6 +13,13 @@ struct timeval {
 #define VT100_UNLOCK	LeaveCriticalSection(&vt_mutex)
 extern CRITICAL_SECTION vt_mutex;
 
+/*In Win32 we can't simply cancel a thread, so we have to use
+  a mutex.
+*/
+extern HANDLE changes;
+extern int cancel;
+extern HANDLE pth;
+
 #else
 /* Unix */
 
@@ -32,5 +39,7 @@ extern CRITICAL_SECTION vt_mutex;
 # define to_little_endian(x) (x)
 #endif
 
-void init_wait();
-void timed_wait(struct timeval *tv);
+void synch_init_wait();
+void synch_wait(struct timeval *tv);
+void synch_speed(int sp);
+void synch_start(size_t where, int arg);

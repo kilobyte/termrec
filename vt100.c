@@ -599,11 +599,11 @@ void vt100_write(vt100 *vt, char *buf, int len)
                     case 25:
                         vt->opt_cursor=1;
                         break;
-                    default:
 #ifdef VT100_DEBUG
+                    default:
                         printf("Unknown option: ?%u\n", vt->tok[i]);
 #endif
-		    }
+                        }
                 vt->state=0;
                 break;
                 
@@ -617,8 +617,8 @@ void vt100_write(vt100 *vt, char *buf, int len)
                     case 25:
                         vt->opt_cursor=0;
                         break;
-                    default:
 #ifdef VT100_DEBUG
+                    default:
                         printf("Unknown option: ?%u\n", vt->tok[i]);
 #endif
 		    }

@@ -186,7 +186,7 @@ void draw_init()
     und_font=CreateFontIndirect(&lf);
     
     ReleaseDC(0, dc);
-/*    
+
     switch(bpal[0]&0xffffff)
     {
     case 0x000000:
@@ -198,6 +198,4 @@ void draw_init()
     default:
         bg_brush=CreateSolidBrush(bpal[0]&0xffffff);
     }
-*/
-    bg_brush=CreateSolidBrush(0x101010);
 }
