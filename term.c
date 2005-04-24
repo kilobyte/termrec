@@ -239,6 +239,7 @@ int create_toolbar(HWND wnd)
     tbb[3].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab); 
     tbb[3].idCommand = 102;
     tbb[3].fsState = 0; 
+    tbb[3].fsState = TBSTATE_ENABLED; 
     tbb[3].fsStyle = TBSTYLE_CHECK;
     tbb[3].dwData = 0; 
     tbb[3].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"Pause");
@@ -247,6 +248,7 @@ int create_toolbar(HWND wnd)
     tbb[4].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab); 
     tbb[4].idCommand = 103;
     tbb[4].fsState = 0; 
+    tbb[4].fsState = TBSTATE_ENABLED; 
     tbb[4].fsStyle = TBSTYLE_CHECK; 
     tbb[4].dwData = 0; 
     tbb[4].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"Play");
@@ -720,6 +722,58 @@ void constrain_size(RECT *r)
 }
 
 
+void testf(int t, char *name, int s)
+{
+    char buf[10];
+    short def[256];
+    FILE *f;
+    int x,y;
+    LOGFONT lf;
+    HFONT oldfont,norm_font;
+    HDC dc;
+    RECT r;
+
+    r.top=0;
+    r.left=0;
+    r.right=1000;
+    r.bottom=1000;
+    dc=GetDC(termwnd);
+    if (!s)
+        FillRect(dc, &r, GetStockObject(LTGRAY_BRUSH));
+    SetTextColor(dc, s?0x000000:0xbb7700);
+
+    memset(&lf,0,sizeof(LOGFONT));
+    lf.lfHeight=32;
+    strcpy(lf.lfFaceName, name);
+    lf.lfQuality=ANTIALIASED_QUALITY;
+    lf.lfOutPrecision=OUT_TT_ONLY_PRECIS;
+    norm_font=CreateFontIndirect(&lf);
+    oldfont=SelectObject(dc, norm_font);
+    
+    sprintf(buf, "iso%d", t);
+    printf("Doing [%s]\n", buf);
+    f=fopen(buf, "rb");
+    fread(def, 2, 256, f);
+    fclose(f);
+//    for(x=0;x<256;x++)
+//        def[x]=x;
+    printf("Loaded.\n");
+    for(x=0;x<16;x++)
+        for(y=2;y<16;y++)
+            TextOutW(dc, x*32+16*s, (y-2)*32, &def[(y-2)*16+x], 1);
+    printf("Drawn.\n");
+    DeleteObject(SelectObject(dc, oldfont));
+    ReleaseDC(termwnd, dc);
+    printf("Exit.\n");
+//    sleep(10000000);
+}
+
+void test(int t)
+{
+    testf(t, "Bitstream Vera Serif", 0);
+    testf(t, "Antykwa Poltawskiego", 1);
+}
+
 LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg) {
@@ -762,20 +816,10 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 do_replay();
                 break;
             case 102:
-                if (play_state==1)
-                    goto but_unpause;
-            but_pause:
-                CancelWaitableTimer(timer);
-                replay_pause();
-                set_buttons(1);
+                test(1);
                 break;
             case 103:
-                if (play_state>1)
-                    goto but_pause;
-            but_unpause:
-                replay_resume();
-                do_replay();
-                set_buttons(1);
+                test(2);
                 break;
             }
             return 0;
@@ -816,12 +860,10 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     break;
                 case 0:
                     play_state=2;
-                    goto but_rewind;
                 case 1:
-                    goto but_unpause;
                 case 2:
                 case 3:
-                    goto but_pause;
+                    ;
                 }
                 break;
             case 'R':
