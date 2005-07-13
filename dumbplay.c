@@ -39,8 +39,9 @@ void synch_wait(struct timeval *tv)
         gettimeofday(&tc, 0);
         
         fds=1;
-        select(1, (fd_set*)&fds, 0, 0, tv);
-        if (fds)
+//      select(/*1*/0, (fd_set*)&fds, 0, 0, tv);
+        select(0, 0, 0, 0, tv);
+        if (/*fds*/0)
         {
             if (read(0, &k, 1)>0)
                 switch(k)
@@ -60,7 +61,7 @@ void synch_wait(struct timeval *tv)
                     exit(0);
                 }
         }
-    }while(fds);
+    }while(/*fds*/0);
 }
 
 void synch_print(char *buf, int len)

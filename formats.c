@@ -295,11 +295,24 @@ void record_nh_recorder_finish(FILE *f, void* state)
     free(state);
 }
 
+void* record_null_init(FILE *f, struct timeval *tm)
+{
+}
+
+void record_null(FILE *f, void* state, struct timeval *tm, char *buf, int len)
+{
+}
+
+void record_null_finish(FILE *f, void* state)
+{
+}
+
 
 recorder_info rec[]={
 {"ansi",".txt",record_baudrate_init,record_baudrate,record_baudrate_finish},
 {"ttyrec",".ttyrec",record_ttyrec_init,record_ttyrec,record_ttyrec_finish},
 {"nh_recorder",".nh",record_nh_recorder_init,record_nh_recorder,record_nh_recorder_finish},
+{"null",0,record_null_init,record_null,record_null_finish},
 {0, 0, 0, 0},
 };
 

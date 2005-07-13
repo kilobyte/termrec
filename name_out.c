@@ -23,13 +23,13 @@ int codec_from_ext_rec(char *name)
 
     len=0;
     for (i=0;compressors[i].name;i++)
-        if (match_suffix(name, compressors[i].ext, 0))
+        if (compressors[i].ext && match_suffix(name, compressors[i].ext, 0))
         {
             len=strlen(compressors[i].ext);
             break;
         }
     for (i=0;rec[i].name;i++)
-        if (match_suffix(name, rec[i].ext, len))
+        if (rec[i].ext && match_suffix(name, rec[i].ext, len))
             return i;
     return -1;
 }
