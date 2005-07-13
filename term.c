@@ -121,7 +121,7 @@ HWND create_term(HWND wnd)
     rect.top=0;
     rect.right=chx*80+TERMBORDER;
     rect.bottom=chy*25+TERMBORDER;
-    AdjustWindowRect(&rect, WS_CHILD|WS_BORDER, 0);
+    AdjustWindowRect(&rect, WS_CHILD|WS_BORDER|WS_TABSTOP, 0);
     termwnd = CreateWindow(
         "Term", 0,
         WS_CHILD|WS_CLIPSIBLINGS|WS_VISIBLE,
@@ -192,7 +192,7 @@ int get_button_state(int id)
 int create_toolbar(HWND wnd)
 {
     int height;
-    TBBUTTON tbb[6];
+    TBBUTTON tbb[9];
     TBADDBITMAP tab;
     RECT rc;
     LOGFONT lf;
@@ -222,7 +222,7 @@ int create_toolbar(HWND wnd)
     tbb[0].dwData = 0; 
     tbb[0].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"Open");
     
-    tbb[1].iBitmap = 220; 
+    tbb[1].iBitmap = 175;
     tbb[1].fsState = 0; 
     tbb[1].fsStyle = TBSTYLE_SEP;
     tbb[1].dwData = 0;
@@ -251,10 +251,34 @@ int create_toolbar(HWND wnd)
     tbb[4].dwData = 0; 
     tbb[4].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"Play");
     
-    tbb[5].iBitmap = 250; 
+    tbb[5].iBitmap = 150;
     tbb[5].fsState = 0; 
     tbb[5].fsStyle = TBSTYLE_SEP;
     tbb[5].dwData = 0;
+    
+    tab.nID=104;
+    tbb[6].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab); 
+    tbb[6].idCommand = 104;
+    tbb[6].fsState = 0; 
+    tbb[6].fsStyle = 0; 
+    tbb[6].dwData = 0; 
+    tbb[6].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"SelStart");
+    
+    tab.nID=105;
+    tbb[7].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab); 
+    tbb[7].idCommand = 105;
+    tbb[7].fsState = 0; 
+    tbb[7].fsStyle = 0; 
+    tbb[7].dwData = 0; 
+    tbb[7].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"SelEnd");
+    
+    tab.nID=106;
+    tbb[8].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab); 
+    tbb[8].idCommand = 106;
+    tbb[8].fsState = 0; 
+    tbb[8].fsStyle = 0; 
+    tbb[8].dwData = 0; 
+    tbb[8].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"Export");
 
     SendMessage(wndTB, TB_ADDBUTTONS, (WPARAM) ARRAYSIZE(tbb),
          (LPARAM) (LPTBBUTTON) &tbb);
@@ -265,14 +289,14 @@ int create_toolbar(HWND wnd)
     
     // The progress bar.
     
-    SendMessage(wndTB, TB_GETITEMRECT, 1, (LPARAM)&rc);
+    SendMessage(wndTB, TB_GETITEMRECT, 5, (LPARAM)&rc);
     
     wndProg = CreateWindowEx( 
         0,                             // no extended styles 
         TRACKBAR_CLASS,                // class name 
         "Progress",            // title (caption) 
         WS_CHILD | WS_VISIBLE | WS_DISABLED |
-        TBS_NOTICKS,  // style 
+        TBS_NOTICKS | TBS_ENABLESELRANGE,  // style 
         rc.left+5, rc.top+5, 
         rc.right-rc.left-10, rc.bottom-rc.top-10,
         wnd,                       // parent window 
@@ -287,7 +311,7 @@ int create_toolbar(HWND wnd)
     SetParent(wndProg, wndTB);
     
     
-    SendMessage(wndTB, TB_GETITEMRECT, 5, (LPARAM)&rc);    
+    SendMessage(wndTB, TB_GETITEMRECT, 1, (LPARAM)&rc);    
     ssSpeed = CreateWindowEx(0,
         "STATIC",
         "Speed: x1",
@@ -347,6 +371,9 @@ void set_toolbar_state(int onoff)
     SendMessage(wndTB, TB_ENABLEBUTTON, 103, onoff);
     EnableWindow(wndSpeed, onoff);
     EnableWindow(ssSpeed, onoff);
+    SendMessage(wndTB, TB_ENABLEBUTTON, 104, onoff);
+    SendMessage(wndTB, TB_ENABLEBUTTON, 105, onoff);
+    SendMessage(wndTB, TB_ENABLEBUTTON, 106, onoff);
 }
 
 
@@ -362,8 +389,11 @@ void set_buttons(int force)
 void set_prog_max()
 {
     SendMessage(wndProg, TBM_SETRANGEMAX, 0, (LPARAM)progmax);
+    SendMessage(wndProg, TBM_SETRANGEMAX, 0, (LPARAM)100);
+    SendMessage(wndProg, TBM_SETSEL, 0, (LPARAM)MAKELONG(20,40));
     EnableWindow(wndProg, 1);
 }
+
 
 void set_prog()
 {
@@ -372,8 +402,27 @@ void set_prog()
     if (t!=progval)
     {
         progval=t;
-        SendMessage(wndProg, TBM_SETPOS, 1, (LPARAM)t);
+//        SendMessage(wndProg, TBM_SETPOS, 1, (LPARAM)t);
     }
+}
+
+
+void get_pos()
+{
+    if (play_state==2)
+    {
+        gettimeofday(&tr, 0);
+        tsub(&tr, &t0);
+        tmul(&tr, speed);
+    }
+}
+
+
+void set_prog_sel(int end)
+{
+    int t=tr.tv_sec*(1000000/progdiv)+tr.tv_usec/progdiv;
+    
+    SendMessage(wndProg, end?TBM_SETSELEND:TBM_SETSELSTART, 1, (LPARAM)t);
 }
 
 
@@ -777,6 +826,17 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 do_replay();
                 set_buttons(1);
                 break;
+            case 104:
+                if (play_state==-1)
+                    break;
+                get_pos();
+                set_prog_sel(0);
+                break;
+            case 105:
+                if (play_state==-1)
+                    break;
+                set_prog_sel(1);
+                break;
             }
             return 0;
         
@@ -864,6 +924,10 @@ LRESULT APIENTRY TermWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     switch (uMsg) {
         case WM_PAINT:
             paint(hwnd);
+            return 0;
+        
+        case WM_LBUTTONDOWN:
+            SetFocus(wnd);
             return 0;
         
         default:
