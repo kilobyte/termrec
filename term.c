@@ -13,6 +13,7 @@
 #include "formats.h"
 #include "timeline.h"
 #include "synch.h"
+#include "name.h"
 
 #undef THREADED
 
@@ -25,7 +26,7 @@ int speed;
 fpos_t lastp;
 int codec;
 int play_state;	// 0: not loaded, 1: paused, 2: playing, 3: waiting for input
-struct timeval t0,tmax;
+struct timeval t0,tmax,selstart,selend;
 int progmax,progdiv,progval;
 
 vt100 vt;
@@ -33,7 +34,7 @@ FILE *play_f;
 HANDLE tev_sem, pth_sem;
 CRITICAL_SECTION vt_mutex;
 
-extern struct tty_event *tev_tail;	// FIXME: don't use tev_tail
+extern struct tty_event tev_head,*tev_tail;	// FIXME: don't use tev_tail nor tev_head
 extern int tev_done;
 HANDLE timer;
 int button_state;
@@ -296,7 +297,7 @@ int create_toolbar(HWND wnd)
         TRACKBAR_CLASS,                // class name 
         "Progress",            // title (caption) 
         WS_CHILD | WS_VISIBLE | WS_DISABLED |
-        TBS_NOTICKS | TBS_ENABLESELRANGE,  // style 
+        TBS_NOTICKS | TBS_ENABLESELRANGE | TBS_FIXEDLENGTH,  // style 
         rc.left+5, rc.top+5, 
         rc.right-rc.left-10, rc.bottom-rc.top-10,
         wnd,                       // parent window 
@@ -388,9 +389,9 @@ void set_buttons(int force)
 
 void set_prog_max()
 {
+    EnableWindow(wndProg, 0);
+    SendMessage(wndProg, TBM_CLEARSEL, 0, 0);
     SendMessage(wndProg, TBM_SETRANGEMAX, 0, (LPARAM)progmax);
-    SendMessage(wndProg, TBM_SETRANGEMAX, 0, (LPARAM)100);
-    SendMessage(wndProg, TBM_SETSEL, 0, (LPARAM)MAKELONG(20,40));
     EnableWindow(wndProg, 1);
 }
 
@@ -402,7 +403,7 @@ void set_prog()
     if (t!=progval)
     {
         progval=t;
-//        SendMessage(wndProg, TBM_SETPOS, 1, (LPARAM)t);
+        SendMessage(wndProg, TBM_SETPOS, 1, (LPARAM)t);
     }
 }
 
@@ -418,11 +419,12 @@ void get_pos()
 }
 
 
-void set_prog_sel(int end)
+void set_prog_sel()
 {
-    int t=tr.tv_sec*(1000000/progdiv)+tr.tv_usec/progdiv;
+    int t1=selstart.tv_sec*(1000000/progdiv)+selstart.tv_usec/progdiv;
+    int t2=selend.tv_sec*(1000000/progdiv)+selend.tv_usec/progdiv;
     
-    SendMessage(wndProg, end?TBM_SETSELEND:TBM_SETSELSTART, 1, (LPARAM)t);
+    SendMessage(wndProg, TBM_SETSEL, 1, (LPARAM)MAKELONG(t1,t2));
 }
 
 
@@ -496,6 +498,8 @@ void replay_start(int arg)
         progdiv=10000;
     else
         progdiv=1000000;
+    selstart=tev_head.t;
+    selend=tmax;
     progmax=tmax.tv_sec*(1000000/progdiv)+tmax.tv_usec/progdiv;
     set_prog_max();
     set_prog();
@@ -769,6 +773,53 @@ void constrain_size(RECT *r)
 }
 
 
+void export_file()
+{
+    char fn[MAXFILENAME],errmsg[MAXFILENAME+20];
+    OPENFILENAME dlg;
+    FILE* record_f;
+    int codec;
+    
+        {
+            char txt[100];
+            sprintf(txt, "start=%d end=%d",
+                   (int)SendMessage(wndProg, TBM_GETSELSTART, 0,0),
+                   (int)SendMessage(wndProg, TBM_GETSELEND, 0,0));
+            MessageBox(wnd, txt, "end=", 0);
+        }
+    memset(&dlg, 0, sizeof(dlg));
+    dlg.lStructSize=sizeof(dlg);
+    dlg.hwndOwner=wnd;
+    dlg.lpstrFilter=
+                    "ttyrec videos (*.ttyrec, *.ttyrec.gz, *.ttyrec.bz2)\000*.ttyrec;*.ttyrec.gz;*.ttyrec.bz2\000"
+                    "nh-recorder videos (*.nh, *.nh.gz, *.nh.bz2)\000*.nh;*.nh.gz;*.nh.bz2\000"
+                    "ANSI logs (*.txt, *.txt.gz, *.txt.bz2)\000*.txt;*.txt.gz;*.txt.bz2\000"
+                    "all files\000*\000"
+                    "\000\000";
+    dlg.nFilterIndex=1;
+    dlg.lpstrFile=fn;
+    dlg.nMaxFile=MAXFILENAME;
+    dlg.Flags=OFN_NOREADONLYRETURN|OFN_LONGNAMES|OFN_NOREADONLYRETURN;
+    dlg.lpstrDefExt="ttyrec.bz2";
+    *fn=0;
+    
+    if (!GetSaveFileName(&dlg))
+        return;
+    
+    codec=codec_from_ext_rec(fn);
+    if (codec==-1)
+        codec=0;	// default to ANSI here
+    if (!(record_f=fopen(fn, "wb")))
+    {
+        sprintf(errmsg, "Can't write to %s", fn);
+        MessageBox(wnd, errmsg, "Write error", MB_ICONERROR);
+    }
+    record_f=stream_open(record_f, fn, "wb", compressors, 1);
+    replay_export(record_f, codec, &selstart, &selend);
+    reap_threads();
+}
+
+
 LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg) {
@@ -830,12 +881,19 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 if (play_state==-1)
                     break;
                 get_pos();
-                set_prog_sel(0);
+                selstart=tr;
+                set_prog_sel();
                 break;
             case 105:
                 if (play_state==-1)
                     break;
-                set_prog_sel(1);
+                selend=tr;
+                set_prog_sel();
+                break;
+            case 106:
+                if (play_state==-1)
+                    break;
+                export_file();
                 break;
             }
             return 0;

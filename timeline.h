@@ -18,3 +18,4 @@ void replay_seek();
 int replay_play(struct timeval *delay);
 extern struct timeval tr;
 int defsx, defsy;
+void replay_export(FILE *record_f, int codec, struct timeval *selstart, struct timeval *selend);

@@ -1,11 +1,11 @@
 For the Unix port (that is, the parts that are done), do:
     + apt-get install libz-dev libbz2-dev
-       Or equivalent.  If you skip this step, the .gz/.bz2 support will
-       simply be skipped.
+       Or equivalent.  If you skip this step, the .gz/.bz2 support won't
+       get compiled in.
     + ./configure
     + make
 
-At this moment, only the Win32 version is working.
+At this moment, only the Win32 version is fully working.
 To compile it, you need a way to run the GNU configure.  It can be done by:
 
 * getting MinGW and MSYS

@@ -1,5 +1,5 @@
 0	ICON	termplay.ico
-1	24	termplay.manifest
+//1	24	termplay.manifest
 100	BITMAP	open.bmp
 101	BITMAP	rewind.bmp
 102	BITMAP	pause.bmp

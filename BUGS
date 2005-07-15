@@ -18,3 +18,6 @@
 * docs: no manpages
 
 * docs: no README
+
+* replay_export(): should record UTF-8ness and add an option to dump the
+  initial screen

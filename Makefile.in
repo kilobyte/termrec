@@ -75,17 +75,16 @@ am__termplay_SOURCES_DIST = dumbplay.c name_in.c term.c draw.c \
 @WIN32_TRUE@	timeline.$(OBJEXT) vt100.$(OBJEXT) \
 @WIN32_TRUE@	name_in.$(OBJEXT)
 termplay_OBJECTS = $(am_termplay_OBJECTS)
-@WIN32_FALSE@termplay_DEPENDENCIES = stream.o compress.o formats.o \
-@WIN32_FALSE@	no_record.o utils.o
-@WIN32_TRUE@termplay_DEPENDENCIES = stream.o compress.o formats.o \
-@WIN32_TRUE@	no_record.o utils.o termplay.coff
+@WIN32_TRUE@am__DEPENDENCIES_2 = termplay.coff
+termplay_DEPENDENCIES = stream.o compress.o formats.o name_out.o \
+	utils.o $(am__DEPENDENCIES_2)
 am__termrec_SOURCES_DIST = ttyr.c pty.c winrec.c
 @WIN32_FALSE@am_termrec_OBJECTS = ttyr.$(OBJEXT) pty.$(OBJEXT)
 @WIN32_TRUE@am_termrec_OBJECTS = winrec.$(OBJEXT)
 termrec_OBJECTS = $(am_termrec_OBJECTS)
-@WIN32_TRUE@am__DEPENDENCIES_2 = termrec.coff
+@WIN32_TRUE@am__DEPENDENCIES_3 = termrec.coff
 termrec_DEPENDENCIES = stream.o compress.o formats.o no_play.o \
-	name_out.o utils.o $(am__DEPENDENCIES_2)
+	name_out.o utils.o $(am__DEPENDENCIES_3)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I.
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -201,14 +200,14 @@ target_alias = @target_alias@
 AM_CFLAGS = -Wall
 @WIN32_FALSE@termplay_SOURCES = dumbplay.c name_in.c
 @WIN32_TRUE@termplay_SOURCES = term.c draw.c timeline.c timeline.h draw.h vt100.c name_in.c
-@WIN32_FALSE@termplay_LDADD = stream.o compress.o formats.o no_record.o utils.o
-@WIN32_TRUE@termplay_LDADD = stream.o compress.o formats.o no_record.o utils.o -lcomdlg32 -lcomctl32 -lgdi32 termplay.coff @LIBBZ2@ @LIBZ@
+@WIN32_TRUE@termplay_LDADD_ARCH = -lcomdlg32 -lcomctl32 -lgdi32 termplay.coff
 @WIN32_TRUE@termplay_LDFLAGS = -Xlinker --subsystem -Xlinker windows
 @WIN32_FALSE@termrec_SOURCES = ttyr.c pty.c
 @WIN32_TRUE@termrec_SOURCES = winrec.c
 @WIN32_TRUE@termrec_LDADD_ARCH = termrec.coff
 @WIN32_TRUE@proxyrec_LDADD_ARCH = proxyrec.coff
 @WIN32_TRUE@proxyrec_LDFLAGS_ARCH = -Xlinker --subsystem -Xlinker windows
+termplay_LDADD = stream.o compress.o formats.o name_out.o utils.o ${termplay_LDADD_ARCH} @LIBBZ2@ @LIBZ@
 termrec_LDADD = stream.o compress.o formats.o no_play.o name_out.o utils.o ${termrec_LDADD_ARCH} @LIBBZ2@ @LIBZ@
 proxyrec_SOURCES = proxy.c
 proxyrec_LDADD = no_play.o formats.o utils.o stream.o compress.o ${proxyrec_LDADD_ARCH} name_out.o @LIBBZ2@ @LIBZ@ @PTHREAD_LIBS@
@@ -216,8 +215,8 @@ proxyrec_LDFLAGS = ${proxyrec_LDFLAGS_ARCH} @PTHREAD_CFLAGS@
 termplay_RES = termplay.rc termplay.ico termplay.manifest open.bmp rewind.bmp pause.bmp play.bmp wood1.bmp
 termrec_RES = termrec.rc termrec.ico
 proxyrec_RES = proxyrec.rc proxyrec.ico
-CHEADERS = stream.h formats.h utils.h synch.h name_out.h threads.h pty.h name_in.h vt100.h charsets.h
-COMMON = stream.c compress.c formats.c no_play.c no_record.c utils.c winutils.c name_out.c
+CHEADERS = stream.h formats.h utils.h synch.h name_out.h threads.h pty.h name.h vt100.h charsets.h
+COMMON = stream.c compress.c formats.c no_play.c utils.c winutils.c name_out.c
 EXTRA_DIST = ${CHEADERS} ${COMMON} ${termplay_RES} ${termrec_RES} ${proxyrec_RES} BUGS
 DISTCLEANFILES = _stdint.h
 CLEANFILES = termplay.coff termrec.coff proxyrec.coff

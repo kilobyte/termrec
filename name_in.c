@@ -4,7 +4,7 @@
 #include "utils.h"
 #include "formats.h"
 #include "stream.h"
-#include "name_in.h"
+#include "name.h"
 
 
 int codec_from_ext_play(char *name)

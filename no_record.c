@@ -1,1 +1,0 @@
-void record_f(){};

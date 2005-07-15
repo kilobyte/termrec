@@ -6,6 +6,7 @@
 #include "vt100.h"
 #include "synch.h"
 #include "timeline.h"
+#include "name.h"
 
 /*******************/
 /* gatherer thread */
@@ -251,4 +252,28 @@ void replay_seek()
     gettimeofday(&t0, 0);
     tdiv(&tr, speed);
     tsub(&t0, &tr);
+}
+
+
+void replay_export(FILE *record_f, int codec, struct timeval *selstart, struct timeval *selend)
+{
+    void* record_state;
+    struct tty_event *tev;
+    
+    tev=&tev_head;
+    while (tev && tcmp(tev->t, *selstart)==-1)
+        tev=tev->next;
+    if (!tev)
+        return;
+    
+    record_state=(*rec[codec].init)(record_f, selstart);
+  
+    while (tev && tcmp(tev->t, *selend)<1)
+    {
+        if (tev->data)
+            (*rec[codec].write)(record_f, record_state, &tev->t, tev->data, tev->len);
+        tev=tev->next;
+    }
+    (*rec[codec].finish)(record_f, record_state);
+    fclose(record_f);
 }
