@@ -425,6 +425,7 @@ void set_prog_sel()
     int t2=selend.tv_sec*(1000000/progdiv)+selend.tv_usec/progdiv;
     
     SendMessage(wndProg, TBM_SETSEL, 1, (LPARAM)MAKELONG(t1,t2));
+    SendMessage(wndTB, TB_ENABLEBUTTON, 106, tcmp(selstart, selend)<0);
 }
 
 
@@ -780,13 +781,6 @@ void export_file()
     FILE* record_f;
     int codec;
     
-        {
-            char txt[100];
-            sprintf(txt, "start=%d end=%d",
-                   (int)SendMessage(wndProg, TBM_GETSELSTART, 0,0),
-                   (int)SendMessage(wndProg, TBM_GETSELEND, 0,0));
-            MessageBox(wnd, txt, "end=", 0);
-        }
     memset(&dlg, 0, sizeof(dlg));
     dlg.lStructSize=sizeof(dlg);
     dlg.hwndOwner=wnd;
@@ -799,7 +793,7 @@ void export_file()
     dlg.nFilterIndex=1;
     dlg.lpstrFile=fn;
     dlg.nMaxFile=MAXFILENAME;
-    dlg.Flags=OFN_NOREADONLYRETURN|OFN_LONGNAMES|OFN_NOREADONLYRETURN;
+    dlg.Flags=OFN_HIDEREADONLY|OFN_LONGNAMES;
     dlg.lpstrDefExt="ttyrec.bz2";
     *fn=0;
     
@@ -813,6 +807,7 @@ void export_file()
     {
         sprintf(errmsg, "Can't write to %s", fn);
         MessageBox(wnd, errmsg, "Write error", MB_ICONERROR);
+        return;
     }
     record_f=stream_open(record_f, fn, "wb", compressors, 1);
     replay_export(record_f, codec, &selstart, &selend);
@@ -892,6 +887,8 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 break;
             case 106:
                 if (play_state==-1)
+                    break;
+                if (tcmp(selstart, selend)>=0)
                     break;
                 export_file();
                 break;
@@ -1008,7 +1005,13 @@ int APIENTRY WinMain(HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
     
     vt100_init(&vt);
     
-    strncpy(filename, lpCmdLine, MAXFILENAME-1);
+    if (*lpCmdLine=='"')	// FIXME: proper parsing
+    {
+        strncpy(filename, lpCmdLine+1, MAXFILENAME-1);
+        filename[strlen(filename)-1]=0;
+    }
+    else
+        strncpy(filename, lpCmdLine, MAXFILENAME-1);
     filename[MAXFILENAME-1]=0;
 
     defsx=80;
