@@ -19,7 +19,7 @@ proxyrec_SOURCES = proxy.c
 proxyrec_LDADD = no_play.o formats.o utils.o stream.o compress.o ${proxyrec_LDADD_ARCH} name_out.o @LIBBZ2@ @LIBZ@ @PTHREAD_LIBS@
 proxyrec_LDFLAGS = ${proxyrec_LDFLAGS_ARCH} @PTHREAD_CFLAGS@
 
-termplay_RES = termplay.rc termplay.ico termplay.manifest open.bmp rewind.bmp pause.bmp play.bmp wood1.bmp
+termplay_RES = termplay.rc termplay.ico termplay.manifest open.bmp rewind.bmp pause.bmp play.bmp wood1.bmp selstart.bmp selend.bmp export.bmp
 termrec_RES = termrec.rc termrec.ico
 proxyrec_RES = proxyrec.rc proxyrec.ico
 CHEADERS = stream.h formats.h utils.h synch.h name_out.h threads.h pty.h name.h vt100.h charsets.h

@@ -295,8 +295,37 @@ void record_nh_recorder_finish(FILE *f, void* state)
     free(state);
 }
 
+
+/********************/
+/* format: readlogs */
+/********************/
+
+void* record_rl_recorder_init(FILE *f, struct timeval *tm)
+{
+    return 0;
+}
+
+void record_rl_recorder(FILE *f, void* state, struct timeval *tm, char *buf, int len)
+{
+#define sec ((unsigned int)tm->tv_sec)
+    fwrite(buf, 1, len, f);
+    fprintf(f, "<!RL!%u:%u:%u:%u>", sec/3600%24, sec/60%60, sec%60,
+        (unsigned int)tm->tv_usec/1000);
+#undef sec
+}
+
+void record_rl_recorder_finish(FILE *f, void* state)
+{
+}
+
+
+/****************/
+/* format: null */
+/****************/
+
 void* record_null_init(FILE *f, struct timeval *tm)
 {
+    return 0;
 }
 
 void record_null(FILE *f, void* state, struct timeval *tm, char *buf, int len)
@@ -312,6 +341,7 @@ recorder_info rec[]={
 {"ansi",".txt",record_baudrate_init,record_baudrate,record_baudrate_finish},
 {"ttyrec",".ttyrec",record_ttyrec_init,record_ttyrec,record_ttyrec_finish},
 {"nh_recorder",".nh",record_nh_recorder_init,record_nh_recorder,record_nh_recorder_finish},
+{"readlogs",".rl",record_rl_recorder_init,record_rl_recorder,record_rl_recorder_finish},
 {"null",0,record_null_init,record_null,record_null_finish},
 {0, 0, 0, 0},
 };

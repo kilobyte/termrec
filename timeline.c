@@ -20,6 +20,7 @@ static int nchunk;
 
 void synch_init_wait(struct timeval *ts)
 {
+#if 0
 #ifdef HAVE_CTIME_R
     char buf[128];
 #endif
@@ -35,6 +36,7 @@ void synch_init_wait(struct timeval *ts)
 #endif
         timeline_unlock();
     }
+#endif
 }
 
 void synch_wait(struct timeval *tv)

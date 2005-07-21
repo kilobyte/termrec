@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(termrec, 0.12, [kilobyte@angband.pl])
+AC_INIT(termrec, 0.13, [kilobyte@angband.pl])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([formats.c])
 AC_CONFIG_HEADER([config.h])
