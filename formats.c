@@ -300,12 +300,17 @@ void record_nh_recorder_finish(FILE *f, void* state)
 /* format: readlogs */
 /********************/
 
-void* record_rl_recorder_init(FILE *f, struct timeval *tm)
+void play_reallogs(FILE *f)
+{
+    aaaaa
+}
+
+void* record_reallogs_init(FILE *f, struct timeval *tm)
 {
     return 0;
 }
 
-void record_rl_recorder(FILE *f, void* state, struct timeval *tm, char *buf, int len)
+void record_reallogs(FILE *f, void* state, struct timeval *tm, char *buf, int len)
 {
 #define sec ((unsigned int)tm->tv_sec)
     fwrite(buf, 1, len, f);
@@ -314,7 +319,7 @@ void record_rl_recorder(FILE *f, void* state, struct timeval *tm, char *buf, int
 #undef sec
 }
 
-void record_rl_recorder_finish(FILE *f, void* state)
+void record_reallogs_finish(FILE *f, void* state)
 {
 }
 
@@ -341,7 +346,7 @@ recorder_info rec[]={
 {"ansi",".txt",record_baudrate_init,record_baudrate,record_baudrate_finish},
 {"ttyrec",".ttyrec",record_ttyrec_init,record_ttyrec,record_ttyrec_finish},
 {"nh_recorder",".nh",record_nh_recorder_init,record_nh_recorder,record_nh_recorder_finish},
-{"readlogs",".rl",record_rl_recorder_init,record_rl_recorder,record_rl_recorder_finish},
+{"reallogs",".rl",record_reallogs_init,record_reallogs,record_reallogs_finish},
 {"null",0,record_null_init,record_null,record_null_finish},
 {0, 0, 0, 0},
 };
@@ -350,5 +355,6 @@ player_info play[]={
 {"baudrate",".txt",play_baudrate},
 {"ttyrec",".ttyrec",play_ttyrec},
 {"nh_recorder",".nh",play_nh_recorder},
+{"reallogs",".rl",play_reallogs},
 {0, 0},
 };

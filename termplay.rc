@@ -6,5 +6,5 @@
 103	BITMAP	play.bmp
 104	BITMAP	selstart.bmp
 105	BITMAP	selend.bmp
-106	BITMAP	save.bmp
+106	BITMAP	export.bmp
 wood1	BITMAP	wood1.bmp
