@@ -3,8 +3,6 @@
 # include <winsock2.h>
 # include <windows.h>
 #else
-# include <sys/socket.h>
-# include <arpa/inet.h>
 # include <netdb.h>
 # include <pthread.h>
 # include <unistd.h>

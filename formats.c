@@ -300,10 +300,11 @@ void record_nh_recorder_finish(FILE *f, void* state)
 /* format: readlogs */
 /********************/
 
+/*
 void play_reallogs(FILE *f)
 {
-    aaaaa
 }
+*/
 
 void* record_reallogs_init(FILE *f, struct timeval *tm)
 {
@@ -355,6 +356,6 @@ player_info play[]={
 {"baudrate",".txt",play_baudrate},
 {"ttyrec",".ttyrec",play_ttyrec},
 {"nh_recorder",".nh",play_nh_recorder},
-{"reallogs",".rl",play_reallogs},
+/*{"reallogs",".rl",play_reallogs},*/
 {0, 0},
 };
