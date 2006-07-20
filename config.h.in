@@ -140,8 +140,14 @@
 /* Define if shipped libbz2.a works. */
 #undef SHIPPED_LIBBZ2
 
+/* Set to your custom bzlib.h */
+#undef SHIPPED_LIBBZ2_H
+
 /* Define if shipped libz.a works. */
 #undef SHIPPED_LIBZ
+
+/* Set to your custom zlib.h */
+#undef SHIPPED_LIBZ_H
 
 /* The number of bytes in type char */
 #undef SIZEOF_CHAR

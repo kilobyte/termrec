@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(termrec, 0.14, [kilobyte@angband.pl])
+AC_INIT(termrec, 0.13.a, [kilobyte@angband.pl])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([formats.c])
 AC_CONFIG_HEADER([config.h])
@@ -38,9 +38,9 @@ ACX_PTHREAD
 # Checks for library functions.
 AC_CHECK_FUNCS([getpt ptsname snprintf vsnprintf _getpty grantpt forkpty asprintf gettimeofday usleep ctime_r getopt_long getaddrinfo])
 AC_CHECK_LIB([bz2], [BZ2_bzBuffToBuffCompress], , [
-  AC_SHIPPED_LIB(LIBBZ2, libbz2.a, bzlib.h, [BZ2_bzRead(0,0,0,0)])])
+  AC_SHIPPED_LIB(LIBBZ2, libbz2.a, bzlib.h, [BZ2_bzRead(0,0,0,0)], [win32/])])
 AC_SUBST([LIBBZ2])
 AC_CHECK_LIB([z], [gzread], , [
-  AC_SHIPPED_LIB(LIBZ, libz.a, zlib.h, [gzread(0,0,0)])])
+  AC_SHIPPED_LIB(LIBZ, libz.a, zlib.h, [gzread(0,0,0)], [win32/])])
 AC_SUBST([LIBZ])
 AC_OUTPUT

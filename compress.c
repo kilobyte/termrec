@@ -8,14 +8,14 @@
 # include <bzlib.h>
 #else
 # ifdef SHIPPED_LIBBZ2
-#  include "lib/bzlib.h"
+#  include SHIPPED_LIBBZ2_H
 # endif
 #endif
 #ifdef HAVE_ZLIB_H
 # include <zlib.h>
 #else
 # ifdef SHIPPED_LIBZ
-#  include "lib/zlib.h"
+#  include SHIPPED_LIBZ_H
 # endif
 #endif
 #include "stream.h"

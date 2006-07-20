@@ -100,5 +100,5 @@ void error(const char *txt, ...)
     va_end(ap); /* make ugly compilers happy */
 }
 #else
-# include "winutils.c"
+# include "win32/winutils.c"
 #endif
