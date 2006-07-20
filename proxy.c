@@ -5,7 +5,14 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
-#include <arpa/inet.h>
+#ifdef HAVE_ARPA_INET_H
+# include <arpa/inet.h>
+#endif
+#ifdef HAVE_NETDB_H
+# include <netdb.h>
+#endif
+#include <errno.h>
+#include <assert.h>
 #include "utils.h"
 #include "threads.h"
 #include "name_out.h"
@@ -13,6 +20,10 @@
 #include "formats.h"
 
 #define BUFFER_SIZE 4096
+
+#ifdef HAVE_GETADDRINFO
+# define IPV6
+#endif
 
 #ifdef IPV6
 struct addrinfo *ai;
@@ -170,22 +181,9 @@ void workthread(struct workstate *ws)
 }
 
 
-static int net_connect()
-{
-
-
-
-
-
-
-
-
-
-
 #ifdef HAVE_GETADDRINFO
-int connect_v4_6()
+static int connect_out()
 {
-    int err, val;
     struct addrinfo *addr;
     int sock;
     
@@ -217,117 +215,38 @@ int connect_v4_6()
     }
     
     freeaddrinfo(ai);
-    return 0;
+    return -1;
 }
 #else
-static int connect_4()
+static int connect_out()
 {
     struct sockaddr_in sin;
     int sock;
     
-    if (sock=socket(AF_INET, SOCK_STREAM, IPPROTO_TCP))<0)
+    if ((sock=socket(AF_INET, SOCK_STREAM, IPPROTO_TCP))<0)
     {
         fprintf(stderr, "socket() failed.\n");
-        return 0;
+        return -1;
     }
     sin.sin_family=AF_INET;
     memcpy((char *)&sin.sin_addr, hp->h_addr, sizeof(sin.sin_addr));
     sin.sin_port=htons(rport);
     if (verbose)
         printf("Connecting out...\n");
-    if (connect(ws.fd[1], (struct sockaddr*)&sin, sizeof(sin)))
+    if (connect(sock, (struct sockaddr*)&sin, sizeof(sin)))
     {
         fprintf(stderr, "connect() failed.\n");
-        closesocket(ws.fd[0]);
-        closesocket(ws.fd[1]);
-        return;
-    }
-}
-
-int connect_mud(char *host, char *port, struct session *ses)
-{
-    int sock, val;
-    struct sockaddr_in sockaddr;
-
-    if (isdigit(*host))		/* interpret host part */
-        sockaddr.sin_addr.s_addr = inet_addr(host);
-    else
-    {
-        struct hostent *hp;
-
-        if ((hp = gethostbyname(host)) == NULL)
-        {
-            tintin_eprintf(ses, "#ERROR - UNKNOWN HOST: {%s}", host);
-            prompt(NULL);
-            return 0;
-        }
-        memcpy((char *)&sockaddr.sin_addr, hp->h_addr, sizeof(sockaddr.sin_addr));
-    }
-
-    if (isdigit(*port))
-        sockaddr.sin_port = htons(atoi(port));	/* intepret port part */
-    else
-    {
-        tintin_eprintf(ses, "#THE PORT SHOULD BE A NUMBER (got {%s}).", port);
-        prompt(NULL);
-        return 0;
-    }
-
-    if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
-        syserr("socket");
-
-    sockaddr.sin_family = AF_INET;
-
-    val=IPTOS_LOWDELAY;
-    setsockopt(sock, SOL_IP, IP_TOS, &val, sizeof(val));
-
-    tintin_printf(ses, "#Trying to connect...");
-
-    if (signal(SIGALRM, alarm_func) == BADSIG)
-        syserr("signal SIGALRM");
-
-    alarm(15);			/* We'll allow connect to hang in 15seconds! NO MORE! */
-    val = connect(sock, (struct sockaddr *)&sockaddr, sizeof(sockaddr));
-    alarm(0);
-
-    if (val)
-    {
-        close(sock);
-        switch (errno)
-        {
-        case EINTR:
-            tintin_eprintf(ses, "#CONNECTION TIMED OUT.");
-            break;
-        case ECONNREFUSED:
-            tintin_eprintf(ses, "#ERROR - Connection refused.");
-            break;
-        case ENETUNREACH:
-            tintin_eprintf(ses, "#ERROR - Network unreachable.");
-            break;
-        default:
-            tintin_eprintf(ses, "#Couldn't connect to %s:%s",host,port);
-        }
-        prompt(NULL);
-        return 0;
+        closesocket(sock);
+        return -1;
     }
     return sock;
 }
 #endif
 
 
-
-
-
-
-
-
-}
-
-
 void connthread(int sock)
 {
     thread_t th;
-    struct sockaddr_in sin;
     char *filename;
     struct timeval tv;
     struct workstate ws;
@@ -337,28 +256,9 @@ void connthread(int sock)
     memset(&ws, 0, sizeof(ws));
     mutex_init(ws.mutex);
     ws.fd[0]=sock;
-    if ((ws.fd[1]=socket(AF_INET, SOCK_STREAM, IPPROTO_TCP))<0)
+    if ((ws.fd[1]=connect_out())<0)
     {
-        fprintf(stderr, "socket() failed.\n");
         closesocket(sock);
-        return;
-    }
-    sin.sin_family=AF_INET;
-    memcpy((char *)&sin.sin_addr, hp->h_addr, sizeof(sin.sin_addr));
-    sin.sin_port=htons(rport);
-    if (verbose)
-        printf("Connecting out...\n");
-#ifdef IPV6
-
-
-    if (connect(ws.fd[1], (struct sockaddr*)&sin, sizeof(sin)))
-#else
-    if (connect(ws.fd[1], (struct sockaddr*)&sin, sizeof(sin)))
-#endif
-    {
-        fprintf(stderr, "connect() failed.\n");
-        closesocket(ws.fd[0]);
-        closesocket(ws.fd[1]);
         return;
     }
     if (verbose)
@@ -399,9 +299,11 @@ int main(int argc, char **argv)
 {
     int sock,s;
     struct sockaddr_in sin;
-    int opt,err;
+    int opt;
     thread_t th;
 #ifdef IPV6
+    int err;
+    struct addrinfo hints;
     char port[10];
 #endif
     
@@ -423,11 +325,12 @@ int main(int argc, char **argv)
     hints.ai_socktype=SOCK_STREAM;
     hints.ai_protocol=IPPROTO_TCP;
     hints.ai_flags=AI_ADDRCONFIG|AI_NUMERICSERV;
+    assert(rport>0 && rport<65536);
     sprintf(port, "%u", rport);
     
     if ((err=getaddrinfo(command, port, &hints, &ai)))
     {
-        if (err==-2)
+        if (err==EAI_NONAME)
             error("No such host: %s\n", command);
         else
             error("%s", gai_strerror(err));
