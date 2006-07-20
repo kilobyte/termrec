@@ -1,5 +1,11 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Set to 0 if not supported */
+#undef AI_ADDRCONFIG
+
+/* Set to 0 if not supported */
+#undef AI_NUMERICSERV
+
 /* Define to 1 if `TIOCGWINSZ' requires <sys/ioctl.h>. */
 #undef GWINSZ_IN_SYS_IOCTL
 
@@ -14,10 +20,6 @@
 
 /* Define to 1 if you have the `ctime_r' function. */
 #undef HAVE_CTIME_R
-
-/* Define to 1 if you have the declaration of `O_BINARY', and to 0 if you
-   don't. */
-#undef HAVE_DECL_O_BINARY
 
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
@@ -114,6 +116,9 @@
 
 /* Define if you're a Bill worshipper. */
 #undef IS_WIN32
+
+/* Set to 0 if not supported */
+#undef O_BINARY
 
 /* Name of package */
 #undef PACKAGE

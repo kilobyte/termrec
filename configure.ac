@@ -24,7 +24,9 @@ AC_CREATE_STDINT_H
 AC_HEADER_TIME
 AC_CHECK_HEADERS([fcntl.h stdlib.h string.h strings.h sys/ioctl.h termios.h unistd.h bzlib.h zlib.h sys/time.h getopt.h sys/select.h])
 AC_CHECK_HEADERS([arpa/inet.h netdb.h])
-AC_CHECK_DECLS([O_BINARY], , , [#include <fcntl.h>])
+AC_DECL_OR_ZERO([O_BINARY], [fcntl.h])
+AC_DECL_OR_ZERO([AI_ADDRCONFIG], [netdb.h])
+AC_DECL_OR_ZERO([AI_NUMERICSERV], [netdb.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
