@@ -181,7 +181,7 @@ void workthread(struct workstate *ws)
 }
 
 
-#ifdef HAVE_GETADDRINFO
+#ifdef IPV6
 static int connect_out()
 {
     struct addrinfo *addr;
@@ -295,31 +295,14 @@ void connthread(int sock)
     mutex_destroy(ws.mutex);
 }
 
-int main(int argc, char **argv)
-{
-    int sock,s;
-    struct sockaddr_in sin;
-    int opt;
-    thread_t th;
+
 #ifdef IPV6
+void resolve_out()
+{
     int err;
     struct addrinfo hints;
     char port[10];
-#endif
-    
-    sockets_init();	/* Win32 only */
 
-    get_parms(argc, argv, 1);
-    if (rport==-1)
-        rport=23;
-    if (lport==-1)
-        lport=9999;
-
-    verbose=isatty(1);
-    
-    if (verbose)
-        printf("Resolving %s...\n", command);
-#ifdef IPV6
     memset(&hints, 0, sizeof(hints));
     hints.ai_family=AF_UNSPEC;
     hints.ai_socktype=SOCK_STREAM;
@@ -335,10 +318,54 @@ int main(int argc, char **argv)
         else
             error("%s", gai_strerror(err));
     }
+}
 #else
+void resolve_out()
+{
     if (!(hp=gethostbyname(command)))
         error("No such host: %s\n", command);
+}
 #endif
+
+
+#if 0
+/* postponed until listening on non-localhost gets added */
+int listen_lo()
+{
+    int sock;
+    int opt, err;
+    struct addrinfo hints, *ai;
+    char port[10];
+
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family=AF_UNSPEC;
+    hints.ai_socktype=SOCK_STREAM;
+    hints.ai_protocol=IPPROTO_TCP;
+    hints.ai_flags=AI_ADDRCONFIG|AI_NUMERICSERV;
+    assert(lport>0 && lport<65536);
+    sprintf(port, "%u", lport);
+    
+    if ((err=getaddrinfo(0, port, &hints, &ai)))
+        error("%s", gai_strerror(err));
+    
+    if ((sock=socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol))==-1)
+    	error("Can't listen: %s\n", strerror(errno));
+    
+    opt=1;
+    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt));
+    if (bind(sock, ai->ai_addr, ai->ai_addrlen))
+        error("bind() failed.\n");
+    if (listen(sock, 2))
+        error("listen() failed.\n");
+    return sock;
+}
+#else
+int listen_lo()
+{
+    int sock;
+    struct sockaddr_in sin;
+    int opt;
+
     if ((sock=socket(AF_INET, SOCK_STREAM, IPPROTO_TCP))<0)
         error("socket() failed.\n");
     
@@ -351,6 +378,31 @@ int main(int argc, char **argv)
         error("bind() failed.\n");
     if (listen(sock, 2))
         error("listen() failed.\n");
+    return sock;
+}
+#endif
+
+
+int main(int argc, char **argv)
+{
+    int sock,s;
+    thread_t th;
+    
+    sockets_init();	/* Win32 only */
+
+    get_parms(argc, argv, 1);
+    if (rport==-1)
+        rport=23;
+    if (lport==-1)
+        lport=9999;
+
+    verbose=isatty(1);
+    
+    if (verbose)
+        printf("Resolving %s...\n", command);
+    resolve_out();
+
+    sock=listen_lo();
     if (verbose)
         printf("Listening...\n");
     while((s=accept(sock, 0, 0))>=0)
