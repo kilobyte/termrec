@@ -1,3 +1,12 @@
+0.14
+* Moved win32 crap to a dir on its own.
+
+0.13
+* New format: RealLogs (write-only).
+
+0.12
+* termplay/win32: exporting a part of a replay.
+
 0.11
 * Fixed a race condition in termplay/win32 that often caused crashes if the
   file to replay was specified on the command line.
