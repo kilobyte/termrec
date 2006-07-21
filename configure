@@ -3614,6 +3614,19 @@ rm -f core conftest.err conftest.$ac_objext \
       conftest$ac_exeext conftest.$ac_ext
 
 
+# Check if anyone reads build logs.
+
+{ echo "$as_me:$LINENO: checking for SCO's intellectual property" >&5
+echo $ECHO_N "checking for SCO's intellectual property... $ECHO_C" >&6; }
+case `uname -s`X in
+  SCO_*) { echo "$as_me:$LINENO: result: nope, it belongs to Novell" >&5
+echo "${ECHO_T}nope, it belongs to Novell" >&6; }
+;;
+  *) { echo "$as_me:$LINENO: result: not found" >&5
+echo "${ECHO_T}not found" >&6; }
+esac
+
+
 # Checks for header files.
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'

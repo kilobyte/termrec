@@ -17,6 +17,9 @@ AC_CHECK_TOOL(WINDRES, windres, :)
 AM_CONDITIONAL(WIN32, test x$ac_cv_is_win32 = xyes)
 AC_LIB_WINSOCK2
 
+# Check if anyone reads build logs.
+AC_SCO
+
 # Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_TIOCGWINSZ
