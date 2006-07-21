@@ -19,14 +19,6 @@
 int asprintf(char **sptr, const char *fmt, ...);
 #endif
 
-#ifdef IS_WIN32
-# ifndef HAVE_GETTIMEOFDAY
-void gettimeofday(struct timeval *tv, void * dummy);
-# endif
-# ifndef HAVE_USLEEP
-void usleep(unsigned int usec);
-# endif
-#endif
 void show_error(char *blah);
 
 void tadd(struct timeval *t, struct timeval *d);
@@ -42,7 +34,5 @@ int match_suffix(char *txt, char *ext, int skip);
 void error(const char *txt, ...);
 
 #ifdef WIN32
-int message_loop(HANDLE* lphObjects, int cObjects);
-# undef stderr
-# define stderr stdout
+# include "win32/winutils.h"
 #endif

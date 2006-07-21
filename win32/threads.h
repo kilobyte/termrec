@@ -1,4 +1,3 @@
-#include <winsock2.h>
 #include <windows.h>
 
 #define mutex_t	CRITICAL_SECTION
@@ -27,13 +26,3 @@ static inline int win32_thread_create_detached(thread_t *th, LPTHREAD_START_ROUT
     CloseHandle(*th);
     return !*th;
 }
-
-static inline void sockets_init()
-{
-    WSADATA wsaData;
-
-    WSAStartup(MAKEWORD(2,2), &wsaData);
-}
-
-#define SHUT_RD SD_RECEIVE
-#define SHUT_WR SD_SEND

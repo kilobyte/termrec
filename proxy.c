@@ -13,6 +13,7 @@
 #endif
 #include <errno.h>
 #include <assert.h>
+#include "net.h"
 #include "utils.h"
 #include "threads.h"
 #include "name_out.h"
@@ -20,10 +21,6 @@
 #include "formats.h"
 
 #define BUFFER_SIZE 4096
-
-#ifdef HAVE_GETADDRINFO
-# define IPV6
-#endif
 
 #ifdef IPV6
 struct addrinfo *ai;
@@ -209,12 +206,8 @@ static int connect_out()
                 continue;
             }
         }
-        
-        freeaddrinfo(ai);
         return sock;
     }
-    
-    freeaddrinfo(ai);
     return -1;
 }
 #else

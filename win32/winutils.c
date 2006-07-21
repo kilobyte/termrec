@@ -87,3 +87,14 @@ void error(const char *txt, ...)
     exit(1);
     va_end(ap); /* make ugly compilers happy */
 }
+
+void* LoadFunc(char *dll, char *name)
+{
+    HMODULE hdll;
+    
+    hdll=LoadLibrary(dll);
+    if (!hdll)
+        return 0;
+    
+    return GetProcAddress(hdll, name);
+}
