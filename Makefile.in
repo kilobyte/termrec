@@ -49,7 +49,8 @@ am__aclocal_m4_deps = $(top_srcdir)/acinclude.m4 \
 	$(top_srcdir)/ac_compile_check_sizeof.m4 \
 	$(top_srcdir)/ac_check_win32.m4 \
 	$(top_srcdir)/ac_shipped_lib.m4 $(top_srcdir)/acx_pthread.m4 \
-	$(top_srcdir)/ac_decl_or_zero.m4 $(top_srcdir)/configure.ac
+	$(top_srcdir)/ac_decl_or_zero.m4 $(top_srcdir)/ac_sco.m4 \
+	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
@@ -76,7 +77,7 @@ termplay_OBJECTS = $(am_termplay_OBJECTS)
 @WIN32_TRUE@am__DEPENDENCIES_2 = termplay.coff
 termplay_DEPENDENCIES = stream.o compress.o formats.o name_out.o \
 	utils.o $(am__DEPENDENCIES_2)
-am__termrec_SOURCES_DIST = ttyr.c pty.c win32/winrec.c
+am__termrec_SOURCES_DIST = unix/ttyr.c unix/pty.c win32/winrec.c
 @WIN32_FALSE@am_termrec_OBJECTS = ttyr.$(OBJEXT) pty.$(OBJEXT)
 @WIN32_TRUE@am_termrec_OBJECTS = winrec.$(OBJEXT)
 termrec_OBJECTS = $(am_termrec_OBJECTS)
@@ -206,7 +207,7 @@ AM_CFLAGS = -Wall
 @WIN32_TRUE@termplay_SOURCES = win32/term.c win32/draw.c timeline.c timeline.h win32/draw.h vt100.c name_in.c
 @WIN32_TRUE@termplay_LDADD_ARCH = -lcomdlg32 -lcomctl32 -lgdi32 termplay.coff
 @WIN32_TRUE@termplay_LDFLAGS = -Xlinker --subsystem -Xlinker windows
-@WIN32_FALSE@termrec_SOURCES = ttyr.c pty.c
+@WIN32_FALSE@termrec_SOURCES = unix/ttyr.c unix/pty.c
 @WIN32_TRUE@termrec_SOURCES = win32/winrec.c
 @WIN32_TRUE@termrec_LDADD_ARCH = termrec.coff
 @WIN32_TRUE@proxyrec_LDADD_ARCH = proxyrec.coff
@@ -219,8 +220,8 @@ proxyrec_LDFLAGS = ${proxyrec_LDFLAGS_ARCH} @PTHREAD_CFLAGS@
 termplay_RES = win32/termplay.rc win32/termplay.ico win32/termplay.manifest win32/open.bmp win32/rewind.bmp win32/pause.bmp win32/play.bmp win32/wood1.bmp win32/selstart.bmp win32/selend.bmp win32/export.bmp
 termrec_RES = win32/termrec.rc win32/termrec.ico
 proxyrec_RES = win32/proxyrec.rc win32/proxyrec.ico
-CHEADERS = stream.h formats.h utils.h synch.h name_out.h threads.h pty.h name.h vt100.h charsets.h
-COMMON = stream.c compress.c formats.c no_play.c utils.c name_out.c
+CHEADERS = stream.h formats.h utils.h synch.h name_out.h threads.h unix/threads.h win32/threads.h pty.h name.h vt100.h charsets.h
+COMMON = stream.c unix/stream.c win32/stream.c compress.c formats.c no_play.c utils.c name_out.c
 EXTRA_DIST_W32 = win32/winutils.c ${termplay_RES} ${termrec_RES} ${proxyrec_RES}
 EXTRA_DIST = ${CHEADERS} ${COMMON} BUGS ${EXTRA_DIST_W32}
 DISTCLEANFILES = _stdint.h
@@ -372,6 +373,34 @@ draw.obj: win32/draw.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o draw.obj `if test -f 'win32/draw.c'; then $(CYGPATH_W) 'win32/draw.c'; else $(CYGPATH_W) '$(srcdir)/win32/draw.c'; fi`
 
+ttyr.o: unix/ttyr.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT ttyr.o -MD -MP -MF "$(DEPDIR)/ttyr.Tpo" -c -o ttyr.o `test -f 'unix/ttyr.c' || echo '$(srcdir)/'`unix/ttyr.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/ttyr.Tpo" "$(DEPDIR)/ttyr.Po"; else rm -f "$(DEPDIR)/ttyr.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='unix/ttyr.c' object='ttyr.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o ttyr.o `test -f 'unix/ttyr.c' || echo '$(srcdir)/'`unix/ttyr.c
+
+ttyr.obj: unix/ttyr.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT ttyr.obj -MD -MP -MF "$(DEPDIR)/ttyr.Tpo" -c -o ttyr.obj `if test -f 'unix/ttyr.c'; then $(CYGPATH_W) 'unix/ttyr.c'; else $(CYGPATH_W) '$(srcdir)/unix/ttyr.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/ttyr.Tpo" "$(DEPDIR)/ttyr.Po"; else rm -f "$(DEPDIR)/ttyr.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='unix/ttyr.c' object='ttyr.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o ttyr.obj `if test -f 'unix/ttyr.c'; then $(CYGPATH_W) 'unix/ttyr.c'; else $(CYGPATH_W) '$(srcdir)/unix/ttyr.c'; fi`
+
+pty.o: unix/pty.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT pty.o -MD -MP -MF "$(DEPDIR)/pty.Tpo" -c -o pty.o `test -f 'unix/pty.c' || echo '$(srcdir)/'`unix/pty.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/pty.Tpo" "$(DEPDIR)/pty.Po"; else rm -f "$(DEPDIR)/pty.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='unix/pty.c' object='pty.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o pty.o `test -f 'unix/pty.c' || echo '$(srcdir)/'`unix/pty.c
+
+pty.obj: unix/pty.c
+@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT pty.obj -MD -MP -MF "$(DEPDIR)/pty.Tpo" -c -o pty.obj `if test -f 'unix/pty.c'; then $(CYGPATH_W) 'unix/pty.c'; else $(CYGPATH_W) '$(srcdir)/unix/pty.c'; fi`; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/pty.Tpo" "$(DEPDIR)/pty.Po"; else rm -f "$(DEPDIR)/pty.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='unix/pty.c' object='pty.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o pty.obj `if test -f 'unix/pty.c'; then $(CYGPATH_W) 'unix/pty.c'; else $(CYGPATH_W) '$(srcdir)/unix/pty.c'; fi`
+
 winrec.o: win32/winrec.c
 @am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT winrec.o -MD -MP -MF "$(DEPDIR)/winrec.Tpo" -c -o winrec.o `test -f 'win32/winrec.c' || echo '$(srcdir)/'`win32/winrec.c; \
 @am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/winrec.Tpo" "$(DEPDIR)/winrec.Po"; else rm -f "$(DEPDIR)/winrec.Tpo"; exit 1; fi
@@ -438,7 +467,7 @@ distclean-tags:
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkdir_p) $(distdir)/win32
+	$(mkdir_p) $(distdir)/unix $(distdir)/win32
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \

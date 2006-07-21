@@ -813,7 +813,7 @@ void export_file()
     }
     record_f=stream_open(record_f, fn, "wb", compressors, 1);
     replay_export(record_f, codec, &selstart, &selend);
-    reap_threads();
+    stream_reap_threads();
 }
 
 

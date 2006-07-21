@@ -13,10 +13,6 @@
 # include <windows.h>
 #endif
 
-#if !HAVE_DECL_O_BINARY
-# define O_BINARY 0
-#endif
-
 #define ARRAYSIZE(a) (sizeof(a)/sizeof(a[0]))
 
 #ifndef HAVE_ASPRINTF

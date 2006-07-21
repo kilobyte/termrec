@@ -472,7 +472,7 @@ void finish_up()
 #ifdef EVDEBUG
     fprintf(evlog, "*** THE END ***\n");
 #endif
-    reap_threads();
+    stream_reap_threads();
 }
 
 

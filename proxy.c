@@ -410,9 +410,7 @@ int main(int argc, char **argv)
         if (record_name)
         {
             connthread(s);
-#ifdef IS_WIN32
-            reap_threads();
-#endif
+            stream_reap_threads();
             exit(0);
         }
         thread_create_detached(th, connthread, s);

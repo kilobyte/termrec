@@ -11,7 +11,4 @@ extern compress_info compressors[];
 extern compress_info decompressors[];
 
 FILE* stream_open(FILE *f, char *name, char *mode, compress_info *comptable, int nodetach);
-
-#ifdef IS_WIN32
-void reap_threads();
-#endif
+void stream_reap_threads();
