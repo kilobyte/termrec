@@ -176,8 +176,26 @@ finish_args:
     if (optind+1+prog<argc)
         error("You can specify at most one file to record to.\n");
     if (prog==PROXY)
-        if ((cp=strrchr(command=argv[optind], ':')))
+    {
+        command=argv[optind];
+        if (*command=='[')
         {
+            command++;
+            cp=strchr(command, ']');
+            if (!cp)
+                error("Unmatched [ in the host part.\n");
+            *cp++=0;
+            if (*cp)
+            {
+                if (*cp==':')
+                    goto getrport;
+                else
+                    error("Cruft after the [host name].\n");
+            }
+        }
+        if ((cp=strrchr(command, ':')))
+        {
+        getrport:
             *cp=0;
             cp++;
             i=0;
@@ -193,6 +211,7 @@ finish_args:
                 error("You can specify the remote port just once.\n");
             rport=i;
         }
+    }
     if (optind+prog<argc)
     {
         record_name=argv[argc-1];
