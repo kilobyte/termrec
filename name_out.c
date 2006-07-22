@@ -72,10 +72,10 @@ void get_parms(int argc, char **argv, int prog)
     while(1)
     {
 #if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
-        switch(getopt_long(argc, argv, (prog==REC)?"f:e:h":"f:l:h",
+        switch(getopt_long(argc, argv, (prog==REC)?"f:e:h":"f:l:hp:",
                                        (prog==REC)?rec_opts:proxy_opts, 0))
 #else
-        switch(getopt(argc, argv, (prog==REC)?"f:e:h":"f:l:h"))
+        switch(getopt(argc, argv, (prog==REC)?"f:e:h":"f:l:hp:"))
 #endif
         {
         case -1:
