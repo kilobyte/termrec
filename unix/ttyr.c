@@ -1,7 +1,15 @@
+#include "config.h"
 #include <stdio.h>
 #include <unistd.h>
 #ifdef HAVE_SYS_SELECT_H
 # include <sys/select.h>
+#endif
+#ifdef HAVE_STRING_H
+# include <string.h>
+#else
+# ifdef HAVE_STRINGS_H
+#  include <strings.h>
+# endif
 #endif
 #include <sys/time.h>
 #include <sys/types.h>
@@ -16,6 +24,7 @@
 #include "formats.h"
 
 volatile int need_resize;
+struct termios ta;
 int ptym;
 FILE *record_f;
 void* record_state;
@@ -68,6 +77,23 @@ void resize()
         "\e[8;%d;%dt", ts.ws_row, ts.ws_col));
 }
 
+void tty_raw()
+{
+    struct termios rta;
+
+    memset(&ta, 0, sizeof(ta));
+    tcgetattr(0, &ta);
+    
+    rta=ta;
+    pty_makeraw(&rta);
+    tcsetattr(0, TCSADRAIN, &rta);
+}
+
+void tty_restore()
+{
+    tcsetattr(0, TCSADRAIN, &ta);
+}
+
 #define BS 65536
 
 int main(int argc, char **argv)
@@ -100,7 +126,8 @@ int main(int argc, char **argv)
     need_resize=1;
  
     setsignals();
-
+    tty_raw();
+    
     while(1)
     {
         FD_ZERO(&rfds);
@@ -121,6 +148,7 @@ int main(int argc, char **argv)
         case -1:
             if (errno==EINTR)
                 continue;
+            tty_restore();
             error("select()");
         }
         
@@ -149,7 +177,8 @@ int main(int argc, char **argv)
     }
 
     (*rec[codec].finish)(record_f, record_state);
-    fclose(record_f);        
+    fclose(record_f);
+    tty_restore();
     wait(0);
     return 0;
 }

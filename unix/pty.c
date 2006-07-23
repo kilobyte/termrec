@@ -187,7 +187,7 @@ void pty_resize(int fd, int sx, int sy)
     ioctl(fd,TIOCSWINSZ,&ws);
 }
 
-inline void pty_makeraw(struct termios *ta)
+void pty_makeraw(struct termios *ta)
 {
     memset(ta, 0, sizeof(*ta));
     ta->c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP
@@ -205,17 +205,14 @@ int run(char *command, int sx, int sy)
 {
     int fd;
 
-    struct termios ta;
     struct winsize ws;
-
-    pty_makeraw(&ta);
 
     ws.ws_row=sy;
     ws.ws_col=sx;
     ws.ws_xpixel=0;
     ws.ws_ypixel=0;
 
-    switch(forkpty(&fd,0,&ta,(sx&&sy)?&ws:0))
+    switch(forkpty(&fd,0,0,(sx&&sy)?&ws:0))
     {
     case -1:
         return(-1);
