@@ -9,7 +9,7 @@
 #include "stream.h"
 #include "name_out.h"
 
-#define EVDEBUG
+//#define EVDEBUG
 
 FILE *record_f;
 void* record_state;
