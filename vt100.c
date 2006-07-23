@@ -68,14 +68,14 @@ int vt100_copy(vt100 *vt, vt100 *nvt)
 
 static void vt100_clear_region(vt100 *vt, int st, int l)
 {
-    attrchar *c;
+    attrchar *c, blank;
+    
+    blank.ch=' ';
+    blank.attr=vt->attr;
 
     c=vt->scr+st;
     while(l--)
-    {
-        c->ch=' ';
-        c++->attr=vt->attr;
-    }
+        *c++=blank;
 }
 
 void vt100_reset(vt100 *vt)
