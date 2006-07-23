@@ -67,6 +67,8 @@ void resize()
     struct timeval tv;
     char buf[20];
 
+    if (raw)
+        return;
     if (ioctl(1,TIOCGWINSZ,&ts))
         return;
     if (!ts.ws_row || !ts.ws_col)

@@ -89,6 +89,13 @@ void workthread(struct workstate *ws)
 #ifdef COLORCODING
         op+=sprintf(out, "\e[3%d;1m", who+1);
 #endif
+        if (raw)
+        {
+            while(cnt--)
+                *op++=*bp++;
+            goto no_traffic_analysis;
+        }
+        
         while(cnt--)
             switch(state)
             {
@@ -166,6 +173,7 @@ void workthread(struct workstate *ws)
             }
         if (!ws->echoing[who])
         {
+    no_traffic_analysis:
             gettimeofday(&tv, 0);
             mutex_lock(ws->mutex);
             rec[codec].write(ws->f, ws->rst, &tv, (char*)out, op-out);

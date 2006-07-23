@@ -41,6 +41,7 @@ int codec_from_ext_rec(char *name)
 struct option rec_opts[]={
 {"format",	1, 0, 'f'},
 {"exec",	1, 0, 'e'},
+{"raw",		0, 0, 'r'},
 {"help",	0, 0, 'h'},
 {0,		0, 0, 0},
 };
@@ -50,6 +51,7 @@ struct option proxy_opts[]={
 {"local-port",	1, 0, 'l'},
 {"listen-port",	1, 0, 'l'},
 {"port",        1, 0, 'p'},
+{"raw",		0, 0, 'r'},
 {"help",	0, 0, 'h'},
 {0,		0, 0, 0},
 };
@@ -68,14 +70,15 @@ void get_parms(int argc, char **argv, int prog)
     record_name=0;
     lport=-1;
     rport=-1;
+    raw=0;
     
     while(1)
     {
 #if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
-        switch(getopt_long(argc, argv, (prog==REC)?"f:e:h":"f:l:hp:",
+        switch(getopt_long(argc, argv, (prog==REC)?"f:e:rh":"f:l:rhp:",
                                        (prog==REC)?rec_opts:proxy_opts, 0))
 #else
-        switch(getopt(argc, argv, (prog==REC)?"f:e:h":"f:l:hp:"))
+        switch(getopt(argc, argv, (prog==REC)?"f:e:rh":"f:l:rhp:"))
 #endif
         {
         case -1:
@@ -136,6 +139,9 @@ void get_parms(int argc, char **argv, int prog)
                 error("Invalid remote port.\n");
             rport=i;
             break;
+        case 'r':
+            raw=1;
+            break;
         case 'h':
             switch(prog)
             {
@@ -145,6 +151,7 @@ void get_parms(int argc, char **argv, int prog)
                     "    Records the output of a console session to a file, including timing data.\n"
                     "-f, --format X        set output format to X (-f whatever for the list)\n"
                     "-e, --exec X          execute command X instead of spawning a shell\n"
+                    "-r, --raw             don't record UTFness or terminal size\n"
                     "-h, --help            show this usage message\n"
                     "If no filename is given, a name will be generated using the current date\n"
                     "    and the given format.\n"
@@ -159,6 +166,7 @@ void get_parms(int argc, char **argv, int prog)
                     "-f, --format X        set output format to X (-f whatever for the list)\n"
                     "-l, --local-port X    listen on port X locally (default: 9999)\n"
                     "-p, --port X          connect to remote portX (default: 23)\n"
+                    "-r, --raw             don't weed out or parse TELNET negotiations for\n"
                     "-h, --help            show this usage message\n"
                     "The host to connect to must be specified.\n"
                     "If no filename is given, a name will be generated using the current date\n"
