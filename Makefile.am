@@ -24,8 +24,8 @@ termplay_RES = win32/termplay.rc win32/termplay.ico win32/termplay.manifest win3
 termrec_RES = win32/termrec.rc win32/termrec.ico
 proxyrec_RES = win32/proxyrec.rc win32/proxyrec.ico
 CHEADERS = stream.h formats.h utils.h synch.h name_out.h threads.h unix/threads.h win32/threads.h pty.h name.h vt100.h charsets.h net.h win32/net.h win32/winutils.h
-COMMON = stream.c unix/stream.c win32/stream.c compress.c formats.c no_play.c utils.c name_out.c win32/net.c
-EXTRA_DIST_W32 = win32/winutils.c ${termplay_RES} ${termrec_RES} ${proxyrec_RES}
+COMMON = stream.c unix/stream.c win32/stream.c compress.c formats.c no_play.c utils.c unix/utils.c win32/winutils.c name_out.c win32/net.c
+EXTRA_DIST_W32 = ${termplay_RES} ${termrec_RES} ${proxyrec_RES}
 EXTRA_DIST= ${CHEADERS} ${COMMON} BUGS ${EXTRA_DIST_W32}
 
 DISTCLEANFILES = _stdint.h

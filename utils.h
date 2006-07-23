@@ -35,4 +35,6 @@ void error(const char *txt, ...);
 
 #ifdef WIN32
 # include "win32/winutils.h"
+#else
+int is_utf8();
 #endif

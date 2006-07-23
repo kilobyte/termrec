@@ -130,6 +130,9 @@ int main(int argc, char **argv)
     setsignals();
     tty_raw();
     
+    if (!raw && is_utf8())
+        (*rec[codec].write)(record_f, record_state, &tv, "\e%G", 3);
+    
     while(1)
     {
         FD_ZERO(&rfds);

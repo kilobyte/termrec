@@ -90,15 +90,7 @@ int match_suffix(char *txt, char *ext, int skip)
 }
 
 #ifndef IS_WIN32
-void error(const char *txt, ...)
-{
-    va_list ap;
-    
-    va_start(ap, txt);
-    vfprintf(stderr, txt, ap);
-    exit(1);
-    va_end(ap); /* make ugly compilers happy */
-}
+# include "unix/utils.c"
 #else
 # include "win32/winutils.c"
 #endif
