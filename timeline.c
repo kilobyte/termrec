@@ -232,7 +232,7 @@ int replay_play(struct timeval *delay)
     }
 }
 
-// FIXME: actually use the snapshots
+/* FIXME: actually use the snapshots */
 void replay_seek()
 { /* structures touched: tev, vt */
     struct timeval t;

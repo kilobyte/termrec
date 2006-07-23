@@ -16,8 +16,8 @@ char *name;
 
 void synch_init_wait(struct timeval *ts)
 {
-//    gettimeofday(&t0, 0);
-//    tw=t0;
+    gettimeofday(&t0, 0);
+    tw=t0;
 }
 
 void synch_set_speed(int sp)
@@ -33,13 +33,13 @@ void synch_wait(struct timeval *tv)
     if (tv->tv_sec>=5)
         tv->tv_sec=5, tv->tv_usec=0;
     
-//    fprintf(stderr, "Waiting for %lu.%06lu\n", tv->tv_sec, tv->tv_usec);
+/*    fprintf(stderr, "Waiting for %lu.%06lu\n", tv->tv_sec, tv->tv_usec);*/
     do
     {
         gettimeofday(&tc, 0);
         
         fds=1;
-//      select(/*1*/0, (fd_set*)&fds, 0, 0, tv);
+/*      select(1, (fd_set*)&fds, 0, 0, tv);*/
         select(0, 0, 0, 0, tv);
         if (/*fds*/0)
         {

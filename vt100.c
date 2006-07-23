@@ -155,7 +155,7 @@ static void set_charset(vt100 *vt, int g, char x)
 
 static void vt100_set_size(vt100 *vt, int nx, int ny)
 {
-    // TODO: resize
+    /* TODO: resize */
     vt100_resize(vt, nx, ny);
 }
 

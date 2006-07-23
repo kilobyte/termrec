@@ -246,9 +246,9 @@ void play_nh_recorder(FILE *f)
             {
                 if (i0<i)
                     synch_print(buf+i0, i-i0);
-                if (i+4>b)	// timestamp happened on a block boundary
+                if (i+4>b)	/* timestamp happened on a block boundary */
                 {
-                    if (b<5)	// incomplete last timestamp
+                    if (b<5)	/* incomplete last timestamp */
                         return;
                     memmove(buf+i, buf, b-i);
                     goto block_end;
