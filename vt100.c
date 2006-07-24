@@ -1,3 +1,6 @@
+/*#define VT100_DEBUG*/
+#define VT100_DEFAULT_CHARSET charset_cp437
+
 #include "vt100.h"
 #include "charsets.h"
 #include <string.h>
@@ -54,6 +57,8 @@ int vt100_resize(vt100 *vt, int nsx, int nsy)
 
 void vt100_free(vt100 *vt)
 {
+    if (vt->l_free)
+        vt->l_free(vt);
     free(vt->scr);
 }
 
@@ -160,13 +165,25 @@ static void vt100_set_size(vt100 *vt, int nx, int ny)
 }
 
 
+#define L_CURSOR {if (vt->l_cursor) vt->l_cursor(vt, CX, CY);}
+#define L_FLAG(f,v) {if (vt->l_flag) vt->l_flag(vt, f, v);}
+#define SCROLL(nl) \
+    {						\
+        vt100_scroll(vt, nl);			\
+        if (vt->l_scroll)			\
+            vt->l_scroll(vt, nl);		\
+    }
+#define CLEAR(x,y,l) \
+    {						\
+        vt100_clear_region(vt, y*SX+x, len);	\
+        if (vt->l_clear)			\
+            vt->l_clear(vt, x, y, len);		\
+    }
+
 void vt100_write(vt100 *vt, char *buf, int len)
 {
     int i;
     ucs c;
-#define ic ((unsigned char)*buf)
-#define tc (vt->utf_char)
-#define cnt (vt->utf_count)
 
     buf--;
     while(len--)
@@ -179,6 +196,7 @@ void vt100_write(vt100 *vt, char *buf, int len)
         case 8:
             if (CX)
                 CX--;
+            L_CURSOR;
             continue;
         case 9:
             if (CX<SX)
@@ -187,6 +205,8 @@ void vt100_write(vt100 *vt, char *buf, int len)
                     vt->scr[CY*SX+CX].attr=vt->attr;
                     vt->scr[CY*SX+CX].ch=' ';
                     CX++;
+                    if (vt->l_char)
+                        vt->l_char(vt, CX-1, CY, ' ', vt->attr);
                 } while(CX<SX && CX&7);
             continue;
         case 10:
@@ -196,18 +216,23 @@ void vt100_write(vt100 *vt, char *buf, int len)
             CY++;
             if (CY==vt->s2)
             {
-                vt100_scroll(vt, 1);
                 CY=vt->s2-1;
+                SCROLL(1);
             }
             else if (CY>=SY)
+            {
                 CY=SY-1;
+                L_CURSOR;
+            }
             continue;
         case 12:
-            vt100_clear_region(vt, 0, SX*SY);
             CX=CY=0;
+            CLEAR(0, 0, SX*SY);
+            L_CURSOR;
             continue;
         case 13:
             CX=0;
+            L_CURSOR;
             continue;
         case 14:
             vt->chs=1;
@@ -258,6 +283,10 @@ void vt100_write(vt100 *vt, char *buf, int len)
 #endif
             vt->state=0;
             break;
+
+#define ic ((unsigned char)*buf)
+#define tc (vt->utf_char)
+#define cnt (vt->utf_count)
         case 0:
             if (vt->utf)
                 if (ic>0x7f)
@@ -334,8 +363,8 @@ void vt100_write(vt100 *vt, char *buf, int len)
                         CY++;
                         if (CY>=vt->s2)
                         {
-                            vt100_scroll(vt, 1);
                             CY=vt->s2-1;
+                            SCROLL(1);
                         }
                     }
                     else
@@ -344,6 +373,8 @@ void vt100_write(vt100 *vt, char *buf, int len)
                 vt->scr[CY*SX+CX].ch=c;
                 vt->scr[CY*SX+CX].attr=vt->attr;
                 CX++;
+                if (vt->l_char)
+                    vt->l_char(vt, CX-1, CY, c, vt->attr);
             }
             break;
 #undef ic
@@ -380,6 +411,7 @@ void vt100_write(vt100 *vt, char *buf, int len)
             case '8':		/* ESC 8 -> restore cursor position */
                 CX=vt->save_cx;
                 CY=vt->save_cy;
+                L_CURSOR;
                 vt->state=0;
                 break;
                 
@@ -396,11 +428,15 @@ void vt100_write(vt100 *vt, char *buf, int len)
                 CY--;
                 if (CY==vt->s1-1)
                 {
-                    vt100_scroll(vt, -1);
                     CY=vt->s1;
+                    SCROLL(-1);
                 }
-                else if (CY<0)
-                    CY=0;
+                else
+                {
+                    if (CY<0)
+                        CY=0;
+                    L_CURSOR;
+                }
                 vt->state=0;
                 break;
             
@@ -509,6 +545,7 @@ void vt100_write(vt100 *vt, char *buf, int len)
                     CX-=i;
                 else
                     CX=0;
+                L_CURSOR;
                 vt->state=0;
                 break;
                 
@@ -520,6 +557,7 @@ void vt100_write(vt100 *vt, char *buf, int len)
                     CX+=i;
                 else
                     CX=SX;
+                L_CURSOR;
                 vt->state=0;
                 break;
                 
@@ -531,6 +569,7 @@ void vt100_write(vt100 *vt, char *buf, int len)
                     CY-=i;
                 else
                     CY=0;
+                L_CURSOR;
                 vt->state=0;
                 break;
                 
@@ -542,6 +581,7 @@ void vt100_write(vt100 *vt, char *buf, int len)
                     CY+=i;
                 else
                     CY=SY;
+                L_CURSOR;
                 vt->state=0;
                 break;
             
@@ -565,14 +605,14 @@ void vt100_write(vt100 *vt, char *buf, int len)
             case 'J':	/* ESC[J -> erase screen */
                 switch(vt->tok[0])
                 {
-                case 0:
-                    vt100_clear_region(vt, CY*SX+CX, SX*SY-(CY*SX+CX));
+                case 0: /* from cursor */
+                    CLEAR(CX, CY, SX*SY-(CY*SX+CX));
                     break;
-                case 1:
-                    vt100_clear_region(vt, 0, CY*SX+CX);
+                case 1: /* to cursor */
+                    CLEAR(0, 0, CY*SX+CX);
                     break;
-                case 2:
-                    vt100_clear_region(vt, 0, SX*SY);
+                case 2: /* whole screen */
+                    CLEAR(0, 0, SX*SY);
                 }
                 vt->state=0;
                 break;
@@ -580,14 +620,14 @@ void vt100_write(vt100 *vt, char *buf, int len)
             case 'K':	/* ESC[K -> erase line */
                 switch(vt->tok[0])
                 {
-                case 0:
-                    vt100_clear_region(vt, CY*SX+CX, SX-CX);
+                case 0: /* from cursor */
+                    CLEAR(CX, CY, SX-CX);
                     break;
-                case 1:
-                    vt100_clear_region(vt, CY*SX, CX);
+                case 1: /* to cursor */
+                    CLEAR(0, CY, CX);
                     break;
-                case 2:
-                    vt100_clear_region(vt, CY*SX, SX);
+                case 2: /* whole line */
+                    CLEAR(0, CY, SX);
                 }
                 vt->state=0;
                 break;
@@ -606,6 +646,7 @@ void vt100_write(vt100 *vt, char *buf, int len)
                     CX=0;
                 else if (CX>=SX)
                     CX=SX-1;
+                L_CURSOR;
                 vt->state=0;
                 break;
             
@@ -615,6 +656,7 @@ void vt100_write(vt100 *vt, char *buf, int len)
                     CX=0;
                 else if (CX>=SX)
                     CX=SX-1;
+                L_CURSOR;
                 vt->state=0;
                 break;
             
@@ -624,11 +666,15 @@ void vt100_write(vt100 *vt, char *buf, int len)
                     CY=0;
                 else if (CY>=SY)
                     CY=SY-1;
+                L_CURSOR;
                 vt->state=0;
                 break;
             
             case 'c':	/* ESC[c -> reset to power-on defaults */
                 vt100_reset(vt);
+                if (vt->l_clear)
+                    vt->l_clear(vt, 0, 0, SX*SY);
+                L_CURSOR;
                 break;
             
             case 't':	/* ESC[t -> window manipulation */
@@ -679,12 +725,13 @@ void vt100_write(vt100 *vt, char *buf, int len)
 		        break;
                     case 25:
                         vt->opt_cursor=1;
+                        /* TODO: L */
                         break;
 #ifdef VT100_DEBUG
                     default:
                         printf("Unknown option: ?%u\n", vt->tok[i]);
 #endif
-                        }
+                    }
                 vt->state=0;
                 break;
                 
@@ -697,6 +744,7 @@ void vt100_write(vt100 *vt, char *buf, int len)
 		        break;
                     case 25:
                         vt->opt_cursor=0;
+                        /* TODO: L */
                         break;
 #ifdef VT100_DEBUG
                     default:

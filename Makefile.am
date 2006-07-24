@@ -1,4 +1,4 @@
-bin_PROGRAMS = termrec proxyrec termplay
+bin_PROGRAMS = termrec proxyrec termplay vtest
 AM_CFLAGS=-Wall
 
 if WIN32
@@ -19,6 +19,8 @@ termplay_LDADD = stream.o compress.o formats.o name_out.o utils.o ${termplay_LDA
 termrec_LDADD = stream.o compress.o formats.o no_play.o name_out.o utils.o ${termrec_LDADD_ARCH} @LIBBZ2@ @LIBZ@
 proxyrec_LDADD = no_play.o formats.o utils.o stream.o compress.o ${proxyrec_LDADD_ARCH} name_out.o @LIBBZ2@ @LIBZ@ @PTHREAD_LIBS@
 proxyrec_LDFLAGS = ${proxyrec_LDFLAGS_ARCH} @PTHREAD_CFLAGS@
+
+vtest_SOURCES = vtest.c vt100.c
 
 termplay_RES = win32/termplay.rc win32/termplay.ico win32/termplay.manifest win32/open.bmp win32/rewind.bmp win32/pause.bmp win32/play.bmp win32/wood1.bmp win32/selstart.bmp win32/selend.bmp win32/export.bmp
 termrec_RES = win32/termrec.rc win32/termrec.ico

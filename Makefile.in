@@ -36,7 +36,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = termrec$(EXEEXT) proxyrec$(EXEEXT) termplay$(EXEEXT)
+bin_PROGRAMS = termrec$(EXEEXT) proxyrec$(EXEEXT) termplay$(EXEEXT) \
+	vtest$(EXEEXT)
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in $(srcdir)/config.h.in \
 	$(top_srcdir)/configure AUTHORS COPYING ChangeLog INSTALL NEWS \
@@ -86,6 +87,9 @@ termrec_OBJECTS = $(am_termrec_OBJECTS)
 @WIN32_TRUE@am__DEPENDENCIES_3 = termrec.coff
 termrec_DEPENDENCIES = stream.o compress.o formats.o no_play.o \
 	name_out.o utils.o $(am__DEPENDENCIES_3)
+am_vtest_OBJECTS = vtest.$(OBJEXT) vt100.$(OBJEXT)
+vtest_OBJECTS = $(am_vtest_OBJECTS)
+vtest_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I.
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -93,9 +97,11 @@ COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(proxyrec_SOURCES) $(termplay_SOURCES) $(termrec_SOURCES)
+SOURCES = $(proxyrec_SOURCES) $(termplay_SOURCES) $(termrec_SOURCES) \
+	$(vtest_SOURCES)
 DIST_SOURCES = $(am__proxyrec_SOURCES_DIST) \
-	$(am__termplay_SOURCES_DIST) $(am__termrec_SOURCES_DIST)
+	$(am__termplay_SOURCES_DIST) $(am__termrec_SOURCES_DIST) \
+	$(vtest_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -220,6 +226,7 @@ termplay_LDADD = stream.o compress.o formats.o name_out.o utils.o ${termplay_LDA
 termrec_LDADD = stream.o compress.o formats.o no_play.o name_out.o utils.o ${termrec_LDADD_ARCH} @LIBBZ2@ @LIBZ@
 proxyrec_LDADD = no_play.o formats.o utils.o stream.o compress.o ${proxyrec_LDADD_ARCH} name_out.o @LIBBZ2@ @LIBZ@ @PTHREAD_LIBS@
 proxyrec_LDFLAGS = ${proxyrec_LDFLAGS_ARCH} @PTHREAD_CFLAGS@
+vtest_SOURCES = vtest.c vt100.c
 termplay_RES = win32/termplay.rc win32/termplay.ico win32/termplay.manifest win32/open.bmp win32/rewind.bmp win32/pause.bmp win32/play.bmp win32/wood1.bmp win32/selstart.bmp win32/selend.bmp win32/export.bmp
 termrec_RES = win32/termrec.rc win32/termrec.ico
 proxyrec_RES = win32/proxyrec.rc win32/proxyrec.ico
@@ -316,6 +323,9 @@ termplay$(EXEEXT): $(termplay_OBJECTS) $(termplay_DEPENDENCIES)
 termrec$(EXEEXT): $(termrec_OBJECTS) $(termrec_DEPENDENCIES) 
 	@rm -f termrec$(EXEEXT)
 	$(LINK) $(termrec_LDFLAGS) $(termrec_OBJECTS) $(termrec_LDADD) $(LIBS)
+vtest$(EXEEXT): $(vtest_OBJECTS) $(vtest_DEPENDENCIES) 
+	@rm -f vtest$(EXEEXT)
+	$(LINK) $(vtest_LDFLAGS) $(vtest_OBJECTS) $(vtest_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -333,6 +343,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/timeline.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ttyr.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vt100.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vtest.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/winrec.Po@am__quote@
 
 .c.o:
