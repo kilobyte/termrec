@@ -24,7 +24,7 @@ typedef struct
     int attr;              /* current attribute */
     charset G[2];          /* G0 and G1 charsets */
     charset transl;        /* current charset */
-    int chs;               /* current charset as G# */
+    int curG;              /* current charset as G# */
     /* UTF-8 state */
     int utf;               /* UTF-8 on/off */
     ucs utf_char;
@@ -47,7 +47,7 @@ typedef struct
 #define VT100_ATTR_BLINK	0x100000
 #define VT100_ATTR_INVERSE	0x200000
 
-void vt100_init(vt100 *vt);
+void vt100_init(vt100 *vt, int sx, int sy, int utf);
 int vt100_resize(vt100 *vt, int nsx, int nsy);
 void vt100_reset(vt100 *vt);
 void vt100_free(vt100 *vt);

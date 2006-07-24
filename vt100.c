@@ -10,10 +10,13 @@
 #define CX vt->cx
 #define CY vt->cy
 
-void vt100_init(vt100 *vt)
+void vt100_init(vt100 *vt, int sx, int sy, int utf)
 {
     memset(vt,0,sizeof(vt100));
     vt100_reset(vt);
+    if (sx && sy)
+        vt100_resize(vt, sx, sy);
+    vt->utf=utf;
 }
 
 int vt100_resize(vt100 *vt, int nsx, int nsy)
@@ -92,7 +95,7 @@ void vt100_reset(vt100 *vt)
     vt->G[0]=VT100_DEFAULT_CHARSET;
     vt->G[1]=charset_vt100;
     vt->transl=VT100_DEFAULT_CHARSET;
-    vt->chs=0;
+    vt->curG=0;
     vt->utf=0;
     vt->utf_count=0;
 }
@@ -148,7 +151,7 @@ static void set_charset(vt100 *vt, int g, char x)
     }
 
     vt->G[g]=cs;
-    if (vt->chs==g)
+    if (vt->curG==g)
         vt->transl=cs;
 }
 
@@ -210,11 +213,11 @@ void vt100_write(vt100 *vt, char *buf, int len)
             CX=0;
             continue;
         case 14:
-            vt->chs=1;
+            vt->curG=1;
             vt->transl=vt->G[1];
             continue;
         case 15:
-            vt->chs=0;
+            vt->curG=0;
             vt->transl=vt->G[0];
             continue;
         case 24:

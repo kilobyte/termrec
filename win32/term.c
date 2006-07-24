@@ -1005,7 +1005,10 @@ int APIENTRY WinMain(HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
     play_state=-1;
     tsx=tsy=0;
     
-    vt100_init(&vt);
+    defsx=80;
+    defsy=25;
+    
+    vt100_init(&vt, defsx, defsy, 0);
     
     if (*lpCmdLine=='"')	// FIXME: proper parsing
     {
@@ -1015,9 +1018,6 @@ int APIENTRY WinMain(HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
     else
         strncpy(filename, lpCmdLine, MAXFILENAME-1);
     filename[MAXFILENAME-1]=0;
-
-    defsx=80;
-    defsy=25;
     
     create_window(nCmdShow);
     

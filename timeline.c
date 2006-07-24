@@ -136,8 +136,7 @@ void timeline_clear()
     memset(&tev_head, 0, sizeof(struct tty_event));
     tev_tail=&tev_head;
     tev_done=0;
-    vt100_init(&tev_vt);
-    vt100_resize(&tev_vt, defsx, defsy);
+    vt100_init(&tev_vt, defsx, defsy, 0);
     vt100_printf(&tev_vt, "\e[36mTermplay v\e[1m"PACKAGE_VERSION"\e[0m\n\n");
     tev_head.snapshot=malloc(sizeof(vt100));
     vt100_copy(&tev_vt, tev_head.snapshot);
