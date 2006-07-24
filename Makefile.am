@@ -1,6 +1,8 @@
 bin_PROGRAMS = termrec proxyrec termplay
 AM_CFLAGS=-Wall
 
+SUBDIRS = tests
+
 if WIN32
 termplay_SOURCES = win32/term.c win32/draw.c timeline.c timeline.h win32/draw.h vt100.c name_in.c
 termplay_LDADD_ARCH = -lcomdlg32 -lcomctl32 -lgdi32 termplay.coff

@@ -49,4 +49,10 @@ AC_SUBST([LIBBZ2])
 AC_CHECK_LIB([z], [gzread], , [
   AC_SHIPPED_LIB(LIBZ, libz.a, zlib.h, [gzread(0,0,0)], [win32/])])
 AC_SUBST([LIBZ])
+
+# Initialize the test suite.
+AC_CONFIG_TESTDIR(tests)
+AC_CONFIG_FILES([tests/Makefile tests/atlocal])
+AM_MISSING_PROG([AUTOM4TE], [autom4te])
+
 AC_OUTPUT
