@@ -35,8 +35,9 @@ typedef struct vt100
     int state;
     /* flags */
     int opt_auto_wrap;     /* ?7: auto wrap at right margin */
-    int opt_cursor;        /* ?25: show/hide cursor */
-    int opt_kpad;          /* keypad: application/numeric */
+#define opt_cursor flags[VT100_FLAG_CURSOR]	/* ?25: show/hide cursor */
+#define opt_kpad flags[VT100_FLAG_KPAD]	/* keypad: application/numeric */
+    int flags[10];
     /*=[ listeners ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
     void *l_data;
         /* any private data */

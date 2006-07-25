@@ -159,7 +159,12 @@ static void set_charset(vt100 *vt, int g, char x)
 
 
 #define L_CURSOR {if (vt->l_cursor) vt->l_cursor(vt, CX, CY);}
-#define L_FLAG(f,v) {if (vt->l_flag) vt->l_flag(vt, f, v);}
+#define FLAG(f,v) \
+    {						\
+        vt->flags[f]=v;				\
+        if (vt->l_flag)				\
+            vt->l_flag(vt, f, v);		\
+    }
 #define SCROLL(nl) \
     {						\
         vt100_scroll(vt, nl);			\
@@ -434,12 +439,12 @@ void vt100_write(vt100 *vt, char *buf, int len)
                 break;
             
             case '=':		/* ESC = -> application keypad mode */
-                vt->opt_kpad=1;
+                FLAG(VT100_FLAG_KPAD, 1);
                 vt->state=0;
                 break;
             
             case '>':		/* ESC > -> numeric keypad mode */
-                vt->opt_kpad=0;
+                FLAG(VT100_FLAG_KPAD, 0);
                 vt->state=0;
                 break;
                 
@@ -719,8 +724,7 @@ void vt100_write(vt100 *vt, char *buf, int len)
 		        vt->opt_auto_wrap=1;
 		        break;
                     case 25:
-                        vt->opt_cursor=1;
-                        /* TODO: L */
+                        FLAG(VT100_FLAG_CURSOR, 1);
                         break;
 #ifdef VT100_DEBUG
                     default:
@@ -738,8 +742,7 @@ void vt100_write(vt100 *vt, char *buf, int len)
 		        vt->opt_auto_wrap=0;
 		        break;
                     case 25:
-                        vt->opt_cursor=0;
-                        /* TODO: L */
+                        FLAG(VT100_FLAG_CURSOR, 0);
                         break;
 #ifdef VT100_DEBUG
                     default:
