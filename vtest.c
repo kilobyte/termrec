@@ -45,10 +45,14 @@ int main()
     vt.l_resize=tl_resize;
     vt.l_free=tl_free;
     vt100_resize(&vt, 20, 5);
+    
     vt100_printf(&vt, "abc\ndef\nghi\n");
     vt100_printf(&vt, "\e[%2$d;%1$dfblah", 20, 4);
     vt100_printf(&vt, "\e[%2$d;%1$df", 1, 5);
     vt100_printf(&vt, "abc\ndef\nghi\n");
+    
+    vt100_printf(&vt, "\e[8;4;20t");
+    
     vt100_free(&vt);
     
     return 0;

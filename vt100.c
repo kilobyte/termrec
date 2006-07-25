@@ -158,13 +158,6 @@ static void set_charset(vt100 *vt, int g, char x)
 }
 
 
-static void vt100_set_size(vt100 *vt, int nx, int ny)
-{
-    /* TODO: resize */
-    vt100_resize(vt, nx, ny);
-}
-
-
 #define L_CURSOR {if (vt->l_cursor) vt->l_cursor(vt, CX, CY);}
 #define L_FLAG(f,v) {if (vt->l_flag) vt->l_flag(vt, f, v);}
 #define SCROLL(nl) \
@@ -688,7 +681,9 @@ void vt100_write(vt100 *vt, char *buf, int len)
                         vt->tok[1]=SY;
                     if (vt->tok[2]<=0)
                         vt->tok[2]=SX;
-                    vt100_set_size(vt, vt->tok[2], vt->tok[1]);
+                    vt100_resize(vt, vt->tok[2], vt->tok[1]);
+                    if (vt->l_resize)
+                        vt->l_resize(vt, vt->tok[2], vt->tok[1]);
                     break;
 #ifdef VT100_DEBUG
                 default:
