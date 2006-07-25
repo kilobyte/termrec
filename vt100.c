@@ -217,9 +217,10 @@ void vt100_write(vt100 *vt, char *buf, int len)
                 CY=vt->s2-1;
                 SCROLL(1);
             }
-            else if (CY>=SY)
+            else
             {
-                CY=SY-1;
+                if (CY>=SY)
+                    CY=SY-1;
                 L_CURSOR;
             }
             continue;
