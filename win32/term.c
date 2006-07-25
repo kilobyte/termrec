@@ -1008,7 +1008,7 @@ int APIENTRY WinMain(HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
     defsx=80;
     defsy=25;
     
-    vt100_init(&vt, defsx, defsy, 0);
+    vt100_init(&vt, defsx, defsy, 1, 0);
     
     if (*lpCmdLine=='"')	// FIXME: proper parsing
     {
@@ -1021,7 +1021,6 @@ int APIENTRY WinMain(HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
     
     create_window(nCmdShow);
     
-    vt100_resize(&vt, defsx, defsy);
     print_banner();
     draw_size();
     UpdateWindow(wnd);

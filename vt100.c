@@ -10,13 +10,14 @@
 #define CX vt->cx
 #define CY vt->cy
 
-void vt100_init(vt100 *vt, int sx, int sy, int utf)
+void vt100_init(vt100 *vt, int sx, int sy, int resizable, int utf)
 {
     memset(vt,0,sizeof(vt100));
+    vt->opt_allow_resize=resizable;
+    vt->utf=utf;
     vt100_reset(vt);
     if (sx && sy)
         vt100_resize(vt, sx, sy);
-    vt->utf=utf;
 }
 
 int vt100_resize(vt100 *vt, int nsx, int nsy)
@@ -639,6 +640,8 @@ void vt100_write(vt100 *vt, char *buf, int len)
                 switch(vt->tok[0])
                 {
                 case 8:	    /* ESC8;<h>;<w>t -> resize */
+                    if (!vt->opt_allow_resize)
+                        break;
                     while(vt->ntok<2)
                         vt->tok[++vt->ntok]=0;
                     if (vt->tok[1]<=0)

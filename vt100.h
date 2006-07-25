@@ -35,6 +35,7 @@ typedef struct
     int tok[VT100_MAXTOK];
     int state;
     /* flags */
+    int opt_allow_resize;  /* whether vt100 input is allowed to resize */
     int opt_auto_wrap;     /* ?7: auto wrap at right margin */
     int opt_cursor;        /* ?25: show/hide cursor */
     int opt_kpad;          /* keypad: application/numeric */
@@ -47,7 +48,7 @@ typedef struct
 #define VT100_ATTR_BLINK	0x100000
 #define VT100_ATTR_INVERSE	0x200000
 
-void vt100_init(vt100 *vt, int sx, int sy, int utf);
+void vt100_init(vt100 *vt, int sx, int sy, int resizable, int utf);
 int vt100_resize(vt100 *vt, int nsx, int nsy);
 void vt100_reset(vt100 *vt);
 void vt100_free(vt100 *vt);
