@@ -39,6 +39,14 @@ void sigpass(int s)
     kill(ptym, s);
 }
 
+void tty_restore();
+void sigpipe(int s)
+{
+    tty_restore();
+    fprintf(stderr, "Broken pipe.  Disk full?\n");
+    exit(0);
+}
+
 void setsignals()
 {
     struct sigaction act;
@@ -59,6 +67,9 @@ void setsignals()
         error("sigaction SIGTERM");
     if (sigaction(SIGTSTP,&act,0))
         error("sigaction SIGTSTP");
+    act.sa_handler=sigpipe;
+    if (sigaction(SIGPIPE,&act,0))
+        error("sigaction SIGPIPE");
 }
 
 void resize()
