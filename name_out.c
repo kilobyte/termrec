@@ -8,6 +8,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 #include "utils.h"
 #include "formats.h"
 #include "stream.h"
@@ -266,19 +267,46 @@ finish_args:
 }
 
 
+/* Generate the next name in the sequence: "", a, b, ... z, aa, ab, ... */
+void nameinc(char *add)
+{
+    char *ae,*ai;
+
+    ae=add;
+    while(*ae)
+        ae++;
+    ai=ae;      /* start at the end of the string */
+    while(1)
+    {
+        if (--ai<add)
+        {
+            *ae++='a';  /* if all combinations are exhausted, */
+            *ae=0;      /*  append a new letter */
+            return;
+        }
+        if (*ai!='z')
+        {
+            (*ai)++;	/* increase the first non-'z' */
+            return;
+        }
+        *ai='a';	/* ... replacing 'z's by 'a' */
+    }
+}
+
+
 FILE *fopen_out(char **file_name, int nodetach)
 {
-    int i,fd;
-    char add[2],date[24];
+    int fd;
+    char add[10],date[24];
     time_t t;
     FILE *f;
     
     if (!*file_name)
     {
-        add[0]=add[1]=0;
+        *add=0;
         time(&t);
         strftime(date, sizeof(date), "%Y-%m-%d.%H-%M-%S", localtime(&t));
-        for(i='a';i<='z';i++)
+        while(1)
         {
             asprintf(file_name, "%s%s%s%s", date, add, rec[codec].ext, comp_ext);
             fd=open(*file_name, O_CREAT|O_WRONLY|O_EXCL|O_BINARY, 0666);
@@ -288,10 +316,14 @@ FILE *fopen_out(char **file_name, int nodetach)
                 f=fdopen(fd, "wb");
                 goto finish;
             }
+            if (errno!=EEXIST)
+                break;
             free(*file_name);
             *file_name=0;
+            nameinc(add);
         }
-        error("Can't assign valid name in the current directory.\n");
+        fprintf(stderr, "Can't create a valid file in the current directory: %s\n", strerror(errno));
+        return 0;
     }
     if (!(f=fopen(*file_name, "wb")))
         error("Can't write to the record file (%s).\n", *file_name);
