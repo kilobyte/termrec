@@ -24,6 +24,7 @@
 #include "formats.h"
 
 volatile int need_resize;
+int need_utf;
 struct termios ta;
 int ptym;
 FILE *record_f;
@@ -87,7 +88,8 @@ void resize()
     ioctl(ptym,TIOCSWINSZ,&ts);
     gettimeofday(&tv, 0);
     (*rec[codec].write)(record_f, record_state, &tv, buf, snprintf(buf, sizeof(buf),
-        "\e[8;%d;%dt", ts.ws_row, ts.ws_col));
+        "%s\e[8;%d;%dt", need_utf?"\e%G":"", ts.ws_row, ts.ws_col));
+    need_utf=0;
 }
 
 void tty_raw()
@@ -137,12 +139,10 @@ int main(int argc, char **argv)
     gettimeofday(&tv, 0);
     record_state=(*rec[codec].init)(record_f, &tv);
     need_resize=1;
+    need_utf=is_utf8();
  
     setsignals();
     tty_raw();
-    
-    if (!raw && is_utf8())
-        (*rec[codec].write)(record_f, record_state, &tv, "\e%G", 3);
     
     while(1)
     {

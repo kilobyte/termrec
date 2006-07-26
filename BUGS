@@ -12,9 +12,6 @@
 
 * rec,proxy: no --append
 
-* unix/rec: no information about UTF-8
-* unix/rec: SIGINT and friends should be passed to the child
-
 * docs: no manpages
 
 * docs: no README
