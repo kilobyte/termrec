@@ -34,6 +34,25 @@ int codec_from_ext_rec(char *name)
     return -1;
 }
 
+int codec_from_format_rec(char *name)
+{
+    int i,len;
+    char *cp;
+    
+    /* TODO: don't accept ttyrec.cruft, just ttyrec and ttyrec.bz2 */
+    for(cp=name; *cp && *cp!='.' && *cp!=':'; cp++)
+        ;
+    len=cp-name;
+    
+    if (strlen(name)>len)
+        return -1;
+    
+    for (i=0;rec[i].name;i++)
+        if (!strncasecmp(name, rec[i].name, len))
+            return i;
+    return -1;
+}
+
 
 #if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
 # define _GNU_SOURCE
@@ -60,10 +79,13 @@ struct option proxy_opts[]={
 #define REC	0
 #define PROXY	1
 
+char *comp_ext;
+
 void get_parms(int argc, char **argv, int prog)
 {
     char *cp;
     int i;
+    compress_info *ci;
 
     codec=-1;
     command=0;
@@ -71,6 +93,15 @@ void get_parms(int argc, char **argv, int prog)
     lport=-1;
     rport=-1;
     raw=0;
+#if (defined HAVE_LIBBZ2) || (defined SHIPPED_LIBBZ2)
+    comp_ext=".bz2";
+#else
+# if (defined HAVE_LIBZ) || (defined SHIPPED_LIBZ)
+    comp_ext=".gz";
+# else
+    comp_ext="";
+# endif
+#endif
     
     while(1)
     {
@@ -89,12 +120,7 @@ void get_parms(int argc, char **argv, int prog)
         case 'f':
             if (codec!=-1)
                 error("You can use only one format at a time.\n");
-            for(i=0;play[i].name;i++)
-                if (!strcasecmp(rec[i].name, optarg))
-                {
-                    codec=i;
-                    break;
-                }
+            codec=codec_from_format_rec(optarg);
             if (codec==-1)
             {
                 fprintf(stderr, "No such format: %s\n", optarg);
@@ -103,6 +129,11 @@ void get_parms(int argc, char **argv, int prog)
                     fprintf(stderr, " %-15s (%s)\n", play[i].name, play[i].ext);
                 exit(1);
             }
+            ci=comp_from_ext(optarg, compressors);
+            if (ci)
+                comp_ext=ci->ext;
+            else
+                comp_ext="";
             break;
         case 'e':
             if (command)
@@ -156,8 +187,9 @@ void get_parms(int argc, char **argv, int prog)
                     "If no filename is given, a name will be generated using the current date\n"
                     "    and the given format.\n"
                     "If no format is given, it will be set according to the extension of the\n"
-                    "    filename, or default to .ttyrec.bz2 if nothing is given.\n"
-                    "You can specify compression by appending .gz or .bz2 to the file name.\n");
+                    "    filename, or default to ttyrec.bz2 if nothing is given.\n"
+                    "You can specify compression by appending .gz or .bz2 to the file name\n"
+                    "    or the format string -- file name has precedence.\n");
                 break;
             case PROXY:
                 printf(
@@ -172,8 +204,9 @@ void get_parms(int argc, char **argv, int prog)
                     "If no filename is given, a name will be generated using the current date\n"
                     "    and the given format; the proxy will also allow multiple connections.\n"
                     "If no format is given, it will be set according to the extension of the\n"
-                    "    filename, or default to .ttyrec.bz2 if nothing is given.\n"
-                    "You can specify compression by appending .gz or .bz2 to the file name.\n");
+                    "    filename, or default to ttyrec.bz2 if nothing is given.\n"
+                    "You can specify compression by appending .gz or .bz2 to the file name\n"
+                    "    or the format string -- file name has precedence.\n");
             }
             exit(0);
         }
@@ -247,15 +280,7 @@ FILE *fopen_out(char **file_name, int nodetach)
         strftime(date, sizeof(date), "%Y-%m-%d.%H-%M-%S", localtime(&t));
         for(i='a';i<='z';i++)
         {
-            asprintf(file_name, "%s%s%s"
-#if (defined HAVE_LIBBZ2) || (defined SHIPPED_LIBBZ2)
-                                      ".bz2"
-#else
-# if (defined HAVE_LIBZ) || (defined SHIPPED_LIBZ)
-                                      ".gz"
-# endif
-#endif
-            , date, add, rec[codec].ext);
+            asprintf(file_name, "%s%s%s%s", date, add, rec[codec].ext, comp_ext);
             fd=open(*file_name, O_CREAT|O_WRONLY|O_EXCL|O_BINARY, 0666);
             /* We do some autoconf magic to exclude O_BINARY when inappropiate. */
             if (fd!=-1)

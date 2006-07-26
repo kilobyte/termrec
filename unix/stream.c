@@ -6,24 +6,16 @@
 #include "stream.h"
 
 
-FILE* stream_open(FILE *f, char *name, char *mode, compress_info *comptable, int nodetach)
+FILE* stream_open(FILE *f, char *name, char *mode, compress_info *ci, int nodetach)
 {
-    compress_func *decomp;
     int p[2];
-    compress_info *ci;
     int wr=*mode!='r';
     
     if (!f)
         return 0;
-
-    decomp=0;
-    for(ci=comptable;ci->name;ci++)
-        if (match_suffix(name, ci->ext, 0))
-        {
-            decomp=ci->comp;
-            break;
-        }
-    if (!decomp)
+    
+    ci=comp_from_ext(name, ci);
+    if (!ci)
         return f;
 
     pipe(p);
@@ -36,7 +28,7 @@ FILE* stream_open(FILE *f, char *name, char *mode, compress_info *comptable, int
         return 0;
     case 0:
         close(p[wr]);
-        (*decomp)(f, p[!wr]);
+        ci->comp(f, p[!wr]);
         exit(0);
     default:
         close(p[!wr]);

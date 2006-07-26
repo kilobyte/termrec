@@ -19,6 +19,7 @@
 # endif
 #endif
 #include "stream.h"
+#include "utils.h"
 
 #define ERRORMSG(x) write(fd,(x),strlen(x))
 
@@ -151,3 +152,11 @@ compress_info decompressors[]={
 #endif
 {0, 0, 0},
 };
+
+compress_info *comp_from_ext(char *name, compress_info *ci)
+{
+    for(;ci->name;ci++)
+        if (match_suffix(name, ci->ext, 0))
+            return ci;
+    return 0;
+}

@@ -47,11 +47,9 @@ void stream_reap_threads()
 }
 
 
-FILE* stream_open(FILE *f, char *name, char *mode, compress_info *comptable, int nodetach)
+FILE* stream_open(FILE *f, char *name, char *mode, compress_info *ci, int nodetach)
 {
-    compress_func *decomp;
     int p[2];
-    compress_info *ci;
     SP args;
     DWORD dummy;
     HANDLE th;
@@ -60,17 +58,11 @@ FILE* stream_open(FILE *f, char *name, char *mode, compress_info *comptable, int
     
     if (!f)
         return 0;
-
-    decomp=0;
-    for(ci=comptable;ci->name;ci++)
-        if (match_suffix(name, ci->ext, 0))
-        {
-            decomp=ci->comp;
-            break;
-        }
-    if (!decomp)
+    
+    ci=comp_from_ext(name, ci);
+    if (!ci)
         return f;
-
+    
 #ifdef __CYGWIN__
 #warning stream_open: using CygWin path
     if (pipe(p))
@@ -88,7 +80,7 @@ FILE* stream_open(FILE *f, char *name, char *mode, compress_info *comptable, int
     p[0]=_open_osfhandle(p[0],0);
     p[1]=_open_osfhandle(p[1],0);
 #endif
-    args.decomp=decomp;
+    args.decomp=ci->comp;
     args.f=f;
     args.fd=p[!wr];
     sem=CreateSemaphore(0,0,1,0);
