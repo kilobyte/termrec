@@ -1,0 +1,9 @@
+If you want static .gz or .bz2 support, please put the following files into
+this dir:
+
+	bzlib.h
+	libbz2.a
+
+	libz.a
+	zconf.h
+	zlib.h
