@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include "pty.h"
 #include <fcntl.h>
 #include <unistd.h>

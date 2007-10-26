@@ -71,7 +71,7 @@ struct workstate
 
 void workthread(struct workstate *ws)
 {
-    int state,will,who;
+    int state,will=0 /*lint food*/,who;
     size_t cnt;
     unsigned char buf[BUFFER_SIZE],out[BUFFER_SIZE],*bp,*op;
     struct timeval tv;
