@@ -67,6 +67,7 @@ void freeaddrinfo(struct addrinfo *res)
     /* not used, we need the info till the end */
 }
 
+#ifndef HAVE_GAI_STRERROR
 const char *gai_strerror(int err)
 {
     DWORD dwMsgLen;
@@ -84,3 +85,4 @@ const char *gai_strerror(int err)
 
     return buff;
 }
+#endif

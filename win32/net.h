@@ -1,6 +1,7 @@
 #include <winsock2.h>
 #include <windows.h>
 #include <ws2tcpip.h>
+#include "config.h"
 
 void sockets_init();
 
@@ -13,4 +14,6 @@ int getaddrinfo(const char *node, const char *service,
 
 void freeaddrinfo(struct addrinfo *res);
 
+#ifndef HAVE_GAI_STRERROR
 const char *gai_strerror(int errcode);
+#endif
