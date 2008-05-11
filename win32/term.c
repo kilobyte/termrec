@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include "config.h"
+#include "_stdint.h"
 #include "utils.h"
 #include "vt100.h"
 #include "draw.h"
