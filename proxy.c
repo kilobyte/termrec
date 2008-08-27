@@ -19,6 +19,7 @@
 #include "name_out.h"
 #include "stream.h"
 #include "formats.h"
+#include "gettext.h"
 
 #define BUFFER_SIZE 4096
 
@@ -226,17 +227,17 @@ static int connect_out()
     
     if ((sock=socket(AF_INET, SOCK_STREAM, IPPROTO_TCP))<0)
     {
-        fprintf(stderr, "socket() failed.\n");
+        fprintf(stderr, _("socket() failed: %s\n"), strerror(errno));
         return -1;
     }
     sin.sin_family=AF_INET;
     memcpy((char *)&sin.sin_addr, hp->h_addr, sizeof(sin.sin_addr));
     sin.sin_port=htons(rport);
     if (verbose)
-        printf("Connecting out...\n");
+        printf(_("Connecting out...\n"));
     if (connect(sock, (struct sockaddr*)&sin, sizeof(sin)))
     {
-        fprintf(stderr, "connect() failed.\n");
+        fprintf(stderr, _("connect() failed:%s \n"), strerror(errno));
         closesocket(sock);
         return -1;
     }
@@ -253,7 +254,7 @@ void connthread(int sock)
     struct workstate ws;
     
     if (verbose)
-        printf("Incoming connection!\n");
+        printf(_("Incoming connection!\n"));
     memset(&ws, 0, sizeof(ws));
     mutex_init(ws.mutex);
     ws.fd[0]=sock;
@@ -263,23 +264,23 @@ void connthread(int sock)
         return;
     }
     if (verbose)
-        printf("Ok.\n");
+        printf(_("Ok.\n")); /* managed to connect out */
     filename=record_name;
     ws.f=fopen_out(&filename, !!record_name);
     if (!ws.f)
     {
-        fprintf(stderr, "Can't create logfile.\n");
+        fprintf(stderr, _("Can't create logfile.\n"));
         closesocket(ws.fd[0]);
         closesocket(ws.fd[1]);
         return;
     }
     if (verbose)
-        printf("Logging to %s.\n", filename);
+        printf(_("Logging to %s.\n"), filename);
     gettimeofday(&tv, 0);
     ws.rst=rec[codec].init(ws.f, &tv);
     if (thread_create_joinable(th,workthread,&ws))
     {
-        fprintf(stderr, "Can't create thread.\n");
+        fprintf(stderr, _("Can't create thread: %s\n"), strerror(errno));
         closesocket(ws.fd[0]);
         closesocket(ws.fd[1]);
         fclose(ws.f);
@@ -292,7 +293,7 @@ void connthread(int sock)
     rec[codec].finish(ws.f, ws.rst);
     fclose(ws.f);
     if (verbose)
-        printf("Connection closed.\n");
+        printf(_("Connection closed.\n"));
     mutex_destroy(ws.mutex);
 }
 
@@ -315,7 +316,7 @@ void resolve_out()
     if ((err=getaddrinfo(command, port, &hints, &ai)))
     {
         if (err==EAI_NONAME)
-            error("No such host: %s\n", command);
+            error(_("No such host: %s\n"), command);
         else
             error("%s", gai_strerror(err));
     }
@@ -324,7 +325,7 @@ void resolve_out()
 void resolve_out()
 {
     if (!(hp=gethostbyname(command)))
-        error("No such host: %s\n", command);
+        error(_("No such host: %s\n"), command);
 }
 #endif
 
@@ -350,14 +351,14 @@ int listen_lo()
         error("%s", gai_strerror(err));
     
     if ((sock=socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol))==-1)
-    	error("Can't listen: %s\n", strerror(errno));
+    	error(_("Can't listen: %s\n"), strerror(errno));
     
     opt=1;
     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt));
     if (bind(sock, ai->ai_addr, ai->ai_addrlen))
-        error("bind() failed.\n");
+        error(_("bind() failed: %s\n"), strerror(errno));
     if (listen(sock, 2))
-        error("listen() failed.\n");
+        error(_("listen() failed: %s\n"), strerror(errno));
     return sock;
 }
 #else
@@ -368,7 +369,7 @@ int listen_lo()
     int opt;
 
     if ((sock=socket(AF_INET, SOCK_STREAM, IPPROTO_TCP))<0)
-        error("socket() failed.\n");
+        error(_("socket() failed: %s\n"), strerror(errno));
     
     opt=1;
     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt));
@@ -376,9 +377,9 @@ int listen_lo()
     sin.sin_addr.s_addr=inet_addr("127.0.0.1");
     sin.sin_port=htons(lport);
     if (bind(sock, (struct sockaddr*)&sin, sizeof(sin)))
-        error("bind() failed.\n");
+        error(_("bind() failed: %s\n"), strerror(errno));
     if (listen(sock, 2))
-        error("listen() failed.\n");
+        error(_("listen() failed: %s\n"), strerror(errno));
     return sock;
 }
 #endif
@@ -400,12 +401,12 @@ int main(int argc, char **argv)
     verbose=isatty(1);
     
     if (verbose)
-        printf("Resolving %s...\n", command);
+        printf(_("Resolving %s...\n"), command);
     resolve_out();
 
     sock=listen_lo();
     if (verbose)
-        printf("Listening...\n");
+        printf(_("Listening...\n"));
     while((s=accept(sock, 0, 0))>=0)
     {
         if (record_name)

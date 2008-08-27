@@ -13,6 +13,7 @@
 #include "formats.h"
 #include "stream.h"
 #include "name_out.h"
+#include "gettext.h"
 
 
 extern char *optarg;
@@ -120,12 +121,12 @@ void get_parms(int argc, char **argv, int prog)
             exit(1);
         case 'f':
             if (codec!=-1)
-                error("You can use only one format at a time.\n");
+                error(_("You can use only one format at a time.\n"));
             codec=codec_from_format_rec(optarg);
             if (codec==-1)
             {
-                fprintf(stderr, "No such format: %s\n", optarg);
-                fprintf(stderr, "Valid formats:\n");
+                fprintf(stderr, _("No such format: %s\n"), optarg);
+                fprintf(stderr, _("Valid formats:\n"));
                 for(i=0;play[i].name;i++)
                     fprintf(stderr, " %-15s (%s)\n", play[i].name, play[i].ext);
                 exit(1);
@@ -138,37 +139,37 @@ void get_parms(int argc, char **argv, int prog)
             break;
         case 'e':
             if (command)
-                error("You can specify -e only once.\n");
+                error(_("You can specify -e only once.\n"));
             command=optarg;
             break;
         case 'l':
             if (lport!=-1)
-                error("You can specify -l only once.\n");
+                error(_("You can specify -l only once.\n"));
             i=0;
             cp=optarg;
             while(isdigit(*cp))
             {
                 i=i*10+*cp++-'0';
                 if (i>65535)
-                    error("Too high local port number.\n");
+                    error(_("Too high local port number.\n"));
             }
             if (*cp || !i)
-                error("Invalid local port.\n");
+                error(_("Invalid local port.\n"));
             lport=i;
             break;
         case 'p':
             if (rport!=-1)
-                error("You can specify the remote port only once.\n");
+                error(_("You can specify the remote port at most once.\n"));
             i=0;
             cp=optarg;
             while(isdigit(*cp))
             {
                 i=i*10+*cp++-'0';
                 if (i>65535)
-                    error("Too high remote port number.\n");
+                    error(_("Too high remote port number.\n"));
             }
             if (*cp || !i)
-                error("Invalid remote port.\n");
+                error(_("Invalid remote port.\n"));
             rport=i;
             break;
         case 'r':
@@ -179,44 +180,59 @@ void get_parms(int argc, char **argv, int prog)
             {
             case REC:
                 printf(
-                    "Usage: termrec [-f format] [-e command] [file]\n"
-                    "    Records the output of a console session to a file, including timing data.\n"
-                    "-f, --format X        set output format to X (-f whatever for the list)\n"
-                    "-e, --exec X          execute command X instead of spawning a shell\n"
-                    "-r, --raw             don't record UTFness or terminal size\n"
-                    "-h, --help            show this usage message\n"
-                    "If no filename is given, a name will be generated using the current date\n"
-                    "    and the given format.\n"
-                    "If no format is given, it will be set according to the extension of the\n"
-                    "    filename, or default to ttyrec.bz2 if nothing is given.\n"
-                    "You can specify compression by appending .gz or .bz2 to the file name\n"
-                    "    or the format string -- file name has precedence.\n");
+                    "%stermrec [-f format] [-e command] [file]\n"
+                    "    %s"
+                    "-f, --format X        %s\n"
+                    "-e, --exec X          %s\n"
+                    "-r, --raw             %s\n"
+                    "-h, --help            %s\n"
+                    "%s%s%s",
+                    _("Usage: "),
+                    _("Records the output of a console session to a file, including timing data.\n"),
+                    _("set output format to X (-f whatever for the list)"),
+                    _("execute command X instead of spawning a shell"),
+                    _("don't record UTFness or terminal size"),
+                    _("show this usage message"),
+                    _("If no filename is given, a name will be generated using the current date\n"
+                      "    and the given format.\n"),
+                    _("If no format is given, it will be set according to the extension of the\n"
+                      "    filename, or default to ttyrec.bz2 if nothing is given.\n"),
+                    _("You can specify compression by appending .gz or .bz2 to the file name\n"
+                      "    or the format string -- file name has precedence.\n"));
                 break;
             case PROXY:
                 printf(
-                    "Usage: proxyrec [-f format] [-p rport] [-l lport] host[:port] [file]\n"
-                    "    Sets up a proxy, recording all TELNET traffic to a file, including timing data.\n"
-                    "-f, --format X        set output format to X (-f whatever for the list)\n"
-                    "-l, --local-port X    listen on port X locally (default: 9999)\n"
-                    "-p, --port X          connect to remote portX (default: 23)\n"
-                    "-r, --raw             don't weed out or parse TELNET negotiations for\n"
-                    "-h, --help            show this usage message\n"
-                    "The host to connect to must be specified.\n"
-                    "If no filename is given, a name will be generated using the current date\n"
-                    "    and the given format; the proxy will also allow multiple connections.\n"
-                    "If no format is given, it will be set according to the extension of the\n"
-                    "    filename, or default to ttyrec.bz2 if nothing is given.\n"
-                    "You can specify compression by appending .gz or .bz2 to the file name\n"
-                    "    or the format string -- file name has precedence.\n");
+                    "%sproxyrec [-f format] [-p rport] [-l lport] host[:port] [file]\n"
+                    "    %s"
+                    "-f, --format X        %s\n"
+                    "-l, --local-port X    %s\n"
+                    "-p, --port X          %s\n"
+                    "-r, --raw             %s\n"
+                    "-h, --help            %s\n"
+                    "%s%s%s%s",
+                    _("Usage:"),
+                    _("Sets up a proxy, recording all TELNET traffic to a file, including timing data.\n"),
+                    _("set output format to X (-f whatever for the list)"),
+                    _("listen on port X locally (default: 9999)"),
+                    _("connect to remote port X (default: 23)"),
+                    _("don't weed out or parse TELNET negotiations for"),
+                    _("show this usage message"),
+                    _("The host to connect to must be specified.\n"),
+                    _("If no filename is given, a name will be generated using the current date\n"
+                      "    and the given format; the proxy will also allow multiple connections.\n"),
+                    _("If no format is given, it will be set according to the extension of the\n"
+                      "    filename, or default to ttyrec.bz2 if nothing is given.\n"),
+                    _("You can specify compression by appending .gz or .bz2 to the file name\n"
+                      "    or the format string -- file name has precedence.\n"));
             }
             exit(0);
         }
     }
 finish_args:
     if (optind+prog>argc)
-        error("You MUST specify the host to connect to!\n");
+        error(_("You MUST specify the host to connect to!\n"));
     if (optind+1+prog<argc)
-        error("You can specify at most one file to record to.\n");
+        error(_("You can specify at most one file to record to.\n"));
     if (prog==PROXY)
     {
         command=argv[optind];
@@ -225,14 +241,14 @@ finish_args:
             command++;
             cp=strchr(command, ']');
             if (!cp)
-                error("Unmatched [ in the host part.\n");
+                error(_("Unmatched [ in the host part.\n"));
             *cp++=0;
             if (*cp)
             {
                 if (*cp==':')
                     goto getrport;
                 else
-                    error("Cruft after the [host name].\n");
+                    error(_("Cruft after the [host name].\n")); /* IPv6-style host name */
             }
         }
         if ((cp=strrchr(command, ':')))
@@ -245,12 +261,12 @@ finish_args:
             {
                 i=i*10+*cp++-'0';
                 if (i>65535)
-                    error("Too high remote port number.\n");
+                    error(_("Too high remote port number.\n"));
             }
             if (*cp || !i)
-                error("Invalid remote port in the host part.\n");
+                error(_("Invalid remote port in the host part.\n"));
             if (rport!=-1)
-                error("You can specify the remote port just once.\n");
+                error(_("You can specify the remote port at most once.\n"));
             rport=i;
         }
     }
@@ -322,11 +338,11 @@ FILE *fopen_out(char **file_name, int nodetach)
             *file_name=0;
             nameinc(add);
         }
-        fprintf(stderr, "Can't create a valid file in the current directory: %s\n", strerror(errno));
+        fprintf(stderr, _("Can't create a valid file in the current directory: %s\n"), strerror(errno));
         return 0;
     }
     if (!(f=fopen(*file_name, "wb")))
-        error("Can't write to the record file (%s).\n", *file_name);
+        error(_("Can't write to the record file (%s): %s\n"), *file_name, strerror(errno));
 finish:
     return stream_open(f, *file_name, "wb", compressors, nodetach);
 }

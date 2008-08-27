@@ -7,6 +7,7 @@
 #include "synch.h"
 #include "timeline.h"
 #include "name.h"
+#include "gettext.h"
 
 /*******************/
 /* gatherer thread */
@@ -30,9 +31,9 @@ void synch_init_wait(struct timeval *ts)
         timeline_lock();
 #ifdef HAVE_CTIME_R
         ctime_r(&ts->tv_sec, buf);
-        vt100_printf(&tev_vt, "Recording started %s\n", buf);
+        vt100_printf(&tev_vt, _("Recording started %s\n"), buf);
 #else
-        vt100_printf(&tev_vt, "Recording started %s\n", ctime(&ts->tv_sec));
+        vt100_printf(&tev_vt, _("Recording started %s\n"), ctime(&ts->tv_sec));
 #endif
         timeline_unlock();
     }
@@ -137,7 +138,10 @@ void timeline_clear()
     tev_tail=&tev_head;
     tev_done=0;
     vt100_init(&tev_vt, defsx, defsy, 1, 0);
-    vt100_printf(&tev_vt, "\e[36mTermplay v\e[1m"PACKAGE_VERSION"\e[0m\n\n");
+    vt100_printf(&tev_vt, "\e[36m");
+    vt100_printf(&tev_vt, _("Termplay v%s\n\n"),
+        "\e[36;1m"PACKAGE_VERSION"\e[0;36m");
+    vt100_printf(&tev_vt, "\e[0m");
     tev_head.snapshot=malloc(sizeof(vt100));
     vt100_copy(&tev_vt, tev_head.snapshot);
     nchunk=0;

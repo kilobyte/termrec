@@ -20,6 +20,7 @@
 #endif
 #include "stream.h"
 #include "utils.h"
+#include "gettext.h"
 
 #define ERRORMSG(x) write(fd,(x),strlen(x))
 
@@ -37,7 +38,7 @@ void read_bz2(FILE *f, int fd)
     if (bzerror != BZ_OK) {
        BZ2_bzReadClose ( &bzerror, b );
        /* error */
-       ERRORMSG("Invalid .bz2 file.\n");
+       ERRORMSG(_("Invalid/corrupt .bz2 file.\n"));
        return;
     }
 
@@ -50,7 +51,8 @@ void read_bz2(FILE *f, int fd)
     if (bzerror != BZ_STREAM_END) {
        BZ2_bzReadClose ( &bzerror, b );
        /* error */
-       ERRORMSG("\e[0mbzip2: Error during decompression.\n");
+       ERRORMSG("\e[0m");
+       ERRORMSG(_("bzip2: Error during decompression.\n"));
     } else {
        BZ2_bzReadClose ( &bzerror, b );
     }
@@ -94,7 +96,7 @@ void read_gz(FILE *f, int fd)
     g=gzdopen(fileno(f), "rb");
     if (!g)
     {
-        ERRORMSG("Invalid .gz file.\n");
+        ERRORMSG(_("Invalid/corrupt .gz file.\n"));
         return;
     }
     while((nBuf=gzread(g, buf, BUFFER_SIZE))>0)
@@ -107,7 +109,8 @@ void read_gz(FILE *f, int fd)
     }
     if (nBuf)
     {
-        ERRORMSG("\e[0mgzip: Error during decompression.\n");
+        ERRORMSG("\e[0m");
+        ERRORMSG(_("gzip: Error during decompression.\n"));
     }
     gzclose(g);        
 }
