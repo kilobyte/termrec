@@ -36,7 +36,7 @@ int codec_from_ext_rec(char *name)
     return -1;
 }
 
-int codec_from_format_rec(char *name)
+static int codec_from_format_rec(char *name)
 {
     int i,len;
     char *cp;
@@ -59,7 +59,7 @@ int codec_from_format_rec(char *name)
 #if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
 # define _GNU_SOURCE
 # include <getopt.h>
-struct option rec_opts[]={
+static struct option rec_opts[]={
 {"format",	1, 0, 'f'},
 {"exec",	1, 0, 'e'},
 {"raw",		0, 0, 'r'},
@@ -67,7 +67,7 @@ struct option rec_opts[]={
 {0,		0, 0, 0},
 };
 
-struct option proxy_opts[]={
+static struct option proxy_opts[]={
 {"format",	1, 0, 'f'},
 {"local-port",	1, 0, 'l'},
 {"listen-port",	1, 0, 'l'},
@@ -81,7 +81,7 @@ struct option proxy_opts[]={
 #define REC	0
 #define PROXY	1
 
-char *comp_ext;
+static char *comp_ext;
 
 void get_parms(int argc, char **argv, int prog)
 {
@@ -284,7 +284,7 @@ finish_args:
 
 
 /* Generate the next name in the sequence: "", a, b, ... z, aa, ab, ... */
-void nameinc(char *add)
+static void nameinc(char *add)
 {
     char *ae,*ai;
 

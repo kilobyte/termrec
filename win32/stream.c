@@ -15,7 +15,7 @@ typedef struct
     HANDLE sem;
 } SP, *LPSP;
 
-WINAPI void StreamThreadFunc(LPSP arg)
+static WINAPI void StreamThreadFunc(LPSP arg)
 {
     SP args=*arg;
     
@@ -25,8 +25,8 @@ WINAPI void StreamThreadFunc(LPSP arg)
 }
 
 
-HANDLE *threads=0;
-int nthreads=0;
+static HANDLE *threads=0;
+static int nthreads=0;
 
 void register_thread(HANDLE th)
 {

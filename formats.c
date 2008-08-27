@@ -96,7 +96,7 @@ Will be called when the recording ends.
 /* format: baudrate */
 /********************/
 
-void play_baudrate(FILE *f)
+static void play_baudrate(FILE *f)
 {
     char buf[BUFFER_SIZE];
     size_t b;
@@ -113,17 +113,17 @@ void play_baudrate(FILE *f)
 }
 
 
-void* record_baudrate_init(FILE *f, struct timeval *tm)
+static void* record_baudrate_init(FILE *f, struct timeval *tm)
 {
     return 0;
 }
 
-void record_baudrate(FILE *f, void* state, struct timeval *tm, char *buf, int len)
+static void record_baudrate(FILE *f, void* state, struct timeval *tm, char *buf, int len)
 {
     fwrite(buf, 1, len, f);
 }
 
-void record_baudrate_finish(FILE *f, void* state)
+static void record_baudrate_finish(FILE *f, void* state)
 {
 }
 
@@ -140,7 +140,7 @@ struct ttyrec_header
 };
 
 
-void play_ttyrec(FILE *f)
+static void play_ttyrec(FILE *f)
 {
     char buf[BUFFER_SIZE];
     size_t b,w;
@@ -204,12 +204,12 @@ the_end:;
 }
 
 
-void* record_ttyrec_init(FILE *f, struct timeval *tm)
+static void* record_ttyrec_init(FILE *f, struct timeval *tm)
 {
     return 0;
 }
 
-void record_ttyrec(FILE *f, void* state, struct timeval *tm, char *buf, int len)
+static void record_ttyrec(FILE *f, void* state, struct timeval *tm, char *buf, int len)
 {
     struct ttyrec_header h;
     
@@ -220,7 +220,7 @@ void record_ttyrec(FILE *f, void* state, struct timeval *tm, char *buf, int len)
     fwrite(buf, 1, len, f);
 }
 
-void record_ttyrec_finish(FILE *f, void* state)
+static void record_ttyrec_finish(FILE *f, void* state)
 {
 }
 
@@ -229,7 +229,7 @@ void record_ttyrec_finish(FILE *f, void* state)
 /* format: nh_recorder */
 /***********************/
 
-void play_nh_recorder(FILE *f)
+static void play_nh_recorder(FILE *f)
 {
     char buf[BUFFER_SIZE];
     int b,i,i0;
@@ -269,7 +269,7 @@ void play_nh_recorder(FILE *f)
     }
 }
 
-void* record_nh_recorder_init(FILE *f, struct timeval *tm)
+static void* record_nh_recorder_init(FILE *f, struct timeval *tm)
 {
     struct timeval *tv;
     
@@ -279,7 +279,7 @@ void* record_nh_recorder_init(FILE *f, struct timeval *tm)
     return tv;
 }
 
-void record_nh_recorder(FILE *f, void* state, struct timeval *tm, char *buf, int len)
+static void record_nh_recorder(FILE *f, void* state, struct timeval *tm, char *buf, int len)
 {
     int32_t i;
     i=(tm->tv_sec-((struct timeval*)state)->tv_sec)*100+
@@ -290,7 +290,7 @@ void record_nh_recorder(FILE *f, void* state, struct timeval *tm, char *buf, int
     fwrite(&i, 1, 4, f);
 }
 
-void record_nh_recorder_finish(FILE *f, void* state)
+static void record_nh_recorder_finish(FILE *f, void* state)
 {
     free(state);
 }
@@ -306,12 +306,12 @@ void play_reallogs(FILE *f)
 }
 */
 
-void* record_reallogs_init(FILE *f, struct timeval *tm)
+static void* record_reallogs_init(FILE *f, struct timeval *tm)
 {
     return 0;
 }
 
-void record_reallogs(FILE *f, void* state, struct timeval *tm, char *buf, int len)
+static void record_reallogs(FILE *f, void* state, struct timeval *tm, char *buf, int len)
 {
 #define sec ((unsigned int)tm->tv_sec)
     fwrite(buf, 1, len, f);
@@ -320,7 +320,7 @@ void record_reallogs(FILE *f, void* state, struct timeval *tm, char *buf, int le
 #undef sec
 }
 
-void record_reallogs_finish(FILE *f, void* state)
+static void record_reallogs_finish(FILE *f, void* state)
 {
 }
 
@@ -329,16 +329,16 @@ void record_reallogs_finish(FILE *f, void* state)
 /* format: null */
 /****************/
 
-void* record_null_init(FILE *f, struct timeval *tm)
+static void* record_null_init(FILE *f, struct timeval *tm)
 {
     return 0;
 }
 
-void record_null(FILE *f, void* state, struct timeval *tm, char *buf, int len)
+static void record_null(FILE *f, void* state, struct timeval *tm, char *buf, int len)
 {
 }
 
-void record_null_finish(FILE *f, void* state)
+static void record_null_finish(FILE *f, void* state)
 {
 }
 
