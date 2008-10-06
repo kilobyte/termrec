@@ -3,60 +3,108 @@
 #include <stdlib.h>
 #include "vt100.h"
 
-struct rl_data
+struct vtvt_data
 {
     int attr;
     int cx,cy;
 };
 
-#define DATA ((struct rl_data*)(vt->rl_data))
+#define DATA ((struct vtvt_data*)(vt->l_data))
 
-void rl_char(vt100 *vt, int x, int y, ucs ch, int attr)
+static inline void setattr(vt100 *vt, int attr)
 {
+    if (DATA->attr!=attr)
+    {
+        DATA->attr=attr;
+        printf("\e[0");
+        if (attr&VT100_ATTR_BOLD)
+            printf(";1");
+        if (attr&VT100_ATTR_DIM)
+            printf(";2");
+        if (attr&VT100_ATTR_ITALIC)
+            printf(";3");
+        if (attr&VT100_ATTR_UNDERLINE)
+            printf(";4");
+        if (attr&VT100_ATTR_BLINK)
+            printf(";5");
+        if (attr&VT100_ATTR_INVERSE)
+            printf(";7");
+        if ((attr&0xff)!=0xff)
+            printf(";3%u", attr&0xff);
+        if ((attr&0xff00)!=0xff00)
+            printf(";4%u", (attr&0xff00)>>8);
+        printf("m");
+    }
+}
+
+
+void vtvt_char(vt100 *vt, int x, int y, ucs ch, int attr)
+{
+    setattr(vt, attr);
     printf("%c", ch);
 }
 
-void rl_cursor(vt100 *vt, int x, int y)
+void vtvt_cursor(vt100 *vt, int x, int y)
 {
     printf("\e[%d;%df", y+1, x+1);
 }
 
-void rl_clear(vt100 *vt, int x, int y, int len)
+void vtvt_dump(vt100 *vt)
 {
-    rl_cursor(vt, x, y);
+    int x,y;
+    attrchar *ch;
+    
+    ch=vt->scr;
+    for(y=0; y<vt->sy; y++)
+    {
+        printf("\e[%uf", y+1);
+        for(x=0; x<vt->sx; x++)
+        {
+            vtvt_char(vt, x, y, ch->ch, ch->attr);
+            ch++;
+        }
+    }
+    vtvt_cursor(vt, vt->cx, vt->cy);
+}
+
+void vtvt_clear(vt100 *vt, int x, int y, int len)
+{
+    setattr(vt, vt->attr);
+    vtvt_cursor(vt, x, y);
     while(len--)
-        printf(" ");
-    rl_cursor(vt, vt->cx, vt->cy);
+        printf(" ");	/* TODO */
+    vtvt_cursor(vt, vt->cx, vt->cy);
 }
 
-void rl_scroll(vt100 *vt, int nl)
+void vtvt_scroll(vt100 *vt, int nl)
+{
+    vtvt_dump(vt);
+}
+
+void vtvt_flag(vt100 *vt, int f, int v)
 {
 }
 
-void rl_flag(vt100 *vt, int f, int v)
-{
-}
-
-void rl_resize(vt100 *vt, int sx, int sy)
+void vtvt_resize(vt100 *vt, int sx, int sy)
 {
     printf("\e[8;%u;%u\n", sy, sx);
 }
 
-void rl_free(vt100 *vt)
+void vtvt_free(vt100 *vt)
 {
     free(vt->l_data);
 }
 
-void rl_init(vt100 *vt)
+void vtvt_init(vt100 *vt)
 {
-    vt->l_data=malloc(sizeof(struct rl_data));
-    vt->l_char=rl_char;
-    vt->l_cursor=rl_cursor;
-    vt->l_clear=rl_clear;
-    vt->l_scroll=rl_scroll;
-    vt->l_flag=rl_flag;
-    vt->l_resize=rl_resize;
-    vt->l_free=rl_free;
+    vt->l_data=malloc(sizeof(struct vtvt_data));
+    vt->l_char=vtvt_char;
+    vt->l_cursor=vtvt_cursor;
+    vt->l_clear=vtvt_clear;
+    vt->l_scroll=vtvt_scroll;
+    vt->l_flag=vtvt_flag;
+    vt->l_resize=vtvt_resize;
+    vt->l_free=vtvt_free;
 }
 
 
@@ -69,7 +117,7 @@ int main()
     
     vt100_init(&vt);
     vt100_resize(&vt, 20, 5);
-    rl_init(&vt);
+    vtvt_init(&vt);
     
     while((l=read(0, buf, BS)))
     {
