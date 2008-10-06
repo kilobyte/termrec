@@ -36,3 +36,6 @@ ttyrecord
 *.txt.bz2
 *.o
 *~
+
+vtest
+vtredir

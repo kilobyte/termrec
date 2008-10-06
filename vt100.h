@@ -1,7 +1,3 @@
-/*#define VT100_DEBUG*/
-
-#define VT100_DEFAULT_CHARSET charset_cp437
-
 typedef unsigned int ucs;
 
 typedef struct 
@@ -14,7 +10,10 @@ typedef unsigned short *charset;
 
 #define VT100_MAXTOK 10
 
-typedef struct
+#define VT100_FLAG_CURSOR	1	/* visible cursor */
+#define VT100_FLAG_KPAD		2	/* application keypad mode */
+
+typedef struct vt100
 {
     int sx,sy;	           /* screen size */
     int s1,s2;             /* scrolling region */
@@ -37,8 +36,39 @@ typedef struct
     /* flags */
     int opt_allow_resize;  /* whether vt100 input is allowed to resize */
     int opt_auto_wrap;     /* ?7: auto wrap at right margin */
-    int opt_cursor;        /* ?25: show/hide cursor */
-    int opt_kpad;          /* keypad: application/numeric */
+#define opt_cursor flags[VT100_FLAG_CURSOR]	/* ?25: show/hide cursor */
+#define opt_kpad flags[VT100_FLAG_KPAD]	/* keypad: application/numeric */
+    int flags[10];
+    /*=[ listeners ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
+    void *l_data;
+        /* any private data */
+    void *l_changes;
+        /* pending changes in your private format */
+    void (*l_char)(struct vt100 *vt, int x, int y, ucs ch, int attr);
+        /* after a character has been written to the screen */
+    void (*l_cursor)(struct vt100 *vt, int x, int y);
+        /* after the cursor has moved */
+    void (*l_clear)(struct vt100 *vt, int x, int y, int len);
+        /* after a chunk of screen has been cleared
+            * len can spill into subsequent lines
+            * the only valid endpoints are:
+              a. cursor
+              b. beginning/end of the current line
+              c. beginning/end of the screen
+              Also, b. and c. won't be used at once.
+           If the cursor moves, you'll get a separate l_cursor, although
+           it is already in place during the l_clear call. */
+    void (*l_scroll)(struct vt100 *vt, int nl);
+        /* after the region s1<=y<s2 is scrolled nl lines
+            * nl<0 -> scrolling backwards
+            * nl>0 -> scrolling forwards
+           The cursor is already moved.	*/
+    void (*l_flag)(struct vt100 *vt, int f, int v);
+        /* when a flag changes to v */
+    void (*l_resize)(struct vt100 *vt, int sx, int sy);
+        /* after the tty has been resized */
+    void (*l_free)(struct vt100 *vt);
+        /* before the tty is destroyed */
 } vt100;
 
 #define VT100_ATTR_BOLD		0x010000
