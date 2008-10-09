@@ -23,11 +23,7 @@
 
 #define BUFFER_SIZE 4096
 
-#ifdef IPV6
 struct addrinfo *ai;
-#else
-struct hostent *hp;
-#endif
 int verbose;
 
 #define EOR 239     /* End of Record */
@@ -187,7 +183,6 @@ void workthread(struct workstate *ws)
 }
 
 
-#ifdef IPV6
 static int connect_out()
 {
     struct addrinfo *addr;
@@ -219,31 +214,6 @@ static int connect_out()
     }
     return -1;
 }
-#else
-static int connect_out()
-{
-    struct sockaddr_in sin;
-    int sock;
-    
-    if ((sock=socket(AF_INET, SOCK_STREAM, IPPROTO_TCP))<0)
-    {
-        fprintf(stderr, _("socket() failed: %s\n"), strerror(errno));
-        return -1;
-    }
-    sin.sin_family=AF_INET;
-    memcpy((char *)&sin.sin_addr, hp->h_addr, sizeof(sin.sin_addr));
-    sin.sin_port=htons(rport);
-    if (verbose)
-        printf(_("Connecting out...\n"));
-    if (connect(sock, (struct sockaddr*)&sin, sizeof(sin)))
-    {
-        fprintf(stderr, _("connect() failed:%s \n"), strerror(errno));
-        closesocket(sock);
-        return -1;
-    }
-    return sock;
-}
-#endif
 
 
 void connthread(int sock)
@@ -298,7 +268,6 @@ void connthread(int sock)
 }
 
 
-#ifdef IPV6
 void resolve_out()
 {
     int err;
@@ -321,13 +290,6 @@ void resolve_out()
             error("%s", gai_strerror(err));
     }
 }
-#else
-void resolve_out()
-{
-    if (!(hp=gethostbyname(command)))
-        error(_("No such host: %s\n"), command);
-}
-#endif
 
 
 #if 0
