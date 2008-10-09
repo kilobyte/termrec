@@ -1,47 +1,10 @@
-bin_PROGRAMS = termrec proxyrec termplay vtest vtredir
 AM_CFLAGS=-Wall
 
-SUBDIRS = tests
-
 if WIN32
-termplay_SOURCES = win32/term.c win32/draw.c timeline.c timeline.h win32/draw.h vt100.c name_in.c
-termplay_LDADD_ARCH = -lcomdlg32 -lcomctl32 -lgdi32 termplay.coff
-termplay_LDFLAGS = -Xlinker --subsystem -Xlinker windows
-termrec_SOURCES = win32/winrec.c
-termrec_LDADD_ARCH = termrec.coff
-proxyrec_SOURCES = proxy.c win32/net.c
-proxyrec_LDADD_ARCH = proxyrec.coff
-proxyrec_LDFLAGS_ARCH = -Xlinker --subsystem -Xlinker windows
+SUBDIRS = libtty tmp ugly win32 proxy
 else
-termplay_SOURCES = dumbplay.c name_in.c
-termrec_SOURCES = unix/ttyr.c unix/pty.c
-proxyrec_SOURCES = proxy.c
+SUBDIRS = libtty tmp ugly unix proxy
 endif
-termplay_LDADD = stream.o compress.o formats.o name_out.o utils.o ${termplay_LDADD_ARCH} @LIBBZ2@ @LIBZ@
-termrec_LDADD = stream.o compress.o formats.o no_play.o name_out.o utils.o ${termrec_LDADD_ARCH} @LIBBZ2@ @LIBZ@
-proxyrec_LDADD = no_play.o formats.o utils.o stream.o compress.o ${proxyrec_LDADD_ARCH} name_out.o @LIBBZ2@ @LIBZ@ @PTHREAD_LIBS@
-proxyrec_LDFLAGS = ${proxyrec_LDFLAGS_ARCH} @PTHREAD_CFLAGS@
 
-vtest_SOURCES = vtest.c vt100.c
-vtredir_SOURCES = vtredir.c vt100.c
-
-termplay_RES = win32/termplay.rc win32/termplay.ico win32/termplay.manifest win32/open.bmp win32/rewind.bmp win32/pause.bmp win32/play.bmp win32/wood1.bmp win32/selstart.bmp win32/selend.bmp win32/export.bmp
-termrec_RES = win32/termrec.rc win32/termrec.ico
-proxyrec_RES = win32/proxyrec.rc win32/proxyrec.ico
-CHEADERS = stream.h formats.h utils.h synch.h name_out.h threads.h unix/threads.h win32/threads.h pty.h name.h vt100.h charsets.h net.h win32/net.h win32/winutils.h
-COMMON = stream.c unix/stream.c win32/stream.c compress.c formats.c no_play.c utils.c unix/utils.c win32/winutils.c name_out.c win32/net.c
-EXTRA_DIST_W32 = ${termplay_RES} ${termrec_RES} ${proxyrec_RES}
-EXTRA_DIST= ${CHEADERS} ${COMMON} BUGS ${EXTRA_DIST_W32}
-
+EXTRA_DIST= BUGS gettext.h
 DISTCLEANFILES = _stdint.h
-CLEANFILES = termplay.coff termrec.coff proxyrec.coff
-
-termplay.coff: ${termplay_RES}
-	builddir=`pwd` && cd $(srcdir)/win32 && \
-	  $(WINDRES) termplay.rc "$$builddir/termplay.coff"
-termrec.coff: ${termrec_RES}
-	builddir=`pwd` && cd $(srcdir)/win32 && \
-	  $(WINDRES) termrec.rc "$$builddir/termrec.coff"
-proxyrec.coff: ${proxyrec_RES}
-	builddir=`pwd` && cd $(srcdir)/win32 && \
-	  $(WINDRES) proxyrec.rc "$$builddir/proxyrec.coff"

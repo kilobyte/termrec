@@ -8,7 +8,10 @@ To create one, implement:
 
 + player:
 
-void play_xxx(FILE *f);
+void play_xxx(FILE *f,
+    void *(synch_init_wait)(struct timeval *ts),
+    void *(synch_wait)(struct timeval *tv),
+    void *(synch_print)(char *buf, int len));
 You are guaranteed to be running in a thread-equivalent on your own.
     *f
       is the file you're reading from, don't expect it to be seekable.
@@ -72,7 +75,6 @@ Will be called when the recording ends.
 #include <stdlib.h>
 #include <string.h>
 #include "formats.h"
-#include "synch.h"
 #include "utils.h"
 
 
@@ -96,7 +98,10 @@ Will be called when the recording ends.
 /* format: baudrate */
 /********************/
 
-static void play_baudrate(FILE *f)
+static void play_baudrate(FILE *f,
+    void *(synch_init_wait)(struct timeval *ts),
+    void *(synch_wait)(struct timeval *tv),
+    void *(synch_print)(char *buf, int len))
 {
     char buf[BUFFER_SIZE];
     size_t b;
@@ -140,7 +145,10 @@ struct ttyrec_header
 };
 
 
-static void play_ttyrec(FILE *f)
+static void play_ttyrec(FILE *f,
+    void *(synch_init_wait)(struct timeval *ts),
+    void *(synch_wait)(struct timeval *tv),
+    void *(synch_print)(char *buf, int len))
 {
     char buf[BUFFER_SIZE];
     size_t b,w;
@@ -229,7 +237,10 @@ static void record_ttyrec_finish(FILE *f, void* state)
 /* format: nh_recorder */
 /***********************/
 
-static void play_nh_recorder(FILE *f)
+static void play_nh_recorder(FILE *f,
+    void *(synch_init_wait)(struct timeval *ts),
+    void *(synch_wait)(struct timeval *tv),
+    void *(synch_print)(char *buf, int len))
 {
     char buf[BUFFER_SIZE];
     int b,i,i0;

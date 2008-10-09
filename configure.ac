@@ -4,12 +4,13 @@
 AC_PREREQ(2.59)
 AC_INIT(termrec, 0.13.a, [kilobyte@angband.pl])
 AM_INIT_AUTOMAKE
-AC_CONFIG_SRCDIR([formats.c])
+AC_CONFIG_SRCDIR([libtty/vt100.h])
 AC_CONFIG_HEADER([config.h])
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile libtty/Makefile tmp/Makefile proxy/Makefile ugly/Makefile win32/Makefile unix/Makefile])
 
 # Checks for programs.
 AC_PROG_CC
+AC_PROG_RANLIB
 
 # Checks for Winblows.
 AC_CHECK_WIN32

@@ -35,6 +35,7 @@ termrec-*.tar.gz
 ttyrecord
 *.txt.bz2
 *.o
+*.a
 *~
 
 vtest

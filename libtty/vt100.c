@@ -7,13 +7,14 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include "export.h"
 
 #define SX vt->sx
 #define SY vt->sy
 #define CX vt->cx
 #define CY vt->cy
 
-void vt100_init(vt100 *vt, int sx, int sy, int resizable, int utf)
+public void vt100_init(vt100 *vt, int sx, int sy, int resizable, int utf)
 {
     memset(vt,0,sizeof(vt100));
     vt->opt_allow_resize=resizable;
@@ -23,7 +24,7 @@ void vt100_init(vt100 *vt, int sx, int sy, int resizable, int utf)
         vt100_resize(vt, sx, sy);
 }
 
-int vt100_resize(vt100 *vt, int nsx, int nsy)
+public int vt100_resize(vt100 *vt, int nsx, int nsy)
 {
     int x,y;
     attrchar *nscr;
@@ -59,14 +60,14 @@ int vt100_resize(vt100 *vt, int nsx, int nsy)
     return 1;
 }
 
-void vt100_free(vt100 *vt)
+public void vt100_free(vt100 *vt)
 {
     if (vt->l_free)
         vt->l_free(vt);
     free(vt->scr);
 }
 
-int vt100_copy(vt100 *vt, vt100 *nvt)
+public int vt100_copy(vt100 *vt, vt100 *nvt)
 {
     memcpy(nvt, vt, sizeof(vt100));
     if (!(nvt->scr=malloc(SX*SY*sizeof(attrchar))))
@@ -87,7 +88,7 @@ static void vt100_clear_region(vt100 *vt, int st, int l)
         *c++=blank;
 }
 
-void vt100_reset(vt100 *vt)
+public void vt100_reset(vt100 *vt)
 {
     vt100_clear_region(vt, 0, SX*SY);
     CX=CY=vt->save_cx=vt->save_cy=0;
@@ -130,7 +131,7 @@ static void vt100_scroll(vt100 *vt, int nl)
 
 static void set_charset(vt100 *vt, int g, char x)
 {
-    charset cs;
+    vt100_charset cs;
     
 #ifdef VT100_DEBUG
     printf("Changing charset G%d to %c.\n", g, x);
@@ -182,7 +183,7 @@ static void set_charset(vt100 *vt, int g, char x)
             vt->l_clear(vt, x, y, len);		\
     }
 
-void vt100_write(vt100 *vt, char *buf, int len)
+public void vt100_write(vt100 *vt, char *buf, int len)
 {
     int i;
     ucs c;
@@ -804,7 +805,7 @@ void vt100_write(vt100 *vt, char *buf, int len)
 
 #define MAX_PRINTABLE 16384
 
-void vt100_printf(vt100 *vt, const char *fmt, ...)
+public void vt100_printf(vt100 *vt, const char *fmt, ...)
 {
     va_list ap;
     char buf[MAX_PRINTABLE];

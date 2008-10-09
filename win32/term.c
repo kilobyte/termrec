@@ -13,7 +13,6 @@
 #include "stream.h"
 #include "formats.h"
 #include "timeline.h"
-#include "synch.h"
 #include "name.h"
 
 #undef THREADED
@@ -465,7 +464,7 @@ void timeline_unlock()
 
 void playfile(int arg)
 {
-    (*play[arg].play)(play_f);
+    (*play[arg].play)(play_f, synch_init_wait, synch_wait, synch_print);
     synch_print("\e[0mEnd of recording.", 20);
     
     {	// AXE ME

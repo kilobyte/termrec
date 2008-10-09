@@ -4,7 +4,6 @@
 #include "utils.h"
 #include "formats.h"
 #include "vt100.h"
-#include "synch.h"
 #include "timeline.h"
 #include "name.h"
 #include "gettext.h"

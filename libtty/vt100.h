@@ -6,7 +6,7 @@ typedef struct
     int attr;
 } attrchar;
 
-typedef unsigned short *charset;
+typedef unsigned short *vt100_charset;
 
 #define VT100_MAXTOK 10
 
@@ -21,8 +21,8 @@ typedef struct vt100
     int save_cx,save_cy;   /* saved cursor position */
     attrchar *scr;         /* screen buffer */
     int attr;              /* current attribute */
-    charset G[2];          /* G0 and G1 charsets */
-    charset transl;        /* current charset */
+    vt100_charset G[2];    /* G0 and G1 charsets */
+    vt100_charset transl;  /* current charset */
     int curG;              /* current charset as G# */
     /* UTF-8 state */
     int utf;               /* UTF-8 on/off */
