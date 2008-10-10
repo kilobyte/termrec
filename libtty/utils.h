@@ -9,15 +9,8 @@
 #  include <time.h>
 # endif
 #endif
-#ifdef WIN32
-# include <windows.h>
-#endif
 
 #define ARRAYSIZE(a) (sizeof(a)/sizeof(a[0]))
-
-#ifndef HAVE_ASPRINTF
-int asprintf(char **sptr, const char *fmt, ...);
-#endif
 
 void show_error(char *blah);
 
@@ -34,7 +27,7 @@ int match_suffix(char *txt, char *ext, int skip);
 void error(const char *txt, ...);
 
 #ifdef WIN32
-# include "win32/winutils.h"
+# include "sys/win32/winutils.h"
 #else
 int is_utf8();
 #endif

@@ -3,8 +3,6 @@
 #include <ws2tcpip.h>
 #include "config.h"
 
-void sockets_init();
-
 #define SHUT_RD SD_RECEIVE
 #define SHUT_WR SD_SEND
 

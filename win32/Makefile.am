@@ -1,15 +1,13 @@
 bin_PROGRAMS = termrec termplay
 AM_CFLAGS=-Wall -I${srcdir}/../libtty/ -I${srcdir}/../ugly/
 
-noinst_LIBRARIES = libnet.a
-libnet_a_SOURCES = net.c
-libnet_a_LIBADD = proxyrec.coff
+all_local: proxyrec.coff
 
 termplay_SOURCES = term.c draw.c draw.h
 termplay_LDFLAGS = -Xlinker --subsystem -Xlinker windows
 termrec_SOURCES = winrec.c
-termplay_LDADD = ../ugly/name_out.o ../ugly/name_in.o ../libtty/libtty.a -lcomdlg32 -lcomctl32 -lgdi32 termplay.coff @LIBBZ2@ @LIBZ@ @PTHREAD_LIBS@
-termrec_LDADD = ../ugly/name_out.o ../libtty/libtty.a termrec.coff @LIBBZ2@ @LIBZ@ @PTHREAD_LIBS@
+termplay_LDADD = ../sys/asprintf.o ../sys/libcompat.a ../ugly/name_out.o ../ugly/name_in.o ../libtty/libtty.a -lcomdlg32 -lcomctl32 -lgdi32 termplay.coff @LIBBZ2@ @LIBZ@ @PTHREAD_LIBS@
+termrec_LDADD = ../sys/asprintf.o ../sys/libcompat.a ../ugly/name_out.o ../libtty/libtty.a termrec.coff @LIBBZ2@ @LIBZ@ @PTHREAD_LIBS@
 
 termplay_RES = termplay.rc termplay.ico termplay.manifest open.bmp rewind.bmp pause.bmp play.bmp wood1.bmp selstart.bmp selend.bmp export.bmp
 termrec_RES = termrec.rc termrec.ico

@@ -13,9 +13,9 @@
 #endif
 #include <errno.h>
 #include <assert.h>
-#include "net.h"
+#include "sys/compat.h"
 #include "utils.h"
-#include "threads.h"
+#include "sys/threads.h"
 #include "name_out.h"
 #include "stream.h"
 #include "formats.h"
@@ -352,8 +352,6 @@ int main(int argc, char **argv)
     int sock,s;
     thread_t th;
     
-    sockets_init();	/* Win32 only */
-
     get_parms(argc, argv, 1);
     if (rport==-1)
         rport=23;

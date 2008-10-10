@@ -1,5 +1,5 @@
 #include "net.h"
-#include "utils.h"
+#include "win32/winutils.h"
 
 typedef int (WINAPI *PGETADDRINFO) (
     IN  const char                      *nodename,
@@ -8,8 +8,9 @@ typedef int (WINAPI *PGETADDRINFO) (
     OUT struct addrinfo                 **res);
 
 static PGETADDRINFO pgetaddrinfo;
+static int initialized=0;
 
-void sockets_init()
+static void sockets_init()
 {
     WSADATA wsaData;
 
@@ -27,6 +28,9 @@ int getaddrinfo(const char *node, const char *service,
 {
     struct hostent *hp;
     struct sockaddr_in *sin;
+    
+    if (!initialized)
+        sockets_init();
     
     if (pgetaddrinfo)
         return (*pgetaddrinfo)(node, service, hints, res);

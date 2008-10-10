@@ -18,9 +18,6 @@
 #define thread_create_detached(th,start,arg)	\
     (unix_pthread_create(&(th), PTHREAD_CREATE_DETACHED, (start), (void*)(arg)))
 
-#define sockets_init()
-#define closesocket(x) close(x)
-
 static inline int unix_pthread_create(pthread_t *th, int det, void *start, void *arg)
 {
     pthread_attr_t attr;
