@@ -19,6 +19,8 @@ install-sh
 Makefile
 Makefile.in
 missing
+libtool
+ltmain.sh
 *.nh
 *.nh.bz2
 proxyrec
@@ -36,6 +38,9 @@ ttyrecord
 *.txt.bz2
 *.o
 *.a
+*.lo
+*.la
+.libs
 *~
 
 vtest

@@ -10,7 +10,8 @@ AC_CONFIG_FILES([Makefile sys/Makefile libtty/Makefile tmp/Makefile proxy/Makefi
 
 # Checks for programs.
 AC_PROG_CC
-AC_PROG_RANLIB
+AC_LIBTOOL_WIN32_DLL
+AC_PROG_LIBTOOL
 
 # Checks for Winblows.
 AC_CHECK_WIN32
