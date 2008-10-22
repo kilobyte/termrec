@@ -6,6 +6,6 @@ proxyrec_LDADD = ../sys/asprintf.o ../sys/libcompat.a ../libtty/libtty.a ../ugly
 proxyrec_LDFLAGS = @PTHREAD_CFLAGS@
 
 if WIN32
-proxyrec_LDADD += ../win32/proxyrec.coff
+proxyrec_LDADD += ../win32/icons/proxyrec.coff
 proxyrec_LDFLAGS += -Xlinker --subsystem -Xlinker windows
 endif

@@ -1,9 +1,17 @@
 AM_CFLAGS=-Wall
 
+SUBDIRS = sys libtty
+
 if WIN32
-SUBDIRS = sys libtty tmp ugly win32 proxy
+SUBDIRS += win32/icons
+endif
+
+SUBDIRS += tmp ugly proxy
+
+if WIN32
+SUBDIRS += win32
 else
-SUBDIRS = sys libtty tmp ugly unix proxy
+SUBDIRS += unix
 endif
 
 EXTRA_DIST= BUGS gettext.h

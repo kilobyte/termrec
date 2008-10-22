@@ -6,7 +6,7 @@ AC_INIT(termrec, 0.13.a, [kilobyte@angband.pl])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([libtty/vt100.h])
 AC_CONFIG_HEADER([config.h])
-AC_CONFIG_FILES([Makefile sys/Makefile libtty/Makefile tmp/Makefile proxy/Makefile ugly/Makefile win32/Makefile unix/Makefile])
+AC_CONFIG_FILES([Makefile sys/Makefile libtty/Makefile tmp/Makefile proxy/Makefile ugly/Makefile win32/Makefile unix/Makefile win32/icons/Makefile])
 
 # Checks for programs.
 AC_PROG_CC
