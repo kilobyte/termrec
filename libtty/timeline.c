@@ -7,6 +7,7 @@
 #include "timeline.h"
 #include "name.h"
 #include "gettext.h"
+#include "sys/threads.h"
 
 /*******************/
 /* gatherer thread */
@@ -16,6 +17,7 @@ struct tty_event tev_head, *tev_tail;
 int tev_done;
 static vt100 tev_vt;
 static int nchunk;
+static mutex_t lock;
 
 
 void synch_init_wait(struct timeval *ts)
@@ -111,6 +113,7 @@ void timeline_init()
     memset(&tev_vt, 0, sizeof(vt100));
     tev_tail=&tev_head;
     tev_done=0;
+    mutex_init(lock);
 }
 
 void timeline_clear()
@@ -146,18 +149,28 @@ void timeline_clear()
     nchunk=0;
 }
 
+void timeline_lock()
+{
+    mutex_lock(lock);
+}
+
+void timeline_unlock()
+{
+    mutex_unlock(lock);
+}
+
 
 /*****************/
 /* replay thread */
 /*****************/
 
-extern vt100 vt;
+vt100 replay_vt;
 struct tty_event *tev_cur;
 int play_state; /* 0: stopped, 1: paused, 2: playing, 3: waiting for input */
 struct timeval t0, /* adjusted wall time at t=0 */
                tr; /* current point of replay */
 int tev_curlp;	/* amount of data already played from the current block */
-extern int speed;
+int speed;
 
 void replay_pause()
 {
@@ -211,14 +224,14 @@ int replay_play(struct timeval *delay)
         tmul(&tr, speed);
         if (tev_cur->len>tev_curlp)
         {
-            vt100_write(&vt, tev_cur->data+tev_curlp, tev_cur->len-tev_curlp);
+            vt100_write(&replay_vt, tev_cur->data+tev_curlp, tev_cur->len-tev_curlp);
             tev_curlp=tev_cur->len;
         }
         while (tev_cur->next && tcmp(tev_cur->next->t, tr)==-1)
         {
             tev_cur=tev_cur->next;
             if (tev_cur->data)
-                vt100_write(&vt, tev_cur->data, tev_cur->len);
+                vt100_write(&replay_vt, tev_cur->data, tev_cur->len);
             tev_curlp=tev_cur->len;
         }
         if (tev_cur->next)
@@ -241,15 +254,15 @@ void replay_seek()
 
     tev_cur=&tev_head;
 
-    vt100_free(&vt);
-    vt100_copy(tev_head.snapshot, &vt);
+    vt100_free(&replay_vt);
+    vt100_copy(tev_head.snapshot, &replay_vt);
     
     tev_curlp=tev_head.len;
     while (tev_cur->next && tcmp(tev_cur->next->t, tr)==-1)
     {
         tev_cur=tev_cur->next;
         if (tev_cur->data)
-            vt100_write(&vt, tev_cur->data, tev_cur->len);
+            vt100_write(&replay_vt, tev_cur->data, tev_cur->len);
         tev_curlp=tev_cur->len;
     }
     t=tr;

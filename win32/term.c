@@ -21,17 +21,17 @@ HINSTANCE inst;
 HWND wnd, termwnd, wndTB, ssProg, wndProg, ssSpeed, wndSpeed;
 int tsx,tsy;
 HANDLE pth;
-int cancel;
-int speed;
+extern int speed;
 fpos_t lastp;
 int codec;
 int play_state;	// 0: not loaded, 1: paused, 2: playing, 3: waiting for input
 struct timeval t0,tmax,selstart,selend;
 int progmax,progdiv,progval;
 
-vt100 vt;
+extern vt100 replay_vt;
+#define vt replay_vt /* FIXME: shouldn't be global */
 FILE *play_f;
-HANDLE tev_sem, pth_sem;
+HANDLE pth_sem;
 CRITICAL_SECTION vt_mutex;
 
 extern struct tty_event tev_head,*tev_tail;	// FIXME: don't use tev_tail nor tev_head
@@ -88,12 +88,9 @@ void win32_init()
         show_error("RegisterClass"), exit(0);
 
     draw_init();
-    if (!(tev_sem=CreateSemaphore(0, 1, 1, 0)))
-        show_error("CreateSemaphore"), exit(0);
     InitializeCriticalSection(&vt_mutex);
     if (!(timer=CreateWaitableTimer(0, 0, 0)))
         show_error("CreateWaitableTimer");
-    cancel=0;
 }
 
 
@@ -446,22 +443,6 @@ void draw_size()
 }
 
 
-void timeline_lock()
-{
-    if (cancel)
-    {
-        tev_done=1;
-        ExitThread(0);
-    }
-    WaitForSingleObject(tev_sem, INFINITE);
-}
-
-void timeline_unlock()
-{
-    ReleaseSemaphore(tev_sem, 1, 0);
-}
-
-
 void playfile(int arg)
 {
     (*play[arg].play)(play_f, synch_init_wait, synch_wait, synch_print);
@@ -481,7 +462,6 @@ void replay_start(int arg)
     tr.tv_sec=tr.tv_usec=0;
     replay_seek();
     tev_done=0;
-    cancel=0;
     tmax.tv_sec=tmax.tv_usec=0;
     progmax=0;
     progdiv=1000000;
@@ -509,7 +489,6 @@ void replay_start(int arg)
 
 void replay_abort()
 {
-    cancel=1;
 #ifdef THREADED
     WaitForSingleObject(pth, INFINITE);
 #endif
