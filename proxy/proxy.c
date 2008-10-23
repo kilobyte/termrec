@@ -17,7 +17,6 @@
 #include "utils.h"
 #include "sys/threads.h"
 #include "name_out.h"
-#include "stream.h"
 #include "formats.h"
 #include "gettext.h"
 
@@ -372,7 +371,6 @@ int main(int argc, char **argv)
         if (record_name)
         {
             connthread(s);
-            stream_reap_threads();
             exit(0);
         }
         thread_create_detached(th, connthread, s);

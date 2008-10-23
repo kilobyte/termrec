@@ -8,6 +8,7 @@ AC_CONFIG_SRCDIR([libtty/vt100.h])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_FILES(Makefile
 	sys/Makefile
+	libstream/Makefile
 	libtty/Makefile
 	tmp/Makefile
 	proxy/Makefile
@@ -15,7 +16,6 @@ AC_CONFIG_FILES(Makefile
 	rec/Makefile
 	ugly/Makefile
 	win32/Makefile
-	unix/Makefile
 	win32/icons/Makefile
 	)
 
@@ -55,7 +55,7 @@ AC_PTYRANGES
 ACX_PTHREAD
 
 # Checks for library functions.
-AC_CHECK_FUNCS([getpt ptsname snprintf vsnprintf _getpty grantpt forkpty asprintf gettimeofday usleep ctime_r getopt_long getaddrinfo])
+AC_CHECK_FUNCS([getpt ptsname snprintf vsnprintf _getpty grantpt forkpty asprintf gettimeofday usleep ctime_r getopt_long getaddrinfo fork])
 AC_FUNC_GAI_STERRROR
 AC_CHECK_LIB([bz2], [BZ2_bzBuffToBuffCompress], , [
   AC_SHIPPED_LIB(LIBBZ2, libbz2.a, bzlib.h, [BZ2_bzRead(0,0,0,0)], [win32/])])

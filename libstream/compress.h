@@ -1,4 +1,4 @@
-typedef void(compress_func)(FILE *,int);
+typedef void(compress_func)(int,int);
 
 typedef struct
 {
@@ -11,6 +11,3 @@ extern compress_info compressors[];
 extern compress_info decompressors[];
 
 compress_info *comp_from_ext(char *name, compress_info *ci);
-
-FILE* stream_open(FILE *f, char *name, char *mode, compress_info *comptable, int nodetach);
-void stream_reap_threads();

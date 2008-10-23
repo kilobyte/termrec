@@ -1,6 +1,6 @@
 AM_CFLAGS=-Wall
 
-SUBDIRS = sys libtty
+SUBDIRS = sys libstream libtty
 
 if WIN32
 SUBDIRS += win32/icons

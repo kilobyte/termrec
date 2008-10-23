@@ -52,6 +52,11 @@ int match_suffix(char *txt, char *ext, int skip)
     return (!strncasecmp(txt, ext, el));
 }
 
+int match_prefix(char *txt, char *ext)
+{
+    return (!strncasecmp(txt, ext, strlen(ext)));
+}
+
 #ifdef HAVE_LANGINFO_H 
 #include <locale.h> 
 #include <langinfo.h> 

@@ -11,7 +11,7 @@
 #include <errno.h>
 #include "utils.h"
 #include "formats.h"
-#include "stream.h"
+#include "libstream/stream.h"
 #include "name_out.h"
 #include "gettext.h"
 
@@ -21,17 +21,10 @@ extern int optopt;
 
 int codec_from_ext_rec(char *name)
 {
-    int i,len;
+    int i;
 
-    len=0;
-    for (i=0;compressors[i].name;i++)
-        if (compressors[i].ext && match_suffix(name, compressors[i].ext, 0))
-        {
-            len=strlen(compressors[i].ext);
-            break;
-        }
     for (i=0;rec[i].name;i++)
-        if (rec[i].ext && match_suffix(name, rec[i].ext, len))
+        if (rec[i].ext && match_suffix(name, rec[i].ext, 0))
             return i;
     return -1;
 }
@@ -87,7 +80,6 @@ void get_parms(int argc, char **argv, int prog)
 {
     char *cp;
     int i;
-    compress_info *ci;
 
     codec=-1;
     command=0;
@@ -131,11 +123,6 @@ void get_parms(int argc, char **argv, int prog)
                     fprintf(stderr, " %-15s (%s)\n", play[i].name, play[i].ext);
                 exit(1);
             }
-            ci=comp_from_ext(optarg, compressors);
-            if (ci)
-                comp_ext=ci->ext;
-            else
-                comp_ext="";
             break;
         case 'e':
             if (command)
@@ -196,9 +183,8 @@ void get_parms(int argc, char **argv, int prog)
                     _("If no filename is given, a name will be generated using the current date\n"
                       "    and the given format.\n"),
                     _("If no format is given, it will be set according to the extension of the\n"
-                      "    filename, or default to ttyrec.bz2 if nothing is given.\n"),
-                    _("You can specify compression by appending .gz or .bz2 to the file name\n"
-                      "    or the format string -- file name has precedence.\n"));
+                      "    filename, or default to ttyrec if nothing is given.\n"),
+                    _("You can specify compression by appending .gz or .bz2 to the file name.\n"));
                 break;
             case PROXY:
                 printf(
@@ -221,9 +207,8 @@ void get_parms(int argc, char **argv, int prog)
                     _("If no filename is given, a name will be generated using the current date\n"
                       "    and the given format; the proxy will also allow multiple connections.\n"),
                     _("If no format is given, it will be set according to the extension of the\n"
-                      "    filename, or default to ttyrec.bz2 if nothing is given.\n"),
-                    _("You can specify compression by appending .gz or .bz2 to the file name\n"
-                      "    or the format string -- file name has precedence.\n"));
+                      "    filename, or default to ttyrec if nothing is given.\n"),
+                    _("You can specify compression by appending .gz or .bz2 to the file name\n"));
             }
             exit(0);
         }
@@ -315,7 +300,6 @@ FILE *fopen_out(char **file_name, int nodetach)
     int fd;
     char add[10],date[24];
     time_t t;
-    FILE *f;
     
     if (!*file_name)
     {
@@ -328,10 +312,7 @@ FILE *fopen_out(char **file_name, int nodetach)
             fd=open(*file_name, O_CREAT|O_WRONLY|O_EXCL|O_BINARY, 0666);
             /* We do some autoconf magic to exclude O_BINARY when inappropiate. */
             if (fd!=-1)
-            {
-                f=fdopen(fd, "wb");
                 goto finish;
-            }
             if (errno!=EEXIST)
                 break;
             free(*file_name);
@@ -341,8 +322,8 @@ FILE *fopen_out(char **file_name, int nodetach)
         fprintf(stderr, _("Can't create a valid file in the current directory: %s\n"), strerror(errno));
         return 0;
     }
-    if (!(f=fopen(*file_name, "wb")))
+    if (!(fd=open(*file_name, O_WRONLY|O_CREAT, 0x666)))
         error(_("Can't write to the record file (%s): %s\n"), *file_name, strerror(errno));
 finish:
-    return stream_open(f, *file_name, "wb", compressors, nodetach);
+    return fdopen(open_stream(fd, *file_name, O_WRONLY|O_CREAT), "wb");
 }
