@@ -215,12 +215,13 @@ static int connect_out()
 }
 
 
-void connthread(int sock)
+void connthread(void *arg)
 {
     thread_t th;
     char *filename;
     struct timeval tv;
     struct workstate ws;
+    int sock=(intptr_t)arg;
     
     if (verbose)
         printf(_("Incoming connection!\n"));
@@ -370,10 +371,10 @@ int main(int argc, char **argv)
     {
         if (record_name)
         {
-            connthread(s);
+            connthread((void*)(intptr_t)s);
             exit(0);
         }
-        thread_create_detached(th, connthread, s);
+        thread_create_detached(th, connthread, (intptr_t)s);
     }
     return 0;
 }
