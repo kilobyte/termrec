@@ -74,6 +74,7 @@ Will be called when the recording ends.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "export.h"
 #include "formats.h"
 #include "utils.h"
 

@@ -1,5 +1,5 @@
 bin_PROGRAMS = proxyrec
-AM_CFLAGS = -Wall -I${srcdir}/../libtty -I${srcdir}/../ugly
+AM_CFLAGS = -Wall -I${srcdir}/../libtty -I${srcdir}/../sys -I${srcdir}/../ugly
 
 proxyrec_SOURCES = proxy.c
 proxyrec_LDADD = ../sys/libcompat.la ../ugly/name_out.o -L../libtty -ltty @LIBBZ2@ @LIBZ@ @PTHREAD_LIBS@

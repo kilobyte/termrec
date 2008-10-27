@@ -5,12 +5,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include "config.h"
 #include "_stdint.h"
 #include "utils.h"
 #include "vt100.h"
 #include "draw.h"
-#include "stream.h"
+#include "libstream/stream.h"
 #include "formats.h"
 #include "timeline.h"
 #include "name.h"
@@ -498,6 +499,7 @@ void replay_abort()
 int start_file(char *name)
 {
     char buf[MAXFILENAME+20];
+    int fd;
     
     if (play_f)
     {
@@ -508,9 +510,10 @@ int start_file(char *name)
         replay_pause();
         set_buttons(0);
     }
-    play_f=stream_open(fopen(name, "rb"), name, "rb", decompressors, 0);
-    if (!play_f)
+    fd=open_stream(-1, name, O_RDONLY);
+    if (!fd)
         return 0;
+    play_f=fdopen(fd, "rb");
     codec=codec_from_ext_play(name);
     if (codec==-1)
         codec=0;
@@ -577,8 +580,12 @@ void print_banner()
     vt100_printf(&vt, "\nFeatures compiled in:\n");
     vt100_printf(&vt, "* UTF-8 (no CJK)\n");
     vt100_printf(&vt, "Compression plugins:\n");
-    for (i=0;decompressors[i].name;i++)
-        vt100_printf(&vt, "* %s\n", decompressors[i].name);
+#if (defined HAVE_LIBZ) || (SHIPPED_LIBZ)
+    vt100_printf(&vt, "* gzip");
+#endif
+#if (defined HAVE_LIBBZ2) || (defined SHIPPED_LIBBZ2)
+    vt100_printf(&vt, "* bzip2");
+#endif
     vt100_printf(&vt, "Replay plugins:\n");
     for (i=0;play[i].name;i++)
         vt100_printf(&vt, "* %s\n", play[i].name);
@@ -756,9 +763,9 @@ void constrain_size(RECT *r)
 
 void export_file()
 {
-    char fn[MAXFILENAME],errmsg[MAXFILENAME+20];
+    char fn[MAXFILENAME],errmsg[MAXFILENAME+20+128];
     OPENFILENAME dlg;
-    FILE* record_f;
+    int record_f;
     int codec;
     
     memset(&dlg, 0, sizeof(dlg));
@@ -784,15 +791,14 @@ void export_file()
     codec=codec_from_ext_rec(fn);
     if (codec==-1)
         codec=0;	// default to ANSI here
-    if (!(record_f=fopen(fn, "wb")))
+    if ((record_f=open(fn, O_WRONLY|O_CREAT, 0x666))==-1)
     {
-        sprintf(errmsg, "Can't write to %s", fn);
+        sprintf(errmsg, "Can't write to %s: %s", fn, strerror(errno));
         MessageBox(wnd, errmsg, "Write error", MB_ICONERROR);
         return;
     }
-    record_f=stream_open(record_f, fn, "wb", compressors, 1);
-    replay_export(record_f, codec, &selstart, &selend);
-    stream_reap_threads();
+    record_f=open_stream(record_f, fn, O_WRONLY|O_CREAT);
+    replay_export(fdopen(record_f, "wb"), codec, &selstart, &selend);
 }
 
 

@@ -4,8 +4,8 @@ AM_CFLAGS=-Wall -I${srcdir}/../libtty/ -I${srcdir}/../ugly/
 termplay_SOURCES = term.c draw.c draw.h
 termplay_LDFLAGS = -Xlinker --subsystem -Xlinker windows
 termrec_SOURCES = winrec.c
-termplay_LDADD = ../sys/asprintf.o ../sys/libcompat.a ../ugly/name_out.o ../ugly/name_in.o -L../libtty -ltty -lcomdlg32 -lcomctl32 -lgdi32 termplay.coff icons/termplay.coff @LIBBZ2@ @LIBZ@ @PTHREAD_LIBS@
-termrec_LDADD = ../sys/asprintf.o ../sys/libcompat.a ../ugly/name_out.o -L../libtty -ltty icons/termrec.coff @LIBBZ2@ @LIBZ@ @PTHREAD_LIBS@
+termplay_LDADD = ../sys/libcompat.la ../ugly/name_out.o ../ugly/name_in.o -L../libtty -ltty -lcomdlg32 -lcomctl32 -lgdi32 termplay.coff icons/termplay.coff @LIBBZ2@ @LIBZ@ @PTHREAD_LIBS@
+termrec_LDADD = ../sys/libcompat.la ../ugly/name_out.o -L../libtty -ltty icons/termrec.coff @LIBBZ2@ @LIBZ@ @PTHREAD_LIBS@
 
 termplay_RES = termplay.rc termplay.manifest open.bmp rewind.bmp pause.bmp play.bmp wood1.bmp selstart.bmp selend.bmp export.bmp
 CHEADERS = stream.h formats.h utils.h synch.h name_out.h threads.h unix/threads.h threads.h pty.h name.h vt100.h charsets.h net.h net.h winutils.h

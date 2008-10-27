@@ -1,4 +1,5 @@
 #include "config.h"
+#include "error.h"
 #include <stdio.h>
 #include <unistd.h>
 #ifdef HAVE_SYS_SELECT_H
@@ -20,15 +21,15 @@
 #include <signal.h>
 #include "pty.h"
 #include "utils.h"
+#include "ttyrec.h"
 #include "name_out.h"
-#include "formats.h"
 
 volatile int need_resize;
 int need_utf;
 struct termios ta;
 int ptym;
-FILE *record_f;
-void* record_state;
+int record_f;
+recording rec;
 
 void sigwinch(int s)
 {
@@ -87,7 +88,7 @@ void resize()
         return;
     ioctl(ptym,TIOCSWINSZ,&ts);
     gettimeofday(&tv, 0);
-    (*rec[codec].write)(record_f, record_state, &tv, buf, snprintf(buf, sizeof(buf),
+    ttyrec_w_write(rec, &tv, buf, snprintf(buf, sizeof(buf),
         "%s\e[8;%d;%dt", need_utf?"\e%G":"", ts.ws_row, ts.ws_col));
     need_utf=0;
 }
@@ -120,7 +121,7 @@ int main(int argc, char **argv)
 
     get_parms(argc, argv, 0);
     record_f=fopen_out(&record_name, 1);
-    if (!record_f)
+    if (record_f==-1)
     {
         fprintf(stderr, "Can't open %s\n", record_name);
         return 1;
@@ -137,7 +138,8 @@ int main(int argc, char **argv)
     }
     
     gettimeofday(&tv, 0);
-    record_state=(*rec[codec].init)(record_f, &tv);
+    
+    rec=ttyrec_w_open(record_f, format, record_name, &tv);
     need_resize=1;
     need_utf=is_utf8();
  
@@ -187,13 +189,12 @@ int main(int argc, char **argv)
                 break;
             }
             gettimeofday(&tv, 0);
-            (*rec[codec].write)(record_f, record_state, &tv, buf, r);
+            ttyrec_w_write(rec, &tv, buf, r);
             write(1, buf, r);
         }
     }
-
-    (*rec[codec].finish)(record_f, record_state);
-    fclose(record_f);
+    
+    ttyrec_w_close(rec);
     tty_restore();
     wait(0);
     return 0;

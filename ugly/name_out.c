@@ -10,7 +10,9 @@
 #include <stdlib.h>
 #include <errno.h>
 #include "utils.h"
-#include "formats.h"
+#include "error.h"
+#include "compat.h"
+#include "ttyrec.h"
 #include "libstream/stream.h"
 #include "name_out.h"
 #include "gettext.h"
@@ -19,33 +21,16 @@
 extern char *optarg;
 extern int optopt;
 
-int codec_from_ext_rec(char *name)
+int match_suffix(char *txt, char *ext, int skip)
 {
-    int i;
+    int tl,el;
 
-    for (i=0;rec[i].name;i++)
-        if (rec[i].ext && match_suffix(name, rec[i].ext, 0))
-            return i;
-    return -1;
-}
-
-static int codec_from_format_rec(char *name)
-{
-    int i,len;
-    char *cp;
-    
-    /* TODO: don't accept ttyrec.cruft, just ttyrec and ttyrec.bz2 */
-    for(cp=name; *cp && *cp!='.' && *cp!=':'; cp++)
-        ;
-    len=cp-name;
-    
-    if (strlen(name)>len)
-        return -1;
-    
-    for (i=0;rec[i].name;i++)
-        if (!strncasecmp(name, rec[i].name, len))
-            return i;
-    return -1;
+    tl=strlen(txt);
+    el=strlen(ext);
+    if (tl-el-skip<0)
+        return 0;
+    txt+=tl-el-skip;
+    return (!strncasecmp(txt, ext, el));
 }
 
 
@@ -81,7 +66,7 @@ void get_parms(int argc, char **argv, int prog)
     char *cp;
     int i;
 
-    codec=-1;
+    format=0;
     command=0;
     record_name=0;
     lport=-1;
@@ -112,15 +97,16 @@ void get_parms(int argc, char **argv, int prog)
         case '?':
             exit(1);
         case 'f':
-            if (codec!=-1)
+            if (format)
                 error(_("You can use only one format at a time.\n"));
-            codec=codec_from_format_rec(optarg);
-            if (codec==-1)
+            if (!(format=ttyrec_w_find_format(optarg, 0)))
             {
                 fprintf(stderr, _("No such format: %s\n"), optarg);
                 fprintf(stderr, _("Valid formats:\n"));
-                for(i=0;play[i].name;i++)
-                    fprintf(stderr, " %-15s (%s)\n", play[i].name, play[i].ext);
+                for(i=0;ttyrec_w_get_format_name(i);i++)
+                    fprintf(stderr, " %-15s (%s)\n",
+                        ttyrec_w_get_format_name(i),
+                        ttyrec_w_get_format_ext(i));
                 exit(1);
             }
             break;
@@ -258,13 +244,18 @@ finish_args:
     if (optind+prog<argc)
     {
         record_name=argv[argc-1];
-        if (codec==-1)
-            if ((codec=codec_from_ext_rec(record_name))==-1)
-                codec=1;  /* default to ttyrec */
+        
+        if (!format)
+            if (!(format=ttyrec_w_find_format(0, record_name)))
+                format="ttyrec";
     }
     else
-        if (codec==-1)
-            codec=1;
+        if (!format)
+            format="ttyrec";
+    format_ext="";
+    for(i=0; (cp=ttyrec_w_get_format_name(i)); i++)
+        if (!strcmp(cp, format))
+            format_ext=ttyrec_w_get_format_ext(i);
 }
 
 
@@ -295,7 +286,7 @@ static void nameinc(char *add)
 }
 
 
-FILE *fopen_out(char **file_name, int nodetach)
+int fopen_out(char **file_name, int nodetach)
 {
     int fd;
     char add[10],date[24];
@@ -308,7 +299,7 @@ FILE *fopen_out(char **file_name, int nodetach)
         strftime(date, sizeof(date), "%Y-%m-%d.%H-%M-%S", localtime(&t));
         while(1)
         {
-            asprintf(file_name, "%s%s%s%s", date, add, rec[codec].ext, comp_ext);
+            asprintf(file_name, "%s%s%s%s", date, add, format_ext, comp_ext);
             fd=open(*file_name, O_CREAT|O_WRONLY|O_EXCL|O_BINARY, 0666);
             /* We do some autoconf magic to exclude O_BINARY when inappropiate. */
             if (fd!=-1)
@@ -320,10 +311,10 @@ FILE *fopen_out(char **file_name, int nodetach)
             nameinc(add);
         }
         fprintf(stderr, _("Can't create a valid file in the current directory: %s\n"), strerror(errno));
-        return 0;
+        return -1;
     }
     if (!(fd=open(*file_name, O_WRONLY|O_CREAT, 0x666)))
         error(_("Can't write to the record file (%s): %s\n"), *file_name, strerror(errno));
 finish:
-    return fdopen(open_stream(fd, *file_name, O_WRONLY|O_CREAT), "wb");
+    return open_stream(fd, *file_name, O_WRONLY|O_CREAT);
 }

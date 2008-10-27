@@ -61,6 +61,5 @@ export int open_stream(int fd, char* url, int mode)
     ci=comp_from_ext(url, wr? compressors : decompressors);
     if (!ci)
         return fd;
-    *(url+strlen(url)-strlen(ci->ext)) = 0; /* chop the .gz/.bz2 off */
     return filter(ci->comp, fd, wr);
 }

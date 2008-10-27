@@ -24,7 +24,7 @@ void tdiv(struct timeval *t, int m);
                          ((t1).tv_usec<(t2).tv_usec)?-1:0)
 
 int match_suffix(char *txt, char *ext, int skip);
-void error(const char *txt, ...);
+int match_prefix(char *txt, char *ext);
 
 #ifdef WIN32
 # include "sys/win32/winutils.h"

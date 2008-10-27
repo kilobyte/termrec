@@ -5,14 +5,13 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include "utils.h"
-#include "formats.h"
-#include "stream.h"
+#include "ttyrec.h"
+#include "libstream/stream.h"
 #include "name_out.h"
 
 //#define EVDEBUG
 
-FILE *record_f;
-void* record_state;
+recording rec;
 #ifdef EVDEBUG
 FILE *evlog;
 #endif
@@ -41,7 +40,7 @@ void vtrec_commit()
     if (vb==vtrec_buf)
         return;
     gettimeofday(&tv, 0);
-    (*rec[codec].write)(record_f, record_state, &tv, vtrec_buf, vb-vtrec_buf);
+    ttyrec_w_write(rec, &tv, vtrec_buf, vb-vtrec_buf);
     vb=vtrec_buf;
 }
 
@@ -467,12 +466,10 @@ void finish_up()
 {
     vtrec_printf("\e[7?h\e[?4h");
     vtrec_commit();
-    (*rec[codec].finish)(record_f, record_state);
-    fclose(record_f);
+    ttyrec_w_close(rec);
 #ifdef EVDEBUG
     fprintf(evlog, "*** THE END ***\n");
 #endif
-    stream_reap_threads();
 }
 
 
@@ -516,7 +513,7 @@ int check_console()
     printf("termrec version " PACKAGE_VERSION "\n"
            "Recording through %s to %s.\n"
            "Console size: %dx%d.\n",
-        rec[codec].name, record_name,
+        format, record_name,
         cbi.srWindow.Right-cbi.srWindow.Left+1,
         cbi.srWindow.Bottom-cbi.srWindow.Top+1);
     return 1;
@@ -610,13 +607,14 @@ void spawn_process()
 int main(int argc, char **argv)
 {
     struct timeval tv;
+    int record_f;
 
 #ifdef EVDEBUG
     evlog=fopen("evlog", "w");
 #endif
     get_parms(argc, argv, 0);
     record_f=fopen_out(&record_name, 1);
-    if (!record_f)
+    if (record_f==-1)
     {
         fprintf(stderr, "Can't open %s\n", record_name);
         return 1;
@@ -636,7 +634,7 @@ int main(int argc, char **argv)
     vtrec_reent=0;
     vtrec_dirty=0;
     gettimeofday(&tv, 0);
-    record_state=(*rec[codec].init)(record_f, &tv);
+    rec=ttyrec_w_open(record_f, format, record_name, &tv);
     vtrec_dump(1);
     SetConsoleCtrlHandler(CtrlHandler,1);
     set_event_hook();

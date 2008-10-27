@@ -1,13 +1,15 @@
 #include "config.h"
 #include <stdlib.h>
 #include <string.h>
+#include "sys/threads.h"
 #include "utils.h"
+#include "error.h"
 #include "formats.h"
 #include "vt100.h"
 #include "timeline.h"
 #include "name.h"
 #include "gettext.h"
-#include "sys/threads.h"
+#include "export.h"
 
 /*******************/
 /* gatherer thread */
@@ -20,7 +22,7 @@ static int nchunk;
 static mutex_t lock;
 
 
-void synch_init_wait(struct timeval *ts)
+export void synch_init_wait(struct timeval *ts)
 {
 #if 0
 #ifdef HAVE_CTIME_R
@@ -41,7 +43,7 @@ void synch_init_wait(struct timeval *ts)
 #endif
 }
 
-void synch_wait(struct timeval *tv)
+export void synch_wait(struct timeval *tv)
 {
     if (tv->tv_sec>5)
         tv->tv_sec=5, tv->tv_usec=0;
@@ -84,7 +86,7 @@ fail:
     timeline_unlock();
 }
 
-void synch_print(char *buf, int len)
+export void synch_print(char *buf, int len)
 {
     char *sp;
 
@@ -107,7 +109,7 @@ void synch_print(char *buf, int len)
     timeline_unlock();
 }
 
-void timeline_init()
+export void timeline_init()
 {
     memset(&tev_head, 0, sizeof(struct tty_event));
     memset(&tev_vt, 0, sizeof(vt100));
@@ -116,7 +118,7 @@ void timeline_init()
     mutex_init(lock);
 }
 
-void timeline_clear()
+export void timeline_clear()
 {
     struct tty_event *tc;
 
@@ -149,12 +151,12 @@ void timeline_clear()
     nchunk=0;
 }
 
-void timeline_lock()
+export void timeline_lock()
 {
     mutex_lock(lock);
 }
 
-void timeline_unlock()
+export void timeline_unlock()
 {
     mutex_unlock(lock);
 }
@@ -172,7 +174,7 @@ struct timeval t0, /* adjusted wall time at t=0 */
 int tev_curlp;	/* amount of data already played from the current block */
 int speed;
 
-void replay_pause()
+export void replay_pause()
 {
     switch(play_state)
     {
@@ -189,7 +191,7 @@ void replay_pause()
     }
 }
 
-void replay_resume()
+export void replay_resume()
 {
     struct timeval t;
 
@@ -210,7 +212,7 @@ void replay_resume()
     }
 }
 
-int replay_play(struct timeval *delay)
+export int replay_play(struct timeval *delay)
 { /* structures touched: tev, vt */
     switch(play_state)
     {
@@ -248,7 +250,7 @@ int replay_play(struct timeval *delay)
 }
 
 /* FIXME: actually use the snapshots */
-void replay_seek()
+export void replay_seek()
 { /* structures touched: tev, vt */
     struct timeval t;
 
@@ -272,7 +274,7 @@ void replay_seek()
 }
 
 
-void replay_export(FILE *record_f, int codec, struct timeval *selstart, struct timeval *selend)
+export void replay_export(FILE *record_f, int codec, struct timeval *selstart, struct timeval *selend)
 {
     void* record_state;
     struct tty_event *tev;

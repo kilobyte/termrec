@@ -13,11 +13,12 @@
 #endif
 #include <errno.h>
 #include <assert.h>
-#include "sys/compat.h"
+#include "compat.h"
 #include "utils.h"
-#include "sys/threads.h"
+#include "error.h"
+#include "threads.h"
+#include "ttyrec.h"
 #include "name_out.h"
-#include "formats.h"
 #include "gettext.h"
 
 #define BUFFER_SIZE 4096
@@ -59,7 +60,7 @@ struct workstate
 {
     int fd[2];
     volatile int echoing[2];
-    FILE *f;
+    recording rec;
     void *rst;
     mutex_t mutex;
     int who;
@@ -172,7 +173,7 @@ void workthread(struct workstate *ws)
     no_traffic_analysis:
             gettimeofday(&tv, 0);
             mutex_lock(ws->mutex);
-            rec[codec].write(ws->f, ws->rst, &tv, (char*)out, op-out);
+            ttyrec_w_write(ws->rec, &tv, (char*)out, op-out);
             mutex_unlock(ws->mutex);
         }
         /* FIXME: No error handling. */
@@ -221,6 +222,7 @@ void connthread(void *arg)
     char *filename;
     struct timeval tv;
     struct workstate ws;
+    int fd;
     int sock=(intptr_t)arg;
     
     if (verbose)
@@ -236,32 +238,30 @@ void connthread(void *arg)
     if (verbose)
         printf(_("Ok.\n")); /* managed to connect out */
     filename=record_name;
-    ws.f=fopen_out(&filename, !!record_name);
-    if (!ws.f)
+    fd=fopen_out(&filename, !!record_name);
+    gettimeofday(&tv, 0);
+    if (fd==-1 || !(ws.rec=ttyrec_w_open(fd, 0, filename, &tv)))
     {
-        fprintf(stderr, _("Can't create logfile.\n"));
+        fprintf(stderr, _("Can't create file: %s\n"), filename);
         closesocket(ws.fd[0]);
         closesocket(ws.fd[1]);
         return;
     }
     if (verbose)
         printf(_("Logging to %s.\n"), filename);
-    gettimeofday(&tv, 0);
-    ws.rst=rec[codec].init(ws.f, &tv);
     if (thread_create_joinable(th,workthread,&ws))
     {
         fprintf(stderr, _("Can't create thread: %s\n"), strerror(errno));
         closesocket(ws.fd[0]);
         closesocket(ws.fd[1]);
-        fclose(ws.f);
+        ttyrec_w_close(ws.rec);
         return;
     }
     workthread(&ws);
     thread_join(th);
     closesocket(ws.fd[0]);
     closesocket(ws.fd[1]);
-    rec[codec].finish(ws.f, ws.rst);
-    fclose(ws.f);
+    ttyrec_w_close(ws.rec);
     if (verbose)
         printf(_("Connection closed.\n"));
     mutex_destroy(ws.mutex);

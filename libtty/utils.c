@@ -3,25 +3,30 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include <sys/time.h>
+#ifdef HAVE_LANGINFO_H 
+#include <locale.h> 
+#include <langinfo.h> 
+#endif
+#include "export.h"
 #include "_stdint.h"
-#include "utils.h"
 
 
-void tadd(struct timeval *t, struct timeval *d)
+export void tadd(struct timeval *t, struct timeval *d)
 {
     if ((t->tv_usec+=d->tv_usec)>1000000)
         t->tv_usec-=1000000, t->tv_sec++;
     t->tv_sec+=d->tv_sec;    
 }
 
-void tsub(struct timeval *t, struct timeval *d)
+export void tsub(struct timeval *t, struct timeval *d)
 {
     if ((signed)(t->tv_usec-=d->tv_usec)<0)
         t->tv_usec+=1000000, t->tv_sec--;
     t->tv_sec-=d->tv_sec;    
 }
 
-void tmul(struct timeval *t, int m)
+export void tmul(struct timeval *t, int m)
 {
     uint64_t v;
     
@@ -30,7 +35,7 @@ void tmul(struct timeval *t, int m)
     t->tv_sec=v/1000000;
 }
 
-void tdiv(struct timeval *t, int m)
+export void tdiv(struct timeval *t, int m)
 {
     uint64_t v;
     
@@ -58,16 +63,13 @@ int match_prefix(char *txt, char *ext)
 }
 
 #ifdef HAVE_LANGINFO_H 
-#include <locale.h> 
-#include <langinfo.h> 
-
-int is_utf8()
+export int is_utf8()
 {
     setlocale(LC_CTYPE, "");
     return !strcmp(nl_langinfo(CODESET), "UTF-8");
 }
 #else 
-int is_utf8()
+export int is_utf8()
 {
     return 0; /* unlikely on musty pieces of cruft */
 }
