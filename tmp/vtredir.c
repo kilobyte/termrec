@@ -11,7 +11,7 @@ struct vtvt_data
 
 #define DATA ((struct vtvt_data*)(vt->l_data))
 
-static inline void setattr(vt100 *vt, int attr)
+static inline void setattr(vt100 vt, int attr)
 {
     if (DATA->attr!=attr)
     {
@@ -38,18 +38,18 @@ static inline void setattr(vt100 *vt, int attr)
 }
 
 
-void vtvt_char(vt100 *vt, int x, int y, ucs ch, int attr)
+void vtvt_char(vt100 vt, int x, int y, ucs ch, int attr)
 {
     setattr(vt, attr);
     printf("%c", ch);
 }
 
-void vtvt_cursor(vt100 *vt, int x, int y)
+void vtvt_cursor(vt100 vt, int x, int y)
 {
     printf("\e[%d;%df", y+1, x+1);
 }
 
-void vtvt_dump(vt100 *vt)
+void vtvt_dump(vt100 vt)
 {
     int x,y;
     attrchar *ch;
@@ -67,7 +67,7 @@ void vtvt_dump(vt100 *vt)
     vtvt_cursor(vt, vt->cx, vt->cy);
 }
 
-void vtvt_clear(vt100 *vt, int x, int y, int len)
+void vtvt_clear(vt100 vt, int x, int y, int len)
 {
     setattr(vt, vt->attr);
     vtvt_cursor(vt, x, y);
@@ -76,26 +76,26 @@ void vtvt_clear(vt100 *vt, int x, int y, int len)
     vtvt_cursor(vt, vt->cx, vt->cy);
 }
 
-void vtvt_scroll(vt100 *vt, int nl)
+void vtvt_scroll(vt100 vt, int nl)
 {
     vtvt_dump(vt);
 }
 
-void vtvt_flag(vt100 *vt, int f, int v)
+void vtvt_flag(vt100 vt, int f, int v)
 {
 }
 
-void vtvt_resize(vt100 *vt, int sx, int sy)
+void vtvt_resize(vt100 vt, int sx, int sy)
 {
     printf("\e[8;%u;%u\n", sy, sx);
 }
 
-void vtvt_free(vt100 *vt)
+void vtvt_free(vt100 vt)
 {
     free(vt->l_data);
 }
 
-void vtvt_init(vt100 *vt)
+void vtvt_init(vt100 vt)
 {
     vt->l_data=malloc(sizeof(struct vtvt_data));
     vt->l_char=vtvt_char;
@@ -115,8 +115,8 @@ int main()
     char buf[BS];
     int l;
     
-    vt100_init(&vt, 20, 5, 0, 1);
-    vtvt_init(&vt);
+    vt = vt100_init(20, 5, 0, 1);
+    vtvt_init(vt);
     
     while((l=read(0, buf, BS)))
     {
@@ -126,7 +126,7 @@ int main()
             exit(1);
         }
         
-        vt100_write(&vt, buf, l);
+        vt100_write(vt, buf, l);
     }
     return 0;
 }

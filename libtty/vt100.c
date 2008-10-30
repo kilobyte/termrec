@@ -14,17 +14,24 @@
 #define CX vt->cx
 #define CY vt->cy
 
-export void vt100_init(vt100 *vt, int sx, int sy, int resizable, int utf)
+export vt100 vt100_init(int sx, int sy, int resizable, int utf)
 {
-    memset(vt,0,sizeof(vt100));
+    vt100 vt;
+    
+    vt=malloc(sizeof(struct vt100));
+    if (!vt)
+        return 0;
+    
+    memset(vt, 0, sizeof(struct vt100));
     vt->opt_allow_resize=resizable;
     vt->utf=utf;
     vt100_reset(vt);
     if (sx && sy)
         vt100_resize(vt, sx, sy);
+    return vt;
 }
 
-export int vt100_resize(vt100 *vt, int nsx, int nsy)
+export int vt100_resize(vt100 vt, int nsx, int nsy)
 {
     int x,y;
     attrchar *nscr;
@@ -60,23 +67,34 @@ export int vt100_resize(vt100 *vt, int nsx, int nsy)
     return 1;
 }
 
-export void vt100_free(vt100 *vt)
+export void vt100_free(vt100 vt)
 {
+    if (!vt)
+        return;
+    
     if (vt->l_free)
         vt->l_free(vt);
     free(vt->scr);
+    free(vt);
 }
 
-export int vt100_copy(vt100 *vt, vt100 *nvt)
+export vt100 vt100_copy(vt100 vt)
 {
+    vt100 nvt=malloc(sizeof(struct vt100));
+    if (!nvt)
+        return 0;
+    
     memcpy(nvt, vt, sizeof(vt100));
     if (!(nvt->scr=malloc(SX*SY*sizeof(attrchar))))
+    {
+        free(nvt);
         return 0;
+    }
     memcpy(nvt->scr, vt->scr, SX*SY*sizeof(attrchar));
-    return 1;
+    return nvt;
 }
 
-static void vt100_clear_region(vt100 *vt, int st, int l)
+static void vt100_clear_region(vt100 vt, int st, int l)
 {
     attrchar *c, blank;
     
@@ -88,7 +106,7 @@ static void vt100_clear_region(vt100 *vt, int st, int l)
         *c++=blank;
 }
 
-export void vt100_reset(vt100 *vt)
+export void vt100_reset(vt100 vt)
 {
     vt100_clear_region(vt, 0, SX*SY);
     CX=CY=vt->save_cx=vt->save_cy=0;
@@ -107,7 +125,7 @@ export void vt100_reset(vt100 *vt)
     vt->utf_count=0;
 }
 
-static void vt100_scroll(vt100 *vt, int nl)
+static void vt100_scroll(vt100 vt, int nl)
 {
     int s;
 
@@ -129,7 +147,7 @@ static void vt100_scroll(vt100 *vt, int nl)
 }
 
 
-static void set_charset(vt100 *vt, int g, char x)
+static void set_charset(vt100 vt, int g, char x)
 {
     vt100_charset cs;
     
@@ -183,7 +201,7 @@ static void set_charset(vt100 *vt, int g, char x)
             vt->l_clear(vt, x, y, len);		\
     }
 
-export void vt100_write(vt100 *vt, char *buf, int len)
+export void vt100_write(vt100 vt, char *buf, int len)
 {
     int i;
     ucs c;
@@ -805,7 +823,7 @@ export void vt100_write(vt100 *vt, char *buf, int len)
 
 #define MAX_PRINTABLE 16384
 
-export void vt100_printf(vt100 *vt, const char *fmt, ...)
+export void vt100_printf(vt100 vt, const char *fmt, ...)
 {
     va_list ap;
     char buf[MAX_PRINTABLE];

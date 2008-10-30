@@ -69,7 +69,7 @@ typedef struct vt100
         /* after the tty has been resized */
     void (*l_free)(struct vt100 *vt);
         /* before the tty is destroyed */
-} vt100;
+} *vt100;
 
 #define VT100_ATTR_BOLD		0x010000
 #define VT100_ATTR_DIM		0x020000
@@ -78,10 +78,10 @@ typedef struct vt100
 #define VT100_ATTR_BLINK	0x100000
 #define VT100_ATTR_INVERSE	0x200000
 
-void vt100_init(vt100 *vt, int sx, int sy, int resizable, int utf);
-int vt100_resize(vt100 *vt, int nsx, int nsy);
-void vt100_reset(vt100 *vt);
-void vt100_free(vt100 *vt);
-void vt100_write(vt100 *vt, char *buf, int len);
-void vt100_printf(vt100 *vt, const char *fmt, ...);
-int vt100_copy(vt100 *vt, vt100 *nvt);
+vt100	vt100_init(int sx, int sy, int resizable, int utf);
+int	vt100_resize(vt100 vt, int nsx, int nsy);
+void	vt100_reset(vt100 vt);
+void	vt100_free(vt100 vt);
+void	vt100_write(vt100 vt, char *buf, int len);
+void	vt100_printf(vt100 vt, const char *fmt, ...);
+vt100	vt100_copy(vt100 vt);

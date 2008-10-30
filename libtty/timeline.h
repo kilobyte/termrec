@@ -3,7 +3,7 @@ struct tty_event
     struct timeval t;
     int len;
     char *data;
-    vt100 *snapshot;
+    vt100 snapshot;
     struct tty_event *next;
 };
 

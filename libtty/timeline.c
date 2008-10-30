@@ -34,9 +34,9 @@ export void synch_init_wait(struct timeval *ts)
         timeline_lock();
 #ifdef HAVE_CTIME_R
         ctime_r(&ts->tv_sec, buf);
-        vt100_printf(&tev_vt, _("Recording started %s\n"), buf);
+        vt100_printf(tev_vt, _("Recording started %s\n"), buf);
 #else
-        vt100_printf(&tev_vt, _("Recording started %s\n"), ctime(&ts->tv_sec));
+        vt100_printf(tev_vt, _("Recording started %s\n"), ctime(&ts->tv_sec));
 #endif
         timeline_unlock();
     }
@@ -56,15 +56,13 @@ export void synch_wait(struct timeval *tv)
         if (tev_tail==&tev_head)
         {
             vt100_free(tev_head.snapshot);
-            vt100_copy(&tev_vt, tev_head.snapshot);
+            tev_head.snapshot=vt100_copy(tev_vt);
             nchunk=0;
         }
         else
             if (nchunk>65536)	/* Do a snapshot every 64KB of data */
             {
-                if (!(tev_tail->snapshot=malloc(sizeof(vt100))))
-                    goto fail;
-                if (!vt100_copy(&tev_vt, tev_tail->snapshot))
+                if (!(tev_head.snapshot=vt100_copy(tev_vt)))
                     goto fail_snapshot;
                 nchunk=0;
             }
@@ -79,9 +77,9 @@ export void synch_wait(struct timeval *tv)
     tadd(&tev_tail->t, tv);
     timeline_unlock();
     return;
-fail_snapshot:
-    vt100_free(tev_tail->snapshot);
 fail:
+    vt100_free(tev_tail->snapshot);
+fail_snapshot:
     tev_done=1;
     timeline_unlock();
 }
@@ -104,7 +102,7 @@ export void synch_print(char *buf, int len)
     tev_tail->data=sp;
     memcpy(sp+tev_tail->len, buf, len);
     tev_tail->len+=len;
-    vt100_write(&tev_vt, buf, len);
+    vt100_write(tev_vt, buf, len);
     nchunk+=len;
     timeline_unlock();
 }
@@ -112,7 +110,7 @@ export void synch_print(char *buf, int len)
 export void timeline_init()
 {
     memset(&tev_head, 0, sizeof(struct tty_event));
-    memset(&tev_vt, 0, sizeof(vt100));
+    memset(tev_vt, 0, sizeof(vt100));
     tev_tail=&tev_head;
     tev_done=0;
     mutex_init(lock);
@@ -131,23 +129,21 @@ export void timeline_clear()
         if (tc->snapshot)
         {
             vt100_free(tc->snapshot);
-            free(tc->snapshot);
         }
         if (tc!=&tev_head)
             free(tc);
     }
     
-    vt100_free(&tev_vt);
+    vt100_free(tev_vt);
     memset(&tev_head, 0, sizeof(struct tty_event));
     tev_tail=&tev_head;
     tev_done=0;
-    vt100_init(&tev_vt, defsx, defsy, 1, 0);
-    vt100_printf(&tev_vt, "\e[36m");
-    vt100_printf(&tev_vt, _("Termplay v%s\n\n"),
+    tev_vt=vt100_init(defsx, defsy, 1, 0);
+    vt100_printf(tev_vt, "\e[36m");
+    vt100_printf(tev_vt, _("Termplay v%s\n\n"),
         "\e[36;1m"PACKAGE_VERSION"\e[0;36m");
-    vt100_printf(&tev_vt, "\e[0m");
-    tev_head.snapshot=malloc(sizeof(vt100));
-    vt100_copy(&tev_vt, tev_head.snapshot);
+    vt100_printf(tev_vt, "\e[0m");
+    tev_head.snapshot=vt100_copy(tev_vt);
     nchunk=0;
 }
 
@@ -226,14 +222,14 @@ export int replay_play(struct timeval *delay)
         tmul(&tr, speed);
         if (tev_cur->len>tev_curlp)
         {
-            vt100_write(&replay_vt, tev_cur->data+tev_curlp, tev_cur->len-tev_curlp);
+            vt100_write(replay_vt, tev_cur->data+tev_curlp, tev_cur->len-tev_curlp);
             tev_curlp=tev_cur->len;
         }
         while (tev_cur->next && tcmp(tev_cur->next->t, tr)==-1)
         {
             tev_cur=tev_cur->next;
             if (tev_cur->data)
-                vt100_write(&replay_vt, tev_cur->data, tev_cur->len);
+                vt100_write(replay_vt, tev_cur->data, tev_cur->len);
             tev_curlp=tev_cur->len;
         }
         if (tev_cur->next)
@@ -256,15 +252,15 @@ export void replay_seek()
 
     tev_cur=&tev_head;
 
-    vt100_free(&replay_vt);
-    vt100_copy(tev_head.snapshot, &replay_vt);
+    vt100_free(replay_vt);
+    replay_vt=vt100_copy(tev_head.snapshot);
     
     tev_curlp=tev_head.len;
     while (tev_cur->next && tcmp(tev_cur->next->t, tr)==-1)
     {
         tev_cur=tev_cur->next;
         if (tev_cur->data)
-            vt100_write(&replay_vt, tev_cur->data, tev_cur->len);
+            vt100_write(replay_vt, tev_cur->data, tev_cur->len);
         tev_curlp=tev_cur->len;
     }
     t=tr;
