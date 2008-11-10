@@ -249,7 +249,7 @@ void connthread(void *arg)
     }
     if (verbose)
         printf(_("Logging to %s.\n"), filename);
-    if (thread_create_joinable(th,workthread,&ws))
+    if (thread_create_joinable(&th, workthread, &ws))
     {
         fprintf(stderr, _("Can't create thread: %s\n"), strerror(errno));
         closesocket(ws.fd[0]);
@@ -374,7 +374,7 @@ int main(int argc, char **argv)
             connthread((void*)(intptr_t)s);
             exit(0);
         }
-        thread_create_detached(th, connthread, (intptr_t)s);
+        thread_create_detached(&th, connthread, (intptr_t)s);
     }
     return 0;
 }

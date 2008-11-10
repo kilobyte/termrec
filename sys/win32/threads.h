@@ -8,14 +8,14 @@
 
 #define thread_t HANDLE
 #define thread_create_joinable(th,start,arg)	\
-    (!(th=CreateThread(0, 4096, (LPTHREAD_START_ROUTINE)(start), (void*)(arg), 0, (LPDWORD)&th)))
+    (!(*th=CreateThread(0, 4096, (LPTHREAD_START_ROUTINE)(start), (void*)(arg), 0, (LPDWORD)th)))
 #define thread_join(th)				\
     {						\
         WaitForSingleObject(th, INFINITE);	\
         CloseHandle(th);			\
     }
 #define thread_create_detached(th,start,arg)	\
-    (win32_thread_create_detached(&(th), (LPTHREAD_START_ROUTINE)(start), (void*)(arg)))
+    (win32_thread_create_detached(th, (LPTHREAD_START_ROUTINE)(start), (void*)(arg)))
     
 static inline int win32_thread_create_detached(thread_t *th, LPTHREAD_START_ROUTINE start, void *arg)
 {
@@ -26,3 +26,9 @@ static inline int win32_thread_create_detached(thread_t *th, LPTHREAD_START_ROUT
     CloseHandle(*th);
     return !*th;
 }
+
+#define cond_t HANDLE
+#define cond_init(x) {(x)=CreateEvent(0, 0, 0, 0);}
+#define cond_destroy(x) CloseHandle(x);
+#define cond_wait(x,m) {mutex_unlock(m);WaitForSingleObject(x, 500);mutex_lock(m);}
+#define cond_wake(x) PulseEvent(x)

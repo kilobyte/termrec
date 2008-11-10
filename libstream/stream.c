@@ -5,14 +5,15 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "config.h"
+#include "error.h"
+#include "threads.h"
 #include "compress.h"
 #include "stream.h"
 #include "export.h"
-#include "error.h"
 
 
 #ifdef HAVE_FORK
-int filter(void func(int,int), int fd, int wr)
+static int filter(void func(int,int), int fd, int wr)
 {
     int p[2];
     
@@ -38,8 +39,82 @@ int filter(void func(int,int), int fd, int wr)
     return p[wr];
 }
 #else
-int filter(void func(int,int), int fd, int wr)
+struct filterdata
 {
+    int fdin, fdout;
+    void (*func)(int,int);
+};
+
+
+static int nstreams=-1;
+static cond_t exitcond;
+static mutex_t nsm;
+
+static void filterthr(struct filterdata *args)
+{
+    int fdin, fdout;
+    void (*func)(int,int);
+    
+    fdin=args->fdin;
+    fdout=args->fdout;
+    func=args->func;
+    free(args);
+    
+    func(fdin, fdout);
+    mutex_lock(nsm);
+    if (!--nstreams)
+        cond_wake(exitcond);
+    mutex_unlock(nsm);
+}
+
+
+static void finish_up()
+{
+    mutex_lock(nsm);
+    while (nstreams)
+    {
+        cond_wait(exitcond, nsm);
+    }
+    mutex_unlock(nsm);
+}
+
+
+static int filter(void func(int,int), int fd, int wr)
+{
+    int p[2];
+    struct filterdata *fdata;
+    thread_t th;
+    
+    if (pipe(p))
+        goto failpipe;
+    if (!(fdata=malloc(sizeof(struct filterdata))))
+        goto failfdata;
+    fdata->fdin=fd;
+    fdata->fdout=p[!wr];
+    fdata->func=func;
+    
+    if (nstreams==-1)
+    {
+        mutex_init(nsm);
+        cond_init(exitcond);
+        nstreams=0;
+        atexit(finish_up);
+    }
+    
+    mutex_lock(nsm);
+    if (thread_create_detached(&th, filterthr, fdata))
+        goto failthread;
+    nstreams++;
+    mutex_unlock(nsm);
+    return p[wr];
+failthread:
+    mutex_unlock(nsm);
+    free(fdata);
+failfdata:
+    close(p[0]);
+    close(p[1]);
+failpipe:
+    close(fd);
     return -1;
 }
 #endif

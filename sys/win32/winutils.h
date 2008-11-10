@@ -11,5 +11,8 @@ void gettimeofday(struct timeval *tv, void * dummy);
 #ifndef HAVE_USLEEP
 void usleep(unsigned int usec);
 #endif
+#ifndef HAVE_PIPE
+int pipe(int pipefd[2]);
+#endif
 
 void* LoadFunc(char *dll, char *name);

@@ -13,10 +13,10 @@
 
 #define thread_t pthread_t
 #define thread_create_joinable(th,start,arg)	\
-    (unix_pthread_create(&(th), PTHREAD_CREATE_JOINABLE, (start), (void*)(arg)))
+    (unix_pthread_create(th, PTHREAD_CREATE_JOINABLE, (start), (void*)(arg)))
 #define thread_join(th) pthread_join(th, 0)
 #define thread_create_detached(th,start,arg)	\
-    (unix_pthread_create(&(th), PTHREAD_CREATE_DETACHED, (start), (void*)(arg)))
+    (unix_pthread_create(th, PTHREAD_CREATE_DETACHED, (start), (void*)(arg)))
 
 static inline int unix_pthread_create(pthread_t *th, int det, void *start, void *arg)
 {
@@ -30,3 +30,9 @@ static inline int unix_pthread_create(pthread_t *th, int det, void *start, void 
     
     return ret;
 }
+
+#define cond_t pthread_cond_t
+#define cond_init(x) pthread_cond_init(&x, 0)
+#define cond_destroy(x) pthread_cond_destroy(&x)
+#define cond_wait(x,m) pthread_cond_wait(&x, &m)
+#define cond_wake(x) pthread_cond_signal(&x)
