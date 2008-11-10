@@ -65,7 +65,7 @@ static void read_bz2(int f, int fd)
     close(fd);
 }
 
-static void write_bz2(int fd, int f)
+static void write_bz2(int f, int fd)
 {
     BZFILE* b;
     int     nBuf;
@@ -129,7 +129,7 @@ static void read_gz(int f, int fd)
     close(fd);
 }
 
-static void write_gz(int fd, int f)
+static void write_gz(int f, int fd)
 {
     gzFile  g;
     int     nBuf;

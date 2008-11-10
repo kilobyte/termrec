@@ -30,10 +30,7 @@ int filter(void func(int,int), int fd, int wr)
         return -1;
     case 0:
         close(p[wr]);
-        if (wr)
-            func(p[0], fd);
-        else
-            func(fd, p[1]);
+        func(fd, p[!wr]);
         exit(0);
     default:
         close(p[!wr]);
