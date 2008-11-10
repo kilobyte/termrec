@@ -11,10 +11,11 @@
 #include "utils.h"
 #include "vt100.h"
 #include "draw.h"
+#include "libstream/stream.h"
 #include "ttyrec.h"
-#include "formats.h"
 #include "timeline.h"
 #include "name.h"
+#include "gettext.h"
 
 #undef THREADED
 
@@ -24,14 +25,14 @@ int tsx,tsy;
 HANDLE pth;
 extern int speed;
 fpos_t lastp;
-int codec;
 int play_state;	// 0: not loaded, 1: paused, 2: playing, 3: waiting for input
 struct timeval t0,tmax,selstart,selend;
 int progmax,progdiv,progval;
 
 extern vt100 replay_vt;
 #define vt replay_vt /* FIXME: shouldn't be global */
-FILE *play_f;
+int play_f;
+char *play_format, *play_filename;
 HANDLE pth_sem;
 CRITICAL_SECTION vt_mutex;
 
@@ -446,8 +447,11 @@ void draw_size()
 
 void playfile(int arg)
 {
-    (*play[arg].play)(play_f, synch_init_wait, synch_wait, synch_print);
-    synch_print("\e[0mEnd of recording.", 20);
+    char buf[1024];
+    
+    ttyrec_r_play(play_f, play_format, play_filename,
+        synch_init_wait, synch_wait, synch_print);
+    synch_print(buf, snprintf(buf, 1024, "e\[0m%s", _("End of recording.")));
     
     {	// AXE ME
         struct timeval d;
@@ -457,9 +461,15 @@ void playfile(int arg)
     }
 }
 
-void replay_start(int arg)
+void replay_start()
 {
     timeline_clear();
+    vt100_resize(tev_vt, defsx, defsy);
+    vt100_printf(tev_vt, "\e[36m");
+    vt100_printf(tev_vt, _("Termplay v%s\n\n"),
+        "\e[36;1m"PACKAGE_VERSION"\e[0;36m");  
+    vt100_printf(tev_vt, "\e[0m");
+    
     tr.tv_sec=tr.tv_usec=0;
     replay_seek();
     tev_done=0;
@@ -469,7 +479,7 @@ void replay_start(int arg)
     progval=-1;
     // TODO: re-enable threading
 #ifdef THREADED
-    pth=CreateThread(0, 0, (LPTHREAD_START_ROUTINE)playfile, (LPDWORD)arg, 0, 0);
+    pth=CreateThread(0, 0, (LPTHREAD_START_ROUTINE)playfile, (LPDWORD)0, 0, 0);
 #else
 //    printf("Buffering: started.\n");
     playfile(arg);
@@ -504,7 +514,7 @@ int start_file(char *name)
     if (play_f)
     {
         replay_abort();
-        fclose(play_f);
+        close(play_f);
         play_f=0;
         CancelWaitableTimer(timer);
         replay_pause();
@@ -514,11 +524,12 @@ int start_file(char *name)
     if (!fd)
         return 0;
     play_f=fdopen(fd, "rb");
-    codec=codec_from_ext_play(name);
-    if (codec==-1)
-        codec=0;
-    replay_start(codec);
-    sprintf(buf, "Termplay: %s (%s)", filename, play[codec].name);
+    play_format=ttyrec_r_find_format(0, name);
+    if (!play_format)
+        play_format="baudrate";
+    play_filename=name;
+    replay_start();
+    snprintf(buf, MAXFILENAME+20, "Termplay: %s (%s)", filename, play[codec].name);
     SetWindowText(wnd, buf);
     set_toolbar_state(1);
     play_state=2;
@@ -766,7 +777,7 @@ void export_file()
     char fn[MAXFILENAME],errmsg[MAXFILENAME+20+128];
     OPENFILENAME dlg;
     int record_f;
-    int codec;
+    char *format;
     
     memset(&dlg, 0, sizeof(dlg));
     dlg.lStructSize=sizeof(dlg);
@@ -788,9 +799,9 @@ void export_file()
     if (!GetSaveFileName(&dlg))
         return;
     
-    codec=codec_from_ext_rec(fn);
-    if (codec==-1)
-        codec=0;	// default to ANSI here
+    format=ttyrec_w_find_format(0, fn);
+    if (!format)
+        format="ansi";
     if ((record_f=open(fn, O_WRONLY|O_CREAT, 0x666))==-1)
     {
         sprintf(errmsg, "Can't write to %s: %s", fn, strerror(errno));
@@ -798,7 +809,7 @@ void export_file()
         return;
     }
     record_f=open_stream(record_f, fn, O_WRONLY|O_CREAT);
-    replay_export(fdopen(record_f, "wb"), codec, &selstart, &selend);
+    replay_export(fdopen(record_f, "wb"), format, &selstart, &selend);
 }
 
 
