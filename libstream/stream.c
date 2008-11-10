@@ -54,7 +54,14 @@ export int open_stream(int fd, char* url, int mode)
     compress_info *ci;
     
     if (fd==-1)
-        fd=open(url, mode, 0666);
+    {
+        if (!url)
+            return -1;
+        if (!strcmp(url, "-"))
+            fd=dup(wr? 1 : 0);
+        else
+            fd=open(url, mode, 0666);
+    }
     if (fd==-1)
         return -1;
     

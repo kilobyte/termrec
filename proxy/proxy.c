@@ -240,7 +240,7 @@ void connthread(void *arg)
     filename=record_name;
     fd=fopen_out(&filename, !!record_name);
     gettimeofday(&tv, 0);
-    if (fd==-1 || !(ws.rec=ttyrec_w_open(fd, 0, filename, &tv)))
+    if (fd==-1 || !(ws.rec=ttyrec_w_open(fd, format, filename, &tv)))
     {
         fprintf(stderr, _("Can't create file: %s\n"), filename);
         closesocket(ws.fd[0]);

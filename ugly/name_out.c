@@ -312,6 +312,11 @@ int fopen_out(char **file_name, int nodetach)
         fprintf(stderr, _("Can't create a valid file in the current directory: %s\n"), strerror(errno));
         return -1;
     }
+    if (!strcmp(*file_name, "-"))
+    {
+        fd=-1;
+        goto finish;
+    }
     if (!(fd=open(*file_name, O_WRONLY|O_CREAT, 0x666)))
         error(_("Can't write to the record file (%s): %s\n"), *file_name, strerror(errno));
 finish:
