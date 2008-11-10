@@ -29,7 +29,7 @@ int need_utf;
 struct termios ta;
 int ptym;
 int record_f;
-recording rec;
+recorder rec;
 
 void sigwinch(int s)
 {

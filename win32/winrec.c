@@ -11,7 +11,7 @@
 
 //#define EVDEBUG
 
-recording rec;
+recorder rec;
 #ifdef EVDEBUG
 FILE *evlog;
 #endif

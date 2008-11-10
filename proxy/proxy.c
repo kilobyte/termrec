@@ -60,7 +60,7 @@ struct workstate
 {
     int fd[2];
     volatile int echoing[2];
-    recording rec;
+    recorder rec;
     void *rst;
     mutex_t mutex;
     int who;

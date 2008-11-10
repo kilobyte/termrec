@@ -14,7 +14,7 @@ typedef struct
     recorder_info *format;
     void *state;
     FILE *f;
-} recording;
+} recorder;
 
 
 static int find_format(char *format, char *filename)
@@ -59,17 +59,17 @@ export char* ttyrec_w_find_format(char *format, char *filename)
 }
 
 
-export recording* ttyrec_w_open(int fd, char *format, char *filename, struct timeval *tm)
+export recorder* ttyrec_w_open(int fd, char *format, char *filename, struct timeval *tm)
 {
     int nf;
-    recording *r;
+    recorder *r;
     
     assert(fd!=-1);
     nf=find_format(format, filename);
     if (nf==-1)
         return 0;
     
-    r=malloc(sizeof(recording));
+    r=malloc(sizeof(recorder));
     if (!r)
         return 0;
     
@@ -81,7 +81,7 @@ export recording* ttyrec_w_open(int fd, char *format, char *filename, struct tim
 }
 
 
-export int ttyrec_w_write(recording *r, struct timeval *tm, char *buf, int len)
+export int ttyrec_w_write(recorder *r, struct timeval *tm, char *buf, int len)
 {
     assert(r);
     assert(r->f);
@@ -90,7 +90,7 @@ export int ttyrec_w_write(recording *r, struct timeval *tm, char *buf, int len)
 }
 
 
-export int ttyrec_w_close(recording *r)
+export int ttyrec_w_close(recorder *r)
 {
     int err=0;
     
