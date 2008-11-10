@@ -314,35 +314,6 @@ static void record_nh_recorder_finish(FILE *f, void* state)
 }
 
 
-/********************/
-/* format: readlogs */
-/********************/
-
-/*
-void play_reallogs(FILE *f)
-{
-}
-*/
-
-static void* record_reallogs_init(FILE *f, struct timeval *tm)
-{
-    return 0;
-}
-
-static void record_reallogs(FILE *f, void* state, struct timeval *tm, char *buf, int len)
-{
-#define sec ((unsigned int)tm->tv_sec)
-    fwrite(buf, 1, len, f);
-    fprintf(f, "<!RL!%u:%u:%u:%u>", sec/3600%24, sec/60%60, sec%60,
-        (unsigned int)tm->tv_usec/1000);
-#undef sec
-}
-
-static void record_reallogs_finish(FILE *f, void* state)
-{
-}
-
-
 /****************/
 /* format: null */
 /****************/
@@ -365,7 +336,6 @@ recorder_info rec[]={
 {"ansi",".txt",record_baudrate_init,record_baudrate,record_baudrate_finish},
 {"ttyrec",".ttyrec",record_ttyrec_init,record_ttyrec,record_ttyrec_finish},
 {"nh_recorder",".nh",record_nh_recorder_init,record_nh_recorder,record_nh_recorder_finish},
-{"reallogs",".rl",record_reallogs_init,record_reallogs,record_reallogs_finish},
 {"null",0,record_null_init,record_null,record_null_finish},
 {0, 0, 0, 0},
 };
