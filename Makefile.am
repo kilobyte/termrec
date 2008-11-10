@@ -14,5 +14,7 @@ else
 SUBDIRS += play rec
 endif
 
+SUBDIRS += tests
+
 EXTRA_DIST= BUGS gettext.h
 DISTCLEANFILES = _stdint.h

@@ -1,294 +1,236 @@
 #include "config.h"
 #include <stdlib.h>
 #include <string.h>
+#include "error.h"
 #include "sys/threads.h"
 #include "utils.h"
-#include "error.h"
-#include "formats.h"
 #include "vt100.h"
-#include "timeline.h"
-#include "name.h"
-#include "gettext.h"
 #include "export.h"
+#include "files.h"
 
-/*******************/
-/* gatherer thread */
-/*******************/
-
-struct tty_event tev_head, *tev_tail;
-int tev_done;
-static vt100 tev_vt;
-static int nchunk;
-static mutex_t lock;
-
-
-export void synch_init_wait(struct timeval *ts)
+struct ttyrec_frame
 {
-#if 0
-#ifdef HAVE_CTIME_R
-    char buf[128];
-#endif
-    
-    if (ts)
-    {
-        timeline_lock();
-#ifdef HAVE_CTIME_R
-        ctime_r(&ts->tv_sec, buf);
-        vt100_printf(tev_vt, _("Recording started %s\n"), buf);
-#else
-        vt100_printf(tev_vt, _("Recording started %s\n"), ctime(&ts->tv_sec));
-#endif
-        timeline_unlock();
-    }
-#endif
+    struct timeval t;
+    int len;
+    char *data;
+    vt100 snapshot;
+    struct ttyrec_frame *next;
+};
+
+typedef struct ttyrec
+{
+    struct ttyrec_frame *tev_head, *tev_tail;
+    vt100 tev_vt;
+    int nchunk;
+    mutex_t lock;
+} *ttyrec;
+
+#define SNAPSHOT_CHUNK 65536
+
+static void ttyrec_lock(ttyrec tr);
+static void ttyrec_unlock(ttyrec tr);
+
+#define tr ((ttyrec)arg)
+static void synch_init_wait(struct timeval *ts, void *arg)
+{
+    tr->tev_head->t=*ts;
 }
 
-export void synch_wait(struct timeval *tv)
+static void synch_wait(struct timeval *tv, void *arg)
 {
-    if (tv->tv_sec>5)
+    if (tv->tv_sec>=5 || tv->tv_sec<0)
         tv->tv_sec=5, tv->tv_usec=0;
-
-    timeline_lock();
-    if (tev_tail->data)
+    
+    ttyrec_lock(tr);
+    if (tr->tev_tail->data)
     {
-        struct tty_event *tev_new;
+        struct ttyrec_frame *tev_new;
         
-        if (tev_tail==&tev_head)
+        if (tr->nchunk>=SNAPSHOT_CHUNK)	/* Do a snapshot every 64KB of data */
         {
-            vt100_free(tev_head.snapshot);
-            tev_head.snapshot=vt100_copy(tev_vt);
-            nchunk=0;
+            if (!(tr->tev_head->snapshot=vt100_copy(tr->tev_vt)))
+                goto fail_snapshot;
+            tr->nchunk=0;
         }
-        else
-            if (nchunk>65536)	/* Do a snapshot every 64KB of data */
-            {
-                if (!(tev_head.snapshot=vt100_copy(tev_vt)))
-                    goto fail_snapshot;
-                nchunk=0;
-            }
-        tev_new=malloc(sizeof(struct tty_event));
+        tev_new=malloc(sizeof(struct ttyrec_frame));
         if (!tev_new)
             goto fail;
-        memset(tev_new, 0, sizeof(struct tty_event));
-        tev_new->t=tev_tail->t;
-        tev_tail->next=tev_new;
-        tev_tail=tev_new;
+        memset(tev_new, 0, sizeof(struct ttyrec_frame));
+        tev_new->t=tr->tev_tail->t;
+        tr->tev_tail->next=tev_new;
+        tr->tev_tail=tev_new;
     }
-    tadd(&tev_tail->t, tv);
-    timeline_unlock();
+    tadd(&tr->tev_tail->t, tv);
+    ttyrec_unlock(tr);
     return;
 fail:
-    vt100_free(tev_tail->snapshot);
+    vt100_free(tr->tev_tail->snapshot);
 fail_snapshot:
-    tev_done=1;
-    timeline_unlock();
+    ttyrec_unlock(tr);
 }
 
-export void synch_print(char *buf, int len)
+static void synch_print(char *buf, int len, void *arg)
 {
     char *sp;
-
-    timeline_lock();
-    if (tev_tail->data)
-        sp=realloc(tev_tail->data, tev_tail->len+len);
+    
+    ttyrec_lock(tr);
+    if (tr->tev_tail->data)
+        sp=realloc(tr->tev_tail->data, tr->tev_tail->len+len);
     else
         sp=malloc(len);
     if (!sp)
     {
-        tev_done=1;
-        timeline_unlock();
+        ttyrec_unlock(tr);
         return;
     }
-    tev_tail->data=sp;
-    memcpy(sp+tev_tail->len, buf, len);
-    tev_tail->len+=len;
-    vt100_write(tev_vt, buf, len);
-    nchunk+=len;
-    timeline_unlock();
+    tr->tev_tail->data=sp;
+    memcpy(sp+tr->tev_tail->len, buf, len);
+    tr->tev_tail->len+=len;
+    vt100_write(tr->tev_vt, buf, len);
+    tr->nchunk+=len;
+    ttyrec_unlock(tr);
+}
+#undef tr
+
+
+export ttyrec ttyrec_init(vt100 vt)
+{
+    ttyrec tr = malloc(sizeof(struct ttyrec));
+    tr->tev_head = malloc(sizeof(struct ttyrec_frame));
+    memset(tr->tev_head, 0, sizeof(struct ttyrec_frame));
+    tr->tev_tail=tr->tev_head;
+    tr->nchunk=SNAPSHOT_CHUNK;
+    mutex_init(tr->lock);
+    
+    tr->tev_vt = vt? vt : vt100_init(80, 25, 1, 0);
+    
+    return tr;
 }
 
-export void timeline_init()
-{
-    memset(&tev_head, 0, sizeof(struct tty_event));
-    memset(tev_vt, 0, sizeof(vt100));
-    tev_tail=&tev_head;
-    tev_done=0;
-    mutex_init(lock);
-}
 
-export void timeline_clear()
+export void ttyrec_free(ttyrec tr)
 {
-    struct tty_event *tc;
-
-    tev_tail=&tev_head;
+    struct ttyrec_frame *tev_tail, *tc;
+    
+    if (!tr)
+        return;
+    
+    ttyrec_lock(tr);
+    tev_tail=tr->tev_head;
     while(tev_tail)
     {
         tc=tev_tail;
         tev_tail=tev_tail->next;
         free(tc->data);
         if (tc->snapshot)
-        {
             vt100_free(tc->snapshot);
-        }
-        if (tc!=&tev_head)
-            free(tc);
+        free(tc);
     }
+    vt100_free(tr->tev_vt);
+    mutex_destroy(tr->lock);
+    free(tr);
+}
+
+
+export ttyrec ttyrec_load(int fd, char *format, char *filename, vt100 vt)
+{
+    ttyrec tr;
     
-    vt100_free(tev_vt);
-    memset(&tev_head, 0, sizeof(struct tty_event));
-    tev_tail=&tev_head;
-    tev_done=0;
-    tev_vt=vt100_init(defsx, defsy, 1, 0);
-    vt100_printf(tev_vt, "\e[36m");
-    vt100_printf(tev_vt, _("Termplay v%s\n\n"),
-        "\e[36;1m"PACKAGE_VERSION"\e[0;36m");
-    vt100_printf(tev_vt, "\e[0m");
-    tev_head.snapshot=vt100_copy(tev_vt);
-    nchunk=0;
-}
-
-export void timeline_lock()
-{
-    mutex_lock(lock);
-}
-
-export void timeline_unlock()
-{
-    mutex_unlock(lock);
-}
-
-
-/*****************/
-/* replay thread */
-/*****************/
-
-vt100 replay_vt;
-struct tty_event *tev_cur;
-int play_state; /* 0: stopped, 1: paused, 2: playing, 3: waiting for input */
-struct timeval t0, /* adjusted wall time at t=0 */
-               tr; /* current point of replay */
-int tev_curlp;	/* amount of data already played from the current block */
-int speed;
-
-export void replay_pause()
-{
-    switch(play_state)
-    {
-    case 0:
-    default:
-    case 1:
-        break;
-    case 2:
-        gettimeofday(&tr, 0);
-        tsub(&tr, &t0);
-        tmul(&tr, speed);
-    case 3:
-        play_state=1;
-    }
-}
-
-export void replay_resume()
-{
-    struct timeval t;
-
-    switch(play_state)
-    {
-    case 0:
-    default:
-    case 1:
-        gettimeofday(&t0, 0);
-        t=tr;
-        tdiv(&t, speed);
-        tsub(&t0, &t);
-        play_state=2;
-        break;
-    case 2:
-    case 3:
-        break;
-    }
-}
-
-export int replay_play(struct timeval *delay)
-{ /* structures touched: tev, vt */
-    switch(play_state)
-    {
-    case 0:
-    default:
-    case 1:
+    if (!(tr=ttyrec_init(vt)))
         return 0;
-    case 2:
-        gettimeofday(&tr, 0);
-        tsub(&tr, &t0);
-        tmul(&tr, speed);
-        if (tev_cur->len>tev_curlp)
-        {
-            vt100_write(replay_vt, tev_cur->data+tev_curlp, tev_cur->len-tev_curlp);
-            tev_curlp=tev_cur->len;
-        }
-        while (tev_cur->next && tcmp(tev_cur->next->t, tr)==-1)
-        {
-            tev_cur=tev_cur->next;
-            if (tev_cur->data)
-                vt100_write(replay_vt, tev_cur->data, tev_cur->len);
-            tev_curlp=tev_cur->len;
-        }
-        if (tev_cur->next)
-        {
-            *delay=tev_cur->next->t;
-            tsub(delay, &tr);
-            tdiv(delay, speed);
-            return 1;
-        }
-        play_state=tev_done?0:3;
-    case 3:
+    if (!ttyrec_r_play(fd, format, filename, synch_init_wait, synch_wait, synch_print, tr))
+    {
+        ttyrec_free(tr);
         return 0;
     }
-}
-
-/* FIXME: actually use the snapshots */
-export void replay_seek()
-{ /* structures touched: tev, vt */
-    struct timeval t;
-
-    tev_cur=&tev_head;
-
-    vt100_free(replay_vt);
-    replay_vt=vt100_copy(tev_head.snapshot);
-    
-    tev_curlp=tev_head.len;
-    while (tev_cur->next && tcmp(tev_cur->next->t, tr)==-1)
-    {
-        tev_cur=tev_cur->next;
-        if (tev_cur->data)
-            vt100_write(replay_vt, tev_cur->data, tev_cur->len);
-        tev_curlp=tev_cur->len;
-    }
-    t=tr;
-    gettimeofday(&t0, 0);
-    tdiv(&tr, speed);
-    tsub(&t0, &tr);
+    return tr;
 }
 
 
-export void replay_export(FILE *record_f, int codec, struct timeval *selstart, struct timeval *selend)
+static void ttyrec_lock(ttyrec tr)
 {
-    void* record_state;
-    struct tty_event *tev;
+    mutex_lock(tr->lock);
+}
+
+static void ttyrec_unlock(ttyrec tr)
+{
+    mutex_unlock(tr->lock);
+}
+
+export struct ttyrec_frame* ttyrec_seek(ttyrec tr, struct timeval *t, vt100 *vt)
+{
+    struct ttyrec_frame *tfv, *tfs;
     
-    tev=&tev_head;
-    while (tev && tcmp(tev->t, *selstart)==-1)
-        tev=tev->next;
-    if (!tev)
-        return;
+    if (!tr)
+        return 0;
     
-    record_state=(*rec[codec].init)(record_f, selstart);
-  
-    while (tev && tcmp(tev->t, *selend)<1)
+    tfv = tr->tev_head;
+    tfs = tfv->snapshot ? tfv : 0;
+    
+    if (t)
+        while(tfv->next && tcmp(tfv->next->t, *t)<=0)
+        {
+            tfv=tfv->next;
+            if (tfv->snapshot)
+                tfs=tfv;
+        }
+    
+    if (vt)
     {
-        if (tev->data)
-            (*rec[codec].write)(record_f, record_state, &tev->t, tev->data, tev->len);
-        tev=tev->next;
+        vt100_free(*vt);
+        if (tfs)
+            *vt=vt100_copy(tfs->snapshot);
+        else
+        {
+            tfs=tr->tev_head;
+            *vt=vt100_init(80, 25, 1, 0);
+        }
+        if (!*vt)
+            return 0;
+        while (tfs!=tfv)
+        {
+            if (tfs->data)
+                vt100_write(*vt, tfs->data, tfs->len);
+            tfs = tfs->next;
+        } while (tfs!=tfv);
+        if (tfs->data)
+            vt100_write(*vt, tfs->data, tfs->len);
     }
-    (*rec[codec].finish)(record_f, record_state);
-    fclose(record_f);
+    
+    return tfv;
+}
+
+
+export struct ttyrec_frame* ttyrec_next_frame(ttyrec tr, struct ttyrec_frame *tfv)
+{
+    if (!tfv)
+        return 0;
+    return tfv->next;
+}
+
+
+export void ttyrec_add_frame(ttyrec tr, struct timeval *delay, char *data, int len)
+{
+    if (delay)
+        synch_wait(delay, tr);
+    synch_print(data, len, tr);
+}
+
+
+export int ttyrec_save(ttyrec tr, int fd, char *format, char *filename, struct timeval *selstart, struct timeval *selend)
+{
+    struct ttyrec_frame *fr;
+    recorder rec;
+    
+    fr=ttyrec_seek(tr, selstart, 0);
+    if (!(rec=ttyrec_w_open(fd, format, filename, &fr->t)))
+        return 0;
+    while(fr)
+    {
+        if (selend && tcmp(fr->t, *selend)>0)
+            break;
+        ttyrec_w_write(rec, &fr->t, fr->data, fr->len);
+        fr=ttyrec_next_frame(tr, fr);
+    }
+    return ttyrec_w_close(rec);
 }

@@ -1,3 +1,7 @@
+noinst_PROGRAMS = seeks
+AM_CFLAGS = -I../libtty/
+LDADD = -L../libtty/ -ltty ../sys/libcompat.la
+
 EXTRA_DIST = $(TESTSUITE_AT) testsuite.at testsuite package.m4
 DISTCLEANFILES       = atconfig $(check_SCRIPTS)
 MAINTAINERCLEANFILES = Makefile.in $(TESTSUITE) package.m4
@@ -27,7 +31,7 @@ clean-local:
 	$(SHELL) $(TESTSUITE) --clean
 
 AUTOTEST = $(AUTOM4TE) --language=autotest
-$(TESTSUITE): package.m4 testsuite.at $(TESTSUITE_AT)
+$(TESTSUITE): package.m4 testsuite.at $(TESTSUITE_AT) seeks
 	$(AUTOTEST) -I $(srcdir) $@.at -o $@.tmp
 	mv $@.tmp $@
 

@@ -13,8 +13,6 @@
 #include "draw.h"
 #include "libstream/stream.h"
 #include "ttyrec.h"
-#include "timeline.h"
-#include "name.h"
 #include "gettext.h"
 
 #undef THREADED
@@ -23,24 +21,28 @@ HINSTANCE inst;
 HWND wnd, termwnd, wndTB, ssProg, wndProg, ssSpeed, wndSpeed;
 int tsx,tsy;
 HANDLE pth;
-extern int speed;
+
+ttyrec ttr;
+ttyrec_frame tev_cur;
+struct timeval t0, /* adjusted wall time at t=0 */
+               tr; /* current point of replay */
+int tev_curlp;  /* amount of data already played from the current block */
+int speed;
 fpos_t lastp;
 int play_state;	// 0: not loaded, 1: paused, 2: playing, 3: waiting for input
 struct timeval t0,tmax,selstart,selend;
 int progmax,progdiv,progval;
+int defsx, defsy;
 
-extern vt100 replay_vt;
-#define vt replay_vt /* FIXME: shouldn't be global */
+vt100 vt;
 int play_f;
 char *play_format, *play_filename;
 HANDLE pth_sem;
 CRITICAL_SECTION vt_mutex;
 
-extern struct tty_event tev_head,*tev_tail;	// FIXME: don't use tev_tail nor tev_head
-extern int tev_done;
+int tev_done;
 HANDLE timer;
 int button_state;
-
 
 #define MAXFILENAME 256
 char filename[MAXFILENAME];
@@ -49,6 +51,10 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 LRESULT APIENTRY TermWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 void do_replay();
+
+// TODO: when threading is added, readd these if frame merging remains, remove if not.
+#define timeline_lock() {}
+#define timeline_unlock() {}
 
 void win32_init()
 {
@@ -432,12 +438,12 @@ void draw_size()
 {
     RECT r;
 
-    if (vt.sx!=tsx || vt.sy!=tsy)
+    if (vt->sx!=tsx || vt->sy!=tsy)
     {
         r.left=0;
         r.top=0;
-        r.right=(tsx=vt.sx)*chx+TERMBORDER;
-        r.bottom=(tsy=vt.sy)*chy+TERMBORDER;
+        r.right=(tsx=vt->sx)*chx+TERMBORDER;
+        r.bottom=(tsy=vt->sy)*chy+TERMBORDER;
         AdjustWindowRect(&r, GetWindowLong(termwnd, GWL_STYLE), 0);
         SetWindowPos(termwnd, 0, 0, 0, r.right, r.bottom, SWP_NOACTIVATE|
             SWP_NOCOPYBITS|SWP_NOMOVE|SWP_NOOWNERZORDER|SWP_NOZORDER);
@@ -445,26 +451,120 @@ void draw_size()
 }
 
 
-void playfile(int arg)
+void playfile(vt100 tev_vt)
 {
     char buf[1024];
     
-    ttyrec_r_play(play_f, play_format, play_filename,
-        synch_init_wait, synch_wait, synch_print);
-    synch_print(buf, snprintf(buf, 1024, "e\[0m%s", _("End of recording.")));
-    
-    {	// AXE ME
-        struct timeval d;
-        d.tv_sec=0;
-        d.tv_usec=0;
-        synch_wait(&d);
+    ttr=ttyrec_load(play_f, play_format, play_filename, tev_vt);
+    if (!ttr)
+        return;
+    ttyrec_add_frame(ttr, 0, buf, snprintf(buf, 1024, "e\[0m%s", _("End of recording.")));
+}
+
+
+void replay_pause()
+{
+    switch(play_state)
+    {
+    case 0:
+    default:
+    case 1:
+        break;
+    case 2:
+        gettimeofday(&tr, 0);
+        tsub(&tr, &t0);
+        tmul(&tr, speed);
+    case 3:
+        play_state=1;
     }
 }
 
+
+void replay_resume()
+{
+    struct timeval t;
+
+    switch(play_state)
+    {
+    case 0:
+    default:
+    case 1:
+        gettimeofday(&t0, 0);
+        t=tr;
+        tdiv(&t, speed);
+        tsub(&t0, &t);
+        play_state=2;
+        break;
+    case 2:
+    case 3:
+        break;
+    }
+}
+
+
+int replay_play(struct timeval *delay)
+{ /* structures touched: tev, vt */
+    ttyrec_frame fn;
+    
+    switch(play_state)
+    {
+    case 0: 
+    default:
+    case 1:
+        return 0;
+    case 2:
+        gettimeofday(&tr, 0);
+        tsub(&tr, &t0);  
+        tmul(&tr, speed);
+        if (tev_cur && tev_cur->len>tev_curlp)
+        {
+            vt100_write(vt, tev_cur->data+tev_curlp, tev_cur->len-tev_curlp);
+            tev_curlp=tev_cur->len;
+        }
+        while ((fn=ttyrec_next_frame(ttr, tev_cur)) && tcmp(fn->t, tr)==-1)
+        {
+            tev_cur=fn;
+            if (tev_cur->data)
+                vt100_write(vt, tev_cur->data, tev_cur->len);
+            tev_curlp=tev_cur->len;
+        }
+        if ((fn=ttyrec_next_frame(ttr, tev_cur)))
+        {
+            *delay=fn->t;
+            tsub(delay, &tr);
+            tdiv(delay, speed);
+            return 1;
+        }
+        play_state=tev_done?0:3;
+    case 3:
+        return 0;
+    }
+}
+
+
+/* find the frame containing time "tr", update "t0" */
+void replay_seek()
+{
+    struct timeval t;
+    
+    tev_cur=ttyrec_seek(ttr, &tr, &vt);
+    tev_curlp=0;
+    
+    t=tr;
+    gettimeofday(&t0, 0);
+    tdiv(&tr, speed);
+    tsub(&t0, &tr);
+}
+
+
 void replay_start()
 {
-    timeline_clear();
-    vt100_resize(tev_vt, defsx, defsy);
+    vt100 tev_vt;
+    ttyrec_frame tev_tail;
+    struct timeval doomsday;
+    
+    ttyrec_free(ttr);
+    tev_vt=vt100_init(defsx, defsy, 1, 0);
     vt100_printf(tev_vt, "\e[36m");
     vt100_printf(tev_vt, _("Termplay v%s\n\n"),
         "\e[36;1m"PACKAGE_VERSION"\e[0;36m");  
@@ -482,15 +582,18 @@ void replay_start()
     pth=CreateThread(0, 0, (LPTHREAD_START_ROUTINE)playfile, (LPDWORD)0, 0, 0);
 #else
 //    printf("Buffering: started.\n");
-    playfile(arg);
+    playfile(tev_vt);
 //    printf("Buffering: done.\n");
     tev_done=1;
+    doomsday.tv_sec=(((unsigned long)1)<<(sizeof(time_t)*8-1))-1;
+    doomsday.tv_usec=0;
+    tev_tail=ttyrec_seek(ttr, &doomsday, 0);
     tmax=tev_tail->t;
     if (tmax.tv_sec<100)
         progdiv=10000;
     else
         progdiv=1000000;
-    selstart=tev_head.t;
+    selstart=ttyrec_seek(ttr, 0, 0)->t;
     selend=tmax;
     progmax=tmax.tv_sec*(1000000/progdiv)+tmax.tv_usec/progdiv;
     set_prog_max();
@@ -511,25 +614,25 @@ int start_file(char *name)
     char buf[MAXFILENAME+20];
     int fd;
     
-    if (play_f)
+    if (play_f!=-1)
     {
         replay_abort();
         close(play_f);
-        play_f=0;
+        play_f=-1;
         CancelWaitableTimer(timer);
         replay_pause();
         set_buttons(0);
     }
     fd=open_stream(-1, name, O_RDONLY);
-    if (!fd)
+    if (fd==-1)
         return 0;
-    play_f=fdopen(fd, "rb");
+    play_f=fd;
     play_format=ttyrec_r_find_format(0, name);
     if (!play_format)
         play_format="baudrate";
     play_filename=name;
     replay_start();
-    snprintf(buf, MAXFILENAME+20, "Termplay: %s (%s)", filename, play[codec].name);
+    snprintf(buf, MAXFILENAME+20, "Termplay: %s (%s)", filename, play_format);
     SetWindowText(wnd, buf);
     set_toolbar_state(1);
     play_state=2;
@@ -584,22 +687,23 @@ void replay_speed(int x)
 void print_banner()
 {
     int i;
+    char *pn;
 
-    vt100_printf(&vt, "\e[?25l\e[36mTermplay v\e[1m"PACKAGE_VERSION"\e[0m\n");
-    vt100_printf(&vt, "\e[33mTerminal size: \e[1m%d\e[21mx\e[1m%d\e[0m\n", vt.sx, vt.sy);
-    vt100_printf(&vt, "\e[34;1m\e%%G\xd0\xa1\xd0\xb4\xd0\xb5\xd0\xbb\xd0\xb0\xd0\xbd\xd0\xbe by KiloByte (kilobyte@angband.pl)\e[0m\n");
-    vt100_printf(&vt, "\nFeatures compiled in:\n");
-    vt100_printf(&vt, "* UTF-8 (no CJK)\n");
-    vt100_printf(&vt, "Compression plugins:\n");
+    vt100_printf(vt, "\e[?25l\e[36mTermplay v\e[1m"PACKAGE_VERSION"\e[0m\n");
+    vt100_printf(vt, "\e[33mTerminal size: \e[1m%d\e[21mx\e[1m%d\e[0m\n", vt->sx, vt->sy);
+    vt100_printf(vt, "\e[34;1m\e%%G\xd0\xa1\xd0\xb4\xd0\xb5\xd0\xbb\xd0\xb0\xd0\xbd\xd0\xbe by KiloByte (kilobyte@angband.pl)\e[0m\n");
+    vt100_printf(vt, "\nFeatures compiled in:\n");
+    vt100_printf(vt, "* UTF-8 (no CJK)\n");
+    vt100_printf(vt, "Compression plugins:\n");
 #if (defined HAVE_LIBZ) || (SHIPPED_LIBZ)
-    vt100_printf(&vt, "* gzip");
+    vt100_printf(vt, "* gzip");
 #endif
 #if (defined HAVE_LIBBZ2) || (defined SHIPPED_LIBBZ2)
-    vt100_printf(&vt, "* bzip2");
+    vt100_printf(vt, "* bzip2");
 #endif
-    vt100_printf(&vt, "Replay plugins:\n");
-    for (i=0;play[i].name;i++)
-        vt100_printf(&vt, "* %s\n", play[i].name);
+    vt100_printf(vt, "Replay plugins:\n");
+    for (i=0;(pn=ttyrec_r_get_format_name(i));i++)
+        vt100_printf(vt, "* %s\n", pn);
 }
 
 
@@ -611,8 +715,8 @@ void paint(HWND hwnd)
     if (!(dc=BeginPaint(hwnd,&paints)))
         return;
     EnterCriticalSection(&vt_mutex);
-    draw_vt(dc, paints.rcPaint.right, paints.rcPaint.bottom, &vt);
-    draw_border(dc, &vt);
+    draw_vt(dc, paints.rcPaint.right, paints.rcPaint.bottom, vt);
+    draw_border(dc, vt);
     LeaveCriticalSection(&vt_mutex);
     EndPaint(hwnd,&paints);
 }
@@ -637,7 +741,7 @@ again:
     replay_play(&delay);
     draw_size();
     dc=GetDC(termwnd);
-    draw_vt(dc, chx*vt.sx, chy*vt.sy, &vt);
+    draw_vt(dc, chx*vt->sx, chy*vt->sy, vt);
     ReleaseDC(termwnd, dc);
     LeaveCriticalSection(&vt_mutex);
     timeline_unlock();
@@ -691,7 +795,7 @@ void redraw_term()
     EnterCriticalSection(&vt_mutex);
     draw_size();
     dc=GetDC(termwnd);
-    draw_vt(dc, chx*vt.sx, chy*vt.sy, &vt);
+    draw_vt(dc, chx*vt->sx, chy*vt->sy, vt);
     ReleaseDC(termwnd, dc);
     LeaveCriticalSection(&vt_mutex);
 }
@@ -809,7 +913,7 @@ void export_file()
         return;
     }
     record_f=open_stream(record_f, fn, O_WRONLY|O_CREAT);
-    replay_export(fdopen(record_f, "wb"), format, &selstart, &selend);
+    ttyrec_save(ttr, record_f, format, filename, &selstart, &selend);
 }
 
 
@@ -997,14 +1101,14 @@ int APIENTRY WinMain(HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
     win32_init();
     
     speed=1000;
-    play_f=0;
+    play_f=-1;
     play_state=-1;
     tsx=tsy=0;
     
     defsx=80;
     defsy=25;
     
-    vt100_init(&vt, defsx, defsy, 1, 0);
+    vt=vt100_init(defsx, defsy, 1, 0);
     
     if (*lpCmdLine=='"')	// FIXME: proper parsing
     {
@@ -1020,13 +1124,13 @@ int APIENTRY WinMain(HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
     print_banner();
     draw_size();
     UpdateWindow(wnd);
-
-    timeline_init();
+    
+    ttr=0;
 
     if (*filename)
         if (!start_file(filename))
         {
-            vt100_printf(&vt, "\n\e[41;1mFile not found: %s\e[0m\n", filename);
+            vt100_printf(vt, "\n\e[41;1mFile not found: %s\e[0m\n", filename);
             *filename=0;
             redraw_term();
         }

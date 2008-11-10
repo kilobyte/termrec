@@ -40,8 +40,6 @@ ttyrecord
 *.a
 *.lo
 *.la
+*.loT
 .libs
 *~
-
-vtest
-vtredir

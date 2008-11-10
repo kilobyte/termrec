@@ -47,7 +47,7 @@ static int find_w_format(char *format, char *filename)
             skip=0;
         for(nf=0; rec[nf].name; nf++)
         {
-            if (match_suffix(filename, rec[nf].ext, skip))
+            if (rec[nf].ext && match_suffix(filename, rec[nf].ext, skip))
                 break;
         }
     }
@@ -168,7 +168,7 @@ static int find_r_format(char *format, char *filename)
             skip=0;
         for(nf=0; play[nf].name; nf++)
         {
-            if (match_suffix(filename, play[nf].ext, skip))
+            if (rec[nf].ext && match_suffix(filename, play[nf].ext, skip))
                 break;
         }
     }

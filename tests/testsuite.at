@@ -1,2 +1,5 @@
 AT_INIT
 
+AT_SETUP([seeks])
+AT_CHECK([seeks],,[ignore])
+AT_CLEANUP

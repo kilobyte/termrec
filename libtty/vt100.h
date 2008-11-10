@@ -1,3 +1,5 @@
+#ifndef _VT100_H
+#define _VT100_H
 typedef unsigned int ucs;
 
 typedef struct 
@@ -85,3 +87,5 @@ void	vt100_free(vt100 vt);
 void	vt100_write(vt100 vt, char *buf, int len);
 void	vt100_printf(vt100 vt, const char *fmt, ...);
 vt100	vt100_copy(vt100 vt);
+
+#endif
