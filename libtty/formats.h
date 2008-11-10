@@ -11,9 +11,10 @@
 #endif
 
 typedef void play_func(FILE *f,
-    void *(synch_init_wait)(struct timeval *ts),
-    void *(synch_wait)(struct timeval *tv),
-    void *(synch_print)(char *buf, int len));
+    void *(synch_init_wait)(struct timeval *ts, void *arg),
+    void *(synch_wait)(struct timeval *tv, void *arg),
+    void *(synch_print)(char *buf, int len, void *arg),
+    void *arg);
 
 typedef void *(record_func_init)(FILE *f, struct timeval *tm);
 typedef void (record_func)(FILE *f, void* state, struct timeval *tm, char *buf, int len);

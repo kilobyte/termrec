@@ -9,21 +9,24 @@ To create one, implement:
 + player:
 
 void play_xxx(FILE *f,
-    void *(synch_init_wait)(struct timeval *ts),
-    void *(synch_wait)(struct timeval *tv),
-    void *(synch_print)(char *buf, int len));
+    void *(synch_init_wait)(struct timeval *ts, void *arg),
+    void *(synch_wait)(struct timeval *tv, void *arg),
+    void *(synch_print)(char *buf, int len, void *arg),
+    void *arg);
 You are guaranteed to be running in a thread-equivalent on your own.
     *f
       is the file you're reading from, don't expect it to be seekable.
-    void synch_init_wait(struct timeval *ts);
+    void synch_init_wait(struct timeval *ts, void *arg);
       you may call this to mark the starting time of the stream.  It's purely
       optional, and its only use is to mention the date of the recording, if
       known.
-    void synch_wait(struct timeval *tv);
+    void synch_wait(struct timeval *tv, void *arg);
       call this to convey timing information.  The value given is the _delay_
       since the last call, not the absolute time.
-    void synch_print(char *buf, int len);
+    void synch_print(char *buf, int len, void *arg);
       call this to write the actual output.
+    void *arg
+      please pass it to each of the functions you call.
 
 
 + recorder:
@@ -100,9 +103,10 @@ Will be called when the recording ends.
 /********************/
 
 static void play_baudrate(FILE *f,
-    void *(synch_init_wait)(struct timeval *ts),
-    void *(synch_wait)(struct timeval *tv),
-    void *(synch_print)(char *buf, int len))
+    void *(synch_init_wait)(struct timeval *ts, void *arg),
+    void *(synch_wait)(struct timeval *tv, void *arg),
+    void *(synch_print)(char *buf, int len, void *arg),
+    void *arg)
 {
     char buf[BUFFER_SIZE];
     size_t b;
@@ -112,9 +116,9 @@ static void play_baudrate(FILE *f,
     tv.tv_usec=200000;
     while((b=fread(buf, 1, 60, f))>0)	/* 2400 baud */
     {
-        synch_print(buf, b);
+        synch_print(buf, b, arg);
         
-        synch_wait(&tv);
+        synch_wait(&tv, arg);
     }
 }
 
@@ -147,9 +151,10 @@ struct ttyrec_header
 
 
 static void play_ttyrec(FILE *f,
-    void *(synch_init_wait)(struct timeval *ts),
-    void *(synch_wait)(struct timeval *tv),
-    void *(synch_print)(char *buf, int len))
+    void *(synch_init_wait)(struct timeval *ts, void *arg),
+    void *(synch_wait)(struct timeval *tv, void *arg),
+    void *(synch_print)(char *buf, int len, void *arg),
+    void *arg)
 {
     char buf[BUFFER_SIZE];
     size_t b,w;
@@ -178,7 +183,7 @@ static void play_ttyrec(FILE *f,
         {
             tv.tv_sec=to_little_endian(head.sec);
             tv.tv_usec=to_little_endian(head.usec);
-            synch_init_wait(&tv);
+            synch_init_wait(&tv, arg);
             first=0;
         }
         else
@@ -192,12 +197,12 @@ static void play_ttyrec(FILE *f,
                 tl.tv_usec+=1000000;
                 tl.tv_sec--;
             }
-            synch_wait(&tl);
+            synch_wait(&tl, arg);
         }
         
         while(w>0)
         {
-            synch_print(buf, w);
+            synch_print(buf, w, arg);
             if (!b)
                 break;
             if (b>BUFFER_SIZE)
@@ -239,9 +244,10 @@ static void record_ttyrec_finish(FILE *f, void* state)
 /***********************/
 
 static void play_nh_recorder(FILE *f,
-    void *(synch_init_wait)(struct timeval *ts),
-    void *(synch_wait)(struct timeval *tv),
-    void *(synch_print)(char *buf, int len))
+    void *(synch_init_wait)(struct timeval *ts, void *arg),
+    void *(synch_wait)(struct timeval *tv, void *arg),
+    void *(synch_print)(char *buf, int len, void *arg),
+    void *arg)
 {
     char buf[BUFFER_SIZE];
     int b,i,i0;
@@ -257,7 +263,7 @@ static void play_nh_recorder(FILE *f,
             if (!buf[i])
             {
                 if (i0<i)
-                    synch_print(buf+i0, i-i0);
+                    synch_print(buf+i0, i-i0, arg);
                 if (i+4>b)	/* timestamp happened on a block boundary */
                 {
                     if (b<5)	/* incomplete last timestamp */
@@ -272,11 +278,11 @@ static void play_nh_recorder(FILE *f,
                     i0=i+=4;
                     tv.tv_sec=(t-tp)/100;
                     tv.tv_usec=(t-tp)%100*10000;
-                    synch_wait(&tv);
+                    synch_wait(&tv, arg);
                 }
             }
         if (i0<i)
-            synch_print(buf+i0, i-i0);
+            synch_print(buf+i0, i-i0, arg);
     block_end:;
     }
 }
@@ -368,6 +374,5 @@ player_info play[]={
 {"baudrate",".txt",play_baudrate},
 {"ttyrec",".ttyrec",play_ttyrec},
 {"nh_recorder",".nh",play_nh_recorder},
-/*{"reallogs",".rl",play_reallogs},*/
 {0, 0},
 };
