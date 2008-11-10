@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <windows.h>
 #include "utils.h"
-#include "stream.h"
 
 // A fork(), a fork(), my kingdom for a fork()!
 typedef struct

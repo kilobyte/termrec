@@ -8,8 +8,7 @@ termplay_LDADD = ../sys/libcompat.la ../ugly/name_out.o ../ugly/name_in.o -L../l
 termrec_LDADD = ../sys/libcompat.la ../ugly/name_out.o -L../libtty -ltty icons/termrec.coff @LIBBZ2@ @LIBZ@ @PTHREAD_LIBS@
 
 termplay_RES = termplay.rc termplay.manifest open.bmp rewind.bmp pause.bmp play.bmp wood1.bmp selstart.bmp selend.bmp export.bmp
-CHEADERS = stream.h formats.h utils.h synch.h name_out.h threads.h unix/threads.h threads.h pty.h name.h vt100.h charsets.h net.h net.h winutils.h
-EXTRA_DIST= ${CHEADERS} ${termplay_RES}
+EXTRA_DIST= ${termplay_RES}
 
 CLEANFILES = termplay.coff
 

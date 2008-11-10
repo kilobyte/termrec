@@ -11,7 +11,7 @@
 #include "utils.h"
 #include "vt100.h"
 #include "draw.h"
-#include "libstream/stream.h"
+#include "ttyrec.h"
 #include "formats.h"
 #include "timeline.h"
 #include "name.h"

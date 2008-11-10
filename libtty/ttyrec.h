@@ -1,3 +1,5 @@
+int		open_stream(int fd, char* url, int mode);
+
 typedef struct {} *recorder;
 char*		ttyrec_w_find_format(char *format, char *filename);
 recorder	ttyrec_w_open(int fd, char *format, char *filename, struct timeval *tm);

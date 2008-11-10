@@ -13,7 +13,6 @@
 #include "error.h"
 #include "compat.h"
 #include "ttyrec.h"
-#include "libstream/stream.h"
 #include "name_out.h"
 #include "gettext.h"
 

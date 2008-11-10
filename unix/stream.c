@@ -3,7 +3,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include "utils.h"
-#include "stream.h"
 
 
 FILE* stream_open(FILE *f, char *name, char *mode, compress_info *ci, int nodetach)
