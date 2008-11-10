@@ -121,25 +121,17 @@ export int ttyrec_w_close(recorder *r)
 
 export char* ttyrec_w_get_format_name(int i)
 {
-    int j;
-    
-    if (i<0)
+    if (i<0 || i>=rec_n)
         return 0;
-    for(j=0; j<i && rec[j].name; j++)
-        ;
-    return rec[j].name;
+    return rec[i].name;
 }
 
 
 export char* ttyrec_w_get_format_ext(int i)
 {
-    int j;
-    
-    if (i<0)
+    if (i<0 || i>=rec_n)
         return 0;
-    for(j=0; j<i && rec[j].name; j++)
-        ;
-    return rec[j].ext;
+    return rec[i].ext;
 }
 
 /************************/
@@ -190,25 +182,17 @@ export char* ttyrec_r_find_format(char *format, char *filename)
 
 export char* ttyrec_r_get_format_name(int i)
 {
-    int j;
-    
-    if (i<0)
+    if (i<0 || i>=play_n)
         return 0;
-    for(j=0; j<i && play[j].name; j++)
-        ;
-    return play[j].name;
+    return play[i].name;
 }
 
 
 export char* ttyrec_r_get_format_ext(int i)
 {
-    int j;
-    
-    if (i<0)
+    if (i<0 || i>=play_n)
         return 0;
-    for(j=0; j<i && play[j].name; j++)
-        ;
-    return play[j].ext;
+    return play[i].ext;
 }
 
 

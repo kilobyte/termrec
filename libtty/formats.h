@@ -38,3 +38,5 @@ typedef struct
 
 extern recorder_info rec[];
 extern player_info play[];
+
+extern int rec_n, play_n;

@@ -346,3 +346,6 @@ player_info play[]={
 {"nh_recorder",".nh",play_nh_recorder},
 {0, 0},
 };
+
+int rec_n=ARRAYSIZE(rec)-1;
+int play_n=ARRAYSIZE(play)-1;
