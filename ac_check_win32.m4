@@ -33,13 +33,13 @@ int main(){WSACleanup();return 0;}], [
 dnl Check if gai_strerror is #defined (like in new MINGW headers).
 
 AC_DEFUN([AC_FUNC_GAI_STERRROR], [
-AC_MSG_CHECKING([for gai_strerror])
+AC_MSG_CHECKING([if gai_strerror is a macro])
 AC_LINK_IFELSE([
 #include <winsock2.h>
 #include <windows.h> 
 #include <ws2tcpip.h>
 int main(){gai_strerror(0);return 0;}], [
-  AC_DEFINE([HAVE_GAI_STRERROR], [1], [Define if present])
+  AC_DEFINE([HAVE_GAI_STRERROR], [1], [Define if a macro])
   AC_MSG_RESULT([yes])
 ], [
   AC_MSG_RESULT([no])
