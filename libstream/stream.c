@@ -7,9 +7,10 @@
 #include "config.h"
 #include "error.h"
 #include "threads.h"
+#include "export.h"
 #include "compress.h"
 #include "stream.h"
-#include "export.h"
+#include "utils.h"
 
 
 #ifdef HAVE_FORK

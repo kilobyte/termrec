@@ -8,10 +8,9 @@
 #include <fcntl.h>
 #include "config.h"
 #include "_stdint.h"
-#include "utils.h"
+#include "sys/utils.h"
 #include "vt100.h"
 #include "draw.h"
-#include "libstream/stream.h"
 #include "ttyrec.h"
 #include "gettext.h"
 

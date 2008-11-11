@@ -1,5 +1,5 @@
 noinst_LTLIBRARIES = libcompat.la
-libcompat_la_SOURCES = asprintf.c
+libcompat_la_SOURCES = asprintf.c is_utf8.c
 
 if WIN32
 libcompat_la_SOURCES += win32/net.c win32/winutils.c

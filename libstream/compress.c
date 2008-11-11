@@ -18,10 +18,11 @@
 #  include SHIPPED_LIBZ_H
 # endif
 #endif
+#include "export.h"
 #include "compress.h"
+#include "stream.h"
 #include "error.h"
 #include "gettext.h"
-#include "libtty/utils.h"
 
 #define ERRORMSG(x) write(fd,(x),strlen(x))
 

@@ -12,6 +12,7 @@
 #include "utils.h"
 #include "formats.h"
 #include "libstream/compress.h"
+#include "libstream/stream.h"
 
 /************************/
 /* writing ttyrec files */

@@ -16,3 +16,4 @@ int pipe(int pipefd[2]);
 #endif
 
 void* LoadFunc(char *dll, char *name);
+void show_error(char *blah);

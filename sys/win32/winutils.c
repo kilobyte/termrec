@@ -1,4 +1,5 @@
 #include <windows.h>
+#include <stdio.h>
 
 #ifndef HAVE_GETTIMEOFDAY
 void gettimeofday(struct timeval *tv, void * dummy)
