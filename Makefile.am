@@ -6,7 +6,7 @@ if WIN32
 SUBDIRS += win32/icons
 endif
 
-SUBDIRS += tmp ugly proxy
+SUBDIRS += common tmp proxy
 
 if WIN32
 SUBDIRS += win32

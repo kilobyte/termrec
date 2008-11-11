@@ -626,9 +626,7 @@ int start_file(char *name)
     if (fd==-1)
         return 0;
     play_f=fd;
-    play_format=ttyrec_r_find_format(0, name);
-    if (!play_format)
-        play_format="baudrate";
+    play_format=ttyrec_r_find_format(0, name, "baudrate");
     play_filename=name;
     replay_start();
     snprintf(buf, MAXFILENAME+20, "Termplay: %s (%s)", filename, play_format);
@@ -902,10 +900,8 @@ void export_file()
     if (!GetSaveFileName(&dlg))
         return;
     
-    format=ttyrec_w_find_format(0, fn);
-    if (!format)
-        format="ansi";
-    if ((record_f=open(fn, O_WRONLY|O_CREAT, 0x666))==-1)
+    format=ttyrec_w_find_format(0, fn, "ansi");
+    if ((record_f=open(fn, O_WRONLY|O_CREAT, 0666))==-1)
     {
         sprintf(errmsg, "Can't write to %s: %s", fn, strerror(errno));
         MessageBox(wnd, errmsg, "Write error", MB_ICONERROR);

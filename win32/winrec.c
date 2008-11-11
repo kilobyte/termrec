@@ -611,8 +611,8 @@ int main(int argc, char **argv)
 #ifdef EVDEBUG
     evlog=fopen("evlog", "w");
 #endif
-    get_parms(argc, argv, 0);
-    record_f=fopen_out(&record_name, 1);
+    get_rec_parms(argc, argv);
+    record_f=open_out(&record_name, format_ext);
     if (record_f==-1)
     {
         fprintf(stderr, "Can't open %s\n", record_name);

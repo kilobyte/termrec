@@ -23,6 +23,7 @@
 #include "compat.h"
 #include "utils.h"
 #include "ttyrec.h"
+#include "common.h"
 #include "name_out.h"
 
 volatile int need_resize;
@@ -120,8 +121,8 @@ int main(int argc, char **argv)
     int r;
     struct timeval tv;
 
-    get_parms(argc, argv, 0);
-    record_f=fopen_out(&record_name, 1);
+    get_rec_parms(argc, argv);
+    record_f=open_out(&record_name, format_ext);
     if (record_f==-1)
     {
         fprintf(stderr, "Can't open %s\n", record_name);

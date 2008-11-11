@@ -1,4 +1,5 @@
 #include "config.h"
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <time.h>
 #include <sys/types.h>
@@ -13,17 +14,22 @@
 #endif
 #include <errno.h>
 #include <assert.h>
+#include <getopt.h>
 #include "compat.h"
 #include "error.h"
 #include "threads.h"
 #include "ttyrec.h"
-#include "name_out.h"
+#include "common/common.h"
 #include "gettext.h"
 
 #define BUFFER_SIZE 4096
 
 struct addrinfo *ai;
-int verbose;
+int verbose, raw;
+int lport, rport;
+char *host;
+char *record_name;
+char *format, *format_ext;
 
 #define EOR 239     /* End of Record */
 #define SE  240     /* subnegotiation end */
@@ -237,7 +243,7 @@ void connthread(void *arg)
     if (verbose)
         printf(_("Ok.\n")); /* managed to connect out */
     filename=record_name;
-    fd=fopen_out(&filename, !!record_name);
+    fd=open_out(&filename, format_ext);
     gettimeofday(&tv, 0);
     if (fd==-1 || !(ws.rec=ttyrec_w_open(fd, format, filename, &tv)))
     {
@@ -285,10 +291,10 @@ void resolve_out()
     assert(rport>0 && rport<65536);
     sprintf(port, "%u", rport);
     
-    if ((err=getaddrinfo(command, port, &hints, &ai)))
+    if ((err=getaddrinfo(host, port, &hints, &ai)))
     {
         if (err==EAI_NONAME)
-            error(_("No such host: %s\n"), command);
+            error(_("No such host: %s\n"), host);
         else
             error("%s", gai_strerror(err));
     }
@@ -350,12 +356,155 @@ int listen_lo()
 #endif
 
 
+/* free the hostname from IPv6-style trappings: [::1] -> ::1, extract :rport */
+void get_host_rport()
+{
+    long i;
+    char *cp;
+    
+    if (*host=='[')
+    {
+        host++;
+        cp=strchr(host, ']');
+        if (!cp)
+            error(_("Unmatched [ in the host part.\n"));
+        *cp++=0;
+        if (*cp)
+        {
+            if (*cp==':')
+                goto getrport;
+            else
+                error(_("Cruft after the [host name].\n")); /* IPv6-style host name */
+        }
+    }
+    if ((cp=strrchr(host, ':')))
+    {
+    getrport:
+        *cp=0;
+        cp++;
+        i=strtoul(cp, &cp, 10);
+        if (*cp || !i || i>65535)
+            error(_("Invalid remote port in the host part.\n"));
+        if (rport!=-1)
+            error(_("You can specify the remote port at most once.\n"));
+        rport=i;
+    }
+}
+
+
+extern char *optarg;
+extern int optopt;
+
+#if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
+static struct option proxy_opts[]={
+{"format",	1, 0, 'f'},
+{"local-port",	1, 0, 'l'},
+{"listen-port",	1, 0, 'l'},
+{"port",        1, 0, 'p'},
+{"raw",		0, 0, 'r'},
+{"help",	0, 0, 'h'},
+{0,		0, 0, 0},
+};
+#endif
+
+void get_proxy_parms(int argc, char **argv)
+{
+    char *cp;
+    long i;
+
+    format=0;
+    host=0;
+    record_name=0;
+    lport=-1;
+    rport=-1;
+    raw=0;
+    
+    while(1)
+    {
+#if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
+        switch(getopt_long(argc, argv, "f:l:rhp:", proxy_opts, 0))
+#else
+        switch(getopt(argc, argv, "f:l:rhp:"))
+#endif
+        {
+        case -1:
+            goto finish_args;
+        case ':':
+        case '?':
+            exit(1);
+        case 'f':
+            get_w_format(&format);
+            break;
+        case 'l':
+            if (lport!=-1)
+                error(_("You can specify -l only once.\n"));
+            i=strtoul(optarg, &cp, 10);
+            if (*cp || !i || i>65535)
+                error(_("Invalid local port.\n"));
+            lport=i;
+            break;
+        case 'p':
+            if (rport!=-1)
+                error(_("You can specify the remote port at most once.\n"));
+            i=strtoul(optarg, &cp, 10);
+            if (*cp || !i || i>65535)
+                error(_("Invalid remote port.\n"));
+            rport=i;
+            break;
+        case 'r':
+            raw=1;
+            break;
+        case 'h':
+            printf(
+                "%sproxyrec [-f format] [-p rport] [-l lport] host[:port] [file]\n"
+                "    %s"
+                "-f, --format X        %s\n"
+                "-l, --local-port X    %s\n"
+                "-p, --port X          %s\n"
+                "-r, --raw             %s\n"
+                "-h, --help            %s\n"
+                "%s%s%s%s",
+                _("Usage:"),
+                _("Sets up a proxy, recording all TELNET traffic to a file, including timing data.\n"),
+                _("set output format to X (-f whatever for the list)"),
+                _("listen on port X locally (default: 9999)"),
+                _("connect to remote port X (default: 23)"),
+                _("don't weed out or parse TELNET negotiations"),
+                _("show this usage message"),
+                _("The host to connect to must be specified.\n"),
+                _("If no filename is given, a name will be generated using the current date\n"
+                  "    and the given format; the proxy will also allow multiple connections.\n"),
+                _("If no format is given, it will be set according to the extension of the\n"
+                  "    filename, or default to ttyrec if nothing is given.\n"),
+                _("You can specify compression by appending .gz or .bz2 to the file name\n"));
+            exit(0);
+        }
+    }
+finish_args:
+    if (optind<argc)
+        host=argv[optind++];
+    else
+        error(_("You MUST specify the host to connect to!\n"));
+    get_host_rport();
+    
+    if (optind<argc)
+        record_name=argv[optind++];
+    if (optind<argc)
+        error(_("You can specify at most one file to record to.\n"));
+    
+    if (!format)
+        format=ttyrec_w_find_format(0, record_name, "ansi");
+    if (!(format_ext=ttyrec_w_get_format_ext(format)))
+        format_ext="";
+}
+
+
 int main(int argc, char **argv)
 {
     int sock,s;
     thread_t th;
     
-    get_parms(argc, argv, 1);
+    get_proxy_parms(argc, argv);
     if (rport==-1)
         rport=23;
     if (lport==-1)
@@ -364,7 +513,7 @@ int main(int argc, char **argv)
     verbose=isatty(1);
     
     if (verbose)
-        printf(_("Resolving %s...\n"), command);
+        printf(_("Resolving %s...\n"), host);
     resolve_out();
 
     sock=listen_lo();
