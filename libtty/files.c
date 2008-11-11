@@ -205,6 +205,7 @@ export int ttyrec_r_play(int fd, char *format, char *filename,
     void *arg)
 {
     int nf;
+    FILE *f;
     
     nf=find_r_format(format, filename);
     if (nf==-1)
@@ -226,7 +227,8 @@ export int ttyrec_r_play(int fd, char *format, char *filename,
     if (!synch_print)
         synch_print=(void*)dummyfunc;
     
-    (*play[nf].play)(fdopen(fd, "rb"), synch_init_wait, synch_wait, synch_print, arg);
-    close(fd);
+    f=fdopen(fd, "rb");
+    (*play[nf].play)(f, synch_init_wait, synch_wait, synch_print, arg);
+    fclose(f);
     return 1;
 }

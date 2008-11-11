@@ -245,10 +245,14 @@ void connthread(void *arg)
         fprintf(stderr, _("Can't create file: %s\n"), filename);
         closesocket(ws.fd[0]);
         closesocket(ws.fd[1]);
+        if (!record_name)
+            free(filename);
         return;
     }
     if (verbose)
         printf(_("Logging to %s.\n"), filename);
+    if (!record_name)
+        free(filename);
     if (thread_create_joinable(&th, workthread, &ws))
     {
         fprintf(stderr, _("Can't create thread: %s\n"), strerror(errno));

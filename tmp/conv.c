@@ -19,5 +19,6 @@ int main()
         fr=ttyrec_next_frame(tr, fr);
     }
     ttyrec_w_close(rec);
+    ttyrec_free(tr);
     return 0;
 }

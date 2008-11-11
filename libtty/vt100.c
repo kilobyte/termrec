@@ -84,7 +84,7 @@ export vt100 vt100_copy(vt100 vt)
     if (!nvt)
         return 0;
     
-    memcpy(nvt, vt, sizeof(vt100));
+    memcpy(nvt, vt, sizeof(struct vt100));
     if (!(nvt->scr=malloc(SX*SY*sizeof(attrchar))))
     {
         free(nvt);
