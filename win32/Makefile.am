@@ -8,7 +8,7 @@ termplay_LDADD = ../sys/libcompat.la -L../libtty -ltty -lcomdlg32 -lcomctl32 -lg
 termrec_LDADD = ../common/libcommon.la ../sys/libcompat.la -L../libtty -ltty icons/termrec.coff @LIBBZ2@ @LIBZ@ @PTHREAD_LIBS@
 
 termplay_RES = termplay.rc termplay.manifest open.bmp rewind.bmp pause.bmp play.bmp wood1.bmp selstart.bmp selend.bmp export.bmp
-EXTRA_DIST= ${termplay_RES}
+EXTRA_DIST= ${termplay_RES} lib/README
 
 CLEANFILES = termplay.coff
 

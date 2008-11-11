@@ -16,5 +16,5 @@ endif
 
 SUBDIRS += tests
 
-EXTRA_DIST= BUGS gettext.h
+EXTRA_DIST= BUGS autogen gettext.h export.h
 DISTCLEANFILES = _stdint.h

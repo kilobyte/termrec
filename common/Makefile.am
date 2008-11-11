@@ -1,4 +1,4 @@
 noinst_LTLIBRARIES = libcommon.la
 AM_CFLAGS = -Wall -I${srcdir}/../sys -I${srcdir}/../libtty
 
-libcommon_la_SOURCES = open_out.c args.c name_out.c common.h
+libcommon_la_SOURCES = open_out.c args.c name_out.c common.h name_out.h
