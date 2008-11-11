@@ -9,7 +9,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
-#include "utils.h"
 #include "error.h"
 #include "compat.h"
 #include "ttyrec.h"

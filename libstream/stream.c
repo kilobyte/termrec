@@ -10,7 +10,7 @@
 #include "export.h"
 #include "compress.h"
 #include "stream.h"
-#include "utils.h"
+#include "compat.h"
 
 
 #ifdef HAVE_FORK

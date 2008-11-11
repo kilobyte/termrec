@@ -12,5 +12,14 @@
 #ifndef HAVE_ASPRINTF
 int asprintf(char **sptr, const char *fmt, ...);
 #endif
+#ifndef HAVE_GETTIMEOFDAY
+void gettimeofday(struct timeval *tv, void * dummy);
+#endif
+#ifndef HAVE_USLEEP
+void usleep(unsigned int usec);
+#endif
+#ifndef HAVE_PIPE
+int pipe(int pipefd[2]);
+#endif
 
 #endif

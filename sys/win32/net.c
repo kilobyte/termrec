@@ -1,5 +1,15 @@
 #include "net.h"
-#include "win32/winutils.h"
+
+static void* LoadFunc(char *dll, char *name)
+{
+    HMODULE hdll;
+    
+    hdll=LoadLibrary(dll);
+    if (!hdll)
+        return 0;
+    
+    return GetProcAddress(hdll, name);
+}
 
 typedef int (WINAPI *PGETADDRINFO) (
     IN  const char                      *nodename,

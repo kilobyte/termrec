@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include "pty.h"
+#include "compat.h"
 #include "utils.h"
 #include "ttyrec.h"
 #include "name_out.h"

@@ -3,7 +3,6 @@
 #include <string.h>
 #include "error.h"
 #include "sys/threads.h"
-#include "utils.h"
 #include "vt100.h"
 #include "export.h"
 #include "files.h"

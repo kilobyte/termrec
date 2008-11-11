@@ -79,7 +79,6 @@ Will be called when the recording ends.
 #include <string.h>
 #include "export.h"
 #include "formats.h"
-#include "utils.h"
 
 
 /* ttyrec checks the byte sex on runtime, during _every_ swap.  Uh oh. */
@@ -347,5 +346,6 @@ player_info play[]={
 {0, 0},
 };
 
+#define ARRAYSIZE(a) (sizeof(a)/sizeof(a[0]))
 int rec_n=ARRAYSIZE(rec)-1;
 int play_n=ARRAYSIZE(play)-1;

@@ -14,7 +14,6 @@
 #include <errno.h>
 #include <assert.h>
 #include "compat.h"
-#include "utils.h"
 #include "error.h"
 #include "threads.h"
 #include "ttyrec.h"

@@ -9,7 +9,6 @@
 #include <fcntl.h>
 #include <assert.h>
 #include "export.h"
-#include "utils.h"
 #include "formats.h"
 #include "libstream/compress.h"
 #include "libstream/stream.h"
