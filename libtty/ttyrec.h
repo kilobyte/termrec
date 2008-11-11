@@ -38,4 +38,30 @@ ttyrec_frame	ttyrec_next_frame(ttyrec tr, ttyrec_frame tfv);
 void		ttyrec_add_frame(ttyrec tr, struct timeval *delay, char *data, int len);
 int		ttyrec_save(ttyrec tr, int fd, char *format, char *filename,
                     struct timeval *selstart, struct timeval *selend);
+
+
+
+#define tadd(t, d)	{if (((t).tv_usec+=(d).tv_usec)>1000000)	\
+                            (t).tv_usec-=1000000, (t)->tv_sec++;	\
+                         (t).tv_sec+=(d).tv_sec;			\
+                        }
+#define tsub(t, d)	{if ((signed)((t).tv_usec-=(d).tv_usec)<0)	\
+                            (t).tv_usec+=1000000, (t).tv_sec--;		\
+                         (t).tv_sec-=(d).tv_sec;			\
+                        }
+#define tmul(t, m)	{uint64_t v;								\
+                         v=((uint64_t)(t).tv_usec)*(m)/1000+((uint64_t)(t).tv_sec)*(m)*1000;	\
+                         (t).tv_usec=v%1000000;							\
+                         (t).tv_sec=v/1000000;							\
+                        }
+#define tdiv(t, m)	{uint64_t v;								\
+                         int m1=1000000/(m);							\
+                         v=((uint64_t)(t).tv_usec)*(m1)/1000+((uint64_t)(t).tv_sec)*(m1)*1000;	\
+                         (t).tv_usec=v%1000000;							\
+                         (t).tv_sec=v/1000000;							\
+                        }
+#define tcmp(t1, t2)	(((t1).tv_sec>(t2).tv_sec)?1:		\
+                         ((t1).tv_sec<(t2).tv_sec)?-1:		\
+                         ((t1).tv_usec>(t2).tv_usec)?1:		\
+                         ((t1).tv_usec<(t2).tv_usec)?-1:0)
 #endif

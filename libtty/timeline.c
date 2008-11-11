@@ -60,7 +60,7 @@ static void synch_wait(struct timeval *tv, void *arg)
         tr->tev_tail->next=tev_new;
         tr->tev_tail=tev_new;
     }
-    tadd(&tr->tev_tail->t, tv);
+    tadd(tr->tev_tail->t, *tv);
     ttyrec_unlock(tr);
     return;
 fail:
