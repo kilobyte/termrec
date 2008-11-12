@@ -1,0 +1,22 @@
+This package was debianized by Adam Borowski <kilobyte@angband.pl> on
+Wed, 12 Nov 2008 09:36:02 +0100.
+
+It can be downloaded from <http://angband.pl/termrec.html>
+
+Copyright:
+
+    © 2005-2008 Adam Borowski <kilobyte@angband.pl>
+
+License:
+
+  Programs:
+    GPLv3+noA 
+    You can use, modify and distribute this software under the terms of GPLv3,
+    or, at your choice, any subsequent version except for any licenses of the
+    Affero branch.
+
+  Library:
+    LGPLv3+noA
+
+The Debian packaging is covered by the same license as the programs.  The text of
+the GPL can be found in `/usr/share/common-licenses/GPL'.

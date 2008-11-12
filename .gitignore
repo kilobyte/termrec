@@ -10,6 +10,7 @@ config.status.lineno
 config.sub
 configure
 configure.lineno
+build-stamp
 DEADJOE
 depcomp
 .deps
