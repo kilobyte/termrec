@@ -24,7 +24,7 @@
 #include "utils.h"
 #include "ttyrec.h"
 #include "common.h"
-#include "name_out.h"
+#include "rec_args.h"
 
 volatile int need_resize;
 int need_utf;

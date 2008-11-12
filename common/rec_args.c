@@ -13,7 +13,7 @@
 #include "error.h"
 #include "compat.h"
 #include "ttyrec.h"
-#include "name_out.h"
+#include "rec_args.h"
 #include "gettext.h"
 #include "common.h"
 

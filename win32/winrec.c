@@ -6,7 +6,7 @@
 #include <stdarg.h>
 #include "sys/utils.h"
 #include "ttyrec.h"
-#include "name_out.h"
+#include "rec_args.h"
 
 //#define EVDEBUG
 
