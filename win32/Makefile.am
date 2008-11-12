@@ -5,7 +5,7 @@ termplay_SOURCES = term.c draw.c draw.h
 termplay_LDFLAGS = -Xlinker --subsystem -Xlinker windows
 termrec_SOURCES = winrec.c
 termplay_LDADD = ../sys/libcompat.la -L../libtty -ltty -lcomdlg32 -lcomctl32 -lgdi32 termplay.coff icons/termplay.coff @LIBBZ2@ @LIBZ@ @PTHREAD_LIBS@
-termrec_LDADD = ../common/libcommon.la ../sys/libcompat.la -L../libtty -ltty icons/termrec.coff @LIBBZ2@ @LIBZ@ @PTHREAD_LIBS@
+termrec_LDADD = ../common/libcommon.la ../sys/libcompat.la -L../libtty -ltty icons/termrec.coff
 
 termplay_RES = termplay.rc termplay.manifest open.bmp rewind.bmp pause.bmp play.bmp wood1.bmp selstart.bmp selend.bmp export.bmp
 EXTRA_DIST= ${termplay_RES} lib/README

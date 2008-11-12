@@ -13,3 +13,10 @@ int main(){$4;return 0;}], [
 ], [AC_MSG_RESULT([no])])
 LIBS=$ac_shipped_lib_save_LIBS
 ])
+
+dnl Tell autoconf we have lib$1 but don't add it to LIBS.
+
+AC_DEFUN([AC_HAVE_LIB], [
+  LIB$2=-l$1
+  AC_DEFINE([HAVE_LIB$2], [1], [Define to 1 if you have the `$1' library (-l$1).])
+])

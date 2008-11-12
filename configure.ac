@@ -57,10 +57,10 @@ ACX_PTHREAD
 # Checks for library functions.
 AC_CHECK_FUNCS([getpt ptsname snprintf vsnprintf _getpty grantpt forkpty asprintf gettimeofday usleep ctime_r getopt_long getaddrinfo fork pipe])
 AC_FUNC_GAI_STERRROR
-AC_CHECK_LIB([bz2], [BZ2_bzBuffToBuffCompress], , [
+AC_CHECK_LIB([bz2], [BZ2_bzBuffToBuffCompress], [AC_HAVE_LIB([bz2], [BZ2])], [
   AC_SHIPPED_LIB(LIBBZ2, libbz2.a, bzlib.h, [BZ2_bzRead(0,0,0,0)], [win32/])])
 AC_SUBST([LIBBZ2])
-AC_CHECK_LIB([z], [gzread], , [
+AC_CHECK_LIB([z], [gzread], [AC_HAVE_LIB([z], [Z])], [
   AC_SHIPPED_LIB(LIBZ, libz.a, zlib.h, [gzread(0,0,0)], [win32/])])
 AC_SUBST([LIBZ])
 
