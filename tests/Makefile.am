@@ -1,4 +1,4 @@
-noinst_PROGRAMS = seeks
+check_PROGRAMS = seeks tarith
 AM_CFLAGS = -I../libtty/
 LDADD = -L../libtty/ -ltty ../sys/libcompat.la
 

@@ -3,3 +3,7 @@ AT_INIT
 AT_SETUP([seeks])
 AT_CHECK([seeks],,[ignore])
 AT_CLEANUP
+
+AT_SETUP([timeval arithmetics])
+AT_CHECK([tarith])
+AT_CLEANUP

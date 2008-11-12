@@ -3,9 +3,19 @@
 #include <sys/time.h>
 #include <vt100.h>
 
+#ifndef _TTYREC_H_NO_TYPES
+typedef struct {} *recorder;
+typedef struct {} *ttyrec;
+typedef struct
+{
+    struct timeval t;
+    int len;
+    char *data;
+} *ttyrec_frame;
+#endif
+
 int		open_stream(int fd, char* url, int mode);
 
-typedef struct {} *recorder;
 char*		ttyrec_w_find_format(char *format, char *filename, char *fallback);
 recorder	ttyrec_w_open(int fd, char *format, char *filename, struct timeval *ts);
 int		ttyrec_w_write(recorder r, struct timeval *delay, char *data, int len);
@@ -22,14 +32,6 @@ int		ttyrec_r_play(int fd, char *format, char *filename,
 		    void (*synch_print)(char *buf, int len, void *arg),
 		    void *arg);
 
-typedef struct {} *ttyrec;
-typedef struct
-{
-    struct timeval t;
-    int len;
-    char *data;
-} *ttyrec_frame;
-
 ttyrec		ttyrec_init(vt100 vt);
 ttyrec		ttyrec_load(int fd, char *format, char *filename, vt100 vt);
 void		ttyrec_free(ttyrec tr);
@@ -40,25 +42,30 @@ int		ttyrec_save(ttyrec tr, int fd, char *format, char *filename,
                     struct timeval *selstart, struct timeval *selend);
 
 
-
 #define tadd(t, d)	{if (((t).tv_usec+=(d).tv_usec)>1000000)	\
-                            (t).tv_usec-=1000000, (t)->tv_sec++;	\
+                            (t).tv_usec-=1000000, (t).tv_sec++;		\
                          (t).tv_sec+=(d).tv_sec;			\
                         }
 #define tsub(t, d)	{if ((signed)((t).tv_usec-=(d).tv_usec)<0)	\
                             (t).tv_usec+=1000000, (t).tv_sec--;		\
                          (t).tv_sec-=(d).tv_sec;			\
                         }
-#define tmul(t, m)	{uint64_t v;								\
-                         v=((uint64_t)(t).tv_usec)*(m)/1000+((uint64_t)(t).tv_sec)*(m)*1000;	\
-                         (t).tv_usec=v%1000000;							\
-                         (t).tv_sec=v/1000000;							\
+#define tmul1000(t, m)	{long long v;					\
+                         v=((long long)(t).tv_usec)*(m)/1000+		\
+                             ((long long)(t).tv_sec)*(m)*1000;		\
+                         (t).tv_usec=v%1000000;				\
+                         (t).tv_sec=v/1000000;				\
+                         if ((t).tv_usec<0)				\
+                             (t).tv_usec+=1000000, (t).tv_sec--;	\
                         }
-#define tdiv(t, m)	{uint64_t v;								\
-                         int m1=1000000/(m);							\
-                         v=((uint64_t)(t).tv_usec)*(m1)/1000+((uint64_t)(t).tv_sec)*(m1)*1000;	\
-                         (t).tv_usec=v%1000000;							\
-                         (t).tv_sec=v/1000000;							\
+#define tdiv1000(t, m)	{long long v;					\
+                         v=((long long)(t).tv_sec)*1000000+(t).tv_usec;	\
+                         v*=1000;					\
+                         v/=m;						\
+                         (t).tv_usec=v%1000000;				\
+                         (t).tv_sec=v/1000000;				\
+                         if ((t).tv_usec<0)				\
+                             (t).tv_usec+=1000000, (t).tv_sec--;	\
                         }
 #define tcmp(t1, t2)	(((t1).tv_sec>(t2).tv_sec)?1:		\
                          ((t1).tv_sec<(t2).tv_sec)?-1:		\

@@ -418,7 +418,7 @@ void get_pos()
     {
         gettimeofday(&tr, 0);
         tsub(tr, t0);
-        tmul(tr, speed);
+        tmul1000(tr, speed);
     }
 }
 
@@ -472,7 +472,7 @@ void replay_pause()
     case 2:
         gettimeofday(&tr, 0);
         tsub(tr, t0);
-        tmul(tr, speed);
+        tmul1000(tr, speed);
     case 3:
         play_state=1;
     }
@@ -490,7 +490,7 @@ void replay_resume()
     case 1:
         gettimeofday(&t0, 0);
         t=tr;
-        tdiv(t, speed);
+        tdiv1000(t, speed);
         tsub(t0, t);
         play_state=2;
         break;
@@ -514,7 +514,7 @@ int replay_play(struct timeval *delay)
     case 2:
         gettimeofday(&tr, 0);
         tsub(tr, t0);
-        tmul(tr, speed);
+        tmul1000(tr, speed);
         if (tev_cur && tev_cur->len>tev_curlp)
         {
             vt100_write(vt, tev_cur->data+tev_curlp, tev_cur->len-tev_curlp);
@@ -531,7 +531,7 @@ int replay_play(struct timeval *delay)
         {
             *delay=fn->t;
             tsub(*delay, tr);
-            tdiv(*delay, speed);
+            tdiv1000(*delay, speed);
             return 1;
         }
         play_state=tev_done?0:3;
@@ -551,7 +551,7 @@ void replay_seek()
     
     t=tr;
     gettimeofday(&t0, 0);
-    tdiv(tr, speed);
+    tdiv1000(tr, speed);
     tsub(t0, tr);
 }
 

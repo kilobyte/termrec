@@ -4,8 +4,8 @@
 #include "error.h"
 #include "sys/threads.h"
 #include "vt100.h"
-#include "export.h"
-#include "files.h"
+
+typedef struct {} *recorder;
 
 struct ttyrec_frame
 {
@@ -15,6 +15,7 @@ struct ttyrec_frame
     vt100 snapshot;
     struct ttyrec_frame *next;
 };
+typedef struct ttyrec_frame *ttyrec_frame;
 
 typedef struct ttyrec
 {
@@ -23,6 +24,9 @@ typedef struct ttyrec
     int nchunk;
     mutex_t lock;
 } *ttyrec;
+#define _TTYREC_H_NO_TYPES
+#include "ttyrec.h"
+#include "export.h"
 
 #define SNAPSHOT_CHUNK 65536
 
