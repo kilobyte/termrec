@@ -1,4 +1,5 @@
 #include "config.h"
+#include "string.h"
 #ifdef HAVE_LANGINFO_H 
 #include <locale.h> 
 #include <langinfo.h>

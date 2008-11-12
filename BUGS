@@ -2,8 +2,6 @@
 
 * win32/play: full prefetch
 
-* play: snapshots are created but not used
-
 * win32/play: ugly cursor
 
 * win32/rec: on Win95/98/ME, scrolling does a full screen dump
