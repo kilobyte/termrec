@@ -6,6 +6,7 @@
 #include <stdarg.h>
 #include "sys/utils.h"
 #include "ttyrec.h"
+#include "common.h"
 #include "name_out.h"
 
 //#define EVDEBUG
