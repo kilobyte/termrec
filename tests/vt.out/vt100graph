@@ -1,8 +1,3 @@
-== char U+23BA attr=FFFF at 0,0
-== char U+23BB attr=FFFF at 1,0
-== char U+2500 attr=FFFF at 2,0
-== char U+23BC attr=FFFF at 3,0
-== char U+23BD attr=FFFF at 4,0
 .-===[ 20x5 ]
 | [23BA][23BB][2500][23BC][23BD]               
 |                     
@@ -10,4 +5,3 @@
 |                     
 |                     
 `-===[ cursor at 5,0]
-== free

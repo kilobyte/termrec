@@ -22,6 +22,6 @@ AT_SETUP([vt100 sequences])
 for x in $srcdir/vt.in/*
   do
     cp "${x/vt.in/vt.out}" expout
-    AT_CHECK([vt -de <"$x"],,[expout])
+    AT_CHECK([vt -d <"$x"],,[expout])
   done
 AT_CLEANUP
