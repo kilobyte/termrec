@@ -108,15 +108,16 @@ export int ttyrec_w_write(recorder *r, struct timeval *tm, char *buf, int len)
 
 export int ttyrec_w_close(recorder *r)
 {
-    int err=0;
-    
     assert(r);
     assert(r->f);
     r->format->finish(r->f, r->state);
     if (fclose(r->f))
-        err=errno;
+    {
+        free(r);
+        return 0;
+    }
     free(r);
-    return err;
+    return 1;
 }
 
 

@@ -1,4 +1,4 @@
-check_PROGRAMS = seeks tarith
+check_PROGRAMS = seeks tarith loadsave rec
 AM_CFLAGS = -I../libtty/
 LDADD = -L../libtty/ -ltty ../sys/libcompat.la
 
@@ -31,7 +31,7 @@ clean-local:
 	[ ! -x $(TESTSUITE) ] || $(SHELL) $(TESTSUITE) --clean
 
 AUTOTEST = $(AUTOM4TE) --language=autotest
-$(TESTSUITE): package.m4 testsuite.at $(TESTSUITE_AT) seeks
+$(TESTSUITE): package.m4 testsuite.at $(TESTSUITE_AT)
 	$(AUTOTEST) -I $(srcdir) $@.at -o $@.tmp
 	mv $@.tmp $@
 

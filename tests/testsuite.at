@@ -7,3 +7,13 @@ AT_CLEANUP
 AT_SETUP([timeval arithmetics])
 AT_CHECK([tarith])
 AT_CLEANUP
+
+AT_SETUP([recording])
+AT_CHECK([rec test.ttyrec])
+AT_CHECK([rec test.ttyrec.bz2])
+AT_CLEANUP
+
+AT_SETUP([loading and saving ttyrecs to/from memory])
+AT_CHECK([rec test.ttyrec && loadsave test.ttyrec out.ttyrec && cmp test.ttyrec out.ttyrec])
+AT_CHECK([rec test.ttyrec.bz2 && loadsave test.ttyrec.bz2 out.ttyrec.bz2 && cmp test.ttyrec.bz2 out.ttyrec.bz2])
+AT_CLEANUP

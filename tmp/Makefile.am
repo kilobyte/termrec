@@ -1,5 +1,4 @@
-noinst_PROGRAMS = vtest vtredir conv
+noinst_PROGRAMS = vtest vtredir
 AM_CFLAGS = -Wall -I${srcdir}/../libtty
 vtest_LDADD = -L../libtty -ltty
 vtredir_LDADD = -L../libtty -ltty
-conv_LDADD = -L../libtty -ltty ../sys/libcompat.la
