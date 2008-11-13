@@ -1,0 +1,29 @@
+== char U+0061 attr=FFFF at 0,0
+== char U+0062 attr=FFFF at 1,0
+== char U+0063 attr=FFFF at 2,0
+== char U+0105 attr=FFFF at 3,0
+== char U+0119 attr=FFFF at 4,0
+== char U+015B attr=FFFF at 5,0
+== char U+0107 attr=FFFF at 6,0
+== char U+0064 attr=FFFF at 7,0
+== char U+0065 attr=FFFF at 8,0
+== char U+0066 attr=FFFF at 9,0
+== char U+0430 attr=FFFF at 10,0
+== char U+0431 attr=FFFF at 11,0
+== char U+0446 attr=FFFF at 12,0
+== char U+0434 attr=FFFF at 13,0
+== char U+0435 attr=FFFF at 14,0
+== char U+0444 attr=FFFF at 15,0
+== char U+0433 attr=FFFF at 16,0
+== char U+0445 attr=FFFF at 17,0
+== char U+0438 attr=FFFF at 18,0
+== char U+0439 attr=FFFF at 19,0
+== char U+2620 attr=FFFF at 0,1
+.-===[ 20x5 ]
+| abc[0105][0119][015B][0107]def[0430][0431][0446][0434][0435][0444][0433][0445][0438][0439]
+| [2620]                   
+|                     
+|                     
+|                     
+`-===[ cursor at 1,1]
+== free

@@ -1,0 +1,38 @@
+== char U+0061 attr=FFFF at 0,0
+== char U+0062 attr=FFFF at 1,0
+== char U+0063 attr=FFFF at 2,0
+== cursor to 0,1
+== char U+0064 attr=FFFF at 0,1
+== char U+0065 attr=FFFF at 1,1
+== char U+0066 attr=FFFF at 2,1
+== cursor to 0,2
+== char U+0067 attr=FFFF at 0,2
+== char U+0068 attr=FFFF at 1,2
+== char U+0069 attr=FFFF at 2,2
+== cursor to 0,3
+== cursor to 19,3
+== char U+0062 attr=FFFF at 19,3
+== char U+006C attr=FFFF at 0,4
+== char U+0061 attr=FFFF at 1,4
+== char U+0068 attr=FFFF at 2,4
+== cursor to 0,4
+== char U+0061 attr=FFFF at 0,4
+== char U+0062 attr=FFFF at 1,4
+== char U+0063 attr=FFFF at 2,4
+== scroll by 1 lines
+== char U+0064 attr=FFFF at 0,4
+== char U+0065 attr=FFFF at 1,4
+== char U+0066 attr=FFFF at 2,4
+== scroll by 1 lines
+== char U+0067 attr=FFFF at 0,4
+== char U+0068 attr=FFFF at 1,4
+== char U+0069 attr=FFFF at 2,4
+== scroll by 1 lines
+.-===[ 20x5 ]
+|                    b
+| abc                 
+| def                 
+| ghi                 
+|                     
+`-===[ cursor at 0,4]
+== free

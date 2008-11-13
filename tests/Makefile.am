@@ -1,8 +1,8 @@
-check_PROGRAMS = seeks tarith loadsave rec
+check_PROGRAMS = seeks tarith loadsave rec vt
 AM_CFLAGS = -I../libtty/
 LDADD = -L../libtty/ -ltty ../sys/libcompat.la
 
-EXTRA_DIST = $(TESTSUITE_AT) testsuite.at testsuite package.m4
+EXTRA_DIST = $(TESTSUITE_AT) testsuite.at testsuite package.m4 vt.in/ vt.out/
 DISTCLEANFILES       = atconfig $(check_SCRIPTS)
 MAINTAINERCLEANFILES = Makefile.in $(TESTSUITE) package.m4
 

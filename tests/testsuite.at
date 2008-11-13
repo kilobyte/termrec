@@ -17,3 +17,11 @@ AT_SETUP([loading and saving ttyrecs to/from memory])
 AT_CHECK([rec test.ttyrec && loadsave test.ttyrec out.ttyrec && cmp test.ttyrec out.ttyrec])
 AT_CHECK([rec test.ttyrec.bz2 && loadsave test.ttyrec.bz2 out.ttyrec.bz2 && cmp test.ttyrec.bz2 out.ttyrec.bz2])
 AT_CLEANUP
+
+AT_SETUP([vt100 sequences])
+for x in $srcdir/vt.in/*
+  do
+    cp "${x/vt.in/vt.out}" expout
+    AT_CHECK([vt -de <"$x"],,[expout])
+  done
+AT_CLEANUP
