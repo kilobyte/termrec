@@ -36,16 +36,33 @@ endif
 	./configure $(CROSS) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info CFLAGS="$(CFLAGS)" LDFLAGS="-Wl,-z,defs"
 
 
-build: build-stamp
+build: build-stamp check
 build-stamp:  config.status 
 	dh_testdir
 	$(MAKE)
 	touch $@
 
+CURDIR  := $(shell pwd)
+
+check: check-stamp
+check-stamp: build-stamp
+ifeq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
+	-sh debian/locale-gen
+	LOCPATH=$(CURDIR)/locales $(MAKE) check || debian/rules testfail
+else
+	@echo Suppressing 'make check', because this is a cross build
+endif
+	touch check-stamp
+
+testfail:
+	@echo "!!!TESTS FAILED!!!"
+	@cat tests/testsuite.log
+	@false
+
 clean: 
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp 
+	rm -f build-stamp check-stamp
 
 	[ ! -f Makefile ] || $(MAKE) distclean
 	rm -f config.sub config.guess

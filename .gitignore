@@ -11,6 +11,7 @@ config.sub
 configure
 configure.lineno
 build-stamp
+check-stamp
 DEADJOE
 depcomp
 .deps
