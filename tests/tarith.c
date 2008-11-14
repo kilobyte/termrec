@@ -16,9 +16,9 @@ static void conv(long long x, struct timeval *t)
 
 static void gen()
 {
-    ax=random()%10000000-2000000;
+    ax=rand()%10000000-2000000;
     conv(ax, &a);
-    bx=random()%10000000-2000000;
+    bx=rand()%10000000-2000000;
     conv(bx, &b);
 }
 
