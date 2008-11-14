@@ -19,9 +19,16 @@ AT_CHECK([rec test.ttyrec.bz2 && loadsave test.ttyrec.bz2 out.ttyrec.bz2 && cmp 
 AT_CLEANUP
 
 AT_SETUP([vt100 sequences])
-for x in $srcdir/vt.in/*
+for x in "$srcdir/vt.in/"*
   do
     cp "${x/vt.in/vt.out}" expout
     AT_CHECK([vt -d <"$x"],,[expout])
   done
+AT_CLEANUP
+
+AT_SETUP([long vt100 writes])
+(for i in {a,b,c}{a,b,c}{a,b,c}{a,b,c}{a,b,c}{a,b,c}{a,b,c}
+  do echo "foo bar baz quux";done) >stdin
+cp "$srcdir/vt.out/longwrite" expout
+AT_CHECK([vt -d <stdin],,[expout])
 AT_CLEANUP

@@ -3,10 +3,12 @@
 
 #include "vt100.h"
 #include "charsets.h"
+#define _GNU_SOURCE
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include "compat.h"
 #include "export.h"
 
 #define SX vt->sx
@@ -821,21 +823,37 @@ export void vt100_write(vt100 vt, char *buf, int len)
     }
 }
 
-#define MAX_PRINTABLE 16384
+#define BUFFER_SIZE 16384
 
 export void vt100_printf(vt100 vt, const char *fmt, ...)
 {
     va_list ap;
-    char buf[MAX_PRINTABLE];
+    char buf[BUFFER_SIZE], *bigstr;
     int len;
     
     va_start(ap, fmt);
-    len=vsnprintf(buf,MAX_PRINTABLE,fmt,ap);
+    len=vsnprintf(buf, BUFFER_SIZE, fmt, ap);
     va_end(ap);
     if (len<=0)
-        return;
-    if (len>MAX_PRINTABLE)
-        vt100_write(vt, buf, MAX_PRINTABLE-1);
+    {
+        va_start(ap, fmt);
+        len=vasprintf(&bigstr, fmt, ap);
+        va_end(ap);
+        if (len<=0 || !bigstr)
+            return;
+        vt100_write(vt, buf, len);
+        free(bigstr);
+    }
+    else if (len>=BUFFER_SIZE)
+    {
+        if (!(bigstr=malloc(len+1)))
+            return;
+        va_start(ap, fmt);
+        len=vsnprintf(bigstr, len+1, fmt, ap);
+        va_end(ap);
+        vt100_write(vt, buf, len);
+        free(bigstr);
+    }
     else
         vt100_write(vt, buf, len);
 }

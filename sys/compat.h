@@ -11,6 +11,7 @@
 
 #ifndef HAVE_ASPRINTF
 int asprintf(char **sptr, const char *fmt, ...);
+int vasprintf(char **sptr, const char *fmt, va_list ap);
 #endif
 #ifndef HAVE_GETTIMEOFDAY
 void gettimeofday(struct timeval *tv, void * dummy);
