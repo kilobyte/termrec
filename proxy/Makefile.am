@@ -2,7 +2,7 @@ bin_PROGRAMS = proxyrec
 AM_CFLAGS = -Wall -I${srcdir}/../libtty -I${srcdir}/../sys
 
 proxyrec_SOURCES = proxy.c
-proxyrec_LDADD = ../common/libcommon.la ../sys/libcompat.la -L../libtty -ltty
+proxyrec_LDADD = ../common/libcommon.la ../sys/libutils.la -L../libtty -ltty
 
 if WIN32
 proxyrec_LDADD += ../win32/icons/proxyrec.coff
