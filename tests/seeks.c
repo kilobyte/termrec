@@ -24,7 +24,7 @@ void sub(int t1, int t2, char *exp)
     while(fr && (t2==-1 || fr->t.tv_sec<=t2))
     {
         if (bptr+10>buf+BUFFER_SIZE)
-            error("Buffer overflow!\n");
+            die("Buffer overflow!\n");
         if (bptr!=buf)
             *bptr++=' ';
         bptr+=snprintf(bptr, 8, "%.*s", fr->len, fr->data);
@@ -32,7 +32,7 @@ void sub(int t1, int t2, char *exp)
     }
     printf("Got: [%s]\n", buf);
     if (strcmp(buf, exp))
-        error(" `-- mismatch!\n");
+        die(" `-- mismatch!\n");
 }
 
 int main()
@@ -43,7 +43,7 @@ int main()
     
     tr=ttyrec_init(0);
     if (!tr)
-        error("ttyrec_init() failed");
+        die("ttyrec_init() failed");
     tv.tv_sec=1;
     tv.tv_usec=0;
     

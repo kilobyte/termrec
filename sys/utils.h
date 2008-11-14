@@ -1,4 +1,5 @@
 #include "config.h"
+#include "sys/error.h"
 
 #ifdef WIN32
 # include "sys/win32/winutils.h"

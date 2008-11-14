@@ -22,7 +22,7 @@ static inline int win32_thread_create_detached(thread_t *th, LPTHREAD_START_ROUT
     DWORD dummy;
     
     if (!(*th=CreateThread(0, 0/*4096*/, (LPTHREAD_START_ROUTINE)start, arg, 0, &dummy)))
-            error("CreateThread() failed.\n");
+            die("CreateThread() failed.\n");
     CloseHandle(*th);
     return !*th;
 }

@@ -13,7 +13,7 @@ void get_w_format(char **format)
     char *fn, *fe;
     
     if (*format)
-        error(_("You can use only one format at a time.\n"));
+        die(_("You can use only one format at a time.\n"));
     if (!(*format=ttyrec_w_find_format(optarg, 0, 0)))
     {
         fprintf(stderr, _("No such format: %s\n"), optarg);

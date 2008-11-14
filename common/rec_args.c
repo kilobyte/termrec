@@ -70,7 +70,7 @@ void get_rec_parms(int argc, char **argv)
             break;
         case 'e':
             if (command)
-                error(_("You can specify -e only once.\n"));
+                die(_("You can specify -e only once.\n"));
             command=optarg;
             break;
         case 'r':
@@ -103,7 +103,7 @@ finish_args:
     if (optind<argc)
         record_name=argv[optind++];
     if (optind<argc)
-        error(_("You can specify at most one file to record to.\n"));
+        die(_("You can specify at most one file to record to.\n"));
     
     if (!format)
         format=ttyrec_w_find_format(0, record_name, "ttyrec");

@@ -59,21 +59,21 @@ void setsignals()
     act.sa_flags=SA_RESTART;
     act.sa_handler=sigwinch;
     if (sigaction(SIGWINCH,&act,0))
-        error("sigaction SIGWINCH");
+        die("sigaction SIGWINCH");
     act.sa_handler=sigpass;
     if (sigaction(SIGINT,&act,0))
-        error("sigaction SIGINT");
+        die("sigaction SIGINT");
     if (sigaction(SIGHUP,&act,0))
-        error("sigaction SIGHUP");
+        die("sigaction SIGHUP");
     if (sigaction(SIGQUIT,&act,0))
-        error("sigaction SIGQUIT");
+        die("sigaction SIGQUIT");
     if (sigaction(SIGTERM,&act,0))
-        error("sigaction SIGTERM");
+        die("sigaction SIGTERM");
     if (sigaction(SIGTSTP,&act,0))
-        error("sigaction SIGTSTP");
+        die("sigaction SIGTSTP");
     act.sa_handler=sigpipe;
     if (sigaction(SIGPIPE,&act,0))
-        error("sigaction SIGPIPE");
+        die("sigaction SIGPIPE");
 }
 
 void resize()
@@ -169,7 +169,7 @@ int main(int argc, char **argv)
             if (errno==EINTR)
                 continue;
             tty_restore();
-            error("select()");
+            die("select()");
         }
         
         if (FD_ISSET(0, &rfds))

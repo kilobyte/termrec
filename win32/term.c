@@ -78,7 +78,7 @@ void win32_init()
     wc.lpszClassName = "MainWindow";
 
     if (!RegisterClass(&wc))
-        show_error("RegisterClass"), exit(0);
+        die("RegisterClass");
 
     wc.style = 0;
     wc.lpfnWndProc = (WNDPROC) TermWndProc;
@@ -92,12 +92,12 @@ void win32_init()
     wc.lpszClassName = "Term";
 
     if (!RegisterClass(&wc))
-        show_error("RegisterClass"), exit(0);
+        die("RegisterClass");
 
     draw_init();
     InitializeCriticalSection(&vt_mutex);
     if (!(timer=CreateWaitableTimer(0, 0, 0)))
-        show_error("CreateWaitableTimer");
+        die("CreateWaitableTimer");
 }
 
 

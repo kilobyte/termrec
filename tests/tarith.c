@@ -26,7 +26,7 @@ static void cmp(long long cx, char *opname)
 {
     conv(cx, &c);
     if (a.tv_sec!=c.tv_sec || abs(a.tv_usec-c.tv_usec)>1) /* round-off error */
-        error("Mismatch in %s\n", opname);
+        die("Mismatch in %s\n", opname);
 }
 
 int main()
