@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <assert.h>
 #include "compat.h"
 #include "export.h"
 
@@ -100,6 +101,9 @@ static void vt100_clear_region(vt100 vt, int st, int l)
 {
     attrchar *c, blank;
     
+    assert(st>=0);
+    assert(l>=0);
+    assert(st+l<=SX*SY);
     blank.ch=' ';
     blank.attr=vt->attr;
 
@@ -130,7 +134,6 @@ export void vt100_reset(vt100 vt)
 static void vt100_scroll(vt100 vt, int nl)
 {
     int s;
-
     if ((s=vt->s2-vt->s1-abs(nl))<=0)
     {
         vt100_clear_region(vt, vt->s1*SX, (vt->s2-vt->s1)*SX);
@@ -198,9 +201,9 @@ static void set_charset(vt100 vt, int g, char x)
     }
 #define CLEAR(x,y,l) \
     {						\
-        vt100_clear_region(vt, y*SX+x, len);	\
+        vt100_clear_region(vt, y*SX+x, l);	\
         if (vt->l_clear)			\
-            vt->l_clear(vt, x, y, len);		\
+            vt->l_clear(vt, x, y, l);		\
     }
 
 export void vt100_write(vt100 vt, char *buf, int len)
