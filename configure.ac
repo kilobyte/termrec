@@ -15,6 +15,7 @@ AC_CONFIG_FILES(Makefile
 	play/Makefile
 	rec/Makefile
 	time/Makefile
+	cat/Makefile
 	common/Makefile
 	win32/Makefile
 	win32/icons/Makefile
