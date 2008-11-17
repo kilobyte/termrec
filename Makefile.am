@@ -14,8 +14,12 @@ include libstream/Makefile.am
 include libtty/Makefile.am
 include common/Makefile.am
 include tmp/Makefile.am
+include proxy/Makefile.am
+if WIN32
+include win32/Makefile.am
+else
 include rec/Makefile.am
 include play/Makefile.am
-include proxy/Makefile.am
 include time/Makefile.am
 include cat/Makefile.am
+endif
