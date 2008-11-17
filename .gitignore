@@ -32,6 +32,7 @@ termplay
 termrec
 termtime
 termcat
+vtredir
 termrec-*.tar.gz
 *.ttyrec
 *.ttyrec.bz2

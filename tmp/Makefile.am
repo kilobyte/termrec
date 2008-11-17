@@ -1,3 +1,3 @@
 noinst_PROGRAMS = vtredir
-AM_CFLAGS = -Wall -I${srcdir}/../libtty
-vtredir_LDADD = -L../libtty -ltty
+vtredir_SOURCES = tmp/vtredir.c
+vtredir_LDADD = libtty.la

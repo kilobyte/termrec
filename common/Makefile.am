@@ -1,4 +1,4 @@
-noinst_LTLIBRARIES = libcommon.la
-AM_CFLAGS = -Wall -I${srcdir}/../sys -I${srcdir}/../libtty
+bin_PROGRAMS =
+noinst_LTLIBRARIES += libcommon.la
 
-libcommon_la_SOURCES = open_out.c args.c rec_args.c rec_args.h common.h
+libcommon_la_SOURCES = common/open_out.c common/args.c common/rec_args.c common/rec_args.h common/common.h

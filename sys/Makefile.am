@@ -1,14 +1,13 @@
 noinst_LTLIBRARIES = libcompat.la libutils.la
-libcompat_la_SOURCES = asprintf.c threads.h compat.h
-libutils_la_SOURCES = is_utf8.c utils.h error.h
-AM_CFLAGS = -Wall
+libcompat_la_SOURCES = sys/asprintf.c sys/threads.h sys/compat.h
+libutils_la_SOURCES = sys/is_utf8.c sys/utils.h sys/error.h
 
 libutils_la_LIBADD = libcompat.la
 
 if WIN32
-libcompat_la_SOURCES += win32/net.c win32/net.h win32/threads.h win32/compat.c
-libutils_la_SOURCES += win32/winutils.c win32/winutils.h
+libcompat_la_SOURCES += sys/win32/net.c sys/win32/net.h sys/win32/threads.h sys/win32/compat.c
+libutils_la_SOURCES += sys/win32/winutils.c sys/win32/winutils.h
 else
-libcompat_la_SOURCES += unix/threads.h
-libutils_la_SOURCES += unix/utils.c
+libcompat_la_SOURCES += sys/unix/threads.h
+libutils_la_SOURCES += sys/unix/utils.c
 endif

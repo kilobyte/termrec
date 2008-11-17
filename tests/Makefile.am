@@ -1,6 +1,6 @@
 check_PROGRAMS = seeks tarith loadsave rec vt
-AM_CFLAGS = -I../libtty/
-LDADD = -L../libtty/ -ltty ../sys/libutils.la
+AM_CFLAGS = -Wall -I../libtty/
+LDADD = -L.. -ltty ../libutils.la
 
 EXTRA_DIST = $(TESTSUITE_AT) testsuite.at testsuite package.m4 vt.in/ vt.out/
 DISTCLEANFILES       = atconfig $(check_SCRIPTS)

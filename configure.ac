@@ -7,17 +7,6 @@ AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([libtty/vt100.h])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_FILES(Makefile
-	sys/Makefile
-	libstream/Makefile
-	libtty/Makefile
-	tmp/Makefile
-	proxy/Makefile
-	play/Makefile
-	rec/Makefile
-	time/Makefile
-	cat/Makefile
-	common/Makefile
-	win32/Makefile
 	win32/icons/Makefile
 	)
 

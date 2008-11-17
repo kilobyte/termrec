@@ -1,5 +1,4 @@
-bin_PROGRAMS = termcat
-AM_CFLAGS = -Wall -I${srcdir}/../sys -I${srcdir}/../libtty -I${srcdir}/../common
+bin_PROGRAMS += termcat
 
-termcat_SOURCES = termcat.c
-termcat_LDADD = ../sys/libutils.la -L../libtty -ltty
+termcat_SOURCES = cat/termcat.c
+termcat_LDADD = libutils.la libtty.la

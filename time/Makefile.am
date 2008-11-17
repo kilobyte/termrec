@@ -1,5 +1,4 @@
-bin_PROGRAMS = termtime
-AM_CFLAGS = -Wall -I${srcdir}/../sys -I${srcdir}/../libtty -I${srcdir}/../common
+bin_PROGRAMS += termtime
 
-termtime_SOURCES = termtime.c
-termtime_LDADD = ../sys/libutils.la ../common/libcommon.la -L../libtty -ltty
+termtime_SOURCES = time/termtime.c
+termtime_LDADD = libutils.la libtty.la

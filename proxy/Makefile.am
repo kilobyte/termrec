@@ -1,11 +1,10 @@
-bin_PROGRAMS = proxyrec
-AM_CFLAGS = -Wall -I${srcdir}/../libtty -I${srcdir}/../sys
+bin_PROGRAMS += proxyrec
 
-proxyrec_SOURCES = proxy.c
-proxyrec_LDADD = ../common/libcommon.la ../sys/libutils.la -L../libtty -ltty @PTHREAD_LIBS@
+proxyrec_SOURCES = proxy/proxy.c
+proxyrec_LDADD = libcommon.la libutils.la libtty.la @PTHREAD_LIBS@
 proxyrec_LDFLAGS = @PTHREAD_CFLAGS@
 
 if WIN32
-proxyrec_LDADD += ../win32/icons/proxyrec.coff
+proxyrec_LDADD += win32/icons/proxyrec.coff
 proxyrec_LDFLAGS += -Xlinker --subsystem -Xlinker windows
 endif
