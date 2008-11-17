@@ -22,7 +22,7 @@ typedef struct ttyrec
     struct ttyrec_frame *tev_head, *tev_tail;
     vt100 tev_vt;
     int nchunk;
-    mutex_t lock;
+    struct timeval ndelay;
 } *ttyrec;
 #define _TTYREC_H_NO_TYPES
 #include "ttyrec.h"
@@ -30,68 +30,54 @@ typedef struct ttyrec
 
 #define SNAPSHOT_CHUNK 65536
 
-static void ttyrec_lock(ttyrec tr);
-static void ttyrec_unlock(ttyrec tr);
-
 #define tr ((ttyrec)arg)
 static void synch_init_wait(struct timeval *ts, void *arg)
 {
     tr->tev_head->t=*ts;
 }
 
+static const struct timeval maxd = {5,0};
+
 static void synch_wait(struct timeval *tv, void *arg)
 {
-    if (tv->tv_sec>=5 || tv->tv_sec<0)
-        tv->tv_sec=5, tv->tv_usec=0;
-    
-    ttyrec_lock(tr);
-    if (tr->tev_tail->data)
-    {
-        struct ttyrec_frame *tev_new;
-        
-        if (tr->nchunk>=SNAPSHOT_CHUNK)	/* Do a snapshot every 64KB of data */
-        {
-            if (!(tr->tev_head->snapshot=vt100_copy(tr->tev_vt)))
-                goto fail_snapshot;
-            tr->nchunk=0;
-        }
-        tev_new=malloc(sizeof(struct ttyrec_frame));
-        if (!tev_new)
-            goto fail;
-        memset(tev_new, 0, sizeof(struct ttyrec_frame));
-        tev_new->t=tr->tev_tail->t;
-        tr->tev_tail->next=tev_new;
-        tr->tev_tail=tev_new;
-    }
-    tadd(tr->tev_tail->t, *tv);
-    ttyrec_unlock(tr);
-    return;
-fail:
-    vt100_free(tr->tev_tail->snapshot);
-fail_snapshot:
-    ttyrec_unlock(tr);
+    if (tv->tv_sec>=maxd.tv_sec || tv->tv_sec<0)
+        tadd(tr->ndelay, maxd)
+    else
+        tadd(tr->ndelay, *tv);
 }
 
 static void synch_print(char *buf, int len, void *arg)
 {
-    char *sp;
+    struct ttyrec_frame *nf;
     
-    ttyrec_lock(tr);
-    if (tr->tev_tail->data)
-        sp=realloc(tr->tev_tail->data, tr->tev_tail->len+len);
-    else
-        sp=malloc(len);
-    if (!sp)
+    if (!(nf=malloc(sizeof(struct ttyrec_frame))))
+        return;
+    if (!(nf->data=malloc(len)))
     {
-        ttyrec_unlock(tr);
+        free(nf);
         return;
     }
-    tr->tev_tail->data=sp;
-    memcpy(sp+tr->tev_tail->len, buf, len);
-    tr->tev_tail->len+=len;
+    nf->len=len;
+    memcpy(nf->data, buf, len);
+    nf->t=tr->tev_tail->t;
+    tadd(nf->t, tr->ndelay);
+    tr->ndelay.tv_sec=tr->ndelay.tv_usec=0;
+    nf->snapshot=0;
+    nf->next=0;
+    tr->tev_tail->next=nf;
+    tr->tev_tail=nf;
     vt100_write(tr->tev_vt, buf, len);
-    tr->nchunk+=len;
-    ttyrec_unlock(tr);
+    if ((tr->nchunk+=len)>=SNAPSHOT_CHUNK) /* do a snapshot every 64KB of data */
+    {
+        nf->snapshot=vt100_copy(tr->tev_vt);
+        tr->nchunk=0;
+    }
+    if (!tr->tev_head->data)
+    {	/* if tev_head is a dummy, replace it instead */
+        nf=tr->tev_head;
+        tr->tev_head=nf->next;
+        free(nf);
+    }
 }
 #undef tr
 
@@ -99,11 +85,11 @@ static void synch_print(char *buf, int len, void *arg)
 export ttyrec ttyrec_init(vt100 vt)
 {
     ttyrec tr = malloc(sizeof(struct ttyrec));
+    memset(tr, 0, sizeof(struct ttyrec));
     tr->tev_head = malloc(sizeof(struct ttyrec_frame));
     memset(tr->tev_head, 0, sizeof(struct ttyrec_frame));
     tr->tev_tail=tr->tev_head;
     tr->nchunk=SNAPSHOT_CHUNK;
-    mutex_init(tr->lock);
     
     tr->tev_vt = vt? vt : vt100_init(80, 25, 1, 0);
     
@@ -118,7 +104,6 @@ export void ttyrec_free(ttyrec tr)
     if (!tr)
         return;
     
-    ttyrec_lock(tr);
     tev_tail=tr->tev_head;
     while(tev_tail)
     {
@@ -130,7 +115,6 @@ export void ttyrec_free(ttyrec tr)
         free(tc);
     }
     vt100_free(tr->tev_vt);
-    mutex_destroy(tr->lock);
     free(tr);
 }
 
@@ -149,16 +133,6 @@ export ttyrec ttyrec_load(int fd, char *format, char *filename, vt100 vt)
     return tr;
 }
 
-
-static void ttyrec_lock(ttyrec tr)
-{
-    mutex_lock(tr->lock);
-}
-
-static void ttyrec_unlock(ttyrec tr)
-{
-    mutex_unlock(tr->lock);
-}
 
 export struct ttyrec_frame* ttyrec_seek(ttyrec tr, struct timeval *t, vt100 *vt)
 {

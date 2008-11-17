@@ -51,10 +51,6 @@ LRESULT APIENTRY TermWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 void do_replay();
 
-// TODO: when threading is added, readd these if frame merging remains, remove if not.
-#define timeline_lock() {}
-#define timeline_unlock() {}
-
 void win32_init()
 {
     WNDCLASS wc;
@@ -733,7 +729,6 @@ again:
         CancelWaitableTimer(timer);
         return;
     }
-    timeline_lock();
     EnterCriticalSection(&vt_mutex);
     replay_play(&delay);
     draw_size();
@@ -741,7 +736,6 @@ again:
     draw_vt(dc, chx*vt->sx, chy*vt->sy, vt);
     ReleaseDC(termwnd, dc);
     LeaveCriticalSection(&vt_mutex);
-    timeline_unlock();
     set_prog();
     if (play_state!=2)
     {
@@ -804,7 +798,6 @@ void prog_scrolled()
     int oldstate=play_state;
     int pos=SendMessage(wndProg, TBM_GETPOS, 0, 0);
     
-    timeline_lock();
     if (pos<0)
         pos=0;
     replay_pause();
@@ -814,7 +807,6 @@ void prog_scrolled()
     tr.tv_sec=v/1000000;
     tr.tv_usec=v%1000000;
     replay_seek();
-    timeline_unlock();
     play_state=oldstate;
     redraw_term();
     do_replay();
@@ -827,7 +819,6 @@ void adjust_pos(int d)
     
     if (play_state==-1)
         return;
-    timeline_lock();
     replay_pause();
     tr.tv_sec+=d;
     if (tr.tv_sec<0)
@@ -835,7 +826,6 @@ void adjust_pos(int d)
     if (tcmp(tr, tmax)==1)
         tr=tmax;
     replay_seek();
-    timeline_unlock();
     play_state=oldstate;
     redraw_term();
     set_prog();
@@ -941,13 +931,11 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 if (play_state==-1)
                     break;
                 EnterCriticalSection(&vt_mutex);
-                timeline_lock();
                 replay_pause();
                 tr.tv_sec=0;
                 tr.tv_usec=0;
                 set_prog();
                 replay_seek();
-                timeline_unlock();
                 LeaveCriticalSection(&vt_mutex);
                 play_state=1;
                 replay_resume();
