@@ -14,6 +14,7 @@ AC_CONFIG_FILES(Makefile
 	proxy/Makefile
 	play/Makefile
 	rec/Makefile
+	time/Makefile
 	common/Makefile
 	win32/Makefile
 	win32/icons/Makefile

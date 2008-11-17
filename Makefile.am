@@ -11,7 +11,7 @@ SUBDIRS += common tmp proxy
 if WIN32
 SUBDIRS += win32
 else
-SUBDIRS += play rec
+SUBDIRS += play rec time
 endif
 
 SUBDIRS += tests
