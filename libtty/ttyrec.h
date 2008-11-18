@@ -18,7 +18,7 @@ int		open_stream(int fd, char* url, int mode);
 
 char*		ttyrec_w_find_format(char *format, char *filename, char *fallback);
 recorder	ttyrec_w_open(int fd, char *format, char *filename, struct timeval *ts);
-int		ttyrec_w_write(recorder r, struct timeval *delay, char *data, int len);
+int		ttyrec_w_write(recorder r, struct timeval *tm, char *data, int len);
 int		ttyrec_w_close(recorder r);
 char*		ttyrec_w_get_format_name(int i);
 char*		ttyrec_w_get_format_ext(char *format);
@@ -28,7 +28,7 @@ char*		ttyrec_r_get_format_name(int i);
 char*		ttyrec_r_get_format_ext(char *format);
 int		ttyrec_r_play(int fd, char *format, char *filename,
 		    void (*synch_init_wait)(struct timeval *ts, void *arg),
-		    void (*synch_wait)(struct timeval *tv, void *arg),
+		    void (*synch_wait)(struct timeval *delay, void *arg),
 		    void (*synch_print)(char *buf, int len, void *arg),
 		    void *arg);
 
