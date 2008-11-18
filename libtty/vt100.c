@@ -658,7 +658,37 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 }
                 vt->state=0;
                 break;
-            
+                
+            case 'L':	/* ESC[L -> insert line */
+                vt->tok[1]=vt->s1;
+                vt->s1=CY;
+                i=vt->tok[0];
+                if (i<=0)
+                    i=1;
+                SCROLL(-i);
+                vt->s1=vt->tok[1];
+                break;
+                
+            case 'M':	/* ESC[M -> delete line */
+                vt->tok[1]=vt->s1;
+                vt->s1=CY;
+                i=vt->tok[0];
+                if (i<=0)
+                    i=1;
+                SCROLL(i);
+                vt->s1=vt->tok[1];
+                break;
+                
+            case 'X':	/* ESC[X -> erase to the right */
+                i=vt->tok[0];
+                if (i<=0)
+                    i=1;
+                if (i+CX>SX)
+                    i=SX-CX;
+                CLEAR(CX, CY, i);
+                vt->state=0;
+                break;
+                
             case 'f': case 'H':	/* ESC[f, ESC[H -> move cursor */
                 CY=vt->tok[0]-1;
                 if (CY<0)
