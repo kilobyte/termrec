@@ -80,6 +80,7 @@ Will be called when the recording ends.
 #include <unistd.h>
 #include "export.h"
 #include "formats.h"
+#include "compat.h"
 
 
 /* ttyrec checks the byte sex on runtime, during _every_ swap.  Uh oh. */

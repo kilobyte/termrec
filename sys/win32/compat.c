@@ -16,9 +16,11 @@ void gettimeofday(struct timeval *tv, void * dummy)
 #ifndef HAVE_USLEEP
 void usleep(unsigned int usec)
 {
+    if (usec<0)
+        return;
     Sleep(usec/1000);
 }
-# endif
+#endif
 
 #ifndef HAVE_PIPE
 int pipe(int p[2])
@@ -28,5 +30,14 @@ int pipe(int p[2])
     p[0]=_open_osfhandle(p[0],0);
     p[1]=_open_osfhandle(p[1],0);
     return 1;
+}
+#endif
+
+#ifndef HAVE_USLEEP
+void uselect(struct timeval *timeout)
+{
+    if (!timeout || timeout->tv_sec<0)
+        return;
+    Sleep(timeout->tv_sec*1000+timeout->tv_usec/1000);
 }
 #endif
