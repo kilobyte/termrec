@@ -31,9 +31,6 @@ static struct option rec_opts[]={
 };
 #endif
 
-#define REC	0
-#define PROXY	1
-
 static char *comp_ext;
 
 void get_rec_parms(int argc, char **argv)
