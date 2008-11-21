@@ -24,8 +24,9 @@ AT_CLEANUP
 AT_SETUP([vt100 sequences])
 for x in "$srcdir/vt.in/"*
   do
+    unescape <"$x" >stdin
     cp "${x/vt.in/vt.out}" expout
-    AT_CHECK([vt -d <"$x"],,[expout])
+    AT_CHECK([vt -d <stdin],,[expout])
   done
 AT_CLEANUP
 
@@ -46,7 +47,8 @@ for x in "$srcdir/vt.in/"*
 	dnl # already tested by the "vt100 sequences" series of tests
       else
 	echo "Checking $x"
-	AT_CHECK([vtmir <"$x"])
+	unescape <"$x" >stdin
+	AT_CHECK([vtmir <stdin])
     fi
   done
 AT_CLEANUP
