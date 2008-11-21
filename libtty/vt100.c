@@ -134,6 +134,8 @@ export void vt100_reset(vt100 vt)
 static void vt100_scroll(vt100 vt, int nl)
 {
     int s;
+    
+    assert(vt->s1<vt->s2);
     if ((s=vt->s2-vt->s1-abs(nl))<=0)
     {
         vt100_clear_region(vt, vt->s1*SX, (vt->s2-vt->s1)*SX);
@@ -660,6 +662,11 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 break;
                 
             case 'L':	/* ESC[L -> insert line */
+                if (vt->s1>CY || vt->s2<=CY)
+                {
+                    vt->state=0;
+                    break;
+                }
                 vt->tok[1]=vt->s1;
                 vt->s1=CY;
                 i=vt->tok[0];
@@ -667,9 +674,15 @@ export void vt100_write(vt100 vt, char *buf, int len)
                     i=1;
                 SCROLL(-i);
                 vt->s1=vt->tok[1];
+                vt->state=0;
                 break;
                 
             case 'M':	/* ESC[M -> delete line */
+                if (vt->s1>CY || vt->s2<=CY)
+                {
+                    vt->state=0;
+                    break;
+                }
                 vt->tok[1]=vt->s1;
                 vt->s1=CY;
                 i=vt->tok[0];
@@ -677,6 +690,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                     i=1;
                 SCROLL(i);
                 vt->s1=vt->tok[1];
+                vt->state=0;
                 break;
                 
             case 'X':	/* ESC[X -> erase to the right */
