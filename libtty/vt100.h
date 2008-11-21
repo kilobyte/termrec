@@ -1,5 +1,7 @@
 #ifndef _VT100_H
 #define _VT100_H
+#include <stdio.h>
+
 typedef unsigned int ucs;
 
 typedef struct 
@@ -52,12 +54,8 @@ typedef struct vt100
         /* after the cursor has moved */
     void (*l_clear)(struct vt100 *vt, int x, int y, int len);
         /* after a chunk of screen has been cleared
-            * len can spill into subsequent lines
-            * the only valid endpoints are:
-              a. cursor
-              b. beginning/end of the current line
-              c. beginning/end of the screen
-              Also, b. and c. won't be used at once.
+           If an endpoint spills outside of the current line, it
+           must go all the way to an end of screen.
            If the cursor moves, you'll get a separate l_cursor, although
            it is already in place during the l_clear call. */
     void (*l_scroll)(struct vt100 *vt, int nl);
@@ -69,6 +67,8 @@ typedef struct vt100
         /* when a flag changes to v */
     void (*l_resize)(struct vt100 *vt, int sx, int sy);
         /* after the tty has been resized */
+    void (*l_flush)(struct vt100 *vt);
+        /* when a write chunk ends */
     void (*l_free)(struct vt100 *vt);
         /* before the tty is destroyed */
 } *vt100;
@@ -87,5 +87,9 @@ void	vt100_free(vt100 vt);
 void	vt100_write(vt100 vt, char *buf, int len);
 void	vt100_printf(vt100 vt, const char *fmt, ...);
 vt100	vt100_copy(vt100 vt);
+
+void	vtvt_dump(vt100 vt);
+void	vtvt_resize(vt100 vt, int sx, int sy);
+void	vtvt_attach(vt100 vt, FILE *tty);
 
 #endif

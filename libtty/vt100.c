@@ -1,16 +1,16 @@
 /*#define VT100_DEBUG*/
 #define VT100_DEFAULT_CHARSET charset_cp437
 
+#define _GNU_SOURCE
 #include "vt100.h"
 #include "charsets.h"
-#define _GNU_SOURCE
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <assert.h>
-#include "compat.h"
 #include "export.h"
+#include "compat.h"
 
 #define SX vt->sx
 #define SY vt->sy
@@ -854,6 +854,9 @@ export void vt100_write(vt100 vt, char *buf, int len)
             goto error;
         }
     }
+    
+    if (vt->l_flush)
+        vt->l_flush(vt);
 }
 
 #define BUFFER_SIZE 16384

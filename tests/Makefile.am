@@ -1,6 +1,8 @@
-check_PROGRAMS = seeks tarith loadsave rec vt
+check_PROGRAMS = seeks tarith loadsave rec vt vtmir
 AM_CFLAGS = -Wall -I../libtty/
 LDADD = -L.. -ltty ../libutils.la
+vtmir_LDFLAGS = @PTHREAD_CFLAGS@
+vtmir_LDADD = $(LDADD) @PTHREAD_LIBS@
 
 EXTRA_DIST = $(TESTSUITE_AT) testsuite.at testsuite package.m4 vt.in/ vt.out/
 DISTCLEANFILES       = atconfig $(check_SCRIPTS)

@@ -13,7 +13,6 @@ include sys/Makefile.am
 include libstream/Makefile.am
 include libtty/Makefile.am
 include common/Makefile.am
-include tmp/Makefile.am
 include proxy/Makefile.am
 if WIN32
 include win32/Makefile.am

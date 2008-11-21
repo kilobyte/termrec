@@ -35,3 +35,18 @@ AT_SETUP([long vt100 writes])
 cp "$srcdir/vt.out/longwrite" expout
 AT_CHECK([vt -d <stdin],,[expout])
 AT_CLEANUP
+
+AT_SETUP([vt-on-vt])
+for x in "$srcdir/vt.in/"*
+  do
+    [if LC_ALL=C grep -q '[^[:cntrl:] -~]' "$x" || echo "$x"|grep -q vt100graph]
+      then
+	echo "Skipping $x"
+	dnl # skip Unicode tests, LC_ALL=C breaks that and there is nothing not
+	dnl # already tested by the "vt100 sequences" series of tests
+      else
+	echo "Checking $x"
+	AT_CHECK([vtmir <"$x"])
+    fi
+  done
+AT_CLEANUP
