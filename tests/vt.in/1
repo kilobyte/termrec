@@ -1,6 +1,6 @@
-abc
-def
-ghi
-[4;20fblah[5;1fabc
-def
-ghi
+abc\n
+def\n
+ghi\n
+\e[4;20fblah\e[5;1fabc\n
+def\n
+ghi\n
