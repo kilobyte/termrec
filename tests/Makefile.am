@@ -4,7 +4,7 @@ LDADD = -L.. -ltty ../libutils.la
 vtmir_LDFLAGS = @PTHREAD_CFLAGS@
 vtmir_LDADD = $(LDADD) @PTHREAD_LIBS@
 
-EXTRA_DIST = $(TESTSUITE_AT) testsuite.at testsuite package.m4 unescape vt.in/ vt.out/
+EXTRA_DIST = $(TESTSUITE_AT) testsuite.at testsuite package.m4 unescape vt.in/* vt.out/*
 DISTCLEANFILES       = atconfig $(check_SCRIPTS)
 MAINTAINERCLEANFILES = Makefile.in $(TESTSUITE) package.m4
 
