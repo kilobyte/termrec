@@ -618,7 +618,7 @@ int start_file(char *name)
         replay_pause();
         set_buttons(0);
     }
-    fd=open_stream(-1, name, O_RDONLY);
+    fd=open_stream(-1, name, M_READ);
     if (fd==-1)
         return 0;
     play_f=fd;
@@ -891,13 +891,13 @@ void export_file()
         return;
     
     format=ttyrec_w_find_format(0, fn, "ansi");
-    if ((record_f=open(fn, O_WRONLY|O_CREAT, 0666))==-1)
+    if ((record_f=open(fn, O_WRONLY|O_CREAT|O_TRUNC, 0666))==-1)
     {
         sprintf(errmsg, "Can't write to %s: %s", fn, strerror(errno));
         MessageBox(wnd, errmsg, "Write error", MB_ICONERROR);
         return;
     }
-    record_f=open_stream(record_f, fn, O_WRONLY|O_CREAT);
+    record_f=open_stream(record_f, fn, M_WRITE);
     ttyrec_save(ttr, record_f, format, filename, &selstart, &selend);
 }
 

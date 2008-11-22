@@ -123,7 +123,7 @@ failpipe:
 
 export int open_stream(int fd, char* url, int mode)
 {
-    int wr= (mode&(O_RDONLY|O_WRONLY|O_RDWR))!=O_RDONLY;
+    int fmode, wr= !!(mode&M_WRITE);
     compress_info *ci;
     
     if (fd==-1)
@@ -133,7 +133,22 @@ export int open_stream(int fd, char* url, int mode)
         if (!strcmp(url, "-"))
             fd=dup(wr? 1 : 0);
         else
-            fd=open(url, mode, 0666);
+        {
+            switch(mode)
+            {
+            case M_READ:
+                fmode=O_RDONLY; break;
+            case M_WRITE:
+                fmode=O_WRONLY|O_CREAT|O_TRUNC; break;
+            case M_REPREAD:
+                fmode=O_RDONLY; break;
+            case M_APPEND:
+                fmode=O_WRONLY|O_APPEND|O_CREAT; break;
+            default:
+                return -1;
+            }
+            fd=open(url, fmode, 0666);
+        }
     }
     if (fd==-1)
         return -1;

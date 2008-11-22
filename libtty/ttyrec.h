@@ -14,6 +14,11 @@ typedef struct
 } *ttyrec_frame;
 #endif
 
+#define M_READ		0
+#define M_WRITE		1
+#define M_REPREAD	2
+#define M_APPEND	3
+
 int		open_stream(int fd, char* url, int mode);
 
 char*		ttyrec_w_find_format(char *format, char *filename, char *fallback);

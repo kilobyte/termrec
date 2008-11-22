@@ -82,13 +82,16 @@ export recorder* ttyrec_w_open(int fd, char *format, char *filename, struct time
     }
     
     if (fd==-1)
-        fd=open_stream(fd, filename, O_WRONLY|O_CREAT);
+        fd=open_stream(fd, filename, M_WRITE);
     if (fd==-1)
         return 0;
     
     r=malloc(sizeof(recorder));
     if (!r)
+    {
+        close(fd);
         return 0;
+    }
     
     r->format=&rec[nf];
     r->f=fdopen(fd, "wb");
@@ -222,7 +225,7 @@ export int ttyrec_r_play(int fd, char *format, char *filename,
     }
     
     if (fd==-1)
-        fd=open_stream(fd, filename, O_RDONLY);
+        fd=open_stream(fd, filename, M_READ);
     if (fd==-1)
         return 0;
     
@@ -234,6 +237,7 @@ export int ttyrec_r_play(int fd, char *format, char *filename,
         synch_print=(void*)dummyfunc;
     
     f=fdopen(fd, "rb");
+    assert(f);
     (*play[nf].play)(f, synch_init_wait, synch_wait, synch_print, arg);
     fclose(f);
     return 1;
