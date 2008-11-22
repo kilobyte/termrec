@@ -1,12 +1,18 @@
 check_PROGRAMS = seeks tarith loadsave rec vt vtmir
-AM_CFLAGS = -Wall -I../libtty/
+AM_CFLAGS = -Wall -I$(top_srcdir) -I$(top_srcdir)/libtty/
 LDADD = -L.. -ltty ../libutils.la
 vtmir_LDFLAGS = @PTHREAD_CFLAGS@
 vtmir_LDADD = $(LDADD) @PTHREAD_LIBS@
 
-EXTRA_DIST = $(TESTSUITE_AT) testsuite.at testsuite package.m4 unescape vt.in/* vt.out/*
+EXTRA_DIST = $(TESTSUITE_AT) testsuite.at testsuite package.m4 unescape
 DISTCLEANFILES       = atconfig $(check_SCRIPTS)
 MAINTAINERCLEANFILES = Makefile.in $(TESTSUITE) package.m4
+
+dist-hook:
+	mkdir $(distdir)/vt.in
+	cp -p $(srcdir)/vt.in/* $(distdir)/vt.in
+	mkdir $(distdir)/vt.out
+	cp -p $(srcdir)/vt.out/* $(distdir)/vt.out
 
 ## ------------ ##
 ## package.m4.  ##
