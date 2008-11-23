@@ -1,10 +1,3 @@
-#!/usr/bin/perl -wp
+#!/bin/sh
 
-#dumb sed can't remove newlines...
-
-s/\n//;
-s/\\b/\b/g;
-s/\\n/\n/g;
-s/\\e/\e/g;
-s/\\([0-7][0-7][0-7])/pack 'C', oct $1/ge;
-s/\\\\/\\/g;
+tr -d '\n'|sed 's/\\b/\b/g;s/\\n/\n/g;s/\\e/\d027/g;s/\\\\/\\/g'

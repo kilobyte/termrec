@@ -31,8 +31,8 @@ for x in "$top_srcdir/tests/vt.in/"*
 AT_CLEANUP
 
 AT_SETUP([long vt100 writes])
-(for i in {a,b,c}{a,b,c}{a,b,c}{a,b,c}{a,b,c}{a,b,c}{a,b,c}
-  do echo "foo bar baz quux";done) >stdin
+for a in 1 2 3 4 5;do for b in 1 2 3 4 5;do for c in 1 2 3 4 5;do for d in 1 2 3 4 5;
+ do for e in 1 2 3 4;do echo "foo bar baz quux";done;done;done;done;done >stdin
 cp "$top_srcdir/tests/vt.out/longwrite" expout
 AT_CHECK([vt -d <stdin],,[expout])
 AT_CLEANUP
