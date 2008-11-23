@@ -1,12 +1,12 @@
-For the Unix port (that is, the parts that are done), do:
+On an Unix system, do:
     + apt-get install libz-dev libbz2-dev
        Or equivalent.  If you skip this step, the .gz/.bz2 support won't
        get compiled in.
     + ./configure
     + make
 
-At this moment, only the Win32 version is fully working.
-To compile it, you need a way to run the GNU configure.  It can be done by:
+Building the Win32 version from source is more tricky.  To compile it, you
+need a way to run the GNU configure.  It can be done by:
 
 * getting MinGW and MSYS
     + download them from http://mingw.org
@@ -28,11 +28,13 @@ To compile it, you need a way to run the GNU configure.  It can be done by:
 
 
 For the compression plugins, you'll need to grab zlib and/or libbz2.  If
-you're putting them together by hand, put the files as:
+you're putting them together by hand, put the files into win32/lib/ :
 * zlib:
-    + lib/zconf.h
-    + lib/zlib.h
-    + lib/libz.a
+    + zconf.h
+    + zlib.h
+    + libz.dll.a
+    + zlib1.dll
 * bzlib:
-    + lib/bzlib.h
-    + lib/libbz2.a
+    + bzlib.h
+    + libbz2.dll.a
+    + bzip2.dll
