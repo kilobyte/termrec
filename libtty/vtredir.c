@@ -124,7 +124,7 @@ static void vtvt_flag(vt100 vt, int f, int v)
 
 static void vtvt_resized(vt100 vt, int sx, int sy)
 {
-    fprintf(DATA->tty, "\e[8;%u;%u\n", sy, sx);
+    fprintf(DATA->tty, "\e[8;%u;%ut", sy, sx);
 }
 
 static void vtvt_free(vt100 vt)
