@@ -127,6 +127,11 @@ static void vtvt_resized(vt100 vt, int sx, int sy)
     fprintf(DATA->tty, "\e[8;%u;%ut", sy, sx);
 }
 
+static void vtvt_flush(vt100 vt)
+{
+    fflush(DATA->tty);
+}
+
 static void vtvt_free(vt100 vt)
 {
     free(vt->l_data);
@@ -154,5 +159,6 @@ export void vtvt_attach(vt100 vt, FILE *tty)
     vt->l_scroll=vtvt_scroll;
     vt->l_flag=vtvt_flag;
     vt->l_resize=vtvt_resized;
+    vt->l_flush=vtvt_flush;
     vt->l_free=vtvt_free;
 }

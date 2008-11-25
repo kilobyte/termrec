@@ -11,6 +11,6 @@ libutils_la_SOURCES += sys/win32/winutils.c sys/win32/winutils.h
 libttyutils_la_SOURCES += sys/win32/conssize.c
 else
 libcompat_la_SOURCES += sys/unix/threads.h
-libutils_la_SOURCES += sys/unix/utils.c
+libutils_la_SOURCES += sys/unix/utils.c sys/unix/tos.c sys/unix/uutils.h
 libttyutils_la_SOURCES += sys/unix/ttysize.c
 endif

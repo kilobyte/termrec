@@ -34,7 +34,7 @@ char*		ttyrec_r_get_format_ext(char *format);
 int		ttyrec_r_play(int fd, char *format, char *filename,
 		    void (*synch_init_wait)(struct timeval *ts, void *arg),
 		    void (*synch_wait)(struct timeval *delay, void *arg),
-		    void (*synch_print)(char *buf, int len, void *arg),
+		    void (*synch_print)(char *data, int len, void *arg),
 		    void *arg);
 
 ttyrec		ttyrec_init(vt100 vt);

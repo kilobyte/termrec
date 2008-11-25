@@ -72,12 +72,6 @@ static void synch_print(char *buf, int len, void *arg)
         nf->snapshot=vt100_copy(tr->tev_vt);
         tr->nchunk=0;
     }
-    if (!tr->tev_head->data)
-    {	/* if tev_head is a dummy, replace it instead */
-        nf=tr->tev_head;
-        tr->tev_head=nf->next;
-        free(nf);
-    }
 }
 #undef tr
 
@@ -92,6 +86,7 @@ export ttyrec ttyrec_init(vt100 vt)
     tr->nchunk=SNAPSHOT_CHUNK;
     
     tr->tev_vt = vt? vt : vt100_init(80, 25, 1, 0);
+    tr->tev_head->snapshot = vt100_copy(tr->tev_vt);
     
     return tr;
 }
@@ -142,7 +137,7 @@ export struct ttyrec_frame* ttyrec_seek(ttyrec tr, struct timeval *t, vt100 *vt)
         return 0;
     
     tfv = tr->tev_head;
-    tfs = tfv->snapshot ? tfv : 0;
+    tfs = 0;
     
     if (t)
         while(tfv->next && tcmp(tfv->next->t, *t)<=0)
@@ -151,6 +146,12 @@ export struct ttyrec_frame* ttyrec_seek(ttyrec tr, struct timeval *t, vt100 *vt)
             if (tfv->snapshot)
                 tfs=tfv;
         }
+    else
+        if (tfv->next)
+            tfv=tfv->next;
+    
+    if (tfv->snapshot)
+        tfs=tfv;
     
     if (vt)
     {
