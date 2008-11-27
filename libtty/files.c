@@ -29,15 +29,15 @@ static int find_w_format(char *format, char *filename, char *fallback)
 {
     int nf;
     
-    // given explicitely
+    /* given explicitely */
     if (format)
     {
         for(nf=0; rec[nf].name; nf++)
             if (!strcasecmp(format, rec[nf].name))
                 return nf;
-        return -1;	// no fallback to default
+        return -1;	/* no fallback to default */
     }
-    // guess from the filename
+    /* guess from the filename */
     else if (filename)
     {
         compress_info *ci;
@@ -52,7 +52,7 @@ static int find_w_format(char *format, char *filename, char *fallback)
             if (rec[nf].ext && match_suffix(filename, rec[nf].ext, skip))
                 return nf;
     }
-    // is the default valid?
+    /* is the default valid? */
     for(nf=0; rec[nf].name; nf++)
         if (!strcasecmp(fallback, rec[nf].name))
             return nf;
@@ -149,15 +149,15 @@ static int find_r_format(char *format, char *filename, char *fallback)
 {
     int nf;
     
-    // given explicitely
+    /* given explicitely */
     if (format)
     {
         for(nf=0; play[nf].name; nf++)
             if (!strcasecmp(format, play[nf].name))
                 return nf;
-        return -1;	// no fallback to default
+        return -1;	/* no fallback to default */
     }
-    // guess from the filename
+    /* guess from the filename */
     else if (filename)
     {
         compress_info *ci;
@@ -172,7 +172,7 @@ static int find_r_format(char *format, char *filename, char *fallback)
             if (play[nf].ext && match_suffix(filename, play[nf].ext, skip))
                 return nf;
     }
-    // is the default valid?
+    /* is the default valid? */
     for(nf=0; play[nf].name; nf++)
         if (!strcasecmp(fallback, play[nf].name))
             return nf;
@@ -216,7 +216,7 @@ export int ttyrec_r_play(int fd, char *format, char *filename,
     int nf;
     FILE *f;
     
-    nf=find_r_format(format, filename, "baudrate");	// TODO: make this reasonable
+    nf=find_r_format(format, filename, "baudrate");	/* TODO: make this reasonable */
     if (nf==-1)
     {
         if (fd!=-1)
