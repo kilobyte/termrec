@@ -29,11 +29,17 @@ save for the default (ansi=unadorned data) you'll typically only use ttyrec.
 
 =item B<-l> I<lport>, B<--local-port>
 
-Choose the port to listen on.
+Choose the port to listen on.  It's 9999 by default.
 
 =item B<-p> I<rport>, B<--port>
 
 Port to connect to.  Same as specifying it with a colon after the hostname.
+
+=item B<-t>, B<--telnet>
+
+Instructs proxyrec to watch the data for TELNET information, recording some of
+them (namely, window size, its changes and requests to turn echo on/off) and
+cleaning the TELNET protocol away.
 
 =item B<-h>, B<--help>
 

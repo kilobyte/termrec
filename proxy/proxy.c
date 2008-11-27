@@ -408,6 +408,7 @@ static struct option proxy_opts[]={
 {"listen-port",	1, 0, 'l'},
 {"port",        1, 0, 'p'},
 {"raw",		0, 0, 'r'},
+{"telnet",	0, 0, 't'},
 {"help",	0, 0, 'h'},
 {0,		0, 0, 0},
 };
@@ -423,14 +424,14 @@ void get_proxy_parms(int argc, char **argv)
     record_name=0;
     lport=-1;
     rport=-1;
-    raw=0;
+    raw=1;
     
     while(1)
     {
 #if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
-        switch(getopt_long(argc, argv, "f:l:rhp:", proxy_opts, 0))
+        switch(getopt_long(argc, argv, "f:l:rthp:", proxy_opts, 0))
 #else
-        switch(getopt(argc, argv, "f:l:rhp:"))
+        switch(getopt(argc, argv, "f:l:rthp:"))
 #endif
         {
         case -1:
@@ -460,6 +461,9 @@ void get_proxy_parms(int argc, char **argv)
         case 'r':
             raw=1;
             break;
+        case 't':
+            raw=0;
+            break;
         case 'h':
             printf(
                 "%sproxyrec [-f format] [-p rport] [-l lport] host[:port] [file]\n"
@@ -467,7 +471,7 @@ void get_proxy_parms(int argc, char **argv)
                 "-f, --format X        %s\n"
                 "-l, --local-port X    %s\n"
                 "-p, --port X          %s\n"
-                "-r, --raw             %s\n"
+                "-t, --telnet          %s\n"
                 "-h, --help            %s\n"
                 "%s%s%s%s",
                 _("Usage:"),
@@ -475,7 +479,7 @@ void get_proxy_parms(int argc, char **argv)
                 _("set output format to X (-f whatever for the list)"),
                 _("listen on port X locally (default: 9999)"),
                 _("connect to remote port X (default: 23)"),
-                _("don't weed out or parse TELNET negotiations"),
+                _("weed out TELNET negotiations and extract some data from them"),
                 _("show this usage message"),
                 _("The host to connect to must be specified.\n"),
                 _("If no filename is given, a name will be generated using the current date\n"
