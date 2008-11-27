@@ -6,7 +6,8 @@
 #include <stdarg.h>
 #include "sys/utils.h"
 #include "ttyrec.h"
-#include "name_out.h"
+#include "common.h"
+#include "rec_args.h"
 
 //#define EVDEBUG
 
@@ -623,7 +624,7 @@ int main(int argc, char **argv)
     if (!check_console())
         if (!create_console() || !check_console())
         {
-            show_error("Not on a console.  My attempts");
+            die("Not on a console.  My attempts failed");
             return 1;
         }
     vtrec_init();

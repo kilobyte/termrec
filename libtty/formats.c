@@ -77,8 +77,10 @@ Will be called when the recording ends.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "export.h"
 #include "formats.h"
+#include "compat.h"
 
 
 /* ttyrec checks the byte sex on runtime, during _every_ swap.  Uh oh. */
@@ -92,7 +94,14 @@ Will be called when the recording ends.
 # define to_little_endian(x) ((uint32_t)(x))
 #endif
 
-
+#define tadd(t, d)	{if (((t).tv_usec+=(d).tv_usec)>1000000)	\
+                            (t).tv_usec-=1000000, (t).tv_sec++;		\
+                         (t).tv_sec+=(d).tv_sec;			\
+                        }
+#define tsub(t, d)	{if ((signed)((t).tv_usec-=(d).tv_usec)<0)	\
+                            (t).tv_usec+=1000000, (t).tv_sec--;		\
+                         (t).tv_sec-=(d).tv_sec;			\
+                        }
 
 #define BUFFER_SIZE 32768
 
@@ -134,6 +143,70 @@ static void record_baudrate(FILE *f, void* state, struct timeval *tm, char *buf,
 
 static void record_baudrate_finish(FILE *f, void* state)
 {
+}
+
+
+/***********************/
+/* pseudo-format: live */
+/***********************/
+
+static void play_live(FILE *f,
+    void *(synch_init_wait)(struct timeval *ts, void *arg),
+    void *(synch_wait)(struct timeval *tv, void *arg),
+    void *(synch_print)(char *buf, int len, void *arg),
+    void *arg)
+{
+    struct timeval tv, tp, tm;
+    char buf[BUFFER_SIZE];
+    int len;
+    
+    gettimeofday(&tv, 0);
+    synch_init_wait(&tv, arg);
+    tp=tv;
+    
+    /* using read() not fread(), we need unbuffered IO */
+    while((len=read(fileno(f), buf, BUFFER_SIZE))>0)
+    {
+        gettimeofday(&tv, 0);
+        tm=tv;
+        tsub(tm, tp);
+        synch_wait(&tm, arg);
+        tp=tv;
+        synch_print(buf, len, arg);
+    }
+}
+
+
+static void* record_live_init(FILE *f, struct timeval *tm)
+{
+    struct timeval *tv;
+    
+    tv=malloc(sizeof(struct timeval));
+    gettimeofday(tv, 0);
+    tsub(*tv, *tm);
+    
+    return tv;
+}
+
+static void record_live(FILE *f, void* state, struct timeval *tm, char *buf, int len)
+{
+    struct timeval tv, wall;
+    
+    gettimeofday(&wall, 0);
+    tv=*tm;
+    tadd(tv, *((struct timeval*)state));
+    tsub(tv, wall);
+    if (tv.tv_sec>=0 && (tv.tv_sec || tv.tv_usec)) /* can't go back in time */
+        select(0, 0, 0, 0, &tv);
+    else
+        tsub(*(struct timeval*)state, tv); /* move the origin by the (negative) time skipped */
+    fwrite(buf, 1, len, f);
+    fflush(f);
+}
+
+static void record_live_finish(FILE *f, void* state)
+{
+    free(state);
 }
 
 
@@ -335,6 +408,7 @@ recorder_info rec[]={
 {"ansi",".txt",record_baudrate_init,record_baudrate,record_baudrate_finish},
 {"ttyrec",".ttyrec",record_ttyrec_init,record_ttyrec,record_ttyrec_finish},
 {"nh_recorder",".nh",record_nh_recorder_init,record_nh_recorder,record_nh_recorder_finish},
+{"live", 0, record_live_init, record_live, record_live_finish},
 {"null",0,record_null_init,record_null,record_null_finish},
 {0, 0, 0, 0},
 };
@@ -343,6 +417,7 @@ player_info play[]={
 {"baudrate",".txt",play_baudrate},
 {"ttyrec",".ttyrec",play_ttyrec},
 {"nh_recorder",".nh",play_nh_recorder},
+{"live",0,play_live},
 {0, 0},
 };
 

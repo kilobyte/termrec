@@ -72,6 +72,7 @@ export recorder* ttyrec_w_open(int fd, char *format, char *filename, struct time
 {
     int nf;
     recorder *r;
+    struct timeval t0={0,0};
     
     nf=find_w_format(format, filename, "ansi");
     if (nf==-1)
@@ -81,18 +82,21 @@ export recorder* ttyrec_w_open(int fd, char *format, char *filename, struct time
     }
     
     if (fd==-1)
-        fd=open_stream(fd, filename, O_WRONLY|O_CREAT);
+        fd=open_stream(fd, filename, M_WRITE);
     if (fd==-1)
         return 0;
     
     r=malloc(sizeof(recorder));
     if (!r)
+    {
+        close(fd);
         return 0;
+    }
     
     r->format=&rec[nf];
     r->f=fdopen(fd, "wb");
     assert(r->f);
-    r->state=(r->format)->init(r->f, tm);
+    r->state=(r->format)->init(r->f, tm?tm:&t0);
     return r;
 }
 
@@ -108,15 +112,16 @@ export int ttyrec_w_write(recorder *r, struct timeval *tm, char *buf, int len)
 
 export int ttyrec_w_close(recorder *r)
 {
-    int err=0;
-    
     assert(r);
     assert(r->f);
     r->format->finish(r->f, r->state);
     if (fclose(r->f))
-        err=errno;
+    {
+        free(r);
+        return 0;
+    }
     free(r);
-    return err;
+    return 1;
 }
 
 
@@ -220,7 +225,7 @@ export int ttyrec_r_play(int fd, char *format, char *filename,
     }
     
     if (fd==-1)
-        fd=open_stream(fd, filename, O_RDONLY);
+        fd=open_stream(fd, filename, M_READ);
     if (fd==-1)
         return 0;
     
@@ -232,6 +237,7 @@ export int ttyrec_r_play(int fd, char *format, char *filename,
         synch_print=(void*)dummyfunc;
     
     f=fdopen(fd, "rb");
+    assert(f);
     (*play[nf].play)(f, synch_init_wait, synch_wait, synch_print, arg);
     fclose(f);
     return 1;

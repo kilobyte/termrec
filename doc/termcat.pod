@@ -1,0 +1,22 @@
+=head1 NAME
+
+termcat - convert and/or join ttyrec recordings
+
+=head1 SYNOPSIS
+
+B<termcat> I<file1> I<[file2] ...>  I<outfile>
+
+=head1 DESCRIPTION
+
+B<Termcat> takes all the input recordings, concatenates them together
+then writes to the target file in a format you choose.
+
+For example:
+	termcat 1.nh.gz 2.ttyrec.bz2 combined.ttyrec.bz2
+
+Note that unlike B<cat>, the last file is output, not one of components.
+If you really want to send ttyrec data to stdout, use "-".
+
+=head1 SEE ALSO
+
+L<termrec(1)>, L<termplay(1)>, L<termtime(1)>.

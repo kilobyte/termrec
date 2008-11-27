@@ -51,10 +51,6 @@ LRESULT APIENTRY TermWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 void do_replay();
 
-// TODO: when threading is added, readd these if frame merging remains, remove if not.
-#define timeline_lock() {}
-#define timeline_unlock() {}
-
 void win32_init()
 {
     WNDCLASS wc;
@@ -78,7 +74,7 @@ void win32_init()
     wc.lpszClassName = "MainWindow";
 
     if (!RegisterClass(&wc))
-        show_error("RegisterClass"), exit(0);
+        die("RegisterClass");
 
     wc.style = 0;
     wc.lpfnWndProc = (WNDPROC) TermWndProc;
@@ -92,12 +88,12 @@ void win32_init()
     wc.lpszClassName = "Term";
 
     if (!RegisterClass(&wc))
-        show_error("RegisterClass"), exit(0);
+        die("RegisterClass");
 
     draw_init();
     InitializeCriticalSection(&vt_mutex);
     if (!(timer=CreateWaitableTimer(0, 0, 0)))
-        show_error("CreateWaitableTimer");
+        die("CreateWaitableTimer");
 }
 
 
@@ -418,7 +414,7 @@ void get_pos()
     {
         gettimeofday(&tr, 0);
         tsub(tr, t0);
-        tmul(tr, speed);
+        tmul1000(tr, speed);
     }
 }
 
@@ -472,7 +468,7 @@ void replay_pause()
     case 2:
         gettimeofday(&tr, 0);
         tsub(tr, t0);
-        tmul(tr, speed);
+        tmul1000(tr, speed);
     case 3:
         play_state=1;
     }
@@ -490,7 +486,7 @@ void replay_resume()
     case 1:
         gettimeofday(&t0, 0);
         t=tr;
-        tdiv(t, speed);
+        tdiv1000(t, speed);
         tsub(t0, t);
         play_state=2;
         break;
@@ -514,7 +510,7 @@ int replay_play(struct timeval *delay)
     case 2:
         gettimeofday(&tr, 0);
         tsub(tr, t0);
-        tmul(tr, speed);
+        tmul1000(tr, speed);
         if (tev_cur && tev_cur->len>tev_curlp)
         {
             vt100_write(vt, tev_cur->data+tev_curlp, tev_cur->len-tev_curlp);
@@ -531,7 +527,7 @@ int replay_play(struct timeval *delay)
         {
             *delay=fn->t;
             tsub(*delay, tr);
-            tdiv(*delay, speed);
+            tdiv1000(*delay, speed);
             return 1;
         }
         play_state=tev_done?0:3;
@@ -551,7 +547,7 @@ void replay_seek()
     
     t=tr;
     gettimeofday(&t0, 0);
-    tdiv(tr, speed);
+    tdiv1000(tr, speed);
     tsub(t0, tr);
 }
 
@@ -622,7 +618,7 @@ int start_file(char *name)
         replay_pause();
         set_buttons(0);
     }
-    fd=open_stream(-1, name, O_RDONLY);
+    fd=open_stream(-1, name, M_READ);
     if (fd==-1)
         return 0;
     play_f=fd;
@@ -733,7 +729,6 @@ again:
         CancelWaitableTimer(timer);
         return;
     }
-    timeline_lock();
     EnterCriticalSection(&vt_mutex);
     replay_play(&delay);
     draw_size();
@@ -741,7 +736,6 @@ again:
     draw_vt(dc, chx*vt->sx, chy*vt->sy, vt);
     ReleaseDC(termwnd, dc);
     LeaveCriticalSection(&vt_mutex);
-    timeline_unlock();
     set_prog();
     if (play_state!=2)
     {
@@ -804,7 +798,6 @@ void prog_scrolled()
     int oldstate=play_state;
     int pos=SendMessage(wndProg, TBM_GETPOS, 0, 0);
     
-    timeline_lock();
     if (pos<0)
         pos=0;
     replay_pause();
@@ -814,7 +807,6 @@ void prog_scrolled()
     tr.tv_sec=v/1000000;
     tr.tv_usec=v%1000000;
     replay_seek();
-    timeline_unlock();
     play_state=oldstate;
     redraw_term();
     do_replay();
@@ -827,7 +819,6 @@ void adjust_pos(int d)
     
     if (play_state==-1)
         return;
-    timeline_lock();
     replay_pause();
     tr.tv_sec+=d;
     if (tr.tv_sec<0)
@@ -835,7 +826,6 @@ void adjust_pos(int d)
     if (tcmp(tr, tmax)==1)
         tr=tmax;
     replay_seek();
-    timeline_unlock();
     play_state=oldstate;
     redraw_term();
     set_prog();
@@ -901,13 +891,13 @@ void export_file()
         return;
     
     format=ttyrec_w_find_format(0, fn, "ansi");
-    if ((record_f=open(fn, O_WRONLY|O_CREAT, 0666))==-1)
+    if ((record_f=open(fn, O_WRONLY|O_CREAT|O_TRUNC, 0666))==-1)
     {
         sprintf(errmsg, "Can't write to %s: %s", fn, strerror(errno));
         MessageBox(wnd, errmsg, "Write error", MB_ICONERROR);
         return;
     }
-    record_f=open_stream(record_f, fn, O_WRONLY|O_CREAT);
+    record_f=open_stream(record_f, fn, M_WRITE);
     ttyrec_save(ttr, record_f, format, filename, &selstart, &selend);
 }
 
@@ -941,13 +931,11 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 if (play_state==-1)
                     break;
                 EnterCriticalSection(&vt_mutex);
-                timeline_lock();
                 replay_pause();
                 tr.tv_sec=0;
                 tr.tv_usec=0;
                 set_prog();
                 replay_seek();
-                timeline_unlock();
                 LeaveCriticalSection(&vt_mutex);
                 play_state=1;
                 replay_resume();

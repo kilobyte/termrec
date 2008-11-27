@@ -1,0 +1,183 @@
+=head1 NAME
+
+libtty - a library for handling ttyrec files
+
+=head1 SYNOPSIS
+
+B<#include E<lt>ttyrec.hE<gt>>
+
+Link with I<-ltty>.
+
+=head1 DESCRIPTION
+
+=head2 Helper stream function:
+
+=over
+
+=item B<int	open_stream(int >I<fd>B<, char* >I<url>B<, int >I<mode>B<);>
+
+This function opens a stream designated by the I<url>.  If the given url ends in ".gz" or ".bz2"), the
+stream is assumed to be compressed and gets passed through the appropiate [un]packer.  If the I<fd> is not -1,
+it is the descriptor you already opened; if it is -1, the file is opened.  The I<mode> can be:
+
+=over
+
+=item M_READ
+
+=item M_WRITE
+
+=item M_REPREAD
+
+=item M_APPEND
+
+=back
+
+=back
+
+=head2 Format encoders:
+
+=over
+
+=item B<char*	ttyrec_w_find_format(char *>I<format>B<, char *>I<filename>B<, char *>I<fallback>B<);>
+
+This function searches for a format that would fit the I<filename> provided -- that is, abc.ttyrec.gz
+returns "ttyrec".  If no known extension is found, the function returns whatever you gave as
+I<fallback>.  You can force a I<format> yourself, in this case, it is only validated and if invalid, 0
+is returned regardless of the other two arguments.
+
+=item B<recorder	ttyrec_w_open(int >I<fd>B<, char *>I<format>B<, char *>I<filename>B<, struct timeval *>I<ts>B<);>
+
+A recorder is opened, writing to the file I<fd>; if it's not given (=-1), the function calls B<open_stream()>.
+Recording is done in the given I<format>, if not provided, the format is guessed based on the I<filename>.
+If you provide a timestamp I<ts>, it becomes date of the recording.
+
+=item B<int	ttyrec_w_write(recorder >I<r>B<, struct timeval *tm, char *>I<data>B<, int >I<len>B<);>
+
+A chunk of data of length I<len> is written to recorder I<r>, with timestamp I<tm>.
+
+=item B<int	ttyrec_w_close(recorder >I<r>B<);>
+
+All pending data is flushed, recorder closed and its memory freed.
+
+=item B<char*	ttyrec_w_get_format_name(int >I<i>B<);>
+
+You can use this function to enumerate known write formats by calling it with I<i> being subsequent
+numbers starting at 0.  An invalid I<i> will return a null pointer.
+
+=item B<char*	ttyrec_w_get_format_ext(char *>I<format>B<);>
+
+If the given write I<format> is associated with a file extension, it is returned.
+
+=back
+
+=head2 Format decoders:
+
+=over
+
+=item B<char*	ttyrec_r_find_format(char *>I<format>B<, char *>I<filename>B<, char *>I<fallback>B<);>
+
+See the _w_ function, except that read formats are searched instead.
+
+=item B<char*	ttyrec_r_get_format_name(int >I<i>B<);>
+
+ditto
+
+=item B<char*	ttyrec_r_get_format_ext(char *>I<format>B<);>
+
+ditto
+
+=item B<int	ttyrec_r_play(int >I<fd>B<, char *>I<format>B<, char *>I<filename>B<,    void (*>I<synch_init_wait>B<)(struct timeval *ts, void *>I<arg>B<),    void (*>I<synch_wait>B<)(struct timeval *>I<delay>B<, void *>I<arg>B<),    void (*>I<synch_print>B<)(char *>I<data>B<, int >I<len>B<, void *>I<arg>B<),    void *>I<arg>B<);>
+
+This function decodes the file I<fd> (opening I<filename> if I<fd>=-1).  If its contents contain
+the date of the recording, you'll receive it through the callback I<synch_init_wait>.  Between
+frames, the delay is passed through I<synch_wait>.  The actual frame data goes through
+I<synch_print>.  Note that in some formats, two or more consecutive delays or two consecutive
+frames can happen one after another.  If you provide an arbitrary I<arg>, it will be passed to
+all callbacks.
+
+The function doesn't return until the end of input data.
+
+=back
+
+=head2 The following functions deal with in-memory ttyrecs:
+
+=over
+
+=item B<ttyrec		ttyrec_init(vt100 >I<vt>B<);>
+
+An empty one is allocated.  If a I<vt> is provided, it becomes the screen that the ttyrec is
+internally played on; otherwise, a blank 80x25 one is allocated.  The I<vt> is consumed.
+
+=item B<ttyrec		ttyrec_load(int >I<fd>B<, char *>I<format>B<, char *>I<filename>B<, vt100 >I<vt>B<);>
+
+This function will load a ttyrec from the file designated with I<fd>.  If it's not open yet
+(I<fd>=-1), it will be opened with B<open_stream>.  The ttyrec is played on the I<vt> you provide
+-- or on a new 80x25 one.
+
+=item B<void		ttyrec_free(ttyrec >I<tr>B<);>
+
+Destroys the in-memory ttyrec, freeing its memory.
+
+=back
+
+You can read the ttyrec's data while it's being read; all functions are thread-safe
+with regard to reading.  The frames are stored in structures like this:
+
+typedef struct
+{
+    struct timeval t;
+    int len;
+    char *data;
+} *ttyrec_frame;
+
+=over
+
+=item B<ttyrec_frame	ttyrec_seek(ttyrec >I<tr>B<, struct timeval *>I<t>B<, vt100 *>I<vt>B<);>
+
+Finds the frame that should be shown at time I<*t>, or the first frame if I<t> is null.
+If I<vt> is not-null, it will receive a terminal containing the screen at that frame.
+
+=item B<ttyrec_frame	ttyrec_next_frame(ttyrec >I<tr>B<, ttyrec_frame >I<tfv>B<);>
+
+Returns the next frame after frame I<tfv>, or null if I<tfv> was the last.
+
+=item B<void		ttyrec_add_frame(ttyrec >I<tr>B<, struct timeval *>I<delay>B<, char *>I<data>B<, int >I<len>B<);>
+
+Creates a new frame and appends it to ttyrec I<tr>.
+
+=item B<int		ttyrec_save(ttyrec >I<tr>B<, int >I<fd>B<, char *>I<format>B<, char *>I<filename>B<, struct timeval *>I<selstart>B<, struct timeval *>I<selend>B<);>
+
+Exports the ttyrec to a new file.  If I<selstart> and/or I<selend> are given, they designate
+the part that should be exported -- if not, the whole is.
+
+=back
+
+=head2 B<struct timeval> arithmetics:
+
+A handful of macros for operating on timeval values:
+
+=over
+
+=item B<tadd(t, d)>
+
+t+=d;
+
+=item B<tsub(t, d)>
+
+t-=d;
+
+=item B<tmul1000(t, m)>
+
+t*=m/1000;
+
+=item B<tdiv1000(t, m)>
+
+t/=m/1000;
+
+=item B<tcmp(t1, t2)>
+
+If t1E<lt>t2, -1.  If t1E<gt>t2, +1.  0 otherwise.
+
+=back
+
+=cut

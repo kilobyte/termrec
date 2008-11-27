@@ -1,0 +1,94 @@
+=head1 NAME
+
+termplay - replay a ttyrec "video"
+
+=head1 SYNOPSIS
+
+B<termplay> I<file>
+
+=head1 DESCRIPTION
+
+B<Termplay> can play back ttyrec recordings, like those produced by B<termrec>,
+B<ttyrec>, services like nethack.alt.org or crawl.akrasiacs.org and so on.
+
+=head2 Keys available during replay:
+
+=over
+
+=item B<space>
+
+pause/resume
+
+=item B<->, B<S>
+
+slow down (by half)
+
+=item B<+>, B<F>
+
+speed up (2x, then 4x, ...)
+
+=item B<1>
+
+reset speed to 1.0
+
+=item B<left arrow>/B<down arrow>/B<PgDn>
+
+rewind by 10sec/1min/10min
+
+=item B<right arrow>/B<up arrow>/B<PgUp>
+
+skip 10sec/1min/10min
+
+=item B<R>
+
+rewind to beginning
+
+=item B<Q>
+
+quit B<termplay>
+
+=back
+
+=head2 Options:
+
+=over
+
+=item B<-f> I<format>, B<--format>
+
+You can specify a format other than ttyrec.  Those available are:
+
+=over
+
+=item baudrate
+
+The data will be replayed at 2400 baud.
+
+=item ttyrec
+
+Compatible with B<ttyrec> by Satoru Takabayashi.
+
+=item nh-recorder
+
+Compatible with B<nh-recorder> by Helge Dennhardt.
+
+=item live
+
+The data is assumed to be played at the same timing as it arrived.  This is useful
+for watching termcasts, etc -- giving you the ability to rewind to an interesting
+moment.
+
+=back
+
+=item B<-s> I<X>, B<--speed>
+
+Sets the initial speed to X, a real number between 0.001 and 1000.0.
+
+=item B<-h>, B<--help>
+
+Shows a short explanation of parameters.
+
+=back
+
+=head1 SEE ALSO
+
+L<termrec(1)>, L<proxyrec(1)>, L<termcat(1)>, L<termtime(1)>.

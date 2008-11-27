@@ -1,1 +1,1 @@
-void error(const char *txt, ...);
+void die(const char *txt, ...);

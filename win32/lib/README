@@ -1,9 +1,11 @@
-If you want static .gz or .bz2 support, please put the following files into
-this dir:
+If you want .gz or .bz2 support, please put the following files into this
+dir:
 
 	bzlib.h
-	libbz2.a
+	libbz2.dll.a
+	bzip2.dll
 
-	libz.a
 	zconf.h
 	zlib.h
+	libz.dll.a
+	zlib1.dll

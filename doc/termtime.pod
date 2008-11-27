@@ -1,0 +1,16 @@
+=head1 NAME
+
+termtime - determine the length of a ttyrec file
+
+=head1 SYNOPSIS
+
+B<termtime> I<file...>
+
+=head1 DESCRIPTION
+
+B<Termtime> tells you the length of recorded data in a ttyrec file(s).
+All formats and compressions supported by L<termplay(1)> are available.
+
+=head1 SEE ALSO
+
+L<termrec(1)>, L<termplay(1)>, L<termcat(1)>.

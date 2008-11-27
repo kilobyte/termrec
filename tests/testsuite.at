@@ -3,3 +3,52 @@ AT_INIT
 AT_SETUP([seeks])
 AT_CHECK([seeks],,[ignore])
 AT_CLEANUP
+
+AT_SETUP([timeval arithmetics])
+AT_CHECK([tarith])
+AT_CLEANUP
+
+AT_SETUP([recording])
+AT_CHECK([rec test.ttyrec])
+AT_CHECK([rec test.ttyrec.bz2])
+AT_CLEANUP
+
+AT_SETUP([loading and saving ttyrecs to/from memory])
+AT_CHECK([rec test.ttyrec && loadsave test.ttyrec out.ttyrec && cmp test.ttyrec out.ttyrec])
+AT_CLEANUP
+
+AT_SETUP([loading and saving ttyrecs to memory (.bz2)])
+AT_CHECK([rec test.ttyrec.bz2 && loadsave test.ttyrec.bz2 out.ttyrec.bz2 && cmp test.ttyrec.bz2 out.ttyrec.bz2])
+AT_CLEANUP
+
+AT_SETUP([vt100 sequences])
+for x in "$top_srcdir/tests/vt.in/"*
+  do
+    unescape <"$x" >stdin
+    cat "${x/vt.in/vt.out}" >expout
+    AT_CHECK([vt -d <stdin],,[expout])
+  done
+AT_CLEANUP
+
+AT_SETUP([long vt100 writes])
+for a in 1 2 3 4 5;do for b in 1 2 3 4 5;do for c in 1 2 3 4 5;do for d in 1 2 3 4 5;
+ do for e in 1 2 3 4;do echo "foo bar baz quux";done;done;done;done;done >stdin
+cp "$top_srcdir/tests/vt.out/longwrite" expout
+AT_CHECK([vt -d <stdin],,[expout])
+AT_CLEANUP
+
+AT_SETUP([vt-on-vt])
+for x in "$top_srcdir/tests/vt.in/"*
+  do
+    [if LC_ALL=C grep -q '[^[:cntrl:] -~]' "$x" || echo "$x"|grep -q vt100graph]
+      then
+	echo "Skipping $x"
+	dnl # skip Unicode tests, LC_ALL=C breaks that and there is nothing not
+	dnl # already tested by the "vt100 sequences" series of tests
+      else
+	echo "Checking $x"
+	unescape <"$x" >stdin
+	AT_CHECK([vtmir <stdin])
+    fi
+  done
+AT_CLEANUP

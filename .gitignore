@@ -32,6 +32,10 @@ _stdint.h
 svn-commit*.tmp
 termplay
 termrec
+termtime
+termcat
+*.1
+*.3
 termrec-*.tar.gz
 *.ttyrec
 *.ttyrec.bz2

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+tr -d '\n'|sed 's/\\b/\b/g;s/\\n/\n/g;s/\\e/\d027/g;s/\\\\/\\/g'

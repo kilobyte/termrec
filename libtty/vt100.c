@@ -1,13 +1,16 @@
 /*#define VT100_DEBUG*/
 #define VT100_DEFAULT_CHARSET charset_cp437
 
+#define _GNU_SOURCE
 #include "vt100.h"
 #include "charsets.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <assert.h>
 #include "export.h"
+#include "compat.h"
 
 #define SX vt->sx
 #define SY vt->sy
@@ -98,6 +101,9 @@ static void vt100_clear_region(vt100 vt, int st, int l)
 {
     attrchar *c, blank;
     
+    assert(st>=0);
+    assert(l>=0);
+    assert(st+l<=SX*SY);
     blank.ch=' ';
     blank.attr=vt->attr;
 
@@ -128,7 +134,8 @@ export void vt100_reset(vt100 vt)
 static void vt100_scroll(vt100 vt, int nl)
 {
     int s;
-
+    
+    assert(vt->s1<vt->s2);
     if ((s=vt->s2-vt->s1-abs(nl))<=0)
     {
         vt100_clear_region(vt, vt->s1*SX, (vt->s2-vt->s1)*SX);
@@ -196,9 +203,9 @@ static void set_charset(vt100 vt, int g, char x)
     }
 #define CLEAR(x,y,l) \
     {						\
-        vt100_clear_region(vt, y*SX+x, len);	\
+        vt100_clear_region(vt, y*SX+x, l);	\
         if (vt->l_clear)			\
-            vt->l_clear(vt, x, y, len);		\
+            vt->l_clear(vt, x, y, l);		\
     }
 
 export void vt100_write(vt100 vt, char *buf, int len)
@@ -653,7 +660,49 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 }
                 vt->state=0;
                 break;
-            
+                
+            case 'L':	/* ESC[L -> insert line */
+                if (vt->s1>CY || vt->s2<=CY)
+                {
+                    vt->state=0;
+                    break;
+                }
+                vt->tok[1]=vt->s1;
+                vt->s1=CY;
+                i=vt->tok[0];
+                if (i<=0)
+                    i=1;
+                SCROLL(-i);
+                vt->s1=vt->tok[1];
+                vt->state=0;
+                break;
+                
+            case 'M':	/* ESC[M -> delete line */
+                if (vt->s1>CY || vt->s2<=CY)
+                {
+                    vt->state=0;
+                    break;
+                }
+                vt->tok[1]=vt->s1;
+                vt->s1=CY;
+                i=vt->tok[0];
+                if (i<=0)
+                    i=1;
+                SCROLL(i);
+                vt->s1=vt->tok[1];
+                vt->state=0;
+                break;
+                
+            case 'X':	/* ESC[X -> erase to the right */
+                i=vt->tok[0];
+                if (i<=0)
+                    i=1;
+                if (i+CX>SX)
+                    i=SX-CX;
+                CLEAR(CX, CY, i);
+                vt->state=0;
+                break;
+                
             case 'f': case 'H':	/* ESC[f, ESC[H -> move cursor */
                 CY=vt->tok[0]-1;
                 if (CY<0)
@@ -819,23 +868,42 @@ export void vt100_write(vt100 vt, char *buf, int len)
             goto error;
         }
     }
+    
+    if (vt->l_flush)
+        vt->l_flush(vt);
 }
 
-#define MAX_PRINTABLE 16384
+#define BUFFER_SIZE 16384
 
 export void vt100_printf(vt100 vt, const char *fmt, ...)
 {
     va_list ap;
-    char buf[MAX_PRINTABLE];
+    char buf[BUFFER_SIZE], *bigstr;
     int len;
     
     va_start(ap, fmt);
-    len=vsnprintf(buf,MAX_PRINTABLE,fmt,ap);
+    len=vsnprintf(buf, BUFFER_SIZE, fmt, ap);
     va_end(ap);
     if (len<=0)
-        return;
-    if (len>MAX_PRINTABLE)
-        vt100_write(vt, buf, MAX_PRINTABLE-1);
+    {
+        va_start(ap, fmt);
+        len=vasprintf(&bigstr, fmt, ap);
+        va_end(ap);
+        if (len<=0 || !bigstr)
+            return;
+        vt100_write(vt, buf, len);
+        free(bigstr);
+    }
+    else if (len>=BUFFER_SIZE)
+    {
+        if (!(bigstr=malloc(len+1)))
+            return;
+        va_start(ap, fmt);
+        len=vsnprintf(bigstr, len+1, fmt, ap);
+        va_end(ap);
+        vt100_write(vt, buf, len);
+        free(bigstr);
+    }
     else
         vt100_write(vt, buf, len);
 }

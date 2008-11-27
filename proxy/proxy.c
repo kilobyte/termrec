@@ -12,6 +12,12 @@
 #ifdef HAVE_NETDB_H
 # include <netdb.h>
 #endif
+#ifdef HAVE_SYS_SOCKET_H
+# include <sys/socket.h>
+#endif
+#ifdef HAVE_NETINET_IN_H
+# include <netinet/in.h>
+#endif
 #include <errno.h>
 #include <assert.h>
 #include <getopt.h>
@@ -294,9 +300,9 @@ void resolve_out()
     if ((err=getaddrinfo(host, port, &hints, &ai)))
     {
         if (err==EAI_NONAME)
-            error(_("No such host: %s\n"), host);
+            die(_("No such host: %s\n"), host);
         else
-            error("%s", gai_strerror(err));
+            die("%s", gai_strerror(err));
     }
 }
 
@@ -319,17 +325,17 @@ int listen_lo()
     sprintf(port, "%u", lport);
     
     if ((err=getaddrinfo(0, port, &hints, &ai)))
-        error("%s", gai_strerror(err));
+        die("%s", gai_strerror(err));
     
     if ((sock=socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol))==-1)
-    	error(_("Can't listen: %s\n"), strerror(errno));
+        die(_("Can't listen: %s\n"), strerror(errno));
     
     opt=1;
     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt));
     if (bind(sock, ai->ai_addr, ai->ai_addrlen))
-        error(_("bind() failed: %s\n"), strerror(errno));
+        die(_("bind() failed: %s\n"), strerror(errno));
     if (listen(sock, 2))
-        error(_("listen() failed: %s\n"), strerror(errno));
+        die(_("listen() failed: %s\n"), strerror(errno));
     return sock;
 }
 #else
@@ -340,7 +346,7 @@ int listen_lo()
     int opt;
 
     if ((sock=socket(AF_INET, SOCK_STREAM, IPPROTO_TCP))<0)
-        error(_("socket() failed: %s\n"), strerror(errno));
+        die(_("socket() failed: %s\n"), strerror(errno));
     
     opt=1;
     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt));
@@ -348,9 +354,9 @@ int listen_lo()
     sin.sin_addr.s_addr=inet_addr("127.0.0.1");
     sin.sin_port=htons(lport);
     if (bind(sock, (struct sockaddr*)&sin, sizeof(sin)))
-        error(_("bind() failed: %s\n"), strerror(errno));
+        die(_("bind() failed: %s\n"), strerror(errno));
     if (listen(sock, 2))
-        error(_("listen() failed: %s\n"), strerror(errno));
+        die(_("listen() failed: %s\n"), strerror(errno));
     return sock;
 }
 #endif
@@ -367,14 +373,14 @@ void get_host_rport()
         host++;
         cp=strchr(host, ']');
         if (!cp)
-            error(_("Unmatched [ in the host part.\n"));
+            die(_("Unmatched [ in the host part.\n"));
         *cp++=0;
         if (*cp)
         {
             if (*cp==':')
                 goto getrport;
             else
-                error(_("Cruft after the [host name].\n")); /* IPv6-style host name */
+                die(_("Cruft after the [host name].\n")); /* IPv6-style host name */
         }
     }
     if ((cp=strrchr(host, ':')))
@@ -384,9 +390,9 @@ void get_host_rport()
         cp++;
         i=strtoul(cp, &cp, 10);
         if (*cp || !i || i>65535)
-            error(_("Invalid remote port in the host part.\n"));
+            die(_("Invalid remote port in the host part.\n"));
         if (rport!=-1)
-            error(_("You can specify the remote port at most once.\n"));
+            die(_("You can specify the remote port at most once.\n"));
         rport=i;
     }
 }
@@ -402,6 +408,7 @@ static struct option proxy_opts[]={
 {"listen-port",	1, 0, 'l'},
 {"port",        1, 0, 'p'},
 {"raw",		0, 0, 'r'},
+{"telnet",	0, 0, 't'},
 {"help",	0, 0, 'h'},
 {0,		0, 0, 0},
 };
@@ -417,14 +424,14 @@ void get_proxy_parms(int argc, char **argv)
     record_name=0;
     lport=-1;
     rport=-1;
-    raw=0;
+    raw=1;
     
     while(1)
     {
 #if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
-        switch(getopt_long(argc, argv, "f:l:rhp:", proxy_opts, 0))
+        switch(getopt_long(argc, argv, "f:l:rthp:", proxy_opts, 0))
 #else
-        switch(getopt(argc, argv, "f:l:rhp:"))
+        switch(getopt(argc, argv, "f:l:rthp:"))
 #endif
         {
         case -1:
@@ -437,22 +444,25 @@ void get_proxy_parms(int argc, char **argv)
             break;
         case 'l':
             if (lport!=-1)
-                error(_("You can specify -l only once.\n"));
+                die(_("You can specify -l only once.\n"));
             i=strtoul(optarg, &cp, 10);
             if (*cp || !i || i>65535)
-                error(_("Invalid local port.\n"));
+                die(_("Invalid local port.\n"));
             lport=i;
             break;
         case 'p':
             if (rport!=-1)
-                error(_("You can specify the remote port at most once.\n"));
+                die(_("You can specify the remote port at most once.\n"));
             i=strtoul(optarg, &cp, 10);
             if (*cp || !i || i>65535)
-                error(_("Invalid remote port.\n"));
+                die(_("Invalid remote port.\n"));
             rport=i;
             break;
         case 'r':
             raw=1;
+            break;
+        case 't':
+            raw=0;
             break;
         case 'h':
             printf(
@@ -461,7 +471,7 @@ void get_proxy_parms(int argc, char **argv)
                 "-f, --format X        %s\n"
                 "-l, --local-port X    %s\n"
                 "-p, --port X          %s\n"
-                "-r, --raw             %s\n"
+                "-t, --telnet          %s\n"
                 "-h, --help            %s\n"
                 "%s%s%s%s",
                 _("Usage:"),
@@ -469,7 +479,7 @@ void get_proxy_parms(int argc, char **argv)
                 _("set output format to X (-f whatever for the list)"),
                 _("listen on port X locally (default: 9999)"),
                 _("connect to remote port X (default: 23)"),
-                _("don't weed out or parse TELNET negotiations"),
+                _("weed out TELNET negotiations and extract some data from them"),
                 _("show this usage message"),
                 _("The host to connect to must be specified.\n"),
                 _("If no filename is given, a name will be generated using the current date\n"
@@ -484,13 +494,13 @@ finish_args:
     if (optind<argc)
         host=argv[optind++];
     else
-        error(_("You MUST specify the host to connect to!\n"));
+        die(_("You MUST specify the host to connect to!\n"));
     get_host_rport();
     
     if (optind<argc)
         record_name=argv[optind++];
     if (optind<argc)
-        error(_("You can specify at most one file to record to.\n"));
+        die(_("You can specify at most one file to record to.\n"));
     
     if (!format)
         format=ttyrec_w_find_format(0, record_name, "ansi");

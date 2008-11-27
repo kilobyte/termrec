@@ -7,15 +7,6 @@ AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([libtty/vt100.h])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_FILES(Makefile
-	sys/Makefile
-	libstream/Makefile
-	libtty/Makefile
-	tmp/Makefile
-	proxy/Makefile
-	play/Makefile
-	rec/Makefile
-	common/Makefile
-	win32/Makefile
 	win32/icons/Makefile
 	)
 
@@ -23,6 +14,8 @@ AC_CONFIG_FILES(Makefile
 AC_PROG_CC
 AC_LIBTOOL_WIN32_DLL
 AM_PROG_LIBTOOL
+AC_CHECK_PROG(POD2MAN, pod2man, yes, no)
+AM_CONDITIONAL(POD, test x$ac_cv_prog_POD2MAN = xyes)
 
 # Checks for Winblows.
 AC_CHECK_WIN32
@@ -38,8 +31,10 @@ AC_HEADER_STDC
 AC_HEADER_TIOCGWINSZ
 AC_CREATE_STDINT_H
 AC_HEADER_TIME
-AC_CHECK_HEADERS([fcntl.h stdlib.h string.h strings.h sys/ioctl.h termios.h unistd.h bzlib.h zlib.h sys/time.h getopt.h sys/select.h langinfo.h])
-AC_CHECK_HEADERS([arpa/inet.h netdb.h])
+AC_CHECK_HEADERS([fcntl.h stdlib.h string.h strings.h sys/ioctl.h termios.h \
+	unistd.h bzlib.h zlib.h sys/time.h getopt.h sys/select.h langinfo.h \
+	netinet/in.h])
+AC_CHECK_HEADERS([arpa/inet.h netdb.h sys/socket.h])
 AC_DECL_OR_ZERO([O_BINARY], [fcntl.h])
 AC_DECL_OR_ZERO([AI_ADDRCONFIG], [netdb.h])
 AC_DECL_OR_ZERO([AI_NUMERICSERV], [netdb.h])
@@ -55,13 +50,15 @@ AC_PTYRANGES
 ACX_PTHREAD
 
 # Checks for library functions.
-AC_CHECK_FUNCS([getpt ptsname snprintf vsnprintf _getpty grantpt forkpty asprintf gettimeofday usleep ctime_r getopt_long getaddrinfo fork pipe])
+AC_CHECK_FUNCS([getpt ptsname snprintf vsnprintf _getpty grantpt forkpty asprintf \
+	 gettimeofday usleep ctime_r getopt_long getaddrinfo fork pipe select])
+AM_CONDITIONAL(HAVE_FORK, test x$ac_cv_func_fork = xyes)
 AC_FUNC_GAI_STERRROR
-AC_CHECK_LIB([bz2], [BZ2_bzBuffToBuffCompress], , [
-  AC_SHIPPED_LIB(LIBBZ2, libbz2.a, bzlib.h, [BZ2_bzRead(0,0,0,0)], [win32/])])
+AC_CHECK_LIB([bz2], [BZ2_bzBuffToBuffCompress], [AC_HAVE_LIB([bz2], [BZ2])], [
+  AC_SHIPPED_LIB(LIBBZ2, bzip2.dll, bzlib.h, [BZ2_bzRead(0,0,0,0)], [win32/])])
 AC_SUBST([LIBBZ2])
-AC_CHECK_LIB([z], [gzread], , [
-  AC_SHIPPED_LIB(LIBZ, libz.a, zlib.h, [gzread(0,0,0)], [win32/])])
+AC_CHECK_LIB([z], [gzread], [AC_HAVE_LIB([z], [Z])], [
+  AC_SHIPPED_LIB(LIBZ, zlib1.dll, zlib.h, [gzread(0,0,0)], [win32/])])
 AC_SUBST([LIBZ])
 
 # Initialize the test suite.

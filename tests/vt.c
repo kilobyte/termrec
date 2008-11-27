@@ -68,9 +68,13 @@ void dump(vt100 vt)
 
 int crap=0;
 
+#define BUFFER_SIZE 65536
+
 int main(int argc, char **argv)
 {
     vt100 vt;
+    char buf[BUFFER_SIZE];
+    int len;
     
     vt = vt100_init(20, 5, 0, 1);
     
@@ -95,13 +99,9 @@ int main(int argc, char **argv)
             crap=1;
         }
 run:
-
-    vt100_printf(vt, "abc\ndef\nghi\n");
-    vt100_printf(vt, "\e[%2$d;%1$dfblah", 20, 4);
-    vt100_printf(vt, "\e[%2$d;%1$df", 1, 5);
-    vt100_printf(vt, "abc\ndef\nghi\n");
+    while((len=read(0, buf, BUFFER_SIZE))>0)
+        vt100_write(vt, buf, len);
     
-    vt100_printf(vt, "\e[8;4;20t");
     if (crap)
         dump(vt);
     

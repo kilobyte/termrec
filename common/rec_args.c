@@ -13,7 +13,7 @@
 #include "error.h"
 #include "compat.h"
 #include "ttyrec.h"
-#include "name_out.h"
+#include "rec_args.h"
 #include "gettext.h"
 #include "common.h"
 
@@ -30,9 +30,6 @@ static struct option rec_opts[]={
 {0,		0, 0, 0},
 };
 #endif
-
-#define REC	0
-#define PROXY	1
 
 static char *comp_ext;
 
@@ -70,7 +67,7 @@ void get_rec_parms(int argc, char **argv)
             break;
         case 'e':
             if (command)
-                error(_("You can specify -e only once.\n"));
+                die(_("You can specify -e only once.\n"));
             command=optarg;
             break;
         case 'r':
@@ -103,7 +100,7 @@ finish_args:
     if (optind<argc)
         record_name=argv[optind++];
     if (optind<argc)
-        error(_("You can specify at most one file to record to.\n"));
+        die(_("You can specify at most one file to record to.\n"));
     
     if (!format)
         format=ttyrec_w_find_format(0, record_name, "ttyrec");

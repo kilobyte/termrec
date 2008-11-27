@@ -3,3 +3,4 @@ LICENSE.zlib
 bzlib.h
 zconf.h
 zlib.h
+*.dll

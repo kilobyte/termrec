@@ -1,10 +1,18 @@
-noinst_PROGRAMS = seeks
-AM_CFLAGS = -I../libtty/
-LDADD = -L../libtty/ -ltty ../sys/libcompat.la
+check_PROGRAMS = seeks tarith loadsave rec vt vtmir
+AM_CFLAGS = -Wall -I$(top_srcdir) -I$(top_srcdir)/libtty/
+LDADD = -L.. -ltty ../libutils.la
+vtmir_LDFLAGS = @PTHREAD_CFLAGS@
+vtmir_LDADD = $(LDADD) @PTHREAD_LIBS@
 
-EXTRA_DIST = $(TESTSUITE_AT) testsuite.at testsuite package.m4
+EXTRA_DIST = $(TESTSUITE_AT) testsuite.at testsuite package.m4 unescape
 DISTCLEANFILES       = atconfig $(check_SCRIPTS)
 MAINTAINERCLEANFILES = Makefile.in $(TESTSUITE) package.m4
+
+dist-hook:
+	mkdir $(distdir)/vt.in
+	cp -p $(srcdir)/vt.in/* $(distdir)/vt.in
+	mkdir $(distdir)/vt.out
+	cp -p $(srcdir)/vt.out/* $(distdir)/vt.out
 
 ## ------------ ##
 ## package.m4.  ##
@@ -31,7 +39,7 @@ clean-local:
 	[ ! -x $(TESTSUITE) ] || $(SHELL) $(TESTSUITE) --clean
 
 AUTOTEST = $(AUTOM4TE) --language=autotest
-$(TESTSUITE): package.m4 testsuite.at $(TESTSUITE_AT) seeks
+$(TESTSUITE): package.m4 testsuite.at $(TESTSUITE_AT)
 	$(AUTOTEST) -I $(srcdir) $@.at -o $@.tmp
 	mv $@.tmp $@
 

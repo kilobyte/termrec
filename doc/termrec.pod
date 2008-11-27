@@ -1,0 +1,72 @@
+=head1 NAME
+
+termrec - a tty recorder
+
+=head1 SYNOPSIS
+
+B<termrec> [B<-f> I<format>] [B<-e> I<command>] [I<outfile>]
+
+=head1 DESCRIPTION
+
+B<Termrec> is a tty recorder; it can record the output of any text mode program
+which you can then replay with B<termplay>, B<ttyplay>, B<ipbt>, B<ttyplayer>,
+B<nh-recorder> or similar.
+
+If I<outfile> ends in B<.gz> or B<.bz2>, the data will be appropiately compressed.
+
+If no I<outfile> is given, B<termrec> will produce a name like 2008-11-27.13-02-42.ttyrec.bz2
+
+=head2 Options:
+
+=over
+
+=item B<-f> I<format>, B<--format>
+
+You can specify a format other than ttyrec.  Those available are:
+
+=over
+
+=item ansi
+
+No timing data.  This is same as the output of L<script(1)>.
+
+=item ttyrec
+
+Compatible with B<ttyrec> by Satoru Takabayashi.
+
+=item nh-recorder
+
+Compatible with B<nh-recorder> by Helge Dennhardt.
+
+=back
+
+=item B<-e> I<command>, B<--exec>
+
+Runs a I<command> instead of spawning a shell and records its output.
+
+=item B<-r>, B<--raw>
+
+Inhibits noting info about your terminal size and UTFness.  This data is usually a good
+thing, but can confuse some programs.  Also note that none of the formats provides a way
+to mark which exactly charset you use -- only if it's UTF-8 or one of ancient ones.
+
+=item B<-h>, B<--help>
+
+Shows a short explanation of parameters.
+
+=back
+
+=head1 ENVIRONMENT
+
+=over
+
+=item SHELL
+
+Unless B<-e> is given, this will be the shell spawned, falling back to B</bin/sh>
+if not set.  On Windows, COMSPEC is used instead.
+
+=back
+
+=head1 SEE ALSO
+
+L<termplay(1)>, L<proxyrec(1)>, L<termtime(1)>, L<termcat(1)>.

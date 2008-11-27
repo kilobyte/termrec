@@ -76,7 +76,7 @@ int open_out(char **file_name, char *format_ext)
             *file_name=0;
             nameinc(add);
         }
-        error(_("Can't create a valid file in the current directory: %s\n"), strerror(errno));
+        die(_("Can't create a valid file in the current directory: %s\n"), strerror(errno));
         return -1;
     }
     if (!strcmp(*file_name, "-"))
@@ -84,8 +84,8 @@ int open_out(char **file_name, char *format_ext)
         fd=-1;
         goto finish;
     }
-    if (!(fd=open(*file_name, O_WRONLY|O_CREAT, 0666)))
-        error(_("Can't write to the record file (%s): %s\n"), *file_name, strerror(errno));
+    if (!(fd=open(*file_name, O_WRONLY|O_CREAT|O_TRUNC, 0666)))
+        die(_("Can't write to the record file (%s): %s\n"), *file_name, strerror(errno));
 finish:
-    return open_stream(fd, *file_name, O_WRONLY|O_CREAT);
+    return open_stream(fd, *file_name, M_WRITE);
 }
