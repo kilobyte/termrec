@@ -1,8 +1,16 @@
-<write me>
+The library consists of two parts:
+	* pseudo-terminal handling (as in "vt100-like", not in "pty")
+	  These parts are documented in "man vt100".
+	* ttyrec files
+	  For documentation, look at "man libtty".
 
+The utilities are:
+	* termrec
+	* termplay
+	* proxyrec
+	* termtime
+	* termcat
 
-Recognized formats:
-
-* baudrate
-* ttyrec by Satoru Takabayashi
-* nh-recorder by Helge Dennhardt
+License:
+	LGPL-3 -- or, at your option, any subsequent version OTHER than any
+	junk from the Affero branch.
