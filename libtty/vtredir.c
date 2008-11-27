@@ -63,6 +63,8 @@ static inline void setattr(vt100 vt, int attr)
 
 static void vtvt_cursor(vt100 vt, int x, int y)
 {
+    if (x==CX && y==CY)
+        return;
     fprintf(DATA->tty, "\e[%d;%df", y+1, x+1);
     CX=x;
     CY=y;
@@ -98,10 +100,31 @@ export void vtvt_dump(vt100 vt)
 
 static void vtvt_clear(vt100 vt, int x, int y, int len)
 {
+    int c;
+    
     setattr(vt, vt->attr);
-    vtvt_cursor(vt, x, y);
-    while(len--)
-        fprintf(DATA->tty, " ");	/* TODO */
+    if (x==0 && y==0 && len==SX*SY)
+        fprintf(DATA->tty, "\e[2J");
+    else if (x==0 && y==0 && len==CY*SX+CX)
+        fprintf(DATA->tty, "\e[1J");
+    else if (x==CX && y==CY && len==SX*SY-CY*SX-CX)
+        fprintf(DATA->tty, "\e[0J");
+    else if (x==0 && y==CY && len==SX)
+        fprintf(DATA->tty, "\e[2K");
+    else if (x==0 && y==CY && len==CX)
+        fprintf(DATA->tty, "\e[1K");
+    else if (x==CX && y==CY && len==SX-CX)
+        fprintf(DATA->tty, "\e[0K");
+    else
+        while(len)
+        {
+            vtvt_cursor(vt, x, y);
+            c=(len>SX-x)? SX-x : len;
+            fprintf(DATA->tty, "\e[%dX", c);
+            len-=c;
+            x=0;
+            y++;
+        }
     vtvt_cursor(vt, vt->cx, vt->cy);
 }
 
