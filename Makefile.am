@@ -7,6 +7,7 @@ endif
 EXTRA_DIST= BUGS autogen gettext.h export.h win32/lib/README
 DISTCLEANFILES = _stdint.h
 
+CLEANFILES =
 
 AM_CFLAGS = -Wall -I${srcdir}/sys -I${srcdir}/libtty -I${srcdir}/common
 include sys/Makefile.am
@@ -22,3 +23,4 @@ include play/Makefile.am
 include time/Makefile.am
 include cat/Makefile.am
 endif
+include doc/Makefile.am

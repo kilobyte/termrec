@@ -14,6 +14,8 @@ AC_CONFIG_FILES(Makefile
 AC_PROG_CC
 AC_LIBTOOL_WIN32_DLL
 AM_PROG_LIBTOOL
+AC_CHECK_PROG(POD2MAN, pod2man, yes, no)
+AM_CONDITIONAL(POD, test x$ac_cv_prog_POD2MAN = xyes)
 
 # Checks for Winblows.
 AC_CHECK_WIN32
