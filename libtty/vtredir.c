@@ -165,7 +165,7 @@ export void vtvt_resize(vt100 vt, int sx, int sy)
     SX=sx; SY=sy;
 }
 
-export void vtvt_attach(vt100 vt, FILE *tty)
+export void vtvt_attach(vt100 vt, FILE *tty, int dump)
 {
     init();
     vt->l_data=malloc(sizeof(struct vtvt_data));
@@ -184,4 +184,11 @@ export void vtvt_attach(vt100 vt, FILE *tty)
     vt->l_resize=vtvt_resized;
     vt->l_flush=vtvt_flush;
     vt->l_free=vtvt_free;
+    
+    if (dump)
+    {
+        fprintf(DATA->tty, "\ec");
+        vtvt_dump(vt);
+        fflush(stdout);
+    }
 }

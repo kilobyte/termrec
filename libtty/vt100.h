@@ -94,6 +94,6 @@ vt100	vt100_copy(vt100 vt);
 
 void	vtvt_dump(vt100 vt);
 void	vtvt_resize(vt100 vt, int sx, int sy);
-void	vtvt_attach(vt100 vt, FILE *tty);
+void	vtvt_attach(vt100 vt, FILE *tty, int dump);
 
 #endif

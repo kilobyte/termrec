@@ -49,7 +49,7 @@ int main()
     if (thread_create_joinable(&cop, copier, (void*)(intptr_t)p[0]))
         die("thread creation");
     f=fdopen(p[1], "w");
-    vtvt_attach(vt1, f);
+    vtvt_attach(vt1, f, 0);
     
     while((len=read(0, buf, BUF2))>0)
         vt100_write(vt1, buf, len);

@@ -95,10 +95,7 @@ static void adjust_pos(int diff)
     if (tc.tv_sec<0)
         tc.tv_sec=tc.tv_usec=0;
     fr=ttyrec_seek(tr, &tc, &term);
-    vtvt_attach(term, stdout);
-    printf("\ec");
-    vtvt_dump(term);
-    fflush(stdout);
+    vtvt_attach(term, stdout, 1);
     if (old_state)
         replay_start();
 }
@@ -197,10 +194,7 @@ void replay()
     play_state=0;
     tc.tv_sec=tc.tv_usec=0;
     fr=ttyrec_seek(tr, 0, &term);
-    vtvt_attach(term, stdout);
-    printf("\ec");
-    vtvt_dump(term);
-    fflush(stdout);
+    vtvt_attach(term, stdout, 1);
     replay_start();
     
     while (1)
