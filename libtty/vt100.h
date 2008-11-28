@@ -14,17 +14,21 @@ typedef unsigned short *vt100_charset;
 
 #define VT100_MAXTOK 10
 
+#define VT100_FLAG_RESIZABLE	0	/* should the input be allowed to resize? */
 #define VT100_FLAG_CURSOR	1	/* visible cursor */
 #define VT100_FLAG_KPAD		2	/* application keypad mode */
+#define VT100_FLAG_AUTO_WRAP	3	/* auto wrap at right margin */
 
 typedef struct vt100
 {
+    /*=[ basic data ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
     int sx,sy;	           /* screen size */
-    int s1,s2;             /* scrolling region */
     int cx,cy;             /* cursor position */
-    int save_cx,save_cy;   /* saved cursor position */
     attrchar *scr;         /* screen buffer */
     int attr;              /* current attribute */
+    /*=[ private stuff ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
+    int s1,s2;             /* scrolling region */
+    int save_cx,save_cy;   /* saved cursor position */
     vt100_charset G[2];    /* G0 and G1 charsets */
     vt100_charset transl;  /* current charset */
     int curG;              /* current charset as G# */
@@ -38,8 +42,8 @@ typedef struct vt100
     int tok[VT100_MAXTOK];
     int state;
     /* flags */
-    int opt_allow_resize;  /* whether vt100 input is allowed to resize */
-    int opt_auto_wrap;     /* ?7: auto wrap at right margin */
+#define opt_allow_resize flags[VT100_FLAG_RESIZABLE] /* is input allowed to resize? */
+#define opt_auto_wrap flags[VT100_FLAG_AUTO_WRAP] /* ?7: auto wrap at right margin */
 #define opt_cursor flags[VT100_FLAG_CURSOR]	/* ?25: show/hide cursor */
 #define opt_kpad flags[VT100_FLAG_KPAD]	/* keypad: application/numeric */
     int flags[10];
