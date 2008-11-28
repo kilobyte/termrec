@@ -1,0 +1,107 @@
+=head1 NAME
+
+vt100 - a library for handling vt100 pseudo-terminals
+
+=head1 SYNOPSIS
+
+B<#include E<lt>vt100.hE<gt>>
+
+Link with I<-ltty>.
+
+=head1 DESCRIPTION
+
+=head2 Functions:
+
+=over 
+
+=item B<vt100  vt100_init(int >I<sx>B<, int >I<sy>B<, int >I<resizable>B<, int >I<utf>B<);>
+
+Creates a new vt100 terminal, of size I<sx>E<times>I<sy>.  If you want user input to
+be allowed to change that size, set I<resizable> to non-zero.  If I<utf> is non-zero,
+input is assumed to be encoded in UTF-8, otherwise, it's CP437.  There are currently
+no facilities for supporting other legacy charsets.
+
+=item B<int    vt100_resize(vt100 >I<vt>B<, int >I<nsx>B<, int >I<nsy>B<);>
+
+Resizes the I<vt> to I<nsx>E<times>I<nsy>.  This works even on terminals marked as
+non-resizable since that prevents only user input from resizing, not you.
+
+=item B<void   vt100_reset(vt100 >I<vt>B<);>
+
+Clears the screen and attributes.
+
+=item B<void   vt100_free(vt100 >I<vt>B<);>
+
+Deallocates the I<vt> and all its internal structures.
+
+=item B<void   vt100_write(vt100 >I<vt>B<, char *>I<buf>B<, int >I<len>B<);>
+
+Writes I<len> bytes into the terminal, parsing them as vt100 codes.
+
+=item B<void   vt100_printf(vt100 >I<vt>B<, const char *>I<fmt>B<, >I<...>B<);>
+
+Does a B<printf> into the terminal.
+
+=item B<vt100  vt100_copy(vt100 >I<vt>B<);>
+
+Allocates a new vt100 terminal, making it an exact copy of an existing one,
+including its internal state.
+
+=back
+
+=head2 Inside the terminal
+
+You'll most likely be interested in the following fields of the structure:
+
+=over
+
+=item vt100 {
+
+=item     int I<sx>,I<sy>;             /* screen size */
+
+=item     int I<cx>,I<cy>;             /* cursor position */
+
+=item     attrchar *I<scr>;         /* screen buffer */
+
+=item     int I<attr>;              /* current attribute */
+
+=back
+
+I<scr> is an array of character/attribute pairs, more exactly, each element is a struct C<{ ucs ch; int attr; }>.
+The array is a flat one of I<vt>B<-E<gt>>I<sx>*I<vt>B<-E<gt>>I<sy> elements, arranged row by row.  A screen
+coordinate I<x>,I<y> is stored at I<x>+I<y>*I<vt>B<-E<gt>>I<sy>.
+
+For other fields, please RTFS the header itself: B<vt100.h>
+
+=head2 Vt-on-vt redirection
+
+Well, you have written some data to the terminal.  Now you probably want to put it
+somewhere.  What now?  The vt100 structure has a number of I<event hooks> that you
+can attach your functions to.
+
+For the case when you want the output go to a real terminal, there are:
+
+=over
+
+=item B<void   vtvt_attach(vt100 >I<vt>B<, FILE *>I<tty>B<);>
+
+Attaches the FILE stream I<tty> to terminal I<vt>.  Usually, I<tty> will be B<stdout>.
+Whenever the contents of I<vt> changes, appropiate data will be written to the stream
+as well.
+
+The redirection will last until the terminal is destroyed by B<vt100_free()>.
+
+=item B<void   vtvt_resize(vt100 >I<vt>B<, int >I<sx>B<, int >I<sy>B<);>
+
+Tells libtty that the B<real> terminal has been resized (for resizing the virtual one,
+please use B<vt100_resize()>).
+
+=item B<void   vtvt_dump(vt100 >I<vt>B<);>
+
+Forces a full-screen redraw of the current contents of I<vt>.
+
+=back
+
+=head1 SEE ALSO
+
+L<libtty(3)>
