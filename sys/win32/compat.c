@@ -26,10 +26,10 @@ void usleep(unsigned int usec)
 int pipe(int p[2])
 {
     if (!CreatePipe((PHANDLE)p, (PHANDLE)p+1, 0, 0))
-        return 0;
+        return -1;
     p[0]=_open_osfhandle(p[0],0);
     p[1]=_open_osfhandle(p[1],0);
-    return 1;
+    return 0;
 }
 #endif
 
