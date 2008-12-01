@@ -453,7 +453,7 @@ void playfile(vt100 tev_vt)
     ttr=ttyrec_load(play_f, play_format, play_filename, tev_vt);
     if (!ttr)
         return;
-    ttyrec_add_frame(ttr, 0, buf, snprintf(buf, 1024, "e\[0m%s", _("End of recording.")));
+    ttyrec_add_frame(ttr, 0, buf, snprintf(buf, 1024, "\e[0m%s", _("End of recording.")));
 }
 
 
@@ -689,10 +689,10 @@ void print_banner()
     vt100_printf(vt, "* UTF-8 (no CJK)\n");
     vt100_printf(vt, "Compression plugins:\n");
 #if (defined HAVE_LIBZ) || (SHIPPED_LIBZ)
-    vt100_printf(vt, "* gzip");
+    vt100_printf(vt, "* gzip\n");
 #endif
 #if (defined HAVE_LIBBZ2) || (defined SHIPPED_LIBBZ2)
-    vt100_printf(vt, "* bzip2");
+    vt100_printf(vt, "* bzip2\n");
 #endif
     vt100_printf(vt, "Replay plugins:\n");
     for (i=0;(pn=ttyrec_r_get_format_name(i));i++)
