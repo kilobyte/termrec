@@ -601,7 +601,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 vt->state=0;
                 break;
                 
-            case 'B':	/* ESC[D -> move cursor down, no scrolling */
+            case 'B':	/* ESC[B -> move cursor down, no scrolling */
                 i=vt->tok[0];
                 if (i<1)
                     i=1;

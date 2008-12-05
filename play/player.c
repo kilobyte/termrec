@@ -80,12 +80,6 @@ static void replay_stop()
 }
 
 
-static void free_stuff()
-{
-    vt100_free(term);
-}
-
-
 static void adjust_pos(int diff)
 {
     int old_state=play_state;
@@ -247,5 +241,6 @@ void replay()
     }
 end:
     replay_stop();
-    free_stuff();
+    vt100_printf(term, "\e[f\e[200B");
+    vt100_free(term);
 }
