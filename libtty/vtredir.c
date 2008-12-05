@@ -6,6 +6,7 @@
 #include "vt100.h"
 #include "sys/ttysize.h"
 #include "export.h"
+#include "charsets.h"
 
 struct vtvt_data
 {
@@ -58,6 +59,22 @@ static void vtvt_cursor(vt100 vt, int x, int y)
     CY=y;
 }
 
+#define MAXVT100GRAPH 0x2666 /* biggest codepoint is U+2666 BLACK DIAMOND */
+static char *vt100graph;
+static void build_vt100graph(vt100 vt)
+{
+    int i;
+    
+    /* the reverse mapping Unicode->vt100_graphic takes a chunk of memory, so
+       build it only on demand.  This won't happen most of the time. */
+    if (!(vt100graph=malloc(MAXVT100GRAPH+1)))
+        abort();
+    memset(vt100graph, 0, MAXVT100GRAPH+1);
+    for(i=0; i<256; i++)
+        if (charset_vt100[i]<=MAXVT100GRAPH)
+            vt100graph[charset_vt100[i]]=i;
+}
+
 static void vtvt_char(vt100 vt, int x, int y, ucs ch, int attr)
 {
     if (x>=SX || y>SY)
@@ -65,7 +82,15 @@ static void vtvt_char(vt100 vt, int x, int y, ucs ch, int attr)
     if (x!=CX || y!=CY)
         vtvt_cursor(vt, x, y);
     setattr(vt, attr);
-    fprintf(DATA->tty, "%lc", ch);
+    if (fprintf(DATA->tty, "%lc", ch)<0 && !vt->utf)
+    {
+        if (!vt100graph)
+            build_vt100graph(vt);
+        if (ch<=MAXVT100GRAPH && vt100graph[ch])
+            fprintf(DATA->tty, "\016%c\017", vt100graph[ch]);
+        else
+            fprintf(DATA->tty, "?");
+    }
     CX++;
 }
 

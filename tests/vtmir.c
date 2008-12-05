@@ -22,12 +22,15 @@ void copier(void *args)
 
 void dump(vt100 vt)
 {
-    int x,y;
+    int x,y,c;
     
     for(y=0;y<vt->sy;y++)
     {
         for (x=0;x<vt->sx;x++)
-            printf("%lc", vt->scr[y*vt->sx+x].ch);
+        {
+            c=vt->scr[y*vt->sx+x].ch;
+            printf((c>=32 && c<127)?"%lc":"[U+%04X]", c);
+        }
         printf("|\n");
     }
     printf("===================='\n");

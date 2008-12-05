@@ -40,7 +40,7 @@ AT_CLEANUP
 AT_SETUP([vt-on-vt])
 for x in "$top_srcdir/tests/vt.in/"*
   do
-    [if LC_ALL=C grep -q '[^[:cntrl:] -~]' "$x" || echo "$x"|grep -q vt100graph]
+    [if LC_ALL=C grep -q '[^[:cntrl:] -~]' "$x"]
       then
 	echo "Skipping $x"
 	dnl # skip Unicode tests, LC_ALL=C breaks that and there is nothing not
