@@ -50,8 +50,6 @@ typedef struct vt100
     /*=[ listeners ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
     void *l_data;
         /* any private data */
-    void *l_changes;
-        /* pending changes in your private format */
     void (*l_char)(struct vt100 *vt, int x, int y, ucs ch, int attr);
         /* after a character has been written to the screen */
     void (*l_cursor)(struct vt100 *vt, int x, int y);
