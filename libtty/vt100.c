@@ -127,7 +127,6 @@ export void vt100_reset(vt100 vt)
     vt->G[1]=charset_vt100;
     vt->transl=VT100_DEFAULT_CHARSET;
     vt->curG=0;
-    vt->utf=0;
     vt->utf_count=0;
 }
 
