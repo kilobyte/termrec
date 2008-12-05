@@ -134,6 +134,18 @@ static void replay_rewind()
     tc.tv_sec=tc.tv_usec=0;
 }
 
+static void adv_frame()
+{
+    ttyrec_frame nf;
+    
+    replay_stop();
+    if (!(nf=ttyrec_next_frame(tr, fr)))
+        return;
+    tc=nf->t;
+    vt100_write(term, nf->data, nf->len);
+    fr=nf;
+}
+
 static struct bind
 {
     char *keycode;
@@ -169,6 +181,9 @@ static struct bind
 {"f",adjust_speed,+1},	/* f/F/+	-> speed up */
 {"F",adjust_speed,+1},
 {"+",adjust_speed,+1},
+{"\n",adv_frame,+1},	/* Enter	-> next frame */
+{"\r",adv_frame,+1},
+{"\eOM",adv_frame,+1},
 {0,0,0},
 };
 
