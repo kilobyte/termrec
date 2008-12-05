@@ -19,7 +19,8 @@ Link with I<-ltty>.
 Creates a new vt100 terminal, of size I<sx>E<times>I<sy>.  If you want user input to
 be allowed to change that size, set I<resizable> to non-zero.  If I<utf> is non-zero,
 input is assumed to be encoded in UTF-8, otherwise, it's CP437.  There are currently
-no facilities for supporting other legacy charsets.
+no facilities for supporting other legacy charsets.  B<is_utf8()> will tell you if
+the currently selected locale expects UTF-8 i/o.
 
 =item B<int    vt100_resize(vt100 >I<vt>B<, int >I<nsx>B<, int >I<nsy>B<);>
 

@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <locale.h>
 #include <string.h>
 #include "vt100.h"
 #include "sys/ttysize.h"
@@ -23,17 +22,6 @@ struct vtvt_data
 #define CX	DATA->cx
 #define CY	DATA->cy
 
-static int initialized=0;
-
-static void init()
-{
-    if (initialized)
-        return;
-    initialized=1;
-    
-    if (!strcmp(setlocale(LC_CTYPE,0), "C"))
-        setlocale(LC_CTYPE, "");
-}
 
 static inline void setattr(vt100 vt, int attr)
 {
@@ -167,7 +155,7 @@ export void vtvt_resize(vt100 vt, int sx, int sy)
 
 export void vtvt_attach(vt100 vt, FILE *tty, int dump)
 {
-    init();
+    is_utf8();
     vt->l_data=malloc(sizeof(struct vtvt_data));
     CX=CY=-1;
     DATA->attr=-1;
