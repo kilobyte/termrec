@@ -645,7 +645,7 @@ void open_file()
     dlg.lpstrFilter="all known formats\000*.ttyrec;*.ttyrec.gz;*.ttyrec.bz2;*.nh;*.nh.gz;*.nh.bz2;*.txt;*.txt.gz;*.txt.bz2\000"
                     "ttyrec videos (*.ttyrec, *.ttyrec.gz, *.ttyrec.bz2)\000*.ttyrec;*.ttyrec.gz;*.ttyrec.bz2\000"
                     "nh-recorder videos (*.nh, *.nh.gz, *.nh.bz2)\000*.nh;*.nh.gz;*.nh.bz2\000"
-                    "RealLogs videos (*.rl, *.rl.gz, *.rl.bz2)\000*.rl;*.rl.gz;*.rl.bz2\000"
+                    "DosRecorder videos (*.dm2)\000*.dm2\000"
                     "ANSI logs (*.txt, *.txt.gz, *.txt.bz2)\000*.txt;*.txt.gz;*.txt.bz2\000"
                     "all files\000*\000"
                     "\000\000";
