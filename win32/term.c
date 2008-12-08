@@ -694,8 +694,6 @@ void print_banner()
     vt100_printf(vt, "\e[?25l\e[36mTermplay v\e[1m"PACKAGE_VERSION"\e[0m\n");
     vt100_printf(vt, "\e[33mTerminal size: \e[1m%d\e[21mx\e[1m%d\e[0m\n", vt->sx, vt->sy);
     vt100_printf(vt, "\e[34;1m\e%%G\xd0\xa1\xd0\xb4\xd0\xb5\xd0\xbb\xd0\xb0\xd0\xbd\xd0\xbe by KiloByte (kilobyte@angband.pl)\e[0m\n");
-    vt100_printf(vt, "\nFeatures compiled in:\n");
-    vt100_printf(vt, "* UTF-8 (no CJK)\n");
     vt100_printf(vt, "Compression plugins:\n");
 #if (defined HAVE_LIBZ) || (SHIPPED_LIBZ)
     vt100_printf(vt, "* gzip\n");
