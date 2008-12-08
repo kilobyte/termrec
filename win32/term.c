@@ -29,7 +29,7 @@ int tev_curlp;  /* amount of data already played from the current block */
 int speed;
 fpos_t lastp;
 int play_state;	// 0: not loaded, 1: paused, 2: playing, 3: waiting for input
-struct timeval t0,tmax,selstart,selend;
+struct timeval t0,tdate,tmax,selstart,selend;
 int progmax,progdiv,progval;
 int defsx, defsy;
 
@@ -499,6 +499,7 @@ void replay_resume()
 
 int replay_play(struct timeval *delay)
 { /* structures touched: tev, vt */
+    struct timeval tr1;
     ttyrec_frame fn;
     
     switch(play_state)
@@ -511,12 +512,14 @@ int replay_play(struct timeval *delay)
         gettimeofday(&tr, 0);
         tsub(tr, t0);
         tmul1000(tr, speed);
+        tr1=tr;
+        tadd(tr1, tdate);
         if (tev_cur && tev_cur->len>tev_curlp)
         {
             vt100_write(vt, tev_cur->data+tev_curlp, tev_cur->len-tev_curlp);
             tev_curlp=tev_cur->len;
         }
-        while ((fn=ttyrec_next_frame(ttr, tev_cur)) && tcmp(fn->t, tr)==-1)
+        while ((fn=ttyrec_next_frame(ttr, tev_cur)) && tcmp(fn->t, tr1)==-1)
         {
             tev_cur=fn;
             if (tev_cur->data)
@@ -526,6 +529,7 @@ int replay_play(struct timeval *delay)
         if ((fn=ttyrec_next_frame(ttr, tev_cur)))
         {
             *delay=fn->t;
+            tsub(*delay, tdate);
             tsub(*delay, tr);
             tdiv1000(*delay, speed);
             return 1;
@@ -542,10 +546,11 @@ void replay_seek()
 {
     struct timeval t;
     
-    tev_cur=ttyrec_seek(ttr, &tr, &vt);
+    t=tr;
+    tadd(t, tdate);
+    tev_cur=ttyrec_seek(ttr, &t, &vt);
     tev_curlp=0;
     
-    t=tr;
     gettimeofday(&t0, 0);
     tdiv1000(tr, speed);
     tsub(t0, tr);
@@ -566,7 +571,6 @@ void replay_start()
     vt100_printf(tev_vt, "\e[0m");
     
     tr.tv_sec=tr.tv_usec=0;
-    replay_seek();
     tev_done=0;
     tmax.tv_sec=tmax.tv_usec=0;
     progmax=0;
@@ -580,15 +584,20 @@ void replay_start()
     playfile(tev_vt);
 //    printf("Buffering: done.\n");
     tev_done=1;
+    tev_cur=ttyrec_seek(ttr, 0, 0);
+    tdate=tev_cur->t;
+    replay_seek();
     doomsday.tv_sec=(((unsigned long)1)<<(sizeof(time_t)*8-1))-1;
     doomsday.tv_usec=0;
     tev_tail=ttyrec_seek(ttr, &doomsday, 0);
     tmax=tev_tail->t;
+    tsub(tmax, tdate);
     if (tmax.tv_sec<100)
         progdiv=10000;
     else
         progdiv=1000000;
-    selstart=ttyrec_seek(ttr, 0, 0)->t;
+    selstart.tv_sec=0;
+    selstart.tv_usec=0;
     selend=tmax;
     progmax=tmax.tv_sec*(1000000/progdiv)+tmax.tv_usec/progdiv;
     set_prog_max();
@@ -696,7 +705,8 @@ void print_banner()
 #endif
     vt100_printf(vt, "Replay plugins:\n");
     for (i=0;(pn=ttyrec_r_get_format_name(i));i++)
-        vt100_printf(vt, "* %s\n", pn);
+        if (strcmp(pn, "live"))
+            vt100_printf(vt, "* %s\n", pn);
 }
 
 
@@ -869,6 +879,7 @@ void export_file()
     OPENFILENAME dlg;
     int record_f;
     char *format;
+    struct timeval sel1, sel2;
     
     memset(&dlg, 0, sizeof(dlg));
     dlg.lStructSize=sizeof(dlg);
@@ -898,7 +909,11 @@ void export_file()
         return;
     }
     record_f=open_stream(record_f, fn, M_WRITE);
-    ttyrec_save(ttr, record_f, format, filename, &selstart, &selend);
+    sel1=selstart;
+    tadd(sel1, tdate);
+    sel2=selend;
+    tadd(sel2, tdate);
+    ttyrec_save(ttr, record_f, format, filename, &sel1, &sel2);
 }
 
 
