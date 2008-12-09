@@ -20,6 +20,7 @@ HINSTANCE inst;
 HWND wnd, termwnd, wndTB, ssProg, wndProg, ssSpeed, wndSpeed;
 int tsx,tsy;
 HANDLE pth;
+LOGFONT df;
 
 ttyrec ttr;
 ttyrec_frame tev_cur;
@@ -50,6 +51,7 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 LRESULT APIENTRY TermWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 void do_replay();
+void load_font();
 
 void win32_init()
 {
@@ -89,8 +91,9 @@ void win32_init()
 
     if (!RegisterClass(&wc))
         die("RegisterClass");
-
-    draw_init();
+    
+    load_font();
+    draw_init(&df);
     InitializeCriticalSection(&vt_mutex);
     if (!(timer=CreateWaitableTimer(0, 0, 0)))
         die("CreateWaitableTimer");
@@ -130,6 +133,14 @@ HWND create_term(HWND wnd)
         rect.right-rect.left, rect.bottom-rect.top, wnd, NULL, inst,
         NULL);
     return termwnd;
+}
+
+
+void create_sysmenu(HWND wnd)
+{
+    HMENU sysmenu=GetSystemMenu(wnd, 0);
+    AppendMenu(sysmenu, MF_SEPARATOR, 0, 0);
+    AppendMenu(sysmenu, MF_STRING, 200, "Choose &font");
 }
 
 
@@ -915,12 +926,76 @@ void export_file()
 }
 
 
+void load_font()
+{
+    HKEY reg;
+    int i;
+    DWORD len;
+    
+    memset(&df, 0, sizeof(LOGFONT));
+    df.lfHeight=16;
+    strcpy(df.lfFaceName, "Courier New");
+    
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\1KB\\termrec", 0, KEY_READ, &reg))
+        return;
+    len=LF_FACESIZE;
+    RegQueryValueEx(reg, "FontName", 0, 0, (BYTE*)df.lfFaceName, &len);
+    len=4;
+    if (!RegQueryValueEx(reg, "FontHeight", 0, 0, (BYTE*)&i, &len))
+        df.lfHeight=i;
+    len=4;
+    if (!RegQueryValueEx(reg, "FontWeight", 0, 0, (BYTE*)&i, &len))
+        df.lfWeight=i;
+    len=4;
+    if (!RegQueryValueEx(reg, "FontItalic", 0, 0, (BYTE*)&i, &len))
+        df.lfItalic=i;
+    RegCloseKey(reg);
+}
+
+
+void save_font()
+{
+    HKEY reg;
+    int i;
+    
+    if (RegCreateKeyEx(HKEY_CURRENT_USER, "Software\\1KB\\termrec", 0, 0, 0, KEY_WRITE, 0, &reg, 0))
+        return;
+    RegSetValueEx(reg, "FontName", 0, REG_SZ, (BYTE*)df.lfFaceName, strlen(df.lfFaceName)+1);
+    i=df.lfHeight;
+    RegSetValueEx(reg, "FontHeight", 0, REG_DWORD, (BYTE*)&i, 4);
+    i=df.lfWeight;
+    RegSetValueEx(reg, "FontWeight", 0, REG_DWORD, (BYTE*)&i, 4);
+    i=df.lfItalic;
+    RegSetValueEx(reg, "FontItalic", 0, REG_DWORD, (BYTE*)&i, 4);
+    RegCloseKey(reg);
+}
+
+
+void choose_font()
+{
+    CHOOSEFONT cf;
+    
+    memset(&cf, 0, sizeof(CHOOSEFONT));
+    cf.lStructSize=sizeof(CHOOSEFONT);
+    cf.hwndOwner=wnd;
+    cf.Flags=CF_FIXEDPITCHONLY|CF_NOSCRIPTSEL|CF_SCREENFONTS|CF_INITTOLOGFONTSTRUCT;
+    cf.lpLogFont=&df;
+    if (!ChooseFont(&cf))
+        return;
+    save_font();
+    draw_free();
+    draw_init(&df);
+    InvalidateRect(termwnd, 0, 1);
+}
+
+
 LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg) {
         case WM_CREATE:
 	    create_toolbar(hwnd);
             create_term(hwnd);
+            create_sysmenu(hwnd);
 
             return 0;
         
@@ -990,6 +1065,16 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     break;
                 export_file();
                 break;
+            }
+            return 0;
+        
+        case WM_SYSCOMMAND:
+            switch(LOWORD(wParam))
+            {
+            default:
+                return DefWindowProc(hwnd, uMsg, wParam, lParam);
+            case 200:
+                choose_font();
             }
             return 0;
         
