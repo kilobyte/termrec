@@ -165,7 +165,7 @@ void draw_vt(HDC dc, int px, int py, vt100 vt)
     SelectObject(dc, oldfont);
 }
 
-void draw_init()
+void draw_init(LOGFONT *df)
 {
     HDC dc;
     LOGFONT lf;
@@ -175,8 +175,10 @@ void draw_init()
     dc=GetDC(0);
     
     memset(&lf,0,sizeof(LOGFONT));
-    lf.lfHeight=16;
-    strcpy(lf.lfFaceName, "Courier New");
+    lf.lfHeight=df->lfHeight;
+    strcpy(lf.lfFaceName, df->lfFaceName);
+    lf.lfWeight=df->lfWeight;
+    lf.lfItalic=df->lfItalic;
     lf.lfPitchAndFamily=FIXED_PITCH;
     lf.lfQuality=ANTIALIASED_QUALITY;
     lf.lfOutPrecision=OUT_TT_ONLY_PRECIS;
@@ -202,6 +204,13 @@ void draw_init()
     default:
         bg_brush=CreateSolidBrush(bpal[0]&0xffffff);
     }
+}
+
+void draw_free()
+{
+    DeleteObject(norm_font);
+    DeleteObject(und_font);
+    DeleteObject(bg_brush);
 }
 
 void draw_border(HDC dc, vt100 vt)

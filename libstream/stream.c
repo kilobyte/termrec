@@ -147,7 +147,7 @@ export int open_stream(int fd, char* url, int mode)
             default:
                 return -1;
             }
-            fd=open(url, fmode, 0666);
+            fd=open(url, fmode|O_BINARY, 0666);
         }
     }
     if (fd==-1)

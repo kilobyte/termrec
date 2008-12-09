@@ -8,6 +8,7 @@
 #endif
 #include <string.h>
 #include <stdio.h>
+#include <unistd.h>
 #include "_stdint.h"
 #include "gettext.h"
 #include "export.h"
@@ -52,7 +53,7 @@ static int scrdiff(screen *tty, screen *scr, char *buf)
 {
     char *bp=buf;
     int x,y;
-    int cx,cy=-1;
+    int cx=-1,cy=-1;
     int attr=-1;
     
     for(y=0; y<25; y++)
@@ -129,8 +130,7 @@ void play_dosrecorder(FILE *f,
             goto end;
         for(i=0; i<fh.nchunks; i++)
         {
-            if (chs[i].pos<0 || chs[i].pos>=25*80 ||
-                chs[i].len<0 || chs[i].len+chs[i].pos>25*80)
+            if (chs[i].pos>=25*80 || chs[i].len+chs[i].pos>25*80)
                 goto end;	/* corrupted file */
             gzread(g, &scr[0][0]+chs[i].pos, chs[i].len*sizeof(attrchar));
         }
@@ -142,7 +142,7 @@ void play_dosrecorder(FILE *f,
                 goto end;
             for(i=0; i<nh.h; i++)
                 gzread(g, &scr[nh.y+i][nh.x], nh.w*sizeof(attrchar));
-            if (nh.titlelen<0 || nh.titlelen>80)
+            if (nh.titlelen>80)
                 goto end;
             *bp++='\e', *bp++=']', *bp++='0', *bp++=';';
             gzread(g, bp, nh.titlelen);

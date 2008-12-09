@@ -20,6 +20,7 @@ HINSTANCE inst;
 HWND wnd, termwnd, wndTB, ssProg, wndProg, ssSpeed, wndSpeed;
 int tsx,tsy;
 HANDLE pth;
+LOGFONT df;
 
 ttyrec ttr;
 ttyrec_frame tev_cur;
@@ -29,7 +30,7 @@ int tev_curlp;  /* amount of data already played from the current block */
 int speed;
 fpos_t lastp;
 int play_state;	// 0: not loaded, 1: paused, 2: playing, 3: waiting for input
-struct timeval t0,tmax,selstart,selend;
+struct timeval t0,tdate,tmax,selstart,selend;
 int progmax,progdiv,progval;
 int defsx, defsy;
 
@@ -50,6 +51,7 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 LRESULT APIENTRY TermWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 void do_replay();
+void load_font();
 
 void win32_init()
 {
@@ -89,8 +91,9 @@ void win32_init()
 
     if (!RegisterClass(&wc))
         die("RegisterClass");
-
-    draw_init();
+    
+    load_font();
+    draw_init(&df);
     InitializeCriticalSection(&vt_mutex);
     if (!(timer=CreateWaitableTimer(0, 0, 0)))
         die("CreateWaitableTimer");
@@ -130,6 +133,14 @@ HWND create_term(HWND wnd)
         rect.right-rect.left, rect.bottom-rect.top, wnd, NULL, inst,
         NULL);
     return termwnd;
+}
+
+
+void create_sysmenu(HWND wnd)
+{
+    HMENU sysmenu=GetSystemMenu(wnd, 0);
+    AppendMenu(sysmenu, MF_SEPARATOR, 0, 0);
+    AppendMenu(sysmenu, MF_STRING, 200, "Choose &font");
 }
 
 
@@ -453,7 +464,7 @@ void playfile(vt100 tev_vt)
     ttr=ttyrec_load(play_f, play_format, play_filename, tev_vt);
     if (!ttr)
         return;
-    ttyrec_add_frame(ttr, 0, buf, snprintf(buf, 1024, "e\[0m%s", _("End of recording.")));
+    ttyrec_add_frame(ttr, 0, buf, snprintf(buf, 1024, "\e[0m%s", _("End of recording.")));
 }
 
 
@@ -499,6 +510,7 @@ void replay_resume()
 
 int replay_play(struct timeval *delay)
 { /* structures touched: tev, vt */
+    struct timeval tr1;
     ttyrec_frame fn;
     
     switch(play_state)
@@ -511,12 +523,14 @@ int replay_play(struct timeval *delay)
         gettimeofday(&tr, 0);
         tsub(tr, t0);
         tmul1000(tr, speed);
+        tr1=tr;
+        tadd(tr1, tdate);
         if (tev_cur && tev_cur->len>tev_curlp)
         {
             vt100_write(vt, tev_cur->data+tev_curlp, tev_cur->len-tev_curlp);
             tev_curlp=tev_cur->len;
         }
-        while ((fn=ttyrec_next_frame(ttr, tev_cur)) && tcmp(fn->t, tr)==-1)
+        while ((fn=ttyrec_next_frame(ttr, tev_cur)) && tcmp(fn->t, tr1)==-1)
         {
             tev_cur=fn;
             if (tev_cur->data)
@@ -526,6 +540,7 @@ int replay_play(struct timeval *delay)
         if ((fn=ttyrec_next_frame(ttr, tev_cur)))
         {
             *delay=fn->t;
+            tsub(*delay, tdate);
             tsub(*delay, tr);
             tdiv1000(*delay, speed);
             return 1;
@@ -542,10 +557,11 @@ void replay_seek()
 {
     struct timeval t;
     
-    tev_cur=ttyrec_seek(ttr, &tr, &vt);
+    t=tr;
+    tadd(t, tdate);
+    tev_cur=ttyrec_seek(ttr, &t, &vt);
     tev_curlp=0;
     
-    t=tr;
     gettimeofday(&t0, 0);
     tdiv1000(tr, speed);
     tsub(t0, tr);
@@ -566,7 +582,6 @@ void replay_start()
     vt100_printf(tev_vt, "\e[0m");
     
     tr.tv_sec=tr.tv_usec=0;
-    replay_seek();
     tev_done=0;
     tmax.tv_sec=tmax.tv_usec=0;
     progmax=0;
@@ -580,15 +595,20 @@ void replay_start()
     playfile(tev_vt);
 //    printf("Buffering: done.\n");
     tev_done=1;
+    tev_cur=ttyrec_seek(ttr, 0, 0);
+    tdate=tev_cur->t;
+    replay_seek();
     doomsday.tv_sec=(((unsigned long)1)<<(sizeof(time_t)*8-1))-1;
     doomsday.tv_usec=0;
     tev_tail=ttyrec_seek(ttr, &doomsday, 0);
     tmax=tev_tail->t;
+    tsub(tmax, tdate);
     if (tmax.tv_sec<100)
         progdiv=10000;
     else
         progdiv=1000000;
-    selstart=ttyrec_seek(ttr, 0, 0)->t;
+    selstart.tv_sec=0;
+    selstart.tv_usec=0;
     selend=tmax;
     progmax=tmax.tv_sec*(1000000/progdiv)+tmax.tv_usec/progdiv;
     set_prog_max();
@@ -645,7 +665,7 @@ void open_file()
     dlg.lpstrFilter="all known formats\000*.ttyrec;*.ttyrec.gz;*.ttyrec.bz2;*.nh;*.nh.gz;*.nh.bz2;*.txt;*.txt.gz;*.txt.bz2\000"
                     "ttyrec videos (*.ttyrec, *.ttyrec.gz, *.ttyrec.bz2)\000*.ttyrec;*.ttyrec.gz;*.ttyrec.bz2\000"
                     "nh-recorder videos (*.nh, *.nh.gz, *.nh.bz2)\000*.nh;*.nh.gz;*.nh.bz2\000"
-                    "RealLogs videos (*.rl, *.rl.gz, *.rl.bz2)\000*.rl;*.rl.gz;*.rl.bz2\000"
+                    "DosRecorder videos (*.dm2)\000*.dm2\000"
                     "ANSI logs (*.txt, *.txt.gz, *.txt.bz2)\000*.txt;*.txt.gz;*.txt.bz2\000"
                     "all files\000*\000"
                     "\000\000";
@@ -685,18 +705,17 @@ void print_banner()
     vt100_printf(vt, "\e[?25l\e[36mTermplay v\e[1m"PACKAGE_VERSION"\e[0m\n");
     vt100_printf(vt, "\e[33mTerminal size: \e[1m%d\e[21mx\e[1m%d\e[0m\n", vt->sx, vt->sy);
     vt100_printf(vt, "\e[34;1m\e%%G\xd0\xa1\xd0\xb4\xd0\xb5\xd0\xbb\xd0\xb0\xd0\xbd\xd0\xbe by KiloByte (kilobyte@angband.pl)\e[0m\n");
-    vt100_printf(vt, "\nFeatures compiled in:\n");
-    vt100_printf(vt, "* UTF-8 (no CJK)\n");
     vt100_printf(vt, "Compression plugins:\n");
 #if (defined HAVE_LIBZ) || (SHIPPED_LIBZ)
-    vt100_printf(vt, "* gzip");
+    vt100_printf(vt, "* gzip\n");
 #endif
 #if (defined HAVE_LIBBZ2) || (defined SHIPPED_LIBBZ2)
-    vt100_printf(vt, "* bzip2");
+    vt100_printf(vt, "* bzip2\n");
 #endif
     vt100_printf(vt, "Replay plugins:\n");
     for (i=0;(pn=ttyrec_r_get_format_name(i));i++)
-        vt100_printf(vt, "* %s\n", pn);
+        if (strcmp(pn, "live"))
+            vt100_printf(vt, "* %s\n", pn);
 }
 
 
@@ -869,6 +888,7 @@ void export_file()
     OPENFILENAME dlg;
     int record_f;
     char *format;
+    struct timeval sel1, sel2;
     
     memset(&dlg, 0, sizeof(dlg));
     dlg.lStructSize=sizeof(dlg);
@@ -898,7 +918,74 @@ void export_file()
         return;
     }
     record_f=open_stream(record_f, fn, M_WRITE);
-    ttyrec_save(ttr, record_f, format, filename, &selstart, &selend);
+    sel1=selstart;
+    tadd(sel1, tdate);
+    sel2=selend;
+    tadd(sel2, tdate);
+    ttyrec_save(ttr, record_f, format, filename, &sel1, &sel2);
+}
+
+
+void load_font()
+{
+    HKEY reg;
+    int i;
+    DWORD len;
+    
+    memset(&df, 0, sizeof(LOGFONT));
+    df.lfHeight=16;
+    strcpy(df.lfFaceName, "Courier New");
+    
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\1KB\\termrec", 0, KEY_READ, &reg))
+        return;
+    len=LF_FACESIZE;
+    RegQueryValueEx(reg, "FontName", 0, 0, (BYTE*)df.lfFaceName, &len);
+    len=4;
+    if (!RegQueryValueEx(reg, "FontHeight", 0, 0, (BYTE*)&i, &len))
+        df.lfHeight=i;
+    len=4;
+    if (!RegQueryValueEx(reg, "FontWeight", 0, 0, (BYTE*)&i, &len))
+        df.lfWeight=i;
+    len=4;
+    if (!RegQueryValueEx(reg, "FontItalic", 0, 0, (BYTE*)&i, &len))
+        df.lfItalic=i;
+    RegCloseKey(reg);
+}
+
+
+void save_font()
+{
+    HKEY reg;
+    int i;
+    
+    if (RegCreateKeyEx(HKEY_CURRENT_USER, "Software\\1KB\\termrec", 0, 0, 0, KEY_WRITE, 0, &reg, 0))
+        return;
+    RegSetValueEx(reg, "FontName", 0, REG_SZ, (BYTE*)df.lfFaceName, strlen(df.lfFaceName)+1);
+    i=df.lfHeight;
+    RegSetValueEx(reg, "FontHeight", 0, REG_DWORD, (BYTE*)&i, 4);
+    i=df.lfWeight;
+    RegSetValueEx(reg, "FontWeight", 0, REG_DWORD, (BYTE*)&i, 4);
+    i=df.lfItalic;
+    RegSetValueEx(reg, "FontItalic", 0, REG_DWORD, (BYTE*)&i, 4);
+    RegCloseKey(reg);
+}
+
+
+void choose_font()
+{
+    CHOOSEFONT cf;
+    
+    memset(&cf, 0, sizeof(CHOOSEFONT));
+    cf.lStructSize=sizeof(CHOOSEFONT);
+    cf.hwndOwner=wnd;
+    cf.Flags=CF_FIXEDPITCHONLY|CF_NOSCRIPTSEL|CF_SCREENFONTS|CF_INITTOLOGFONTSTRUCT;
+    cf.lpLogFont=&df;
+    if (!ChooseFont(&cf))
+        return;
+    save_font();
+    draw_free();
+    draw_init(&df);
+    InvalidateRect(termwnd, 0, 1);
 }
 
 
@@ -908,6 +995,7 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case WM_CREATE:
 	    create_toolbar(hwnd);
             create_term(hwnd);
+            create_sysmenu(hwnd);
 
             return 0;
         
@@ -977,6 +1065,16 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                     break;
                 export_file();
                 break;
+            }
+            return 0;
+        
+        case WM_SYSCOMMAND:
+            switch(LOWORD(wParam))
+            {
+            default:
+                return DefWindowProc(hwnd, uMsg, wParam, lParam);
+            case 200:
+                choose_font();
             }
             return 0;
         

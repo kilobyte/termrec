@@ -5,7 +5,8 @@
 typedef struct { unsigned char r,g,b,a; } color;
 
 extern void draw_vt(HDC dc, int px, int py, vt100 vt);
-extern void draw_init();
+extern void draw_init(LOGFONT *df);
+extern void draw_free();
 extern void draw_border(HDC dc, vt100 vt);
         
 extern int chx,chy;
