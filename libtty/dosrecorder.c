@@ -24,7 +24,7 @@ typedef struct { char c,a; } attrchar, screen[25][80];
 static char rgbbgr[8]="04261537";
 
 #define bp (*b)
-static inline void wrchar(attrchar *ch, int *oattr, char **b)
+static inline void setattr(attrchar *ch, int *oattr, char **b)
 {
     if (*oattr!=ch->a)
     {
@@ -38,9 +38,22 @@ static inline void wrchar(attrchar *ch, int *oattr, char **b)
         *bp++=';', *bp++='3', *bp++=rgbbgr[ch->a&7]; /* foreground */
         *bp++='m';
     }
+}
+
+static inline void wrchar(attrchar *ch, int *oattr, char **b)
+{
     tf8(bp, charset_cp437[(unsigned char)ch->c]);
 }
 #undef bp
+
+static inline int sp_string(attrchar *ch, int a, int max)
+{
+    int i=0;
+    
+    while(ch->c==' ' && ch->a==a && max--)
+        i++, ch++;
+    return i;
+}
 
 #define BUFFER_SIZE 65536
 /* Note: no checks if buf is big enough.  We won't produce more than 25*80 symbols, 
@@ -55,6 +68,7 @@ static int scrdiff(screen *tty, screen *scr, char *buf)
     int x,y;
     int cx=-1,cy=-1;
     int attr=-1;
+    int sp;
     
     for(y=0; y<25; y++)
         for(x=0; x<80; x++)
@@ -65,10 +79,21 @@ static int scrdiff(screen *tty, screen *scr, char *buf)
                 else
                 {
                     while(cx<x)
-                        wrchar(&(*scr)[y][cx++], &attr, &bp);
+                    {
+                        setattr(&(*scr)[y][cx], &attr, &bp);
+                        wrchar(&(*scr)[y][cx], &attr, &bp);
+                        cx++;
+                    }
                     cx++;
                 }
-                wrchar(&(*scr)[y][x], &attr, &bp);
+                setattr(&(*scr)[y][x], &attr, &bp);
+                if (cx>80-15 || (sp=sp_string(&(*scr)[y][x], attr, 80-cx))<15)
+                    wrchar(&(*scr)[y][x], &attr, &bp);
+                else
+                {
+                    bp+=sprintf(bp, "\e[%dX", sp);
+                    x+=sp-1;
+                }
             }
     
     return bp-buf;
