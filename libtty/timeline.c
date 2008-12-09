@@ -170,7 +170,7 @@ export struct ttyrec_frame* ttyrec_seek(ttyrec tr, struct timeval *t, vt100 *vt)
             if (tfs->data)
                 vt100_write(*vt, tfs->data, tfs->len);
             tfs = tfs->next;
-        } while (tfs!=tfv);
+        };
         if (tfs->data)
             vt100_write(*vt, tfs->data, tfs->len);
     }
