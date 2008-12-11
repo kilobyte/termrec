@@ -838,7 +838,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 printf("Disabling UTF-8.\n");
 #endif
                 break;
-            case '8':	/* ESC % 8, ESC % g -> enable UTF-8 */
+            case '8':	/* ESC % 8, ESC % G -> enable UTF-8 */
             case 'G':
                 vt->utf=1;
 #ifdef VT100_DEBUG
