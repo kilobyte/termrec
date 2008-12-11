@@ -39,11 +39,10 @@ typedef struct vt100
     int tok[VT100_MAXTOK];
     int state;
     /* flags */
-#define opt_allow_resize flags[VT100_FLAG_RESIZABLE] /* is input allowed to resize? */
-#define opt_auto_wrap flags[VT100_FLAG_AUTO_WRAP] /* ?7: auto wrap at right margin */
-#define opt_cursor flags[VT100_FLAG_CURSOR]	/* ?25: show/hide cursor */
-#define opt_kpad flags[VT100_FLAG_KPAD]	/* keypad: application/numeric */
-    int flags[10];
+    int opt_allow_resize :1;	/* is input allowed to resize? */
+    int opt_auto_wrap :1;	/* ?7: auto wrap at right margin */
+    int opt_cursor :1;		/* ?25: show/hide cursor */
+    int opt_kpad :1;		/* keypad: application/numeric */
     /*=[ listeners ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
     void *l_data;
         /* any private data */
