@@ -2,11 +2,11 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <locale.h>
 #include <string.h>
 #include "vt100.h"
 #include "sys/ttysize.h"
 #include "export.h"
+#include "charsets.h"
 
 struct vtvt_data
 {
@@ -23,17 +23,6 @@ struct vtvt_data
 #define CX	DATA->cx
 #define CY	DATA->cy
 
-static int initialized=0;
-
-static void init()
-{
-    if (initialized)
-        return;
-    initialized=1;
-    
-    if (!strcmp(setlocale(LC_CTYPE,0), "C"))
-        setlocale(LC_CTYPE, "");
-}
 
 static inline void setattr(vt100 vt, int attr)
 {
@@ -63,9 +52,27 @@ static inline void setattr(vt100 vt, int attr)
 
 static void vtvt_cursor(vt100 vt, int x, int y)
 {
+    if (x==CX && y==CY)
+        return;
     fprintf(DATA->tty, "\e[%d;%df", y+1, x+1);
     CX=x;
     CY=y;
+}
+
+#define MAXVT100GRAPH 0x2666 /* biggest codepoint is U+2666 BLACK DIAMOND */
+static char *vt100graph;
+static void build_vt100graph(vt100 vt)
+{
+    int i;
+    
+    /* the reverse mapping Unicode->vt100_graphic takes a chunk of memory, so
+       build it only on demand.  This won't happen most of the time. */
+    if (!(vt100graph=malloc(MAXVT100GRAPH+1)))
+        abort();
+    memset(vt100graph, 0, MAXVT100GRAPH+1);
+    for(i=32; i<127; i++)
+        if (charset_vt100[i]<=MAXVT100GRAPH)
+            vt100graph[charset_vt100[i]]=i;
 }
 
 static void vtvt_char(vt100 vt, int x, int y, ucs ch, int attr)
@@ -75,7 +82,15 @@ static void vtvt_char(vt100 vt, int x, int y, ucs ch, int attr)
     if (x!=CX || y!=CY)
         vtvt_cursor(vt, x, y);
     setattr(vt, attr);
-    fprintf(DATA->tty, "%lc", ch);
+    if (fprintf(DATA->tty, "%lc", ch)<0 && !vt->utf)
+    {
+        if (!vt100graph)
+            build_vt100graph(vt);
+        if (ch<=MAXVT100GRAPH && vt100graph[ch])
+            fprintf(DATA->tty, "\016%c\017", vt100graph[ch]);
+        else
+            fprintf(DATA->tty, "?");
+    }
     CX++;
 }
 
@@ -98,10 +113,31 @@ export void vtvt_dump(vt100 vt)
 
 static void vtvt_clear(vt100 vt, int x, int y, int len)
 {
+    int c;
+    
     setattr(vt, vt->attr);
-    vtvt_cursor(vt, x, y);
-    while(len--)
-        fprintf(DATA->tty, " ");	/* TODO */
+    if (x==0 && y==0 && len==SX*SY)
+        fprintf(DATA->tty, "\e[2J");
+    else if (x==0 && y==0 && len==CY*SX+CX)
+        fprintf(DATA->tty, "\e[1J");
+    else if (x==CX && y==CY && len==SX*SY-CY*SX-CX)
+        fprintf(DATA->tty, "\e[0J");
+    else if (x==0 && y==CY && len==SX)
+        fprintf(DATA->tty, "\e[2K");
+    else if (x==0 && y==CY && len==CX)
+        fprintf(DATA->tty, "\e[1K");
+    else if (x==CX && y==CY && len==SX-CX)
+        fprintf(DATA->tty, "\e[0K");
+    else
+        while(len)
+        {
+            vtvt_cursor(vt, x, y);
+            c=(len>SX-x)? SX-x : len;
+            fprintf(DATA->tty, "\e[%dX", c);
+            len-=c;
+            x=0;
+            y++;
+        }
     vtvt_cursor(vt, vt->cx, vt->cy);
 }
 
@@ -142,9 +178,9 @@ export void vtvt_resize(vt100 vt, int sx, int sy)
     SX=sx; SY=sy;
 }
 
-export void vtvt_attach(vt100 vt, FILE *tty)
+export void vtvt_attach(vt100 vt, FILE *tty, int dump)
 {
-    init();
+    is_utf8();
     vt->l_data=malloc(sizeof(struct vtvt_data));
     CX=CY=-1;
     DATA->attr=-1;
@@ -161,4 +197,11 @@ export void vtvt_attach(vt100 vt, FILE *tty)
     vt->l_resize=vtvt_resized;
     vt->l_flush=vtvt_flush;
     vt->l_free=vtvt_free;
+    
+    if (dump)
+    {
+        fprintf(DATA->tty, "\ec");
+        vtvt_dump(vt);
+        fflush(stdout);
+    }
 }

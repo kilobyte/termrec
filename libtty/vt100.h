@@ -10,24 +10,25 @@ typedef struct
     int attr;
 } attrchar;
 
-typedef unsigned short *vt100_charset;
-
 #define VT100_MAXTOK 10
 
+#define VT100_FLAG_RESIZABLE	0	/* should the input be allowed to resize? */
 #define VT100_FLAG_CURSOR	1	/* visible cursor */
 #define VT100_FLAG_KPAD		2	/* application keypad mode */
+#define VT100_FLAG_AUTO_WRAP	3	/* auto wrap at right margin */
 
 typedef struct vt100
 {
+    /*=[ basic data ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
     int sx,sy;	           /* screen size */
-    int s1,s2;             /* scrolling region */
     int cx,cy;             /* cursor position */
-    int save_cx,save_cy;   /* saved cursor position */
     attrchar *scr;         /* screen buffer */
     int attr;              /* current attribute */
-    vt100_charset G[2];    /* G0 and G1 charsets */
-    vt100_charset transl;  /* current charset */
-    int curG;              /* current charset as G# */
+    /*=[ private stuff ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
+    int s1,s2;             /* scrolling region */
+    int save_cx,save_cy;   /* saved cursor position */
+    int G;                 /* bitfield: do G0 and G1 use vt100 graphics? */
+    int curG;              /* current G charset */
     /* UTF-8 state */
     int utf;               /* UTF-8 on/off */
     ucs utf_char;
@@ -38,16 +39,13 @@ typedef struct vt100
     int tok[VT100_MAXTOK];
     int state;
     /* flags */
-    int opt_allow_resize;  /* whether vt100 input is allowed to resize */
-    int opt_auto_wrap;     /* ?7: auto wrap at right margin */
-#define opt_cursor flags[VT100_FLAG_CURSOR]	/* ?25: show/hide cursor */
-#define opt_kpad flags[VT100_FLAG_KPAD]	/* keypad: application/numeric */
-    int flags[10];
+    int opt_allow_resize :1;	/* is input allowed to resize? */
+    int opt_auto_wrap :1;	/* ?7: auto wrap at right margin */
+    int opt_cursor :1;		/* ?25: show/hide cursor */
+    int opt_kpad :1;		/* keypad: application/numeric */
     /*=[ listeners ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
     void *l_data;
         /* any private data */
-    void *l_changes;
-        /* pending changes in your private format */
     void (*l_char)(struct vt100 *vt, int x, int y, ucs ch, int attr);
         /* after a character has been written to the screen */
     void (*l_cursor)(struct vt100 *vt, int x, int y);
@@ -90,6 +88,7 @@ vt100	vt100_copy(vt100 vt);
 
 void	vtvt_dump(vt100 vt);
 void	vtvt_resize(vt100 vt, int sx, int sy);
-void	vtvt_attach(vt100 vt, FILE *tty);
+void	vtvt_attach(vt100 vt, FILE *tty, int dump);
 
+int	is_utf8();
 #endif

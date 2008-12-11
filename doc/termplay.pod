@@ -19,6 +19,10 @@ B<ttyrec>, services like nethack.alt.org or crawl.akrasiacs.org and so on.
 
 pause/resume
 
+=item B<enter>
+
+advance by a single frame
+
 =item B<->, B<S>
 
 slow down (by half)

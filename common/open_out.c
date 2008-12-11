@@ -84,7 +84,7 @@ int open_out(char **file_name, char *format_ext)
         fd=-1;
         goto finish;
     }
-    if (!(fd=open(*file_name, O_WRONLY|O_CREAT|O_TRUNC, 0666)))
+    if (!(fd=open(*file_name, O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666)))
         die(_("Can't write to the record file (%s): %s\n"), *file_name, strerror(errno));
 finish:
     return open_stream(fd, *file_name, M_WRITE);

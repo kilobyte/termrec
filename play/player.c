@@ -80,12 +80,6 @@ static void replay_stop()
 }
 
 
-static void free_stuff()
-{
-    vt100_free(term);
-}
-
-
 static void adjust_pos(int diff)
 {
     int old_state=play_state;
@@ -95,10 +89,7 @@ static void adjust_pos(int diff)
     if (tc.tv_sec<0)
         tc.tv_sec=tc.tv_usec=0;
     fr=ttyrec_seek(tr, &tc, &term);
-    vtvt_attach(term, stdout);
-    printf("\ec");
-    vtvt_dump(term);
-    fflush(stdout);
+    vtvt_attach(term, stdout, 1);
     if (old_state)
         replay_start();
 }
@@ -143,6 +134,18 @@ static void replay_rewind()
     tc.tv_sec=tc.tv_usec=0;
 }
 
+static void adv_frame()
+{
+    ttyrec_frame nf;
+    
+    replay_stop();
+    if (!(nf=ttyrec_next_frame(tr, fr)))
+        return;
+    tc=nf->t;
+    vt100_write(term, nf->data, nf->len);
+    fr=nf;
+}
+
 static struct bind
 {
     char *keycode;
@@ -178,6 +181,9 @@ static struct bind
 {"f",adjust_speed,+1},	/* f/F/+	-> speed up */
 {"F",adjust_speed,+1},
 {"+",adjust_speed,+1},
+{"\n",adv_frame,+1},	/* Enter	-> next frame */
+{"\r",adv_frame,+1},
+{"\eOM",adv_frame,+1},
 {0,0,0},
 };
 
@@ -197,10 +203,7 @@ void replay()
     play_state=0;
     tc.tv_sec=tc.tv_usec=0;
     fr=ttyrec_seek(tr, 0, &term);
-    vtvt_attach(term, stdout);
-    printf("\ec");
-    vtvt_dump(term);
-    fflush(stdout);
+    vtvt_attach(term, stdout, 1);
     replay_start();
     
     while (1)
@@ -253,5 +256,6 @@ void replay()
     }
 end:
     replay_stop();
-    free_stuff();
+    vt100_printf(term, "\e[f\e[200B");
+    vt100_free(term);
 }

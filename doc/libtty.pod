@@ -180,4 +180,8 @@ If t1E<lt>t2, -1.  If t1E<gt>t2, +1.  0 otherwise.
 
 =back
 
+=head1 SEE ALSO
+
+L<vt100(3)>
+
 =cut

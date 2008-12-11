@@ -22,12 +22,15 @@ void copier(void *args)
 
 void dump(vt100 vt)
 {
-    int x,y;
+    int x,y,c;
     
     for(y=0;y<vt->sy;y++)
     {
         for (x=0;x<vt->sx;x++)
-            printf("%lc", vt->scr[y*vt->sx+x].ch);
+        {
+            c=vt->scr[y*vt->sx+x].ch;
+            printf((c>=32 && c<127)?"%lc":"[U+%04X]", c);
+        }
         printf("|\n");
     }
     printf("===================='\n");
@@ -42,14 +45,14 @@ int main()
     char buf[BUF2];
     int len, i;
     
-    vt1=vt100_init(20, 5, 0, 1);
-    vt2=vt100_init(20, 5, 0, 1);
+    vt1=vt100_init(20, 5, 0, 0);
+    vt2=vt100_init(20, 5, 0, 0);
     if (pipe(p))
         die("pipe()");
     if (thread_create_joinable(&cop, copier, (void*)(intptr_t)p[0]))
         die("thread creation");
     f=fdopen(p[1], "w");
-    vtvt_attach(vt1, f);
+    vtvt_attach(vt1, f, 0);
     
     while((len=read(0, buf, BUF2))>0)
         vt100_write(vt1, buf, len);

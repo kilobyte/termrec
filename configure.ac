@@ -12,6 +12,8 @@ AC_CONFIG_FILES(Makefile
 
 # Checks for programs.
 AC_PROG_CC
+m4_defun([_LT_AC_LANG_CXX_CONFIG], [:])
+m4_defun([_LT_AC_LANG_F77_CONFIG], [:])
 AC_LIBTOOL_WIN32_DLL
 AM_PROG_LIBTOOL
 AC_CHECK_PROG(POD2MAN, pod2man, yes, no)
