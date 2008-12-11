@@ -2,8 +2,11 @@
 * A total reorganization, with refactoring of most parts.
 * Library.
 * New utilities: termcat and termtime.
-* Loading the data in a background thread actually works.
+* Unix termplay is finally usable.
+* Loading the data in a background thread actually works (not on win32).
 * proxyrec defaults to --raw and -f ansi.
+* Bugfixes in vt100 interpretation.
+* New format: DosRecorder (read-only).
 
 0.14
 * Moved win32 crap to a dir on its own.
