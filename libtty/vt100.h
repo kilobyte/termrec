@@ -10,8 +10,6 @@ typedef struct
     int attr;
 } attrchar;
 
-typedef unsigned short *vt100_charset;
-
 #define VT100_MAXTOK 10
 
 #define VT100_FLAG_RESIZABLE	0	/* should the input be allowed to resize? */
@@ -29,9 +27,8 @@ typedef struct vt100
     /*=[ private stuff ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
     int s1,s2;             /* scrolling region */
     int save_cx,save_cy;   /* saved cursor position */
-    vt100_charset G[2];    /* G0 and G1 charsets */
-    vt100_charset transl;  /* current charset */
-    int curG;              /* current charset as G# */
+    int G;                 /* bitfield: do G0 and G1 use vt100 graphics? */
+    int curG;              /* current G charset */
     /* UTF-8 state */
     int utf;               /* UTF-8 on/off */
     ucs utf_char;

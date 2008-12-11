@@ -1,4 +1,4 @@
-unsigned short charset_vt100[256];
+unsigned short charset_vt100[128];
 unsigned short charset_cp437[256];
 
 /* tf8, the "tf" in "utf8" */

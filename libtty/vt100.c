@@ -1,6 +1,4 @@
 /*#define VT100_DEBUG*/
-#define VT100_DEFAULT_CHARSET charset_cp437
-
 #define _GNU_SOURCE
 #include "vt100.h"
 #include "charsets.h"
@@ -123,9 +121,7 @@ export void vt100_reset(vt100 vt)
     vt->opt_auto_wrap=1;
     vt->opt_cursor=1;
     vt->opt_kpad=0;
-    vt->G[0]=VT100_DEFAULT_CHARSET;
-    vt->G[1]=charset_vt100;
-    vt->transl=VT100_DEFAULT_CHARSET;
+    vt->G=1<<1; /* G0: normal, G1: vt100 graphics */
     vt->curG=0;
     vt->utf_count=0;
 }
@@ -155,24 +151,20 @@ static void vt100_scroll(vt100 vt, int nl)
 
 static void set_charset(vt100 vt, int g, char x)
 {
-    vt100_charset cs;
-    
 #ifdef VT100_DEBUG
     printf("Changing charset G%d to %c.\n", g, x);
 #endif
     switch(x)
     {
         case '0':
-            cs=charset_vt100;
+            vt->G|=1<<g;
             break;
 /*
         case 'A': UK hash-less -- go away, bad thing.
 */
         case 'B':
-            cs=/*charset_8859_1*/VT100_DEFAULT_CHARSET;
-            break;
         case 'U':
-            cs=charset_cp437;
+            vt->G&=~(1<<g);
             break;
         default:
 #ifdef VT100_DEBUG
@@ -180,10 +172,6 @@ static void set_charset(vt100 vt, int g, char x)
 #endif
             return;
     }
-
-    vt->G[g]=cs;
-    if (vt->curG==g)
-        vt->transl=cs;
 }
 
 
@@ -264,11 +252,9 @@ export void vt100_write(vt100 vt, char *buf, int len)
             continue;
         case 14:
             vt->curG=1;
-            vt->transl=vt->G[1];
             continue;
         case 15:
             vt->curG=0;
-            vt->transl=vt->G[0];
             continue;
         case 24:
         case 26:
@@ -380,9 +366,11 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 else
                     cnt=0, c=ic;
             else
-                c=vt->transl[ic];
+                c=charset_cp437[ic];
             if (c>31)
             {
+                if (c<128 && vt->G&(1<<vt->curG))
+                    c=charset_vt100[c];
                 if (CX>=SX)
                 {
                     if (vt->opt_auto_wrap)

@@ -70,7 +70,7 @@ static void build_vt100graph(vt100 vt)
     if (!(vt100graph=malloc(MAXVT100GRAPH+1)))
         abort();
     memset(vt100graph, 0, MAXVT100GRAPH+1);
-    for(i=0; i<256; i++)
+    for(i=32; i<127; i++)
         if (charset_vt100[i]<=MAXVT100GRAPH)
             vt100graph[charset_vt100[i]]=i;
 }
