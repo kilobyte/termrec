@@ -1,3 +1,9 @@
+termrec (0.15-2) unstable; urgency=low
+
+  * Add libbz2 and zlib to build-depends.
+
+ -- Adam Borowski <kilobyte@angband.pl>  Sat, 13 Dec 2008 18:43:34 +0100
+
 termrec (0.15-1) unstable; urgency=low
 
   * New release.
