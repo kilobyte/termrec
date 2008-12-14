@@ -41,6 +41,10 @@ Instructs proxyrec to watch the data for TELNET information, recording some of
 them (namely, window size, its changes and requests to turn echo on/off) and
 cleaning the TELNET protocol away.
 
+=item B<-a>, B<--append>
+
+If the output file exists, it will be appended instead of being overwritten.
+
 =item B<-h>, B<--help>
 
 A short summary of options.

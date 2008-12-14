@@ -8,8 +8,6 @@
 
 * win32/play: no way to select the plugin except for file extensions
 
-* rec,proxy: no --append
-
 * replay_export(): should record UTF-8ness and add an option to dump the
   initial screen
 

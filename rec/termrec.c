@@ -122,7 +122,7 @@ int main(int argc, char **argv)
     struct timeval tv;
 
     get_rec_parms(argc, argv);
-    record_f=open_out(&record_name, format_ext);
+    record_f=open_out(&record_name, format_ext, append);
     if (record_f==-1)
     {
         fprintf(stderr, "Can't open %s\n", record_name);
