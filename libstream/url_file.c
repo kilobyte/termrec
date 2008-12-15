@@ -1,15 +1,17 @@
+#include "config.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdlib.h>
-#include "config.h"
+#include <errno.h>
+#include <string.h>
 #include "error.h"
 #include "export.h"
 #include "stream.h"
 #include "compat.h"
 
 
-int open_file(char* url, int mode)
+int open_file(char* url, int mode, char **error)
 {
     int fmode, fd;
 
@@ -28,9 +30,11 @@ int open_file(char* url, int mode)
         fmode=O_WRONLY|O_APPEND|O_CREAT;
         break;
     default:
+        *error="unknown file mode in open_stream(file://)";
         return -1;
     }
-    fd=open(url, fmode|O_BINARY, 0666);
+    if ((fd=open(url, fmode|O_BINARY, 0666))==-1)
+        *error=strerror(errno);
 
     return fd;
 }

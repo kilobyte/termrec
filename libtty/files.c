@@ -82,7 +82,7 @@ export recorder* ttyrec_w_open(int fd, char *format, char *filename, struct time
     }
     
     if (fd==-1)
-        fd=open_stream(fd, filename, M_WRITE);
+        fd=open_stream(fd, filename, M_WRITE, 0);
     if (fd==-1)
         return 0;
     
@@ -225,7 +225,7 @@ export int ttyrec_r_play(int fd, char *format, char *filename,
     }
     
     if (fd==-1)
-        fd=open_stream(fd, filename, M_READ);
+        fd=open_stream(fd, filename, M_READ, 0);
     if (fd==-1)
         return 0;
     

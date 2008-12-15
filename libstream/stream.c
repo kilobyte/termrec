@@ -10,7 +10,7 @@
 
 
 #ifdef HAVE_FORK
-int filter(void func(int,int), int fd, int wr)
+int filter(void func(int,int), int fd, int wr, char **error)
 {
     int p[2];
     
@@ -22,6 +22,7 @@ int filter(void func(int,int), int fd, int wr)
     switch(fork())
     {
     case -1:
+        *error="fork() failed";
         close(fd);
         close(p[0]);
         close(p[1]);
@@ -76,7 +77,7 @@ static void finish_up()
 }
 
 
-int filter(void func(int,int), int fd, int wr)
+int filter(void func(int,int), int fd, int wr, char **error)
 {
     int p[2];
     struct filterdata *fdata;
@@ -105,6 +106,7 @@ int filter(void func(int,int), int fd, int wr)
     mutex_unlock(nsm);
     return p[wr];
 failthread:
+    *error="Couldn't create thread";
     mutex_unlock(nsm);
     free(fdata);
 failfdata:
@@ -117,11 +119,11 @@ failpipe:
 #endif
 
 
-export int open_stream(int fd, char* url, int mode)
+export int open_stream(int fd, char* url, int mode, char **error)
 {
     int wr= !!(mode&M_WRITE);
     compress_info *ci;
-    const char *dummy, **error=0; /* FIXME: error msg should be returned */
+    char *dummy;
     
     if (fd==-1)
     {
@@ -132,11 +134,11 @@ export int open_stream(int fd, char* url, int mode)
         if (!strcmp(url, "-"))
             fd=dup(wr? 1 : 0);
         else if (match_prefix(url, "file://"))
-            fd=open_file(url+7, mode);
+            fd=open_file(url+7, mode, error);
         else if (match_prefix(url, "tcp:"))
             fd=open_tcp(url+4, mode, error);
         else
-            fd=open_file(url, mode);
+            fd=open_file(url, mode, error);
     }
     if (fd==-1)
         return -1;
@@ -144,5 +146,5 @@ export int open_stream(int fd, char* url, int mode)
     ci=comp_from_ext(url, wr? compressors : decompressors);
     if (!ci)
         return fd;
-    return filter(ci->comp, fd, wr);
+    return filter(ci->comp, fd, wr, error);
 }

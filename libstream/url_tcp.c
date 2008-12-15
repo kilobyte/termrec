@@ -23,7 +23,7 @@
 /* The "host" arg will be modified! */
 /* "port" can be overridden with : */
 /* Returns: error message, 0 on success. */
-static const char *resolve_host(char *host, int port, struct addrinfo **ai)
+static char *resolve_host(char *host, int port, struct addrinfo **ai)
 {
     long i;
     char *cp;
@@ -73,7 +73,7 @@ static const char *resolve_host(char *host, int port, struct addrinfo **ai)
         if (err==EAI_NONAME)
             return _("No such host");
         else
-            return gai_strerror(err);
+            return (char*)gai_strerror(err);
     }
     return 0;
 }
@@ -121,7 +121,7 @@ static void sock2file(int sock, int file)
 #endif
 
 
-int open_tcp(char* url, int mode, const char **error)
+int open_tcp(char* url, int mode, char **error)
 {
     char *cp;
     struct addrinfo *ai;
@@ -148,7 +148,7 @@ int open_tcp(char* url, int mode, const char **error)
         shutdown(fd, SHUT_WR);
     
 #ifdef IS_WIN32
-    return filter(sock2file, fd, !!(mode&M_WRITE));
+    return filter(sock2file, fd, !!(mode&M_WRITE), error);
 #else
     return fd;
 #endif

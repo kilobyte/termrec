@@ -57,6 +57,7 @@ int open_out(char **file_name, char *format_ext, int append)
     int fd;
     char add[10],date[24];
     time_t t;
+    char *error;
     
     if (!*file_name)
     {
@@ -87,5 +88,7 @@ int open_out(char **file_name, char *format_ext, int append)
     if (!(fd=open(*file_name, (append?O_APPEND:O_CREAT|O_TRUNC)|O_WRONLY|O_BINARY, 0666)))
         die(_("Can't write to the record file (%s): %s\n"), *file_name, strerror(errno));
 finish:
-    return open_stream(fd, *file_name, append?M_APPEND:M_WRITE);
+    if ((fd=open_stream(fd, *file_name, append?M_APPEND:M_WRITE, &error))==-1)
+        die(error);
+    return fd;
 }

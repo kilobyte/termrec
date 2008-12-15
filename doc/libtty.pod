@@ -14,7 +14,7 @@ Link with I<-ltty>.
 
 =over
 
-=item B<int	open_stream(int >I<fd>B<, char* >I<url>B<, int >I<mode>B<);>
+=item B<int	open_stream(int >I<fd>B<, char* >I<url>B<, int >I<mode>B<, char **>I<error>B<);>
 
 This function opens a stream designated by the I<url>.  If the given url ends in ".gz" or ".bz2"), the
 stream is assumed to be compressed and gets passed through the appropiate [un]packer.  If the I<fd> is not -1,
@@ -31,6 +31,9 @@ it is the descriptor you already opened; if it is -1, the file is opened.  The I
 =item M_APPEND
 
 =back
+
+On error, -1 is returned.  If you want the message, pass a non-null pointer I<error>, it will
+be filled in.
 
 =back
 
