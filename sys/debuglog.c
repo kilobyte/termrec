@@ -2,7 +2,11 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-#define DEBUGLOG "debuglog.txt"
+#ifdef IS_WIN32
+# define DEBUGLOG "log.txt"
+#else
+# define DEBUGLOG "log"
+#endif
 
 static int once=0;
 
