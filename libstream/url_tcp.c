@@ -107,14 +107,23 @@ static int connect_out(struct addrinfo *ai)
 
 #if IS_WIN32
 /* workaround socket!=file brain damage */
-static void sock2file(int sock, int file)
+static void sock2file(int sock, int file, char *arg)
 {
     char buf[BUFSIZ];
     int len;
     
-    while((len=recv(sock, buf, BUFSIZ, 0))>0)
-        if (write(file, buf, len)!=len)
-            return;
+    if (arg)
+    {
+        while((len=read(file, buf, BUFSIZ))>0)
+            if (send(sock, buf, len, 0)!=len)
+                return;
+    }
+    else
+    {
+        while((len=recv(sock, buf, BUFSIZ, 0))>0)
+            if (write(file, buf, len)!=len)
+                return;
+    }
     closesocket(sock);
 }
 #endif
@@ -159,8 +168,7 @@ int open_tcp(char* url, int mode, char **error)
         shutdown(fd, SHUT_WR);
     
 #ifdef IS_WIN32
-    return filter(sock2file, fd, !!(mode&M_WRITE), error);
-#else
-    return fd;
+    fd=filter(sock2file, fd, !!(mode&M_WRITE), (mode&M_WRITE)?"":0, error);
 #endif
+    return fd;
 }

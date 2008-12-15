@@ -14,6 +14,7 @@
 #include "export.h"
 #include "stream.h"
 #include "gettext.h"
+#include "compat.h"
 
 
 

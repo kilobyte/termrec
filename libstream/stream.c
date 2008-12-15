@@ -52,7 +52,7 @@ static mutex_t nsm;
 static void filterthr(struct filterdata *args)
 {
     int fdin, fdout;
-    void (*func)(int,int);
+    void (*func)(int,int,char*);
     char *arg;
     
     fdin=args->fdin;
