@@ -121,15 +121,20 @@ export int open_stream(int fd, char* url, int mode)
 {
     int wr= !!(mode&M_WRITE);
     compress_info *ci;
+    const char *dummy, **error=0; /* FIXME: error msg should be returned */
     
     if (fd==-1)
     {
         if (!url)
             return -1;
+        if (!error)
+            error=&dummy;
         if (!strcmp(url, "-"))
             fd=dup(wr? 1 : 0);
         else if (match_prefix(url, "file://"))
             fd=open_file(url+7, mode);
+        else if (match_prefix(url, "tcp:"))
+            fd=open_tcp(url+4, mode, error);
         else
             fd=open_file(url, mode);
     }

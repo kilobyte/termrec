@@ -300,7 +300,7 @@ void resolve_out()
     if ((err=getaddrinfo(host, port, &hints, &ai)))
     {
         if (err==EAI_NONAME)
-            die(_("No such host: %s\n"), host);
+            die("%s: %s\n", _("No such host"), host);
         else
             die("%s", gai_strerror(err));
     }
@@ -373,14 +373,14 @@ void get_host_rport()
         host++;
         cp=strchr(host, ']');
         if (!cp)
-            die(_("Unmatched [ in the host part.\n"));
+            die("%s\n", _("Unmatched [ in the host part."));
         *cp++=0;
         if (*cp)
         {
             if (*cp==':')
                 goto getrport;
             else
-                die(_("Cruft after the [host name].\n")); /* IPv6-style host name */
+                die("%s\n", _("Cruft after the [host name].")); /* IPv6-style host name */
         }
     }
     if ((cp=strrchr(host, ':')))
