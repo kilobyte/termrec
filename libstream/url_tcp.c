@@ -123,16 +123,19 @@ static void sock2file(int sock, int file)
 
 int open_tcp(char* url, int mode, char **error)
 {
-    char *cp;
+    char host[128], *cp;
     struct addrinfo *ai;
     int fd;
     
     if (match_prefix(url, "//"))
         url+=2;
     if ((cp=strchr(url, '/')))
-        *cp++=0;
+        snprintf(host, 128, "%.*s", (int)(cp-url), url);
     else
+    {
+        snprintf(host, 128, "%s", url);
         cp="";
+    }
     if ((*error=resolve_host(url, 0, &ai)))
         return -1;
     if ((fd=connect_out(ai))==-1)
@@ -140,6 +143,8 @@ int open_tcp(char* url, int mode, char **error)
     freeaddrinfo(ai);
     if (fd==-1)
         return -1;
+    
+    /* we may write the rest of the URL to the socket here ... */
     
     /* no bidi streams */
     if (mode&M_WRITE)
