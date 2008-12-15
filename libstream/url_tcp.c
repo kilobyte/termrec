@@ -14,7 +14,6 @@
 #endif
 #include <string.h>
 #include <errno.h>
-#include "error.h"
 #include "export.h"
 #include "stream.h"
 #include "compat.h"
@@ -121,14 +120,12 @@ static void sock2file(int sock, int file)
 #endif
 
 
-int open_tcp(char* url, int mode, char **error)
+int connect_tcp(char *url, int port, char **rest, char **error)
 {
     char host[128], *cp;
     struct addrinfo *ai;
     int fd;
     
-    if (match_prefix(url, "//"))
-        url+=2;
     if ((cp=strchr(url, '/')))
         snprintf(host, 128, "%.*s", (int)(cp-url), url);
     else
@@ -136,14 +133,23 @@ int open_tcp(char* url, int mode, char **error)
         snprintf(host, 128, "%s", url);
         cp="";
     }
-    if ((*error=resolve_host(url, 0, &ai)))
+    *rest=cp;
+    if ((*error=resolve_host(host, port, &ai)))
         return -1;
     if ((fd=connect_out(ai))==-1)
         *error=strerror(errno);
     freeaddrinfo(ai);
-    if (fd==-1)
-        return -1;
     
+    return fd;
+}
+
+
+int open_tcp(char* url, int mode, char **error)
+{
+    int fd;
+    char *rest;
+    
+    fd=connect_tcp(url, 0, &rest, error);
     /* we may write the rest of the URL to the socket here ... */
     
     /* no bidi streams */

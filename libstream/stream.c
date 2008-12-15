@@ -135,8 +135,10 @@ export int open_stream(int fd, char* url, int mode, char **error)
             fd=dup(wr? 1 : 0);
         else if (match_prefix(url, "file://"))
             fd=open_file(url+7, mode, error);
-        else if (match_prefix(url, "tcp:"))
-            fd=open_tcp(url+4, mode, error);
+        else if (match_prefix(url, "tcp://"))
+            fd=open_tcp(url+6, mode, error);
+        else if (match_prefix(url, "telnet://"))
+            fd=open_telnet(url+9, mode, error);
         else
             fd=open_file(url, mode, error);
     }
