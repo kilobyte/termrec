@@ -10,7 +10,7 @@
 
 
 #ifdef HAVE_FORK
-int filter(void func(int,int), int fd, int wr, char **error)
+int filter(void func(int,int,char*), int fd, int wr, char *arg, char **error)
 {
     int p[2];
     
@@ -29,7 +29,7 @@ int filter(void func(int,int), int fd, int wr, char **error)
         return -1;
     case 0:
         close(p[wr]);
-        func(fd, p[!wr]);
+        func(fd, p[!wr], arg);
         exit(0);
     default:
         close(p[!wr]);
@@ -40,7 +40,8 @@ int filter(void func(int,int), int fd, int wr, char **error)
 struct filterdata
 {
     int fdin, fdout;
-    void (*func)(int,int);
+    void (*func)(int,int,char*);
+    char *arg;
 };
 
 
@@ -52,13 +53,15 @@ static void filterthr(struct filterdata *args)
 {
     int fdin, fdout;
     void (*func)(int,int);
+    char *arg;
     
     fdin=args->fdin;
     fdout=args->fdout;
     func=args->func;
+    arg=args->arg;
     free(args);
     
-    func(fdin, fdout);
+    func(fdin, fdout, arg);
     mutex_lock(nsm);
     if (!--nstreams)
         cond_wake(exitcond);
@@ -77,7 +80,7 @@ static void finish_up()
 }
 
 
-int filter(void func(int,int), int fd, int wr, char **error)
+int filter(void func(int,int,char*), int fd, int wr, char *arg, char **error)
 {
     int p[2];
     struct filterdata *fdata;
@@ -139,6 +142,8 @@ export int open_stream(int fd, char* url, int mode, char **error)
             fd=open_tcp(url+6, mode, error);
         else if (match_prefix(url, "telnet://"))
             fd=open_telnet(url+9, mode, error);
+        else if (match_prefix(url, "termcast://"))
+            fd=open_termcast(url+11, mode, error);
         else
             fd=open_file(url, mode, error);
     }
@@ -148,5 +153,5 @@ export int open_stream(int fd, char* url, int mode, char **error)
     ci=comp_from_ext(url, wr? compressors : decompressors);
     if (!ci)
         return fd;
-    return filter(ci->comp, fd, wr, error);
+    return filter(ci->comp, fd, wr, 0, error);
 }

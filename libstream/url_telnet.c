@@ -45,7 +45,7 @@
 #define IS      0
 #define SEND    1
 
-static void telnet(int sock, int fd)
+void telnet(int sock, int fd, char *arg)
 {
     int state,will=0 /*lint food*/,sublen=0;
     size_t cnt;
@@ -171,8 +171,10 @@ int open_telnet(char* url, int mode, char **error)
     }
     
     fd=connect_tcp(url, 23, &rest, error);
+    if (fd==-1)
+        return -1;
     
     /* we may write the rest of the URL to the socket here ... */
     
-    return filter(telnet, fd, !!(mode&M_WRITE), error);
+    return filter(telnet, fd, !!(mode&M_WRITE), 0, error);
 }

@@ -5,4 +5,5 @@ LIBSTREAM = 	libstream/compress.c \
 		libstream/url_file.c \
 		libstream/url_tcp.c \
 		libstream/url_telnet.c \
+		libstream/url_termcast.c \
 		libstream/prefix.c

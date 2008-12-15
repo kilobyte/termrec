@@ -29,7 +29,7 @@
 #define BUFFER_SIZE 32768
 
 #if (defined HAVE_LIBBZ2) || (defined SHIPPED_LIBBZ2)
-static void read_bz2(int f, int fd)
+static void read_bz2(int f, int fd, char *arg)
 {
     BZFILE* b;
     int     nBuf;
@@ -66,7 +66,7 @@ static void read_bz2(int f, int fd)
     close(fd);
 }
 
-static void write_bz2(int f, int fd)
+static void write_bz2(int f, int fd, char *arg)
 {
     BZFILE* b;
     int     nBuf;
@@ -98,7 +98,7 @@ static void write_bz2(int f, int fd)
 #endif
 
 #if (defined HAVE_LIBZ) || (SHIPPED_LIBZ)
-static void read_gz(int f, int fd)
+static void read_gz(int f, int fd, char *arg)
 {
     gzFile  g;
     int     nBuf;
@@ -130,7 +130,7 @@ static void read_gz(int f, int fd)
     close(fd);
 }
 
-static void write_gz(int f, int fd)
+static void write_gz(int f, int fd, char *arg)
 {
     gzFile  g;
     int     nBuf;
