@@ -17,7 +17,7 @@ termrec (0.15-1) unstable; urgency=low
 
  -- Adam Borowski <kilobyte@angband.pl>  Thu, 11 Dec 2008 16:50:14 +0100
 
-termrec (0.15-1~1) unstable; urgency=low
+termrec (0.15~1-1) unstable; urgency=low
 
   * Initial private release
 
