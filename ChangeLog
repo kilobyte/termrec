@@ -1,3 +1,7 @@
+0.16
+* --append
+* Protocols: tcp:// (rw), telnet:// (r), termcast:// (r).
+
 0.15
 * A total reorganization, with refactoring of most parts.
 * Library.
