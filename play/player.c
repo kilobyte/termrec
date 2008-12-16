@@ -27,7 +27,6 @@ static int player(void *arg)
     {
         while((nf=ttyrec_next_frame(tr, fr)))
         {
-            fr=nf;
             tt=nf->t;
             tdiv1000(tt, speed);
             tadd(tt, t0);
@@ -37,7 +36,10 @@ static int player(void *arg)
                 select(0, 0, 0, 0, &tt);
             else if (tt.tv_sec<-1) /* if not a minimal skip, slow down the clock */
                 tsub(t0, tt);      /* (tt is negative) */
+            pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
+            fr=nf;
             vt100_write(term, fr->data, fr->len);
+            pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
         }
         mutex_lock(waitm);
         if (!(nf=ttyrec_next_frame(tr, fr)) && !loaded)
