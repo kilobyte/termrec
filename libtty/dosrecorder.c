@@ -103,7 +103,7 @@ void play_dosrecorder(FILE *f,
     void *(synch_init_wait)(struct timeval *ts, void *arg),
     void *(synch_wait)(struct timeval *tv, void *arg),
     void *(synch_print)(char *buf, int len, void *arg),
-    void *arg)
+    void *arg, struct timeval *cont)
 {
     gzFile g;
     screen tty, scr, screens[MAXSCREENS];

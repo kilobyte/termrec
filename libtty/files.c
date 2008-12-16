@@ -216,7 +216,7 @@ export int ttyrec_r_play(int fd, char *format, char *filename,
     int nf;
     FILE *f;
     
-    nf=find_r_format(format, filename, "baudrate");	/* TODO: make this reasonable */
+    nf=find_r_format(format, filename, "auto");
     if (nf==-1)
     {
         if (fd!=-1)
@@ -238,7 +238,7 @@ export int ttyrec_r_play(int fd, char *format, char *filename,
     
     f=fdopen(fd, "rb");
     assert(f);
-    (*play[nf].play)(f, synch_init_wait, synch_wait, synch_print, arg);
+    (*play[nf].play)(f, synch_init_wait, synch_wait, synch_print, arg, 0);
     fclose(f);
     return 1;
 }

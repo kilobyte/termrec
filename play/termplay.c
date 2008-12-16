@@ -92,7 +92,7 @@ finish_args:
         die(_("You specified the file to play multiple times.\n"));
     
     if (!format)
-        format=ttyrec_r_find_format(0, play_name, "ttyrec");
+        format=ttyrec_r_find_format(0, play_name, "auto");
 }
 
 
