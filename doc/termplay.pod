@@ -11,6 +11,21 @@ B<termplay> I<file>
 B<Termplay> can play back ttyrec recordings, like those produced by B<termrec>,
 B<ttyrec>, services like nethack.alt.org or crawl.akrasiacs.org and so on.
 
+Certain non-file streams can be played as well, such as:
+
+=over
+
+=item file://
+
+=item tcp://
+
+=item telnet:// (e.g. telnet://towel.blinkenlights.nl)
+
+=item termcast:// (e.g. termcast://termcast.org/FooTV)
+
+=back
+
+
 =head2 Keys available during replay:
 
 =over
