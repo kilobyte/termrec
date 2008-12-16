@@ -13,6 +13,11 @@ static ttyrec_frame fr;
 static struct timeval t0, tc;
 
 
+void waitm_unlock(void *arg)
+{
+    mutex_unlock(waitm);
+}
+
 static int player(void *arg)
 {
     ttyrec_frame nf;
@@ -37,7 +42,9 @@ static int player(void *arg)
             waiting=1;
         if (waiting)
         {
+            pthread_cleanup_push(waitm_unlock, 0);
             cond_wait(waitc, waitm);
+            pthread_cleanup_pop(0);
             nf=ttyrec_next_frame(tr, fr);
         }
         mutex_unlock(waitm);
