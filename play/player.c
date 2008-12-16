@@ -35,6 +35,8 @@ static int player(void *arg)
             tsub(tt, wall);
             if (tt.tv_sec>0 || tt.tv_usec>0)
                 select(0, 0, 0, 0, &tt);
+            else if (tt.tv_sec<-1) /* if not a minimal skip, slow down the clock */
+                tsub(t0, tt);      /* (tt is negative) */
             vt100_write(term, fr->data, fr->len);
         }
         mutex_lock(waitm);
