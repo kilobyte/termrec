@@ -1,3 +1,17 @@
+/*
+Termrec uses "MSAA" ("Microsoft Active Accessability", I wonder what clown
+can come up with such a name), it's present on WinXP and some regional
+(Japanese, ...) versions of Win2K and Win98.  If that API is not there,
+termrec will fall back to polling the screen 50 times per second, possibly
+losing some of fast-scrolled text.  Even MSAA is not atomic, too.
+
+Due to the unholy mess of code pages (on Polish version, there are 3
+non-compatible pages and Unicode), termrec will use UTF-8 where available. 
+This means, on NT-based versions of Windows.  If you're on Win95/98/ME, your
+mileage will vary according to the program you use -- termplay is hard-coded
+for CP437, fit for NetHack.
+*/
+
 #define WINVER 0x501
 #define _WIN32_WINDOWS 0x501
 #define _WIN32_WINNT 0x501
