@@ -13,6 +13,11 @@ static ttyrec_frame fr;
 static struct timeval t0, tc;
 
 
+void waitm_unlock(void *arg)
+{
+    mutex_unlock(waitm);
+}
+
 static int player(void *arg)
 {
     ttyrec_frame nf;
@@ -22,7 +27,6 @@ static int player(void *arg)
     {
         while((nf=ttyrec_next_frame(tr, fr)))
         {
-            fr=nf;
             tt=nf->t;
             tdiv1000(tt, speed);
             tadd(tt, t0);
@@ -30,14 +34,21 @@ static int player(void *arg)
             tsub(tt, wall);
             if (tt.tv_sec>0 || tt.tv_usec>0)
                 select(0, 0, 0, 0, &tt);
+            else if (tt.tv_sec<-1) /* if not a minimal skip, slow down the clock */
+                tsub(t0, tt);      /* (tt is negative) */
+            pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
+            fr=nf;
             vt100_write(term, fr->data, fr->len);
+            pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
         }
         mutex_lock(waitm);
         if (!(nf=ttyrec_next_frame(tr, fr)) && !loaded)
             waiting=1;
         if (waiting)
         {
+            pthread_cleanup_push(waitm_unlock, 0);
             cond_wait(waitc, waitm);
+            pthread_cleanup_pop(0);
             nf=ttyrec_next_frame(tr, fr);
         }
         mutex_unlock(waitm);

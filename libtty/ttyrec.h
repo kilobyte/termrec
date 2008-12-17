@@ -19,7 +19,7 @@ typedef struct
 #define M_REPREAD	2
 #define M_APPEND	3
 
-int		open_stream(int fd, char* url, int mode);
+int		open_stream(int fd, char* url, int mode, char **error);
 
 char*		ttyrec_w_find_format(char *format, char *filename, char *fallback);
 recorder	ttyrec_w_open(int fd, char *format, char *filename, struct timeval *ts);

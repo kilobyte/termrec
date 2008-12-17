@@ -26,6 +26,7 @@ static struct option rec_opts[]={
 {"format",	1, 0, 'f'},
 {"exec",	1, 0, 'e'},
 {"raw",		0, 0, 'r'},
+{"append",	0, 0, 'a'},
 {"help",	0, 0, 'h'},
 {0,		0, 0, 0},
 };
@@ -39,6 +40,7 @@ void get_rec_parms(int argc, char **argv)
     command=0;
     record_name=0;
     raw=0;
+    append=0;
 #if (defined HAVE_LIBBZ2) || (defined SHIPPED_LIBBZ2)
     comp_ext=".bz2";
 #else
@@ -52,9 +54,9 @@ void get_rec_parms(int argc, char **argv)
     while(1)
     {
 #if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
-        switch(getopt_long(argc, argv, "f:e:rh", rec_opts, 0))
+        switch(getopt_long(argc, argv, "f:e:rah", rec_opts, 0))
 #else
-        switch(getopt(argc, argv, "f:e:rh"))
+        switch(getopt(argc, argv, "f:e:rah"))
 #endif
         {
         case -1:
@@ -73,6 +75,9 @@ void get_rec_parms(int argc, char **argv)
         case 'r':
             raw=1;
             break;
+        case 'a':
+            append=1;
+            break;
         case 'h':
             printf(
                 "%stermrec [-f format] [-e command] [file]\n"
@@ -80,6 +85,7 @@ void get_rec_parms(int argc, char **argv)
                 "-f, --format X        %s\n"
                 "-e, --exec X          %s\n"
                 "-r, --raw             %s\n"
+                "-a, --append          %s\n"
                 "-h, --help            %s\n"
                 "%s%s%s",
                 _("Usage: "),
@@ -87,6 +93,7 @@ void get_rec_parms(int argc, char **argv)
                 _("set output format to X (-f whatever for the list)"),
                 _("execute command X instead of spawning a shell"),
                 _("don't record UTFness or terminal size"),
+                _("append to an existing file"),
                 _("show this usage message"),
                 _("If no filename is given, a name will be generated using the current date\n"
                   "    and the given format.\n"),

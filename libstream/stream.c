@@ -1,8 +1,4 @@
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <string.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include "config.h"
 #include "error.h"
@@ -14,7 +10,7 @@
 
 
 #ifdef HAVE_FORK
-static int filter(void func(int,int), int fd, int wr)
+int filter(void func(int,int,char*), int fd, int wr, char *arg, char **error)
 {
     int p[2];
     
@@ -26,13 +22,14 @@ static int filter(void func(int,int), int fd, int wr)
     switch(fork())
     {
     case -1:
+        *error="fork() failed";
         close(fd);
         close(p[0]);
         close(p[1]);
         return -1;
     case 0:
         close(p[wr]);
-        func(fd, p[!wr]);
+        func(fd, p[!wr], arg);
         exit(0);
     default:
         close(p[!wr]);
@@ -43,7 +40,8 @@ static int filter(void func(int,int), int fd, int wr)
 struct filterdata
 {
     int fdin, fdout;
-    void (*func)(int,int);
+    void (*func)(int,int,char*);
+    char *arg;
 };
 
 
@@ -54,14 +52,16 @@ static mutex_t nsm;
 static void filterthr(struct filterdata *args)
 {
     int fdin, fdout;
-    void (*func)(int,int);
+    void (*func)(int,int,char*);
+    char *arg;
     
     fdin=args->fdin;
     fdout=args->fdout;
     func=args->func;
+    arg=args->arg;
     free(args);
     
-    func(fdin, fdout);
+    func(fdin, fdout, arg);
     mutex_lock(nsm);
     if (!--nstreams)
         cond_wake(exitcond);
@@ -80,7 +80,7 @@ static void finish_up()
 }
 
 
-static int filter(void func(int,int), int fd, int wr)
+int filter(void func(int,int,char*), int fd, int wr, char *arg, char **error)
 {
     int p[2];
     struct filterdata *fdata;
@@ -109,6 +109,7 @@ static int filter(void func(int,int), int fd, int wr)
     mutex_unlock(nsm);
     return p[wr];
 failthread:
+    *error="Couldn't create thread";
     mutex_unlock(nsm);
     free(fdata);
 failfdata:
@@ -121,34 +122,30 @@ failpipe:
 #endif
 
 
-export int open_stream(int fd, char* url, int mode)
+export int open_stream(int fd, char* url, int mode, char **error)
 {
-    int fmode, wr= !!(mode&M_WRITE);
+    int wr= !!(mode&M_WRITE);
     compress_info *ci;
+    char *dummy;
     
     if (fd==-1)
     {
         if (!url)
             return -1;
+        if (!error)
+            error=&dummy;
         if (!strcmp(url, "-"))
             fd=dup(wr? 1 : 0);
+        else if (match_prefix(url, "file://"))
+            fd=open_file(url+7, mode, error);
+        else if (match_prefix(url, "tcp://"))
+            fd=open_tcp(url+6, mode, error);
+        else if (match_prefix(url, "telnet://"))
+            fd=open_telnet(url+9, mode, error);
+        else if (match_prefix(url, "termcast://"))
+            fd=open_termcast(url+11, mode, error);
         else
-        {
-            switch(mode)
-            {
-            case M_READ:
-                fmode=O_RDONLY; break;
-            case M_WRITE:
-                fmode=O_WRONLY|O_CREAT|O_TRUNC; break;
-            case M_REPREAD:
-                fmode=O_RDONLY; break;
-            case M_APPEND:
-                fmode=O_WRONLY|O_APPEND|O_CREAT; break;
-            default:
-                return -1;
-            }
-            fd=open(url, fmode|O_BINARY, 0666);
-        }
+            fd=open_file(url, mode, error);
     }
     if (fd==-1)
         return -1;
@@ -156,5 +153,5 @@ export int open_stream(int fd, char* url, int mode)
     ci=comp_from_ext(url, wr? compressors : decompressors);
     if (!ci)
         return fd;
-    return filter(ci->comp, fd, wr);
+    return filter(ci->comp, fd, wr, 0, error);
 }

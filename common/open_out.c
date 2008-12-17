@@ -52,11 +52,12 @@ static void nameinc(char *add)
 }
 
 
-int open_out(char **file_name, char *format_ext)
+int open_out(char **file_name, char *format_ext, int append)
 {
     int fd;
     char add[10],date[24];
     time_t t;
+    char *error;
     
     if (!*file_name)
     {
@@ -65,8 +66,8 @@ int open_out(char **file_name, char *format_ext)
         strftime(date, sizeof(date), "%Y-%m-%d.%H-%M-%S", localtime(&t));
         while(1)
         {
-            asprintf(file_name, "%s%s%s%s", date, add, format_ext, comp_ext);
-            fd=open(*file_name, O_CREAT|O_WRONLY|O_EXCL|O_BINARY, 0666);
+            asprintf(file_name, "%s%s%s%s", date, add, format_ext, append?"":comp_ext);
+            fd=open(*file_name, (append?O_APPEND:O_CREAT|O_EXCL)|O_WRONLY|O_BINARY, 0666);
             /* We do some autoconf magic to exclude O_BINARY when inappropiate. */
             if (fd!=-1)
                 goto finish;
@@ -84,8 +85,10 @@ int open_out(char **file_name, char *format_ext)
         fd=-1;
         goto finish;
     }
-    if (!(fd=open(*file_name, O_WRONLY|O_CREAT|O_TRUNC|O_BINARY, 0666)))
+    if (!(fd=open(*file_name, (append?O_APPEND:O_CREAT|O_TRUNC)|O_WRONLY|O_BINARY, 0666)))
         die(_("Can't write to the record file (%s): %s\n"), *file_name, strerror(errno));
 finish:
-    return open_stream(fd, *file_name, M_WRITE);
+    if ((fd=open_stream(fd, *file_name, append?M_APPEND:M_WRITE, &error))==-1)
+        die(error);
+    return fd;
 }

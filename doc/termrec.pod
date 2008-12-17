@@ -50,6 +50,10 @@ Inhibits noting info about your terminal size and UTFness.  This data is usually
 thing, but can confuse some programs.  Also note that none of the formats provides a way
 to mark which exactly charset you use -- only if it's UTF-8 or one of ancient ones.
 
+=item B<-a>, B<--append>
+
+If the output file exists, it will be appended instead being overwritten.
+
 =item B<-h>, B<--help>
 
 Shows a short explanation of parameters.

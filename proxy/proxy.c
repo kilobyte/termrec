@@ -31,7 +31,7 @@
 #define BUFFER_SIZE 4096
 
 struct addrinfo *ai;
-int verbose, raw;
+int verbose, raw, append;
 int lport, rport;
 char *host;
 char *record_name;
@@ -249,7 +249,7 @@ void connthread(void *arg)
     if (verbose)
         printf(_("Ok.\n")); /* managed to connect out */
     filename=record_name;
-    fd=open_out(&filename, format_ext);
+    fd=open_out(&filename, format_ext, append);
     gettimeofday(&tv, 0);
     if (fd==-1 || !(ws.rec=ttyrec_w_open(fd, format, filename, &tv)))
     {
@@ -300,7 +300,7 @@ void resolve_out()
     if ((err=getaddrinfo(host, port, &hints, &ai)))
     {
         if (err==EAI_NONAME)
-            die(_("No such host: %s\n"), host);
+            die("%s: %s\n", _("No such host"), host);
         else
             die("%s", gai_strerror(err));
     }
@@ -373,14 +373,14 @@ void get_host_rport()
         host++;
         cp=strchr(host, ']');
         if (!cp)
-            die(_("Unmatched [ in the host part.\n"));
+            die("%s\n", _("Unmatched [ in the host part."));
         *cp++=0;
         if (*cp)
         {
             if (*cp==':')
                 goto getrport;
             else
-                die(_("Cruft after the [host name].\n")); /* IPv6-style host name */
+                die("%s\n", _("Cruft after the [host name].")); /* IPv6-style host name */
         }
     }
     if ((cp=strrchr(host, ':')))
@@ -409,6 +409,7 @@ static struct option proxy_opts[]={
 {"port",        1, 0, 'p'},
 {"raw",		0, 0, 'r'},
 {"telnet",	0, 0, 't'},
+{"append",	0, 0, 'a'},
 {"help",	0, 0, 'h'},
 {0,		0, 0, 0},
 };
@@ -425,13 +426,14 @@ void get_proxy_parms(int argc, char **argv)
     lport=-1;
     rport=-1;
     raw=1;
+    append=0;
     
     while(1)
     {
 #if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
-        switch(getopt_long(argc, argv, "f:l:rthp:", proxy_opts, 0))
+        switch(getopt_long(argc, argv, "f:l:rtahp:", proxy_opts, 0))
 #else
-        switch(getopt(argc, argv, "f:l:rthp:"))
+        switch(getopt(argc, argv, "f:l:rtahp:"))
 #endif
         {
         case -1:
@@ -464,6 +466,9 @@ void get_proxy_parms(int argc, char **argv)
         case 't':
             raw=0;
             break;
+        case 'a':
+            append=1;
+            break;
         case 'h':
             printf(
                 "%sproxyrec [-f format] [-p rport] [-l lport] host[:port] [file]\n"
@@ -472,6 +477,7 @@ void get_proxy_parms(int argc, char **argv)
                 "-l, --local-port X    %s\n"
                 "-p, --port X          %s\n"
                 "-t, --telnet          %s\n"
+                "-a, --append          %s\n"
                 "-h, --help            %s\n"
                 "%s%s%s%s",
                 _("Usage:"),
@@ -480,6 +486,7 @@ void get_proxy_parms(int argc, char **argv)
                 _("listen on port X locally (default: 9999)"),
                 _("connect to remote port X (default: 23)"),
                 _("weed out TELNET negotiations and extract some data from them"),
+                _("append to an existing file"),
                 _("show this usage message"),
                 _("The host to connect to must be specified.\n"),
                 _("If no filename is given, a name will be generated using the current date\n"

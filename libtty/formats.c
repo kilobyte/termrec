@@ -12,7 +12,7 @@ void play_xxx(FILE *f,
     void *(synch_init_wait)(struct timeval *ts, void *arg),
     void *(synch_wait)(struct timeval *tv, void *arg),
     void *(synch_print)(char *buf, int len, void *arg),
-    void *arg);
+    void *arg, struct timeval *cont);
 You are guaranteed to be running in a thread-equivalent on your own.
     *f
       is the file you're reading from, don't expect it to be seekable.
@@ -85,13 +85,13 @@ Will be called when the recording ends.
 
 /* ttyrec checks the byte sex on runtime, during _every_ swap.  Uh oh. */
 #ifdef WORDS_BIGENDIAN
-# define to_little_endian(x) ((uint32_t) ( \
+# define little_endian(x) ((uint32_t) ( \
     (((uint32_t) (x) & (uint32_t) 0x000000ffU) << 24) | \
     (((uint32_t) (x) & (uint32_t) 0x0000ff00U) <<  8) | \
     (((uint32_t) (x) & (uint32_t) 0x00ff0000U) >>  8) | \
     (((uint32_t) (x) & (uint32_t) 0xff000000U) >> 24)))
 #else
-# define to_little_endian(x) ((uint32_t)(x))
+# define little_endian(x) ((uint32_t)(x))
 #endif
 
 #define tadd(t, d)	{if (((t).tv_usec+=(d).tv_usec)>1000000)	\
@@ -114,7 +114,7 @@ static void play_baudrate(FILE *f,
     void *(synch_init_wait)(struct timeval *ts, void *arg),
     void *(synch_wait)(struct timeval *tv, void *arg),
     void *(synch_print)(char *buf, int len, void *arg),
-    void *arg)
+    void *arg, struct timeval *cont)
 {
     char buf[BUFFER_SIZE];
     size_t b;
@@ -154,15 +154,19 @@ static void play_live(FILE *f,
     void *(synch_init_wait)(struct timeval *ts, void *arg),
     void *(synch_wait)(struct timeval *tv, void *arg),
     void *(synch_print)(char *buf, int len, void *arg),
-    void *arg)
+    void *arg, struct timeval *cont)
 {
     struct timeval tv, tp, tm;
     char buf[BUFFER_SIZE];
     int len;
     
-    gettimeofday(&tv, 0);
-    synch_init_wait(&tv, arg);
-    tp=tv;
+    if (cont)
+        tp=*cont;
+    else
+    {
+        gettimeofday(&tp, 0);
+        synch_init_wait(&tp, arg);
+    }
     
     /* using read() not fread(), we need unbuffered IO */
     while((len=read(fileno(f), buf, BUFFER_SIZE))>0)
@@ -226,21 +230,27 @@ static void play_ttyrec(FILE *f,
     void *(synch_init_wait)(struct timeval *ts, void *arg),
     void *(synch_wait)(struct timeval *tv, void *arg),
     void *(synch_print)(char *buf, int len, void *arg),
-    void *arg)
+    void *arg, struct timeval *cont)
 {
     char buf[BUFFER_SIZE];
     size_t b,w;
     struct timeval tv,tl;
     int first=1;
     struct ttyrec_header head;
+    
+    if (cont)
+    {
+        tv=*cont;
+        first=0;
+    }
 
     while(fread(&head, 1, sizeof(struct ttyrec_header), f)
       ==sizeof(struct ttyrec_header))
     {
-        b=to_little_endian(head.len);
+        b=little_endian(head.len);
 /*
-        printf("b=%u, time=%i.%09i\n", b, to_little_endian(head.sec),
-            to_little_endian(head.usec));
+        printf("b=%u, time=%i.%09i\n", b, little_endian(head.sec),
+            little_endian(head.usec));
 */
         /* pre-read the first block to make the timing more accurate */
         if (b>BUFFER_SIZE)
@@ -253,16 +263,16 @@ static void play_ttyrec(FILE *f,
         
         if (first)
         {
-            tv.tv_sec=to_little_endian(head.sec);
-            tv.tv_usec=to_little_endian(head.usec);
+            tv.tv_sec=little_endian(head.sec);
+            tv.tv_usec=little_endian(head.usec);
             synch_init_wait(&tv, arg);
             first=0;
         }
         else
         {
             tl=tv;
-            tv.tv_sec=to_little_endian(head.sec);
-            tv.tv_usec=to_little_endian(head.usec);
+            tv.tv_sec=little_endian(head.sec);
+            tv.tv_usec=little_endian(head.usec);
             tl.tv_sec=tv.tv_sec-tl.tv_sec;
             if ((tl.tv_usec=tv.tv_usec-tl.tv_usec)<0)
             {
@@ -319,7 +329,7 @@ static void play_nh_recorder(FILE *f,
     void *(synch_init_wait)(struct timeval *ts, void *arg),
     void *(synch_wait)(struct timeval *tv, void *arg),
     void *(synch_print)(char *buf, int len, void *arg),
-    void *arg)
+    void *arg, struct timeval *cont)
 {
     char buf[BUFFER_SIZE];
     int b,i,i0;
@@ -346,7 +356,7 @@ static void play_nh_recorder(FILE *f,
                 else
                 {
                     tp=t;
-                    t=to_little_endian(*(uint32_t*)(buf+i+1));
+                    t=little_endian(*(uint32_t*)(buf+i+1));
                     i0=i+=4;
                     tv.tv_sec=(t-tp)/100;
                     tv.tv_usec=(t-tp)%100*10000;
@@ -386,6 +396,57 @@ static void record_nh_recorder_finish(FILE *f, void* state)
 }
 
 
+/***********************/
+/* pseudo-format: auto */
+/***********************/
+
+static void play_auto(FILE *f,
+    void *(synch_init_wait)(struct timeval *ts, void *arg),
+    void *(synch_wait)(struct timeval *tv, void *arg),
+    void *(synch_print)(char *buf, int len, void *arg),
+    void *arg, struct timeval *cont)
+{
+    struct ttyrec_header tth;
+    int len, got;
+    char buf[BUFFER_SIZE];
+    struct timeval tv;
+    
+    /* first, grab 12 bytes and see if it looks like a ttyrec header */
+    got=0;
+    do
+    {
+        /* must use unbuffered I/O here, to not spoil it for play_live() */
+        if ((len=read(fileno(f), ((char*)&tth)+got, 12-got))<=0)
+            return;
+        got+=len;
+    } while (got<12);
+    if (little_endian(tth.sec)>=0 &&
+        little_endian(tth.usec)>=0 && little_endian(tth.usec)<1000000 &&
+        little_endian(tth.len)>0 && little_endian(tth.len)<65536)
+    {
+        tv.tv_sec=little_endian(tth.sec);
+        tv.tv_usec=little_endian(tth.usec);
+        synch_init_wait(&tv, arg);
+        got=little_endian(tth.len);
+        while(got>0)
+        {
+            if ((len=fread(buf, 1, (got>BUFFER_SIZE)?BUFFER_SIZE:got, f))<=0)
+                return;
+            synch_print(buf, len, arg);
+            got-=len;
+        }
+        play_ttyrec(f, 0, synch_wait, synch_print, arg, &tv);
+        return;
+    }
+    
+    /* fall back to "live" */
+    gettimeofday(&tv, 0);
+    synch_init_wait(&tv, arg);
+    synch_print((char*)&tth, 12, arg);
+    play_live(f, 0, synch_wait, synch_print, arg, &tv);
+}
+
+
 /****************/
 /* format: null */
 /****************/
@@ -409,7 +470,7 @@ void play_dosrecorder(FILE *f,
     void *(synch_init_wait)(struct timeval *ts, void *arg),
     void *(synch_wait)(struct timeval *tv, void *arg),
     void *(synch_print)(char *buf, int len, void *arg),
-    void *arg);
+    void *arg, struct timeval *cont);
 
 recorder_info rec[]={
 {"ansi",".txt",record_baudrate_init,record_baudrate,record_baudrate_finish},
@@ -428,6 +489,7 @@ player_info play[]={
 {"dosrecorder",".dm2",play_dosrecorder},
 #endif
 {"live",0,play_live},
+{"auto",0,play_auto},
 {0, 0},
 };
 

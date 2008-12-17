@@ -11,6 +11,21 @@ B<termplay> I<file>
 B<Termplay> can play back ttyrec recordings, like those produced by B<termrec>,
 B<ttyrec>, services like nethack.alt.org or crawl.akrasiacs.org and so on.
 
+Certain non-file streams can be played as well, such as:
+
+=over
+
+=item file://
+
+=item tcp://
+
+=item telnet:// (e.g. telnet://towel.blinkenlights.nl)
+
+=item termcast:// (e.g. termcast://termcast.org/FooTV)
+
+=back
+
+
 =head2 Keys available during replay:
 
 =over
@@ -59,7 +74,7 @@ quit B<termplay>
 
 =item B<-f> I<format>, B<--format>
 
-You can specify a format other than ttyrec.  Those available are:
+Here you specify the format.  Those available are:
 
 =over
 
@@ -75,11 +90,22 @@ Compatible with B<ttyrec> by Satoru Takabayashi.
 
 Compatible with B<nh-recorder> by Helge Dennhardt.
 
+=item dosrecorder
+
+Compatible with a program named B<DosRecorder>.
+
 =item live
 
-The data is assumed to be played at the same timing as it arrived.  This is useful
+The data is assumed to be played at the same timing as it arrives.  This is useful
 for watching termcasts, etc -- giving you the ability to rewind to an interesting
-moment.
+moment.  Trying to use this on a real file will blast its whole contents right into
+your face, beware!
+
+=item auto (default)
+
+This pseudo-format will make B<termplay> try to guess the format, currently only
+between B<ttyrec> and B<live>.  Caveats about B<live> blasting the whole file
+right away apply!
 
 =back
 

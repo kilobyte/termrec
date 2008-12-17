@@ -12,7 +12,14 @@ B<Termcat> takes all the input recordings, concatenates them together
 then writes to the target file in a format you choose.
 
 For example:
-	termcat 1.nh.gz 2.ttyrec.bz2 combined.ttyrec.bz2
+
+=over 8
+
+termcat 1.nh.gz 2.ttyrec.bz2 combined.ttyrec.bz2
+
+termcat telnet://towel.blinkenlights.nl starwars.ttyrec.bz2
+
+=back
 
 Note that unlike B<cat>, the last file is output, not one of components.
 If you really want to send ttyrec data to stdout, use "-".

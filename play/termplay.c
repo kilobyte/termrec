@@ -92,7 +92,7 @@ finish_args:
         die(_("You specified the file to play multiple times.\n"));
     
     if (!format)
-        format=ttyrec_r_find_format(0, play_name, "ttyrec");
+        format=ttyrec_r_find_format(0, play_name, "auto");
 }
 
 
@@ -146,10 +146,11 @@ int main(int argc, char **argv)
 {
     int fd;
     thread_t loadth;
+    char *error;
     
     get_play_parms(argc, argv);
-    if ((fd=open_stream(-1, play_name, follow?M_REPREAD:M_READ))==-1)
-        die("%s %s\n", _("Couldn't load file:"), play_name);
+    if ((fd=open_stream(-1, play_name, follow?M_REPREAD:M_READ, &error))==-1)
+        die("%s: %s\n", play_name, error);
     tr=ttyrec_init(vt100_init(200, 100, 1, 1));
     mutex_init(waitm);
     cond_init(waitc);
