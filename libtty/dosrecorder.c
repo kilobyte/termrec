@@ -62,6 +62,7 @@ static inline int sp_string(attrchar *ch, int a, int max)
    Thus, don't skimp on BUFFER_SIZE.  16k should be more than enough, but it's better
    to waste memory than have a buf overflow.
 */
+#define MINCL 20
 static int scrdiff(screen *tty, screen *scr, char *buf)
 {
     char *bp=buf;
@@ -87,7 +88,7 @@ static int scrdiff(screen *tty, screen *scr, char *buf)
                     cx++;
                 }
                 setattr(&(*scr)[y][x], &attr, &bp);
-                if (cx>80-15 || (sp=sp_string(&(*scr)[y][x], attr, 80-cx))<15)
+                if (cx>80-MINCL || (sp=sp_string(&(*scr)[y][x], attr, 80-cx))<MINCL)
                     wrchar(&(*scr)[y][x], &attr, &bp);
                 else
                 {
