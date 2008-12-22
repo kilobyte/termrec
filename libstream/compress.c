@@ -58,7 +58,7 @@ static void read_bz2(int f, int fd, char *arg)
     if (bzerror != BZ_STREAM_END) {
        BZ2_bzReadClose ( &bzerror, b );
        /* error */
-       ERRORMSG("\e[0m");
+       ERRORMSG("\033[0m");
        ERRORMSG(_("bzip2: Error during decompression.\n"));
     } else {
        BZ2_bzReadClose ( &bzerror, b );
@@ -123,7 +123,7 @@ static void read_gz(int f, int fd, char *arg)
     }
     if (nBuf)
     {
-        ERRORMSG("\e[0m");
+        ERRORMSG("\033[0m");
         ERRORMSG(_("gzip: Error during decompression.\n"));
     }
     gzclose(g);        

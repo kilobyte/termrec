@@ -1,4 +1,5 @@
 /*#define VT100_DEBUG*/
+#include "config.h"
 #define _GNU_SOURCE
 #include "vt100.h"
 #include "charsets.h"

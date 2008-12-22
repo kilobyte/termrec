@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "error.h"
-#include "sys/threads.h"
 #include "vt100.h"
 
 typedef struct {} *recorder;
