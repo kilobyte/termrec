@@ -47,7 +47,7 @@ int		ttyrec_save(ttyrec tr, int fd, char *format, char *filename,
                     struct timeval *selstart, struct timeval *selend);
 
 
-#define tadd(t, d)	{if (((t).tv_usec+=(d).tv_usec)>1000000)	\
+#define tadd(t, d)	{if (((t).tv_usec+=(d).tv_usec)>=1000000)	\
                             (t).tv_usec-=1000000, (t).tv_sec++;		\
                          (t).tv_sec+=(d).tv_sec;			\
                         }
