@@ -16,7 +16,7 @@ AC_SUBST([WALL])
 
 dnl can we block unwanted symbols?
 AC_DEFUN([AC_VISIBILITY], [
-AC_MSG_CHECKING([aaa])
+AC_MSG_CHECKING([for GCC visibility attr])
 AC_COMPILE_IFELSE([
 # define export __attribute__ ((visibility ("default")))
 # pragma GCC visibility push(hidden)
