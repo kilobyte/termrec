@@ -30,6 +30,7 @@ volatile int need_resize;
 int need_utf;
 struct termios ta;
 int ptym;
+int sx, sy;
 int record_f;
 recorder rec;
 
@@ -76,23 +77,36 @@ void setsignals()
         die("sigaction SIGPIPE");
 }
 
-void resize()
+void tty_get_size()
 {
     struct winsize ts;
-    struct timeval tv;
-    char buf[20];
 
-    if (raw)
-        return;
     if (ioctl(1,TIOCGWINSZ,&ts))
         return;
     if (!ts.ws_row || !ts.ws_col)
         return;
-    ioctl(ptym,TIOCSWINSZ,&ts);
+    if (ptym!=-1)
+        ioctl(ptym,TIOCSWINSZ,&ts);
+    sx=ts.ws_col;
+    sy=ts.ws_row;
+}
+
+void record_size()
+{
+    struct timeval tv;
+    char buf[20], *bp;
+
+    if (raw)
+        return;
+    bp = buf;
+    if (need_utf)
+        bp+=sprintf(bp, "\e%%G"), need_utf=0;
+    if (sx && sy)
+        bp+=sprintf(bp, "\e[8;%d;%dt", sy, sx);
+    if (buf==bp)
+        return;
     gettimeofday(&tv, 0);
-    ttyrec_w_write(rec, &tv, buf, snprintf(buf, sizeof(buf),
-        "%s\e[8;%d;%dt", need_utf?"\e%G":"", ts.ws_row, ts.ws_col));
-    need_utf=0;
+    ttyrec_w_write(rec, &tv, buf, bp-buf);
 }
 
 void tty_raw()
@@ -133,7 +147,10 @@ int main(int argc, char **argv)
     if (!command)
         command="/bin/sh";
 
-    if ((ptym=run(command,0,0))==-1)
+    ptym=-1;
+    sx=sy=0;
+    tty_get_size();
+    if ((ptym=run(command, sx, sy))==-1)
     {
         fprintf(stderr, "Couldn't allocaty pty.\n");
         return 1;
@@ -142,8 +159,8 @@ int main(int argc, char **argv)
     gettimeofday(&tv, 0);
     
     rec=ttyrec_w_open(record_f, format, record_name, &tv);
-    need_resize=1;
     need_utf=is_utf8();
+    record_size();
  
     setsignals();
     tty_raw();
@@ -158,7 +175,8 @@ int main(int argc, char **argv)
         if (need_resize)
         {
             need_resize=0;
-            resize();
+            tty_get_size();
+            record_size();
         }
         
         switch(r)
