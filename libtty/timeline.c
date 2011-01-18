@@ -41,7 +41,7 @@ static const struct timeval maxd = {5,0};
 static void synch_wait(struct timeval *tv, void *arg)
 {
     if (tv->tv_sec>=maxd.tv_sec || tv->tv_sec<0)
-        tadd(tr->ndelay, maxd)
+        tadd(tr->ndelay, maxd);
     else
         tadd(tr->ndelay, *tv);
 }
