@@ -4,8 +4,9 @@ AC_DEFUN([AC_CHECK_WIN32], [
 AC_CACHE_CHECK([for Win32], [ac_cv_is_win32], [
 ac_check_win32_save_LIBS=$LIBS
 LIBS=-lgdi32
-AC_LINK_IFELSE([#include <windows.h>
-int main(){TextOutW(0,0,0,0,0);return 0;}], [ac_cv_is_win32=yes], [ac_cv_is_win32=no])
+AC_LINK_IFELSE([AC_LANG_SOURCE([
+#include <windows.h>
+int main(){TextOutW(0,0,0,0,0);return 0;}])], [ac_cv_is_win32=yes], [ac_cv_is_win32=no])
 LIBS=$ac_check_win32_save_LIBS
 ])
 if test $ac_cv_is_win32 = yes; then
@@ -19,9 +20,9 @@ AC_DEFUN([AC_LIB_WINSOCK2], [
 AC_MSG_CHECKING([for WinSock2])
 ac_lib_ws2_save_LIBS=$LIBS
 LIBS="-lws2_32"
-AC_LINK_IFELSE([
+AC_LINK_IFELSE([AC_LANG_SOURCE([
 #include "windows.h"
-int main(){WSACleanup();return 0;}], [
+int main(){WSACleanup();return 0;}])], [
   LIBS="$ac_lib_ws2_save_LIBS -lws2_32"
   AC_MSG_RESULT([yes])
 ], [
@@ -34,11 +35,11 @@ dnl Check if gai_strerror is #defined (like in new MINGW headers).
 
 AC_DEFUN([AC_FUNC_GAI_STERRROR], [
 AC_MSG_CHECKING([if gai_strerror is a macro])
-AC_LINK_IFELSE([
+AC_LINK_IFELSE([AC_LANG_SOURCE([
 #include <winsock2.h>
 #include <windows.h> 
 #include <ws2tcpip.h>
-int main(){gai_strerror(0);return 0;}], [
+int main(){gai_strerror(0);return 0;}])], [
   AC_DEFINE([HAVE_GAI_STRERROR], [1], [Define if a macro])
   AC_MSG_RESULT([yes])
 ], [

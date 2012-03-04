@@ -5,8 +5,9 @@ AC_MSG_CHECKING([whether our shipped $2 works])
 baselib=`echo "$1"|tr A-Z a-z`
 ac_shipped_lib_save_LIBS=$LIBS
 LIBS="-L$5lib -l${baselib#lib}"
-AC_LINK_IFELSE([#include "$5lib/$3"
-int main(){$4;return 0;}], [
+AC_LINK_IFELSE([AC_LANG_SOURCE([
+#include "$5lib/$3"
+int main(){$4;return 0;}])], [
   AC_DEFINE([SHIPPED_$1], [1], [Define if shipped $2 works.])
   AC_DEFINE([SHIPPED_$1_H], ["$5lib/$3"], [Set to your custom $3])
   $1="-L`pwd`/$5lib -l${baselib#lib}"
