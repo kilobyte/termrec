@@ -63,12 +63,10 @@ static int play_state;
 
 static void replay_start()
 {
-    struct timeval tm;
     if (play_state)
         return;
     play_state=1;
     gettimeofday(&t0, 0);
-    tm=tc;
     tdiv1000(tc, speed);
     tsub(t0, tc);
     if (thread_create_joinable(&playth, player, 0))
