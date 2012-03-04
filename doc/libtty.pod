@@ -98,7 +98,7 @@ I<synch_print>.  Note that in some formats, two or more consecutive delays or tw
 frames can happen one after another.  If you provide an arbitrary I<arg>, it will be passed to
 all callbacks.
 
-The function doesn't return until the end of input data.
+The function doesn't return until the end of input data.  Returns 1 on success, 0 on failure.
 
 =back
 
