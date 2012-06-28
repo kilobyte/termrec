@@ -11,15 +11,13 @@ void sub(int t1, int t2, char *exp)
 {
     char buf[BUFFER_SIZE], *bptr;
     ttyrec_frame fr;
-    struct timeval tv1, tv2;
+    struct timeval tv;
     
     printf("Exp: [%s]\n", exp);
     
-    tv1.tv_sec=t1;
-    tv1.tv_usec=0;
-    tv2.tv_sec=t2;
-    tv2.tv_usec=0;
-    fr=ttyrec_seek(tr, (t1!=-1)?&tv1:0, 0);
+    tv.tv_sec=t1;
+    tv.tv_usec=0;
+    fr=ttyrec_seek(tr, (t1!=-1)?&tv:0, 0);
     bptr=buf;
     while(fr && (t2==-1 || fr->t.tv_sec<=t2))
     {
