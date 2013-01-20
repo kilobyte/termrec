@@ -1,5 +1,5 @@
-unsigned short charset_vt100[128];
-unsigned short charset_cp437[256];
+extern unsigned short charset_vt100[128];
+extern unsigned short charset_cp437[256];
 
 /* tf8, the "tf" in "utf8" */
 #define tf8(vb, uv)	do			\
