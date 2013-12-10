@@ -35,7 +35,7 @@ AC_SCO
 # Checks for header files.
 AC_HEADER_STDC
 AC_HEADER_TIOCGWINSZ
-AC_CREATE_STDINT_H
+AX_CREATE_STDINT_H
 AC_HEADER_TIME
 AC_CHECK_HEADERS([fcntl.h stdlib.h string.h strings.h sys/ioctl.h termios.h \
 	unistd.h bzlib.h zlib.h sys/time.h getopt.h sys/select.h langinfo.h \
@@ -53,7 +53,7 @@ AC_C_BIGENDIAN
 AC_PTYRANGES
 
 # Check for Posix threads.
-ACX_PTHREAD
+AX_PTHREAD
 
 # Checks for library functions.
 AC_CHECK_FUNCS([getpt ptsname snprintf vsnprintf _getpty grantpt forkpty asprintf \
