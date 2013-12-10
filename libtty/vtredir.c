@@ -60,7 +60,7 @@ static void vtvt_cursor(vt100 vt, int x, int y)
 }
 
 #define MAXVT100GRAPH 0x2666 /* biggest codepoint is U+2666 BLACK DIAMOND */
-static char *vt100graph;
+static char *vt100graph = 0;
 static void build_vt100graph()
 {
     int i;
