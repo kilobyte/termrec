@@ -477,7 +477,7 @@ recorder_info rec[]={
 {"nh_recorder",".nh",record_nh_recorder_init,record_nh_recorder,record_nh_recorder_finish},
 {"live", 0, record_live_init, record_live, record_live_finish},
 {"null",0,record_null_init,record_null,record_null_finish},
-{0, 0, 0, 0},
+{0, 0, 0, 0, 0},
 };
 
 player_info play[]={
@@ -489,7 +489,7 @@ player_info play[]={
 #endif
 {"live",0,play_live},
 {"auto",0,play_auto},
-{0, 0},
+{0, 0, 0},
 };
 
 #define ARRAYSIZE(a) (sizeof(a)/sizeof(a[0]))
