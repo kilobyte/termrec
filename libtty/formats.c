@@ -420,8 +420,7 @@ static void play_auto(FILE *f,
             return;
         got+=len;
     } while (got<12);
-    if (little_endian(tth.sec)>=0 &&
-        little_endian(tth.usec)>=0 && little_endian(tth.usec)<1000000 &&
+    if (little_endian(tth.usec)<1000000 &&
         little_endian(tth.len)>0 && little_endian(tth.len)<65536)
     {
         tv.tv_sec=little_endian(tth.sec);
