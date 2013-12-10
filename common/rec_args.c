@@ -43,12 +43,12 @@ void get_rec_parms(int argc, char **argv)
     append=0;
 #if (defined HAVE_LIBBZ2) || (defined SHIPPED_LIBBZ2)
     comp_ext=".bz2";
-#else
-# if (defined HAVE_LIBZ) || (defined SHIPPED_LIBZ)
+#elif (defined HAVE_LIBZ) || (defined SHIPPED_LIBZ)
     comp_ext=".gz";
-# else
+#elif (defined HAVE_LIBLZMA) || (defined SHIPPED_LIBLZMA)
+    comp_ext=".xz";
+#else
     comp_ext="";
-# endif
 #endif
     
     while(1)
@@ -99,7 +99,7 @@ void get_rec_parms(int argc, char **argv)
                   "    and the given format.\n"),
                 _("If no format is given, it will be set according to the extension of the\n"
                   "    filename, or default to ttyrec if nothing is given.\n"),
-                _("You can specify compression by appending .gz or .bz2 to the file name.\n"));
+                _("You can specify compression by appending .gz, .xz or .bz2 to the file name.\n"));
             exit(0);
         }
     }

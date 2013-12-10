@@ -12,7 +12,7 @@ B<Termrec> is a tty recorder; it can record the output of any text mode program
 which you can then replay with B<termplay>, B<ttyplay>, B<ipbt>, B<ttyplayer>,
 B<nh-recorder> or similar.
 
-If I<outfile> ends in B<.gz> or B<.bz2>, the data will be appropiately compressed.
+If I<outfile> ends in B<.gz>, B<.xz> or B<.bz2>, the data will be appropiately compressed.
 
 If no I<outfile> is given, B<termrec> will produce a name like 2008-11-27.13-02-42.ttyrec.bz2
 

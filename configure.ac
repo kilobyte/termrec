@@ -39,7 +39,7 @@ AX_CREATE_STDINT_H
 AC_HEADER_TIME
 AC_CHECK_HEADERS([fcntl.h stdlib.h string.h strings.h sys/ioctl.h termios.h \
 	unistd.h bzlib.h zlib.h sys/time.h getopt.h sys/select.h langinfo.h \
-	netinet/in.h])
+	netinet/in.h lzma.h])
 AC_CHECK_HEADERS([arpa/inet.h netdb.h sys/socket.h])
 AC_DECL_OR_ZERO([O_BINARY], [fcntl.h])
 AC_DECL_OR_ZERO([AI_ADDRCONFIG], [netdb.h])
@@ -66,6 +66,9 @@ AC_SUBST([LIBBZ2])
 AC_CHECK_LIB([z], [gzread], [AC_HAVE_LIB([z], [Z])], [
   AC_SHIPPED_LIB(LIBZ, zlib1.dll, zlib.h, [gzread(0,0,0)], [win32/])])
 AC_SUBST([LIBZ])
+AC_CHECK_LIB([lzma], [lzma_code], [AC_HAVE_LIB([lzma], [LZMA])], [
+  AC_SHIPPED_LIB(LIBLZMA, lzma.dll, lzma.h, [lzma_code(0,0)], [win32/])])
+AC_SUBST([LIBLZMA])
 
 # Initialize the test suite.
 AC_CONFIG_TESTDIR(tests)

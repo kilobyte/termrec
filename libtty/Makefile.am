@@ -10,7 +10,7 @@ libtty_la_SOURCES = $(LIBSTREAM) \
 	libtty/files.c \
 	libtty/vtredir.c \
 	libtty/dosrecorder.c
-libtty_la_LIBADD = libcompat.la libttyutils.la @LIBBZ2@ @LIBZ@
+libtty_la_LIBADD = libcompat.la libttyutils.la @LIBBZ2@ @LIBZ@ @LIBLZMA@
 libtty_la_LDFLAGS = -no-undefined
 
 if !HAVE_FORK

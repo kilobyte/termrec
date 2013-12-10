@@ -18,6 +18,13 @@
 #  include SHIPPED_LIBZ_H
 # endif
 #endif
+#ifdef HAVE_LZMA_H
+# include <lzma.h>
+#else
+# ifdef SHIPPED_LZMA
+#  include SHIPPED_LZMA_H
+# endif
+#endif
 #include "export.h"
 #include "compress.h"
 #include "stream.h"
@@ -157,12 +164,103 @@ static void write_gz(int f, int fd, char *arg)
 }
 #endif
 
+#if (defined HAVE_LIBLZMA) || (SHIPPED_LIBLZMA)
+static void read_xz(int f, int fd, char *arg)
+{
+    uint8_t inbuf[BUFFER_SIZE], outbuf[BUFFER_SIZE];
+    lzma_stream xz = LZMA_STREAM_INIT;
+
+    if (lzma_stream_decoder(&xz, UINT64_MAX, LZMA_CONCATENATED) != LZMA_OK)
+        goto xz_read_end;
+
+    xz.avail_in  = 0;
+
+    while (xz.avail_in
+           || (xz.avail_in = read(f, (uint8_t*)(xz.next_in = inbuf), BUFFER_SIZE)) > 0)
+    {
+        xz.next_out  = outbuf;
+        xz.avail_out = sizeof(outbuf);
+        if (lzma_code(&xz, LZMA_RUN) != LZMA_OK)
+            goto xz_read_lzma_end;
+
+        if (write(fd, outbuf, xz.next_out - outbuf) != xz.next_out - outbuf)
+            goto xz_read_lzma_end;
+    }
+
+    /* Flush the stream */
+    lzma_ret ret;
+    do
+    {
+        xz.next_out  = outbuf;
+        xz.avail_out = sizeof(outbuf);
+        ret = lzma_code(&xz, LZMA_FINISH);
+
+        if (write(fd, outbuf, xz.next_out - outbuf) != xz.next_out - outbuf)
+            goto xz_read_lzma_end;
+    }
+    while (ret == LZMA_OK);
+
+xz_read_lzma_end:
+    lzma_end(&xz);
+
+xz_read_end:
+    close(f);
+    close(fd);
+}
+
+static void write_xz(int f, int fd, char *arg)
+{
+    uint8_t inbuf[BUFFER_SIZE], outbuf[BUFFER_SIZE];
+    lzma_stream xz = LZMA_STREAM_INIT;
+
+    if (lzma_easy_encoder(&xz, 6, LZMA_CHECK_CRC64) != LZMA_OK)
+        goto xz_write_end;
+
+    xz.avail_in  = 0;
+
+    while (xz.avail_in
+           || (xz.avail_in = read(fd, (uint8_t*)(xz.next_in = inbuf), BUFFER_SIZE)) > 0)
+    {
+        xz.next_out  = outbuf;
+        xz.avail_out = sizeof(outbuf);
+        if (lzma_code(&xz, LZMA_RUN) != LZMA_OK)
+            goto xz_write_lzma_end;
+
+        if (write(f, outbuf, xz.next_out - outbuf) != xz.next_out - outbuf)
+            goto xz_write_lzma_end;
+    }
+
+    /* Flush the stream */
+    lzma_ret ret;
+    do
+    {
+        xz.next_out  = outbuf;
+        xz.avail_out = sizeof(outbuf);
+        ret = lzma_code(&xz, LZMA_FINISH);
+
+        if (write(f, outbuf, xz.next_out - outbuf) != xz.next_out - outbuf)
+            goto xz_write_lzma_end;
+    }
+    while (ret == LZMA_OK);
+
+xz_write_lzma_end:
+    lzma_end(&xz);
+
+xz_write_end:
+    close(f);
+    close(fd);
+}
+#endif
+
 compress_info compressors[]={
 #if (defined HAVE_LIBZ) || (SHIPPED_LIBZ)
 {"gzip",	".gz",	write_gz},
 #endif
 #if (defined HAVE_LIBBZ2) || (defined SHIPPED_LIBBZ2)
 {"bzip2",	".bz2",	write_bz2},
+#endif
+#if (defined HAVE_LIBLZMA) || (defined SHIPPED_LIBLZMA)
+{"xz",		".xz",	write_xz},
 #endif
 {0, 0, 0},
 };
@@ -173,6 +271,9 @@ compress_info decompressors[]={
 #endif
 #if (defined HAVE_LIBBZ2) || (defined SHIPPED_LIBBZ2)
 {"bzip2",	".bz2",	read_bz2},
+#endif
+#if (defined HAVE_LIBLZMA) || (defined SHIPPED_LIBLZMA)
+{"xz",		".xz",	read_xz},
 #endif
 {0, 0, 0},
 };
