@@ -152,7 +152,7 @@ void play_dosrecorder(FILE *f,
         if ((fh.nchunks&=0x7fff)>25*80)
             goto end;	/* corrupted file -- too many chunks */
         if (gzread(g, chs, fh.nchunks*sizeof(struct ch))
-                         !=fh.nchunks*sizeof(struct ch))
+                   !=(int)(fh.nchunks*sizeof(struct ch)))
             goto end;
         for(i=0; i<fh.nchunks; i++)
         {
