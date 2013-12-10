@@ -16,6 +16,7 @@ depcomp
 *.exe
 *.exe.stackdump
 install-sh
+compile
 Makefile
 Makefile.in
 missing
