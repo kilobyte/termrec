@@ -9,6 +9,8 @@ AC_CONFIG_HEADER([config.h])
 AC_CONFIG_FILES(Makefile
 	win32/icons/Makefile
 	)
+# Use kernel-like CC instead of the usual verbose insanity.
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 # Checks for programs.
 AC_PROG_CC
