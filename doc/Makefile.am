@@ -2,6 +2,10 @@ MANPAGES = vt100.3 libtty.3 termrec.1 termplay.1 proxyrec.1 termtime.1 termcat.1
 dist_man_MANS = $(MANPAGES:%=doc/%)
 EXTRA_DIST += $(dist_man_MANS:%.1=%.pod) $(dist_man_MANS:%.3=%.pod)
 
+QUIET_POD = $(QUIET_POD_@AM_V@)
+QUIET_POD_ = $(QUIET_POD_@AM_DEFAULT_V@)
+QUIET_POD_0 = @echo '  POD     ' $@;
+
 if POD
 # If we're in a git repository, most likely the timestamp will be useless
 # -- but we can check the last commit date.  When not in git, it's most
@@ -9,12 +13,12 @@ if POD
 # Since leaving the git world goes through "make dist", let's update the
 # timestamps there -- oh lookie, it already depends on the built manpages.
 .pod.1:
-	d=`git log -1 --pretty="format:%ct" $<|cut -f 1 -d ' '`;\
+	$(QUIET_POD)d=`git log -1 --pretty="format:%ct" $<|cut -f 1 -d ' '`;\
 	if test -n "$$d";then touch $< -d "@$$d";fi;\
 	pod2man -c termrec -s 1 -n `basename "$@"|sed 's/\.[0-9]$$//'|tr a-z A-Z` -r "$(VERSION)" $< >$@
 
 .pod.3:
-	d=`git log -1 --pretty="format:%ct" $<|cut -f 1 -d ' '`;\
+	$(QUIET_POD)d=`git log -1 --pretty="format:%ct" $<|cut -f 1 -d ' '`;\
 	if test -n "$$d";then touch $< -d "@$$d";fi;\
 	pod2man -c termrec -s 3 -n `basename "$@"|sed 's/\.[0-9]$$//'|tr a-z A-Z` -r "$(VERSION)" $< >$@
 
