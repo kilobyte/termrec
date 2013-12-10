@@ -37,7 +37,7 @@ AC_DEFUN([AC_FUNC_GAI_STERRROR], [
 AC_MSG_CHECKING([if gai_strerror is a macro])
 AC_LINK_IFELSE([AC_LANG_SOURCE([
 #include <winsock2.h>
-#include <windows.h> 
+#include <windows.h>
 #include <ws2tcpip.h>
 int main(){gai_strerror(0);return 0;}])], [
   AC_DEFINE([HAVE_GAI_STRERROR], [1], [Define if a macro])
