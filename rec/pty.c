@@ -220,7 +220,8 @@ int run(char *command, int sx, int sy)
         {
             char *argv[4], *cmd;
             
-            asprintf(&cmd, "exec %s", command);
+            if (asprintf(&cmd, "exec %s", command) == -1)
+                abort();
             argv[0]="sh";
             argv[1]="-c";
             argv[2]=cmd;
@@ -273,7 +274,8 @@ FILE *mypopen(const char *command, const char *wr)
                 signal(SIGHUP, SIG_IGN);
                 signal(SIGTSTP, SIG_IGN);
             }
-            asprintf(&cmd, "exec %s", command);
+            if (asprintf(&cmd, "exec %s", command) == -1)
+                abort();
             argv[0]="sh";
             argv[1]="-c";
             argv[2]=cmd;
