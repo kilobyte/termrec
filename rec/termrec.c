@@ -194,26 +194,23 @@ int main(int argc, char **argv)
         {
             r=read(0, buf, BS);
             if (r<=0)
-            {
-                close(ptym);
                 break;
-            }
-            write(ptym, buf, r);
+            if (write(ptym, buf, r) != r)
+                break;
         }
         if (FD_ISSET(ptym, &rfds))
         {
             r=read(ptym, buf, BS);
             if (r<=0)
-            {
-                close(ptym);
                 break;
-            }
             gettimeofday(&tv, 0);
             ttyrec_w_write(rec, &tv, buf, r);
-            write(1, buf, r);
+            if (write(1, buf, r) != r)
+                break;
         }
     }
-    
+
+    close(ptym);
     ttyrec_w_close(rec);
     tty_restore();
     wait(0);

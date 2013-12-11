@@ -79,10 +79,11 @@ static void termcast(int in, int out, char *arg)
                 len=snprintf(buf, BUFSIZ, "\e[0m%s\n", strerror(errno));
             else
                 len=snprintf(buf, BUFSIZ, "\e[0m%s\n", _("Input terminated."));
-            write(out, buf, len);
+            if (write(out, buf, len)); /* ignore result, we're failing already */
             return;
         }
-        write(out, buf+inbuf, len);
+        if (write(out, buf+inbuf, len) != len)
+            return;
         inbuf+=len;
         memset(buf+inbuf, 0, 64);
         
@@ -95,7 +96,8 @@ static void termcast(int in, int out, char *arg)
         /* TODO: press space every some time */
     }
 found:
-    write(sock, &ses, 1);
+    if (write(sock, &ses, 1) != 1)
+        return;
     while((len=read(in, buf, BUFSIZ))>0)
         if (write(out, buf, len)!=len)
             return;
