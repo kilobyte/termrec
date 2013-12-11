@@ -90,6 +90,6 @@ int open_out(char **file_name, char *format_ext, int append)
         die(_("Can't write to the record file (%s): %s\n"), *file_name, strerror(errno));
 finish:
     if ((fd=open_stream(fd, *file_name, append?M_APPEND:M_WRITE, &error))==-1)
-        die(error);
+        die("%s", error);
     return fd;
 }

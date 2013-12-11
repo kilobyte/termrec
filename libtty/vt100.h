@@ -83,7 +83,8 @@ int	vt100_resize(vt100 vt, int nsx, int nsy);
 void	vt100_reset(vt100 vt);
 void	vt100_free(vt100 vt);
 void	vt100_write(vt100 vt, char *buf, int len);
-void	vt100_printf(vt100 vt, const char *fmt, ...);
+void	vt100_printf(vt100 vt, const char *fmt, ...) \
+	    __attribute__((format (printf, 2, 3)));
 vt100	vt100_copy(vt100 vt);
 
 void	vtvt_dump(vt100 vt);
