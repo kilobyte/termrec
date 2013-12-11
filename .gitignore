@@ -49,3 +49,5 @@ ttyrecord
 *.loT
 .libs
 *~
+.pc
+debian/patches
