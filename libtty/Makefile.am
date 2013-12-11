@@ -13,9 +13,9 @@ libtty_la_SOURCES = $(LIBSTREAM) \
 libtty_la_LIBADD = libcompat.la libttyutils.la @LIBBZ2@ @LIBZ@ @LIBLZMA@
 libtty_la_LDFLAGS = -no-undefined
 
-if !HAVE_FORK
+#disabled: if !HAVE_FORK
 libtty_la_LIBADD += @PTHREAD_LIBS@
 libtty_la_LDFLAGS += @PTHREAD_CFLAGS@
-endif
+#endif
 
 include_HEADERS = libtty/vt100.h libtty/ttyrec.h

@@ -9,7 +9,8 @@
 #include "compat.h"
 
 
-#ifdef HAVE_FORK
+/* disabled: #ifdef HAVE_FORK*/
+#if 0
 int filter(void func(int,int,char*), int fd, int wr, char *arg, char **error)
 {
     int p[2];
