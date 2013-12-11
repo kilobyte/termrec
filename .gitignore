@@ -35,7 +35,7 @@ termtime
 termcat
 *.1
 *.3
-termrec-*.tar.gz
+termrec-*.tar.xz
 *.ttyrec
 *.ttyrec.bz2
 *.ttyrec.gz

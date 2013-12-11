@@ -3,7 +3,7 @@
 
 AC_PREREQ(2.59)
 AC_INIT(termrec, 0.16, [kilobyte@angband.pl])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([-Wall dist-xz no-dist-gzip])
 AC_CONFIG_SRCDIR([libtty/vt100.h])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_FILES(Makefile
