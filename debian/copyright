@@ -5,7 +5,7 @@ It can be downloaded from <http://angband.pl/termrec.html>
 
 Copyright:
 
-    © 2005-2008 Adam Borowski <kilobyte@angband.pl>
+    © 2005-2013 Adam Borowski <kilobyte@angband.pl>
 
 License:
 
@@ -19,4 +19,4 @@ License:
     LGPLv3+noA
 
 The Debian packaging is covered by the same license as the programs.  The text of
-the GPL can be found in `/usr/share/common-licenses/GPL'.
+the GPL can be found in `/usr/share/common-licenses/GPL-3'.
