@@ -37,23 +37,23 @@ char *host;
 char *record_name;
 char *format, *format_ext;
 
-#define EOR 239     /* End of Record */
-#define SE  240     /* subnegotiation end */
-#define NOP 241     /* no operation */
-#define DM  242     /* Data Mark */
-#define BRK 243     /* Break */
-#define IP  244     /* interrupt process */
-#define AO  245     /* abort output */
-#define AYT 246     /* Are you there? */
-#define EC  247     /* erase character */
-#define EL  248     /* erase line */
-#define GA  249     /* go ahead */
-#define SB  250     /* subnegotiations */
+#define EOR 239     // End of Record
+#define SE  240     // subnegotiation end
+#define NOP 241     // no operation
+#define DM  242     // Data Mark
+#define BRK 243     // Break
+#define IP  244     // interrupt process
+#define AO  245     // abort output
+#define AYT 246     // Are you there?
+#define EC  247     // erase character
+#define EL  248     // erase line
+#define GA  249     // go ahead
+#define SB  250     // subnegotiations
 #define WILL    251
 #define WONT    252
 #define DO      253
 #define DONT    254
-#define IAC 255     /* interpret as command */
+#define IAC 255     // interpret as command
 
 /*
 #define ECHO                1
@@ -107,10 +107,10 @@ void workthread(struct workstate *ws)
         while(cnt--)
             switch(state)
             {
-            default: /* normal */
+            default: // normal
                 switch(*bp)
                 {
-                case IAC:	/* IAC = start a TELNET sequence */
+                case IAC:	// IAC = start a TELNET sequence
                     bp++;
                     state=1;
                     break;
@@ -118,10 +118,10 @@ void workthread(struct workstate *ws)
                     *op++=*bp++;
                 }
                 break;
-            case 1: /* IAC */
+            case 1: // IAC
                 switch(*bp)
                 {
-                case IAC: 	/* IAC IAC = literal 255 byte */
+                case IAC: 	// IAC IAC = literal 255 byte
                     bp++;
                     *op++=255;
                     state=0;
@@ -129,12 +129,12 @@ void workthread(struct workstate *ws)
                 case WILL:
                 case WONT:
                 case DO:
-                case DONT:	/* IAC WILL/WONT/DO/DONT x = negotiating option x */
+                case DONT:	// IAC WILL/WONT/DO/DONT x = negotiating option x
                     will=*bp;
                     bp++;
                     state=2;
                     break;
-                case SB:	/* IAC SB x = subnegotiations of option x */
+                case SB:	// IAC SB x = subnegotiations of option x
                     bp++;
                     state=3;
                     break;
@@ -143,8 +143,8 @@ void workthread(struct workstate *ws)
                     state=0;
                 }
                 break;
-            case 2: /* IAC WILL/WONT/DO/DONT */
-                if (*bp==1)	/* ECHO */
+            case 2: // IAC WILL/WONT/DO/DONT
+                if (*bp==1)	// ECHO
                 {
                     if (will==WILL)
                         ws->echoing[1-who]=1;
@@ -158,11 +158,11 @@ void workthread(struct workstate *ws)
                 bp++;
                 state=0;
                 break;
-            case 3: /* IAC SB */
+            case 3: // IAC SB
                 bp++;
                 state=4;
                 break;
-            case 4: /* IAC SB x ... */
+            case 4: // IAC SB x ...
                 if (*bp++==IAC)
                     state=5;
                 else
@@ -173,7 +173,7 @@ void workthread(struct workstate *ws)
                  *   are expected to do.
                  */
                 break;
-            case 5: /* IAC SB x ... IAC */
+            case 5: // IAC SB x ... IAC
                 if (*bp++==SE)
                     state=0;
                 else
@@ -187,7 +187,7 @@ void workthread(struct workstate *ws)
             ttyrec_w_write(ws->rec, &tv, (char*)out, op-out);
             mutex_unlock(ws->mutex);
         }
-        /* FIXME: No error handling. */
+        // FIXME: No error handling.
     }
     shutdown(ws->fd[who], SHUT_RD);
     shutdown(ws->fd[1-who], SHUT_WR);
@@ -247,7 +247,7 @@ void connthread(void *arg)
         return;
     }
     if (verbose)
-        printf(_("Ok.\n")); /* managed to connect out */
+        printf(_("Ok.\n")); // managed to connect out
     filename=record_name;
     fd=open_out(&filename, format_ext, append);
     gettimeofday(&tv, 0);
@@ -308,7 +308,7 @@ void resolve_out()
 
 
 #if 0
-/* postponed until listening on non-localhost gets added */
+// postponed until listening on non-localhost gets added
 int listen_lo()
 {
     int sock;
@@ -362,7 +362,7 @@ int listen_lo()
 #endif
 
 
-/* free the hostname from IPv6-style trappings: [::1] -> ::1, extract :rport */
+// free the hostname from IPv6-style trappings: [::1] -> ::1, extract :rport
 void get_host_rport()
 {
     long i;
@@ -380,7 +380,7 @@ void get_host_rport()
             if (*cp==':')
                 goto getrport;
             else
-                die("%s\n", _("Cruft after the [host name].")); /* IPv6-style host name */
+                die("%s\n", _("Cruft after the [host name].")); // IPv6-style host name
         }
     }
     if ((cp=strrchr(host, ':')))

@@ -1,4 +1,4 @@
-/* Compression/decompression routines */
+// Compression/decompression routines
 
 #include "config.h"
 #include <stdio.h>
@@ -46,7 +46,7 @@ static void read_bz2(int f, int fd, char *arg)
     b = BZ2_bzReadOpen ( &bzerror, fdopen(f,"rb"), 0, 0, NULL, 0 );
     if (bzerror != BZ_OK) {
        BZ2_bzReadClose ( &bzerror, b );
-       /* error */
+       // error
        ERRORMSG(_("Invalid/corrupt .bz2 file.\n"));
        close(fd);
        return;
@@ -64,7 +64,7 @@ static void read_bz2(int f, int fd, char *arg)
     }
     if (bzerror != BZ_STREAM_END) {
        BZ2_bzReadClose ( &bzerror, b );
-       /* error */
+       // error
        ERRORMSG("\033[0m");
        ERRORMSG(_("bzip2: Error during decompression.\n"));
     } else {
@@ -83,8 +83,8 @@ static void write_bz2(int f, int fd, char *arg)
     b = BZ2_bzWriteOpen ( &bzerror, fdopen(f,"wb"), 9, 0, 0 );
     if (bzerror != BZ_OK) {
        BZ2_bzWriteClose ( &bzerror, b, 0,0,0 );
-       /* error */
-       /* the writer will get smitten with sigpipe */
+       // error
+       // the writer will get smitten with sigpipe
        close(fd);
        return;
     }
@@ -187,7 +187,7 @@ static void read_xz(int f, int fd, char *arg)
             goto xz_read_lzma_end;
     }
 
-    /* Flush the stream */
+    // Flush the stream
     lzma_ret ret;
     do
     {
@@ -230,7 +230,7 @@ static void write_xz(int f, int fd, char *arg)
             goto xz_write_lzma_end;
     }
 
-    /* Flush the stream */
+    // Flush the stream
     lzma_ret ret;
     do
     {

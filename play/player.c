@@ -34,8 +34,8 @@ static int player(void *arg)
             tsub(tt, wall);
             if (tt.tv_sec>0 || tt.tv_usec>0)
                 select(0, 0, 0, 0, &tt);
-            else if (tt.tv_sec<-1) /* if not a minimal skip, slow down the clock */
-                tsub(t0, tt);      /* (tt is negative) */
+            else if (tt.tv_sec<-1) // if not a minimal skip, slow down the clock
+                tsub(t0, tt);      // (tt is negative)
             pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
             fr=nf;
             vt100_write(term, fr->data, fr->len);
@@ -78,14 +78,14 @@ static void replay_stop()
 {
     if (!play_state)
         return;
-    gettimeofday(&tc, 0);	/* calc where we stopped */
+    gettimeofday(&tc, 0);	// calc where we stopped
     tsub(tc, t0);
     tmul1000(tc, speed);
     play_state=0;
     pthread_cancel(playth);
     thread_join(playth);
     if (loaded && !ttyrec_next_frame(tr, fr))
-        tc=fr->t;		/* no stopping past the end */
+        tc=fr->t;		// no stopping past the end
 }
 
 
@@ -162,35 +162,35 @@ static struct bind
     int arg;
 } binds[]=
 {
-{"q",0/*quit*/,0},	/* q/Q		-> quit */
+{"q",0/*quit*/,0},	// q/Q		-> quit
 {"Q",0/*quit*/,0},
-{" ",replay_toggle,0},	/* space	-> play/pause */
-{"\e[D",adjust_pos,-10},/* left arrow	-> -10sec */
+{" ",replay_toggle,0},	// space	-> play/pause
+{"\e[D",adjust_pos,-10},// left arrow	-> -10sec
 {"\eOD",adjust_pos,-10},
 {"\eOt",adjust_pos,-10},
-{"\e[C",adjust_pos,+10},/* right arrow	-> +10sec */
+{"\e[C",adjust_pos,+10},// right arrow	-> +10sec
 {"\eOC",adjust_pos,+10},
 {"\eOv",adjust_pos,+10},
-{"\e[B",adjust_pos,-60},/* down arrow	-> -1min */
+{"\e[B",adjust_pos,-60},// down arrow	-> -1min
 {"\eOB",adjust_pos,-60},
 {"\eOr",adjust_pos,-60},
-{"\e[A",adjust_pos,+60},/* up arrow	-> +1min */
+{"\e[A",adjust_pos,+60},// up arrow	-> +1min
 {"\eOA",adjust_pos,+60},
 {"\eOx",adjust_pos,+60},
-{"\e[6~",adjust_pos,-600},	/* PgDn	-> -10min */
+{"\e[6~",adjust_pos,-600},	// PgDn	-> -10min
 {"\eOs", adjust_pos,-600},
-{"\e[5~",adjust_pos,+600},	/* PgUp -> +10min */
+{"\e[5~",adjust_pos,+600},	// PgUp -> +10min
 {"\eOy", adjust_pos,+600},
-{"r",replay_rewind,0},	/* r/R		-> rewind */
+{"r",replay_rewind,0},	// r/R		-> rewind
 {"R",replay_rewind,0},
-{"1",adjust_speed,0},	/* 1		-> speed 1.0 */
-{"s",adjust_speed,-1},	/* s/S/-	-> slow down */
+{"1",adjust_speed,0},	// 1		-> speed 1.0
+{"s",adjust_speed,-1},	// s/S/-	-> slow down
 {"S",adjust_speed,-1},
 {"-",adjust_speed,-1},
-{"f",adjust_speed,+1},	/* f/F/+	-> speed up */
+{"f",adjust_speed,+1},	// f/F/+	-> speed up
 {"F",adjust_speed,+1},
 {"+",adjust_speed,+1},
-{"\n",adv_frame,+1},	/* Enter	-> next frame */
+{"\n",adv_frame,+1},	// Enter	-> next frame
 {"\r",adv_frame,+1},
 {"\eOM",adv_frame,+1},
 {0,0,0},
@@ -225,28 +225,28 @@ void replay()
             {
             case 'O':
                 GETKEY{}
-                /* ESC O A */
+                // ESC O A
                 break;
             case '[':
                 GETKEY
                 {
                 case 'O':
                     GETKEY{}
-                    /* ESC [ O A */
+                    // ESC [ O A
                     break;
                 case '[':
                     GETKEY{}
-                    /* ESC [ [ A */
+                    // ESC [ [ A
                     break;
                 case '0': case '1': case '2': case '3': case '4':
                 case '5': case '6': case '7': case '8': case '9':
                     while(ch>='0' && ch<='9' && kptr-keycode<6)
                     {
                         GETKEY{}
-                        /* ESC [ 11 ~ */
+                        // ESC [ 11 ~
                     }
                     break;
-                /* ESC [ A */
+                // ESC [ A
                 }
                 break;
             }

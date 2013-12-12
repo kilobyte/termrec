@@ -5,6 +5,6 @@
 # define export __attribute__ ((visibility ("default")))
 # pragma GCC visibility push(hidden)
 #else
-# define export /* we'll leak symbols... */
+# define export // we'll leak symbols...
 #endif
 #endif

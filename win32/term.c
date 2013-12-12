@@ -24,9 +24,9 @@ LOGFONT df;
 
 ttyrec ttr;
 ttyrec_frame tev_cur;
-struct timeval t0, /* adjusted wall time at t=0 */
-               tr; /* current point of replay */
-int tev_curlp;  /* amount of data already played from the current block */
+struct timeval t0, // adjusted wall time at t=0
+               tr; // current point of replay
+int tev_curlp;  // amount of data already played from the current block
 int speed;
 fpos_t lastp;
 int play_state;	// 0: not loaded, 1: paused, 2: playing, 3: waiting for input
@@ -509,7 +509,7 @@ void replay_resume()
 
 
 int replay_play(struct timeval *delay)
-{ /* structures touched: tev, vt */
+{ // structures touched: tev, vt
     struct timeval tr1;
     ttyrec_frame fn;
     
@@ -552,7 +552,7 @@ int replay_play(struct timeval *delay)
 }
 
 
-/* find the frame containing time "tr", update "t0" */
+// find the frame containing time "tr", update "t0"
 void replay_seek()
 {
     struct timeval t;

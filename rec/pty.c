@@ -103,7 +103,7 @@ int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsize *wp)
 
     goto ok;
 
-/*close_slave:*/
+//close_slave:
     close (slave);
 
 close_master:
@@ -125,7 +125,7 @@ ok:
     {
       for (d = PTYRANGE1; (p[1] = *d) != '\0'; d++)
         {
-/*        tintin_printf(0,"OpenPTY tries '%s'", PtyName);*/
+//        tintin_printf(0,"OpenPTY tries '%s'", PtyName);
           if ((master = open(PtyName, O_RDWR | O_NOCTTY)) == -1)
             continue;
           q[0] = *l;
@@ -152,7 +152,7 @@ ok:
         tcsetattr(master, TCSANOW, termp);
     if (wp)
         ioctl(master,TIOCSWINSZ,wp);
-    /* let's ignore errors on this ioctl silently */
+    // let's ignore errors on this ioctl silently
     
     pid=fork();
     switch(pid)

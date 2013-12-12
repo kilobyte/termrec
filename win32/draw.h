@@ -1,4 +1,4 @@
-#undef RV	/* reverse video */
+#undef RV	// reverse video
 
 #define MAX_LINE 132
 

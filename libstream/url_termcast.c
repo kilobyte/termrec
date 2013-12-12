@@ -10,7 +10,7 @@
 
 
 static int match(char *rp, char *rest)
-{	/* pattern is /\r\n\e\[\d+d ([a-z])\) $rest (\e\[[0-9;]*m)?\(/ */
+{	// pattern is /\r\n\e\[\d+d ([a-z])\) $rest (\e\[[0-9;]*m)?\(/
     char res;
     
     if (*rp++!='\r')
@@ -63,7 +63,7 @@ struct filterarg
 static void termcast(int in, int out, char *arg)
 {
     char buf[BUFSIZ+64], *cp, ses;
-    char *rp;	/* potential \r */
+    char *rp;	// potential \r
     int len, inbuf;
     int sock=((struct filterarg *)arg)->sock;
     char *rest=((struct filterarg *)arg)->rest;
@@ -91,7 +91,7 @@ static void termcast(int in, int out, char *arg)
                 len=snprintf(buf, BUFSIZ, "\e[0m%s\n", strerror(errno));
             else
                 len=snprintf(buf, BUFSIZ, "\e[0m%s\n", _("Input terminated."));
-            if (write(out, buf, len)); /* ignore result, we're failing already */
+            if (write(out, buf, len)); // ignore result, we're failing already
             return free(rest);
         }
         if (write(out, buf+inbuf, len) != len)
@@ -99,13 +99,13 @@ static void termcast(int in, int out, char *arg)
         inbuf+=len;
         memset(buf+inbuf, 0, 64);
         
-        /* try screen-scraping */
+        // try screen-scraping
         cp=rp;
         do if ((ses=match(cp, rest)))
             goto found;
           while ((cp=strchr((rp=cp)+1, '\r')));
         
-        /* TODO: press space every some time */
+        // TODO: press space every some time
     }
 found:
     free(rest);
@@ -115,7 +115,7 @@ found:
         if (write(out, buf, len)!=len)
             return;
     
-    /* TODO: try to guess when the session ends, then quit or re-scrape */
+    // TODO: try to guess when the session ends, then quit or re-scrape
 }
 
 

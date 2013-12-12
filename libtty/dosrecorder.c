@@ -16,7 +16,7 @@
 #include "charsets.h"
 
 #if (defined HAVE_LIBZ) || (SHIPPED_LIBZ)
-/* format: dosrecorder */
+// format: dosrecorder
 
 #define MAXSCREENS 256
 typedef struct { char c,a; } attrchar, screen[25][80];
@@ -30,12 +30,12 @@ static inline void setattr(attrchar *ch, int *oattr, char **b)
     {
         *oattr=ch->a;
         *bp++='\e', *bp++='[', *bp++='0';
-        if (ch->a&0x80) /* blink */
+        if (ch->a&0x80) // blink
             *bp++=';', *bp++='5';
-        *bp++=';', *bp++='4', *bp++=rgbbgr[(ch->a>>4)&7]; /* background */
-        if (ch->a&0x08) /* brightness */
+        *bp++=';', *bp++='4', *bp++=rgbbgr[(ch->a>>4)&7]; // background
+        if (ch->a&0x08) // brightness
             *bp++=';', *bp++='1';
-        *bp++=';', *bp++='3', *bp++=rgbbgr[ch->a&7]; /* foreground */
+        *bp++=';', *bp++='3', *bp++=rgbbgr[ch->a&7]; // foreground
         *bp++='m';
     }
 }
@@ -150,14 +150,14 @@ void play_dosrecorder(FILE *f,
         note=fh.nchunks&0x8000;
         memcpy(&scr, &screens[fh.sscr], sizeof(screen));
         if ((fh.nchunks&=0x7fff)>25*80)
-            goto end;	/* corrupted file -- too many chunks */
+            goto end;	// corrupted file -- too many chunks
         if (gzread(g, chs, fh.nchunks*sizeof(struct ch))
                    !=(int)(fh.nchunks*sizeof(struct ch)))
             goto end;
         for(i=0; i<fh.nchunks; i++)
         {
             if (chs[i].pos>=25*80 || chs[i].len+chs[i].pos>25*80)
-                goto end;	/* corrupted file */
+                goto end;	// corrupted file
             gzread(g, &scr[0][0]+chs[i].pos, chs[i].len*sizeof(attrchar));
         }
         memcpy(&screens[fh.dscr], &scr, sizeof(screen));

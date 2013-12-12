@@ -19,9 +19,9 @@
 #include "compat.h"
 #include "gettext.h"
 
-/* The "host" arg will be modified! */
-/* "port" can be overridden with : */
-/* Returns: error message, 0 on success. */
+// The "host" arg will be modified!
+// "port" can be overridden with :
+// Returns: error message, 0 on success.
 static char *resolve_host(char *host, int port, struct addrinfo **ai)
 {
     long i;
@@ -30,7 +30,7 @@ static char *resolve_host(char *host, int port, struct addrinfo **ai)
     struct addrinfo hints;
     char portstr[10];
     
-    /* free the hostname from IPv6-style trappings: [::1] -> ::1 */
+    // free the hostname from IPv6-style trappings: [::1] -> ::1
     if (*host=='[')
     {
         host++;
@@ -43,10 +43,10 @@ static char *resolve_host(char *host, int port, struct addrinfo **ai)
             if (*cp==':')
                 goto getrport;
             else
-                return _("Cruft after the [host name]."); /* IPv6-style host name */
+                return _("Cruft after the [host name]."); // IPv6-style host name
         }
     }
-    /* extract :port */
+    // extract :port
     if ((cp=strrchr(host, ':')))
     {
     getrport:
@@ -101,12 +101,12 @@ static int connect_out(struct addrinfo *ai)
         }
         return sock;
     }
-    return -1;	/* errno will be valid here */
+    return -1;	// errno will be valid here
 }
 
 
 #if IS_WIN32
-/* workaround socket!=file brain damage */
+// workaround socket!=file brain damage
 static void sock2file(int sock, int file, char *arg)
 {
     char buf[BUFSIZ];
@@ -159,9 +159,9 @@ int open_tcp(char* url, int mode, char **error)
     char *rest;
     
     fd=connect_tcp(url, 0, &rest, error);
-    /* we may write the rest of the URL to the socket here ... */
+    // we may write the rest of the URL to the socket here ...
     
-    /* no bidi streams */
+    // no bidi streams
     if (mode&M_WRITE)
         shutdown(fd, SHUT_RD);
     else

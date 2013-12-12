@@ -67,7 +67,7 @@ static void synch_print(char *buf, int len, void *arg)
     tr->tev_tail->next=nf;
     tr->tev_tail=nf;
     vt100_write(tr->tev_vt, buf, len);
-    if ((tr->nchunk+=len)>=SNAPSHOT_CHUNK) /* do a snapshot every 64KB of data */
+    if ((tr->nchunk+=len)>=SNAPSHOT_CHUNK) // do a snapshot every 64KB of data
     {
         nf->snapshot=vt100_copy(tr->tev_vt);
         tr->nchunk=0;

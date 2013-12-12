@@ -26,12 +26,12 @@ static void sockets_init()
 
     WSAStartup(MAKEWORD(2,2), &wsaData);
     
-    if (!(pgetaddrinfo=LoadFunc("ws2_32", "getaddrinfo"))) /* WinXP+ */
-        pgetaddrinfo=LoadFunc("wship6", "getaddrinfo"); /* Win2K */
+    if (!(pgetaddrinfo=LoadFunc("ws2_32", "getaddrinfo"))) // WinXP+
+        pgetaddrinfo=LoadFunc("wship6", "getaddrinfo"); // Win2K
 }
 
 
-/* Try the real stuff first; if not available, emulate it with BSD IPv4 */
+// Try the real stuff first; if not available, emulate it with BSD IPv4
 int getaddrinfo(const char *node, const char *service,
                        const struct addrinfo *hints,
                        struct addrinfo **res)
@@ -58,7 +58,7 @@ int getaddrinfo(const char *node, const char *service,
         case TRY_AGAIN:
             return EAI_AGAIN;
         }
-        return -1; /* ? */
+        return -1; // ?
     }
     
     *res=malloc(sizeof(struct addrinfo));
@@ -78,7 +78,7 @@ int getaddrinfo(const char *node, const char *service,
 
 void freeaddrinfo(struct addrinfo *res)
 {
-    /* not used, we need the info till the end */
+    // not used, we need the info till the end
 }
 
 #ifndef HAVE_GAI_STRERROR

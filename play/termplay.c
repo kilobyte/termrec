@@ -112,7 +112,7 @@ struct timeval lt;
 
 void loader_init_wait(struct timeval *ts, void *arg)
 {
-/*    lt=*ts;*/
+//    lt=*ts;
 }
 
 void loader_wait(struct timeval *delay, void *arg)

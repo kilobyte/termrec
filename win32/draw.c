@@ -128,7 +128,7 @@ void draw_vt(HDC dc, int px, int py, vt100 vt)
                     break;
                 attr=ch->attr;
             }
-            if (ch->ch>0xffff)	/* UTF-16 surrogates */
+            if (ch->ch>0xffff)	// UTF-16 surrogates
             {
                 linebuf[cnt++]=0xD800-(0x10000>>10)+(ch->ch>>10);
                 linebuf[cnt++]=0xDC00+(ch->ch&0x3FF);

@@ -83,7 +83,7 @@ Will be called when the recording ends.
 #include "compat.h"
 
 
-/* ttyrec checks the byte sex on runtime, during _every_ swap.  Uh oh. */
+// ttyrec checks the byte sex on runtime, during _every_ swap.  Uh oh.
 #ifdef WORDS_BIGENDIAN
 # define little_endian(x) ((uint32_t) ( \
     (((uint32_t) (x) & (uint32_t) 0x000000ffU) << 24) | \
@@ -122,7 +122,7 @@ static void play_baudrate(FILE *f,
     
     tv.tv_sec=0;
     tv.tv_usec=200000;
-    while((b=fread(buf, 1, 60, f))>0)	/* 2400 baud */
+    while((b=fread(buf, 1, 60, f))>0)	// 2400 baud
     {
         synch_print(buf, b, arg);
         
@@ -168,7 +168,7 @@ static void play_live(FILE *f,
         synch_init_wait(&tp, arg);
     }
     
-    /* using read() not fread(), we need unbuffered IO */
+    // using read() not fread(), we need unbuffered IO
     while((len=read(fileno(f), buf, BUFFER_SIZE))>0)
     {
         gettimeofday(&tv, 0);
@@ -200,10 +200,10 @@ static void record_live(FILE *f, void* state, struct timeval *tm, char *buf, int
     tv=*tm;
     tadd(tv, *((struct timeval*)state));
     tsub(tv, wall);
-    if (tv.tv_sec>=0 && (tv.tv_sec || tv.tv_usec)) /* can't go back in time */
+    if (tv.tv_sec>=0 && (tv.tv_sec || tv.tv_usec)) // can't go back in time
         select(0, 0, 0, 0, &tv);
     else
-        tsub(*(struct timeval*)state, tv); /* move the origin by the (negative) time skipped */
+        tsub(*(struct timeval*)state, tv); // move the origin by the (negative) time skipped
     fwrite(buf, 1, len, f);
     fflush(f);
 }
@@ -252,7 +252,7 @@ static void play_ttyrec(FILE *f,
         printf("b=%u, time=%i.%09i\n", b, little_endian(head.sec),
             little_endian(head.usec));
 */
-        /* pre-read the first block to make the timing more accurate */
+        // pre-read the first block to make the timing more accurate
         if (b>BUFFER_SIZE)
             w=BUFFER_SIZE;
         else
@@ -346,9 +346,9 @@ static void play_nh_recorder(FILE *f,
             {
                 if (i0<i)
                     synch_print(buf+i0, i-i0, arg);
-                if (i+4>b)	/* timestamp happened on a block boundary */
+                if (i+4>b)	// timestamp happened on a block boundary
                 {
-                    if (b<5)	/* incomplete last timestamp */
+                    if (b<5)	// incomplete last timestamp
                         return;
                     memmove(buf+i, buf, b-i);
                     goto block_end;
@@ -411,11 +411,11 @@ static void play_auto(FILE *f,
     char buf[BUFFER_SIZE];
     struct timeval tv;
     
-    /* first, grab 12 bytes and see if it looks like a ttyrec header */
+    // first, grab 12 bytes and see if it looks like a ttyrec header
     got=0;
     do
     {
-        /* must use unbuffered I/O here, to not spoil it for play_live() */
+        // must use unbuffered I/O here, to not spoil it for play_live()
         if ((len=read(fileno(f), ((char*)&tth)+got, 12-got))<=0)
             return;
         got+=len;
@@ -438,7 +438,7 @@ static void play_auto(FILE *f,
         return;
     }
     
-    /* fall back to "live" */
+    // fall back to "live"
     gettimeofday(&tv, 0);
     synch_init_wait(&tv, arg);
     synch_print((char*)&tth, 12, arg);

@@ -59,7 +59,7 @@ static void vtvt_cursor(vt100 vt, int x, int y)
     CY=y;
 }
 
-#define MAXVT100GRAPH 0x2666 /* biggest codepoint is U+2666 BLACK DIAMOND */
+#define MAXVT100GRAPH 0x2666 // biggest codepoint is U+2666 BLACK DIAMOND
 static char *vt100graph = 0;
 static void build_vt100graph()
 {
@@ -150,12 +150,12 @@ static void vtvt_scroll(vt100 vt, int nl)
     CX=CY=-1;
     DATA->attr=0xFFFF;
 
-/*  vtvt_dump(vt); */
+//  vtvt_dump(vt);
 }
 
 static void vtvt_flag(vt100 vt, int f, int v)
 {
-    /* TODO: invisible cursor */
+    // TODO: invisible cursor
 }
 
 static void vtvt_resized(vt100 vt, int sx, int sy)
