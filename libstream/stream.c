@@ -94,6 +94,7 @@ int filter(void func(int,int,char*), int fd, int wr, char *arg, char **error)
     fdata->fdin=fd;
     fdata->fdout=p[!wr];
     fdata->func=func;
+    fdata->arg=arg;
     
     if (nstreams==-1)
     {

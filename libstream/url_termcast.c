@@ -1,6 +1,7 @@
 #include "config.h"
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include "export.h"
@@ -56,6 +57,7 @@ static void termcast(int in, int out, char *arg)
     int len, inbuf;
     int sock=((struct filterarg *)arg)->sock;
     char *rest=((struct filterarg *)arg)->rest;
+    free(arg);
     
     inbuf=0;
     rp=buf;
@@ -80,10 +82,10 @@ static void termcast(int in, int out, char *arg)
             else
                 len=snprintf(buf, BUFSIZ, "\e[0m%s\n", _("Input terminated."));
             if (write(out, buf, len)); /* ignore result, we're failing already */
-            return;
+            return free(rest);
         }
         if (write(out, buf+inbuf, len) != len)
-            return;
+            return free(rest);
         inbuf+=len;
         memset(buf+inbuf, 0, 64);
         
@@ -96,6 +98,7 @@ static void termcast(int in, int out, char *arg)
         /* TODO: press space every some time */
     }
 found:
+    free(rest);
     if (write(sock, &ses, 1) != 1)
         return;
     while((len=read(in, buf, BUFSIZ))>0)
@@ -108,10 +111,9 @@ found:
 
 int open_termcast(char* url, int mode, char **error)
 {
-    int fd;
+    int fd, fdmid;
     char *rest;
-    struct filterarg fa;
-    
+
     if (mode&M_WRITE)
     {
         *error="Writing to termcast streams is not supported (yet?)";
@@ -126,9 +128,10 @@ int open_termcast(char* url, int mode, char **error)
         *error=_("What termcast session to look for?");
         return -1;
     }
-    fa.sock=fd;
-    fa.rest=rest;
-    if ((fd=filter(telnet, fd, !!(mode&M_WRITE), 0, error))==-1)
+    if ((fdmid=filter(telnet, fd, !!(mode&M_WRITE), 0, error))==-1)
         return -1;
-    return filter(termcast, fd, !!(mode&M_WRITE), (char*)&fa, error);
+    struct filterarg *fa = malloc(sizeof(struct filterarg));
+    fa->sock=fd;
+    fa->rest=strdup(rest);
+    return filter(termcast, fdmid, !!(mode&M_WRITE), (char*)fa, error);
 }
