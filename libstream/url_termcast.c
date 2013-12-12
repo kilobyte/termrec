@@ -10,7 +10,7 @@
 
 
 static int match(char *rp, char *rest)
-{	/* pattern is /\r\n\e\[\d+d ([a-z])\) $rest \(/ */
+{	/* pattern is /\r\n\e\[\d+d ([a-z])\) $rest (\e\[[0-9;]*m)?\(/ */
     char res;
     
     if (*rp++!='\r')
@@ -25,8 +25,8 @@ static int match(char *rp, char *rest)
         rp++;
     if (*rp++!='d')
         return 0;
-    if (*rp++!=' ')
-        return 0;
+    if (*rp==' ')
+        rp++;
     res=*rp++;
     if (*rp++!=')')
         return 0;
@@ -37,6 +37,16 @@ static int match(char *rp, char *rest)
             return 0;
     if (*rp++!=' ')
         return 0;
+    if (*rp=='\e')
+    {
+        rp++;
+        if (*rp++!='[')
+            return 0;
+        while ((*rp>='0' && *rp<='9') || *rp==';')
+            rp++;
+        if (*rp++!='m')
+            return 0;
+    }
     if (*rp++!='(')
         return 0;
     return res;
