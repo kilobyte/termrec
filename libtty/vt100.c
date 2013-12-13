@@ -19,11 +19,11 @@
 export vt100 vt100_init(int sx, int sy, int resizable, int utf)
 {
     vt100 vt;
-    
+
     vt=malloc(sizeof(struct vt100));
     if (!vt)
         return 0;
-    
+
     memset(vt, 0, sizeof(struct vt100));
     vt->opt_allow_resize=resizable;
     vt->utf=utf;
@@ -73,7 +73,7 @@ export void vt100_free(vt100 vt)
 {
     if (!vt)
         return;
-    
+
     if (vt->l_free)
         vt->l_free(vt);
     free(vt->scr);
@@ -85,7 +85,7 @@ export vt100 vt100_copy(vt100 vt)
     vt100 nvt=malloc(sizeof(struct vt100));
     if (!nvt)
         return 0;
-    
+
     memcpy(nvt, vt, sizeof(struct vt100));
     if (!(nvt->scr=malloc(SX*SY*sizeof(attrchar))))
     {
@@ -99,7 +99,7 @@ export vt100 vt100_copy(vt100 vt)
 static void vt100_clear_region(vt100 vt, int st, int l)
 {
     attrchar *c, blank;
-    
+
     assert(st>=0);
     assert(l>=0);
     assert(st+l<=SX*SY);
@@ -130,7 +130,7 @@ export void vt100_reset(vt100 vt)
 static void vt100_scroll(vt100 vt, int nl)
 {
     int s;
-    
+
     assert(vt->s1<vt->s2);
     if ((s=vt->s2-vt->s1-abs(nl))<=0)
     {
@@ -265,7 +265,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
         case 127:
             continue;
         }
-        
+
         switch(vt->state)
         {
         error:
@@ -310,14 +310,14 @@ export void vt100_write(vt100 vt, char *buf, int len)
                             c=tc;
                         else
                             continue;
-                        
+
                         // Win32 TextOut (rightfully) chokes on these illegal
                         // chars, so we'd better mark them as invalid.
                         if (c<0xA0)
                             c=0xFFFD;
                         if (c==0xFFEF)	// BOM
                             continue;
-                            
+
                         /* The following code deals with malformed UTF-16
                          * surrogates encoded in UTF-8 text.  While the
                          * standard explicitely forbids this, some (usually
@@ -394,7 +394,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
 #undef ic
 #undef tc
 #undef cnt
-            
+
         case 1:		// ESC
             switch(*buf)
             {
@@ -403,41 +403,41 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 vt->ntok=0;
                 vt->tok[0]=0;
                 break;
-            
+
             case '(':
                 vt->state=5;
                 break;
-            
+
             case ')':
                 vt->state=6;
                 break;
-            
+
             case '%':
                 vt->state=7;
                 break;
-                
+
             case '7':		// ESC 7 -> save cursor position
                 vt->save_cx=CX;
                 vt->save_cy=CY;
                 vt->state=0;
                 break;
-                
+
             case '8':		// ESC 8 -> restore cursor position
                 CX=vt->save_cx;
                 CY=vt->save_cy;
                 L_CURSOR;
                 vt->state=0;
                 break;
-                
+
             case 'D':		// ESC D -> newline
                 vt->state=0;
                 goto newline;
-                
+
             case 'E':		// ESC E -> newline+cr
                 vt->state=0;
                 CX=0;
                 goto newline;
-                
+
             case 'M':		// ESC M -> reverse newline
                 CY--;
                 if (CY==vt->s1-1)
@@ -453,22 +453,22 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 }
                 vt->state=0;
                 break;
-            
+
             case '=':		// ESC = -> application keypad mode
                 FLAG(opt_kpad, VT100_FLAG_KPAD, 1);
                 vt->state=0;
                 break;
-            
+
             case '>':		// ESC > -> numeric keypad mode
                 FLAG(opt_kpad, VT100_FLAG_KPAD, 0);
                 vt->state=0;
                 break;
-                
+
             default:
                 goto error;
             }
             break;
-        
+
         case 3:		// ESC [, immediately
             if (*buf=='?')
             {
@@ -482,13 +482,13 @@ export void vt100_write(vt100 vt, char *buf, int len)
             case '5': case '6': case '7': case '8': case '9':
                 vt->tok[vt->ntok]=vt->tok[vt->ntok]*10+*buf-'0';
                 break;
-                
+
             case ';':
                 if (++vt->ntok>=VT100_MAXTOK)
                     goto error;
                 vt->tok[vt->ntok]=0;
                 break;
-                
+
             case 'm':	// ESC[m -> change color/attribs
                 for (i=0;i<=vt->ntok;i++)
                     switch(vt->tok[i])
@@ -550,7 +550,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                     }
                 vt->state=0;
                 break;
-                                
+
             case 'D':	// ESC[D -> move cursor left
                 i=vt->tok[0];
                 if (i<1)
@@ -562,7 +562,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 L_CURSOR;
                 vt->state=0;
                 break;
-                
+
             case 'C':	case 'a':	// ESC[C -> move cursor right
                 i=vt->tok[0];
                 if (i<1)
@@ -574,7 +574,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 L_CURSOR;
                 vt->state=0;
                 break;
-                
+
             case 'A':	// ESC[A -> move cursor up, no scrolling
                 i=vt->tok[0];
                 if (i<1)
@@ -586,7 +586,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 L_CURSOR;
                 vt->state=0;
                 break;
-                
+
             case 'B':	// ESC[B -> move cursor down, no scrolling
                 i=vt->tok[0];
                 if (i<1)
@@ -598,7 +598,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 L_CURSOR;
                 vt->state=0;
                 break;
-            
+
             case 'r':	// ESC[r -> set scrolling region
                 if (!vt->tok[0])
                     vt->tok[0]=1;
@@ -615,7 +615,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 }
                 vt->state=0;
                 break;
-            
+
             case 'J':	// ESC[J -> erase screen
                 switch(vt->tok[0])
                 {
@@ -630,7 +630,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 }
                 vt->state=0;
                 break;
-                
+
             case 'K':	// ESC[K -> erase line
                 switch(vt->tok[0])
                 {
@@ -645,7 +645,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 }
                 vt->state=0;
                 break;
-                
+
             case 'L':	// ESC[L -> insert line
                 if (vt->s1>CY || vt->s2<=CY)
                 {
@@ -661,7 +661,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 vt->s1=vt->tok[1];
                 vt->state=0;
                 break;
-                
+
             case 'M':	// ESC[M -> delete line
                 if (vt->s1>CY || vt->s2<=CY)
                 {
@@ -677,7 +677,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 vt->s1=vt->tok[1];
                 vt->state=0;
                 break;
-                
+
             case 'X':	// ESC[X -> erase to the right
                 i=vt->tok[0];
                 if (i<=0)
@@ -687,7 +687,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 CLEAR(CX, CY, i);
                 vt->state=0;
                 break;
-                
+
             case 'f': case 'H':	// ESC[f, ESC[H -> move cursor
                 CY=vt->tok[0]-1;
                 if (CY<0)
@@ -705,7 +705,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 L_CURSOR;
                 vt->state=0;
                 break;
-            
+
             case 'G': case '`':	// ESC[G, ESC[` -> move cursor horizontally
                 CX=vt->tok[0]-1;
                 if (CX<0)
@@ -715,7 +715,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 L_CURSOR;
                 vt->state=0;
                 break;
-            
+
             case 'd':	// ESC[d -> move cursor vertically
                 CY=vt->tok[0]-1;
                 if (CY<0)
@@ -725,14 +725,14 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 L_CURSOR;
                 vt->state=0;
                 break;
-            
+
             case 'c':	// ESC[c -> reset to power-on defaults
                 vt100_reset(vt);
                 if (vt->l_clear)
                     vt->l_clear(vt, 0, 0, SX*SY);
                 L_CURSOR;
                 break;
-            
+
             case 't':	// ESC[t -> window manipulation
                 vt->state=0;
                 switch(vt->tok[0])
@@ -756,12 +756,12 @@ export void vt100_write(vt100 vt, char *buf, int len)
 #endif
                 }
                 break;
-                
+
             default:
                 goto error;
             }
             break;
-            
+
         case 4:		// ESC [ ?
             switch(*buf)
             {
@@ -769,13 +769,13 @@ export void vt100_write(vt100 vt, char *buf, int len)
             case '5': case '6': case '7': case '8': case '9':
                 vt->tok[vt->ntok]=vt->tok[vt->ntok]*10+*buf-'0';
                 break;
-                
+
             case ';':
                 if (++vt->ntok>=VT100_MAXTOK)
                     goto error;
                 vt->tok[vt->ntok]=0;
                 break;
-                
+
             case 'h':
                 for (i=0;i<=vt->ntok;i++)
 		    switch(vt->tok[i])
@@ -793,7 +793,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                     }
                 vt->state=0;
                 break;
-                
+
             case 'l':
                 for (i=0;i<=vt->ntok;i++)
 		    switch(vt->tok[i])
@@ -811,7 +811,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
 		    }
                 vt->state=0;
                 break;
-                
+
             default:
                 goto error;
             }
@@ -821,12 +821,12 @@ export void vt100_write(vt100 vt, char *buf, int len)
             set_charset(vt, 0, *buf);
             vt->state=0;
             break;
-            
+
         case 6:	// ESC ) -> set G1 charset
             set_charset(vt, 1, *buf);
             vt->state=0;
             break;
-        
+
         case 7:	// ESC %
             switch(*buf)
             {
@@ -848,12 +848,12 @@ export void vt100_write(vt100 vt, char *buf, int len)
             }
             vt->state=0;
             break;
-            
+
         default:
             goto error;
         }
     }
-    
+
     if (vt->l_flush)
         vt->l_flush(vt);
 }
@@ -865,7 +865,7 @@ export void vt100_printf(vt100 vt, const char *fmt, ...)
     va_list ap;
     char buf[BUFFER_SIZE], *bigstr;
     int len;
-    
+
     va_start(ap, fmt);
     len=vsnprintf(buf, BUFFER_SIZE, fmt, ap);
     va_end(ap);

@@ -12,7 +12,7 @@
 static int match(char *rp, char *rest)
 {	// pattern is /\r\n\e\[\d+d ([a-z])\) $rest (\e\[[0-9;]*m)?\(/
     char res;
-    
+
     if (*rp++!='\r')
         return 0;
     if (*rp++!='\n')
@@ -68,7 +68,7 @@ static void termcast(int in, int out, char *arg)
     int sock=((struct filterarg *)arg)->sock;
     char *rest=((struct filterarg *)arg)->rest;
     free(arg);
-    
+
     inbuf=0;
     rp=buf;
     while (1)
@@ -98,13 +98,13 @@ static void termcast(int in, int out, char *arg)
             return free(rest);
         inbuf+=len;
         memset(buf+inbuf, 0, 64);
-        
+
         // try screen-scraping
         cp=rp;
         do if ((ses=match(cp, rest)))
             goto found;
           while ((cp=strchr((rp=cp)+1, '\r')));
-        
+
         // TODO: press space every some time
     }
 found:
@@ -114,7 +114,7 @@ found:
     while ((len=read(in, buf, BUFSIZ))>0)
         if (write(out, buf, len)!=len)
             return;
-    
+
     // TODO: try to guess when the session ends, then quit or re-scrape
 }
 
@@ -129,7 +129,7 @@ int open_termcast(char* url, int mode, char **error)
         *error="Writing to termcast streams is not supported (yet?)";
         return -1;
     }
-    
+
     if ((fd=connect_tcp(url, 23, &rest, error))==-1)
         return -1;
     if (!rest || *rest++!='/' || !*rest)

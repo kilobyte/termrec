@@ -50,7 +50,7 @@ void get_rec_parms(int argc, char **argv)
 #else
     comp_ext="";
 #endif
-    
+
     while (1)
     {
 #if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
@@ -108,7 +108,7 @@ finish_args:
         record_name=argv[optind++];
     if (optind<argc)
         die(_("You can specify at most one file to record to.\n"));
-    
+
     if (!format)
         format=ttyrec_w_find_format(0, record_name, "ttyrec");
     if (!(format_ext=ttyrec_w_get_format_ext(format)))

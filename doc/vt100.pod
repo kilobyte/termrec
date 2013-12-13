@@ -12,7 +12,7 @@ Link with I<-ltty>.
 
 =head2 Functions:
 
-=over 
+=over
 
 =item B<vt100  vt100_init(int >I<sx>B<, int >I<sy>B<, int >I<resizable>B<, int >I<utf>B<);>
 

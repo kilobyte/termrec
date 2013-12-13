@@ -28,7 +28,7 @@ typedef struct
 static int find_w_format(char *format, char *filename, char *fallback)
 {
     int nf;
-    
+
     // given explicitely
     if (format)
     {
@@ -42,7 +42,7 @@ static int find_w_format(char *format, char *filename, char *fallback)
     {
         compress_info *ci;
         int skip;
-        
+
         ci=comp_from_ext(filename, decompressors);
         if (ci)
             skip=strlen(ci->ext);
@@ -63,7 +63,7 @@ static int find_w_format(char *format, char *filename, char *fallback)
 export char* ttyrec_w_find_format(char *format, char *filename, char *fallback)
 {
     int nf=find_w_format(format, filename, fallback);
-    
+
     return (nf==-1) ? 0 : rec[nf].name;
 }
 
@@ -73,26 +73,26 @@ export recorder* ttyrec_w_open(int fd, char *format, char *filename, struct time
     int nf;
     recorder *r;
     struct timeval t0={0,0};
-    
+
     nf=find_w_format(format, filename, "ansi");
     if (nf==-1)
     {
         close(fd);
         return 0;
     }
-    
+
     if (fd==-1)
         fd=open_stream(fd, filename, M_WRITE, 0);
     if (fd==-1)
         return 0;
-    
+
     r=malloc(sizeof(recorder));
     if (!r)
     {
         close(fd);
         return 0;
     }
-    
+
     r->format=&rec[nf];
     r->f=fdopen(fd, "wb");
     assert(r->f);
@@ -148,7 +148,7 @@ export char* ttyrec_w_get_format_ext(char *format)
 static int find_r_format(char *format, char *filename, char *fallback)
 {
     int nf;
-    
+
     // given explicitely
     if (format)
     {
@@ -162,7 +162,7 @@ static int find_r_format(char *format, char *filename, char *fallback)
     {
         compress_info *ci;
         int skip;
-        
+
         ci=comp_from_ext(filename, compressors);
         if (ci)
             skip=strlen(ci->ext);
@@ -183,7 +183,7 @@ static int find_r_format(char *format, char *filename, char *fallback)
 export char* ttyrec_r_find_format(char *format, char *filename, char *fallback)
 {
     int nf=find_r_format(format, filename, fallback);
-    
+
     return (nf==-1) ? 0 : play[nf].name;
 }
 
@@ -207,7 +207,7 @@ export char* ttyrec_r_get_format_ext(char *format)
 
 static void dummyfunc() {}
 
-export int ttyrec_r_play(int fd, char *format, char *filename, 
+export int ttyrec_r_play(int fd, char *format, char *filename,
     void *(synch_init_wait)(struct timeval *ts, void *arg),
     void *(synch_wait)(struct timeval *tv, void *arg),
     void *(synch_print)(char *buf, int len, void *arg),
@@ -215,7 +215,7 @@ export int ttyrec_r_play(int fd, char *format, char *filename,
 {
     int nf;
     FILE *f;
-    
+
     nf=find_r_format(format, filename, "auto");
     if (nf==-1)
     {
@@ -223,19 +223,19 @@ export int ttyrec_r_play(int fd, char *format, char *filename,
             close(fd);
         return 0;
     }
-    
+
     if (fd==-1)
         fd=open_stream(fd, filename, M_READ, 0);
     if (fd==-1)
         return 0;
-    
+
     if (!synch_init_wait)
         synch_init_wait=(void*)dummyfunc;
     if (!synch_wait)
         synch_wait=(void*)dummyfunc;
     if (!synch_print)
         synch_print=(void*)dummyfunc;
-    
+
     f=fdopen(fd, "rb");
     assert(f);
     (*play[nf].play)(f, synch_init_wait, synch_wait, synch_print, arg, 0);

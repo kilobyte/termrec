@@ -103,7 +103,7 @@ void workthread(struct workstate *ws)
                 *op++=*bp++;
             goto no_traffic_analysis;
         }
-        
+
         while (cnt--)
             switch(state)
             {
@@ -198,7 +198,7 @@ static int connect_out()
 {
     struct addrinfo *addr;
     int sock;
-    
+
     for (addr=ai; addr; addr=addr->ai_next)
     {
         if ((sock=socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol))==-1)
@@ -207,7 +207,7 @@ static int connect_out()
                 printf("* %s\n", strerror(errno));
             continue;
         }
-        
+
     intr:
         if ((connect(sock, addr->ai_addr, addr->ai_addrlen)))
         {
@@ -235,7 +235,7 @@ void connthread(void *arg)
     struct workstate ws;
     int fd;
     int sock=(intptr_t)arg;
-    
+
     if (verbose)
         printf(_("Incoming connection!\n"));
     memset(&ws, 0, sizeof(ws));
@@ -296,7 +296,7 @@ void resolve_out()
     hints.ai_flags=AI_ADDRCONFIG|AI_NUMERICSERV;
     assert(rport>0 && rport<65536);
     sprintf(port, "%u", rport);
-    
+
     if ((err=getaddrinfo(host, port, &hints, &ai)))
     {
         if (err==EAI_NONAME)
@@ -323,13 +323,13 @@ int listen_lo()
     hints.ai_flags=AI_ADDRCONFIG|AI_NUMERICSERV;
     assert(lport>0 && lport<65536);
     sprintf(port, "%u", lport);
-    
+
     if ((err=getaddrinfo(0, port, &hints, &ai)))
         die("%s", gai_strerror(err));
-    
+
     if ((sock=socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol))==-1)
         die(_("Can't listen: %s\n"), strerror(errno));
-    
+
     opt=1;
     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt));
     if (bind(sock, ai->ai_addr, ai->ai_addrlen))
@@ -347,7 +347,7 @@ int listen_lo()
 
     if ((sock=socket(AF_INET, SOCK_STREAM, IPPROTO_TCP))<0)
         die(_("socket() failed: %s\n"), strerror(errno));
-    
+
     opt=1;
     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt));
     sin.sin_family=AF_INET;
@@ -367,7 +367,7 @@ void get_host_rport()
 {
     long i;
     char *cp;
-    
+
     if (*host=='[')
     {
         host++;
@@ -427,7 +427,7 @@ void get_proxy_parms(int argc, char **argv)
     rport=-1;
     raw=1;
     append=0;
-    
+
     while (1)
     {
 #if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
@@ -503,12 +503,12 @@ finish_args:
     else
         die(_("You MUST specify the host to connect to!\n"));
     get_host_rport();
-    
+
     if (optind<argc)
         record_name=argv[optind++];
     if (optind<argc)
         die(_("You can specify at most one file to record to.\n"));
-    
+
     if (!format)
         format=ttyrec_w_find_format(0, record_name, "ansi");
     if (!(format_ext=ttyrec_w_get_format_ext(format)))
@@ -520,7 +520,7 @@ int main(int argc, char **argv)
 {
     int sock,s;
     thread_t th;
-    
+
     get_proxy_parms(argc, argv);
     if (rport==-1)
         rport=23;
@@ -528,7 +528,7 @@ int main(int argc, char **argv)
         lport=9999;
 
     verbose=isatty(1);
-    
+
     if (verbose)
         printf(_("Resolving %s...\n"), host);
     resolve_out();

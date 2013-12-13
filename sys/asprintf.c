@@ -13,7 +13,7 @@ int asprintf(char **sptr, const char *fmt, ...)
     va_list ap;
     if ((p = malloc (size)) == NULL)
     {
-        *sptr=0;        
+        *sptr=0;
         return -1;
     }
     while (1)

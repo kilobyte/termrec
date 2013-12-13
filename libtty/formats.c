@@ -119,13 +119,13 @@ static void play_baudrate(FILE *f,
     char buf[BUFFER_SIZE];
     size_t b;
     struct timeval tv;
-    
+
     tv.tv_sec=0;
     tv.tv_usec=200000;
     while ((b=fread(buf, 1, 60, f))>0)	// 2400 baud
     {
         synch_print(buf, b, arg);
-        
+
         synch_wait(&tv, arg);
     }
 }
@@ -159,7 +159,7 @@ static void play_live(FILE *f,
     struct timeval tv, tp, tm;
     char buf[BUFFER_SIZE];
     int len;
-    
+
     if (cont)
         tp=*cont;
     else
@@ -167,7 +167,7 @@ static void play_live(FILE *f,
         gettimeofday(&tp, 0);
         synch_init_wait(&tp, arg);
     }
-    
+
     // using read() not fread(), we need unbuffered IO
     while ((len=read(fileno(f), buf, BUFFER_SIZE))>0)
     {
@@ -184,18 +184,18 @@ static void play_live(FILE *f,
 static void* record_live_init(FILE *f, struct timeval *tm)
 {
     struct timeval *tv;
-    
+
     tv=malloc(sizeof(struct timeval));
     gettimeofday(tv, 0);
     tsub(*tv, *tm);
-    
+
     return tv;
 }
 
 static void record_live(FILE *f, void* state, struct timeval *tm, char *buf, int len)
 {
     struct timeval tv, wall;
-    
+
     gettimeofday(&wall, 0);
     tv=*tm;
     tadd(tv, *((struct timeval*)state));
@@ -237,7 +237,7 @@ static void play_ttyrec(FILE *f,
     struct timeval tv,tl;
     int first=1;
     struct ttyrec_header head;
-    
+
     if (cont)
     {
         tv=*cont;
@@ -260,7 +260,7 @@ static void play_ttyrec(FILE *f,
         if (fread(buf, 1, w, f)<w)
             goto the_end;
         b-=w;
-        
+
         if (first)
         {
             tv.tv_sec=little_endian(head.sec);
@@ -281,7 +281,7 @@ static void play_ttyrec(FILE *f,
             }
             synch_wait(&tl, arg);
         }
-        
+
         while (w>0)
         {
             synch_print(buf, w, arg);
@@ -308,7 +308,7 @@ static void* record_ttyrec_init(FILE *f, struct timeval *tm)
 static void record_ttyrec(FILE *f, void* state, struct timeval *tm, char *buf, int len)
 {
     struct ttyrec_header h;
-    
+
     h.sec=tm->tv_sec;
     h.usec=tm->tv_usec;
     h.len=len;
@@ -335,7 +335,7 @@ static void play_nh_recorder(FILE *f,
     int b,i,i0;
     struct timeval tv;
     uint32_t t,tp;
-    
+
     t=0;
     i=b=0;
     while ((b=fread(buf+b-i, 1, BUFFER_SIZE-(b-i), f))>0)
@@ -372,7 +372,7 @@ static void play_nh_recorder(FILE *f,
 static void* record_nh_recorder_init(FILE *f, struct timeval *tm)
 {
     struct timeval *tv;
-    
+
     tv=malloc(sizeof(struct timeval));
     *tv=*tm;
     fwrite("\0\0\0\0\0", 1, 5, f);
@@ -384,7 +384,7 @@ static void record_nh_recorder(FILE *f, void* state, struct timeval *tm, char *b
     int32_t i;
     i=(tm->tv_sec-((struct timeval*)state)->tv_sec)*100+
       (tm->tv_usec-((struct timeval*)state)->tv_usec)/10000;
-    
+
     fwrite(buf, 1, len, f);
     fwrite("\0", 1, 1, f);
     fwrite(&i, 1, 4, f);
@@ -410,7 +410,7 @@ static void play_auto(FILE *f,
     int len, got;
     char buf[BUFFER_SIZE];
     struct timeval tv;
-    
+
     // first, grab 12 bytes and see if it looks like a ttyrec header
     got=0;
     do
@@ -437,7 +437,7 @@ static void play_auto(FILE *f,
         play_ttyrec(f, 0, synch_wait, synch_print, arg, &tv);
         return;
     }
-    
+
     // fall back to "live"
     gettimeofday(&tv, 0);
     synch_init_wait(&tv, arg);

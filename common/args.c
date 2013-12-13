@@ -11,7 +11,7 @@ void get_w_format(char **format)
 {
     int i;
     char *fn, *fe;
-    
+
     if (*format)
         die(_("You can use only one format at a time.\n"));
     if (!(*format=ttyrec_w_find_format(optarg, 0, 0)))
@@ -31,7 +31,7 @@ void get_r_format(char **format)
 {
     int i;
     char *fn, *fe;
-    
+
     if (*format)
         die(_("You can use only one format at a time.\n"));
     if (!(*format=ttyrec_r_find_format(optarg, 0, 0)))

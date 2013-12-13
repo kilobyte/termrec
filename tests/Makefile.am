@@ -43,4 +43,4 @@ $(TESTSUITE): package.m4 testsuite.at $(TESTSUITE_AT)
 	$(AUTOTEST) -I $(srcdir) $@.at -o $@.tmp
 	mv $@.tmp $@
 
-TESTSUITE_AT = 
+TESTSUITE_AT =

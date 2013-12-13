@@ -51,14 +51,14 @@ void telnet(int sock, int fd, char *arg)
     int state,will=0 /*lint food*/,sublen=0;
     size_t cnt;
     unsigned char buf[BUFSIZ],out[BUFSIZ],*bp,*op,neg[3];
-    
+
     neg[0]=IAC;
     state=0;
     while ((cnt=recv(sock, buf, BUFSIZ, 0))>0)
     {
         bp=buf;
         op=out;
-        
+
         while (cnt--)
         {
             switch(state)
@@ -164,18 +164,18 @@ int open_telnet(char* url, int mode, char **error)
 {
     int fd;
     char *rest;
-    
+
     if (mode&M_WRITE)
     {
         *error="Writing to telnet streams is not supported (yet?)";
         return -1;
     }
-    
+
     fd=connect_tcp(url, 23, &rest, error);
     if (fd==-1)
         return -1;
-    
+
     // we may write the rest of the URL to the socket here ...
-    
+
     return filter(telnet, fd, !!(mode&M_WRITE), 0, error);
 }

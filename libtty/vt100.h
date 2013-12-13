@@ -4,7 +4,7 @@
 
 typedef unsigned int ucs;
 
-typedef struct 
+typedef struct
 {
     ucs ch;
     int attr;

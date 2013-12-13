@@ -33,11 +33,11 @@ int follow;
 void get_play_parms(int argc, char **argv)
 {
     char *ep;
-    
+
     play_name=0;
     follow=0;
     speed=1000;
-    
+
     while (1)
     {
 #if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
@@ -90,7 +90,7 @@ finish_args:
         die("%s termplay <%s>\n", _("Usage:"), _("filename"));
     if (optind<argc)
         die(_("You specified the file to play multiple times.\n"));
-    
+
     if (!format)
         format=ttyrec_r_find_format(0, play_name, "auto");
 }
@@ -147,7 +147,7 @@ int main(int argc, char **argv)
     int fd;
     thread_t loadth;
     char *error;
-    
+
     get_play_parms(argc, argv);
     if ((fd=open_stream(-1, play_name, follow?M_REPREAD:M_READ, &error))==-1)
         die("%s: %s\n", play_name, error);

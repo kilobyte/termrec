@@ -110,7 +110,7 @@ static void read_gz(int f, int fd, char *arg)
     gzFile  g;
     int     nBuf;
     char    buf[BUFFER_SIZE];
-    
+
     g=gzdopen(f, "rb");
     if (!g)
     {
@@ -133,7 +133,7 @@ static void read_gz(int f, int fd, char *arg)
         ERRORMSG("\033[0m");
         ERRORMSG(_("gzip: Error during decompression.\n"));
     }
-    gzclose(g);        
+    gzclose(g);
     close(fd);
 }
 

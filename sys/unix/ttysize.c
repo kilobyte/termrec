@@ -11,7 +11,7 @@
 int get_tty_size(int fd, int *x, int *y)
 {
     struct winsize ts;
-    
+
     if (!isatty(fd))
         return 0;
     if (ioctl(1,TIOCGWINSZ,&ts) && ts.ws_row>0 && ts.ws_col>0)

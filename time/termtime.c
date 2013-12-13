@@ -16,7 +16,7 @@ int main(int argc, char **argv)
 {
     int i;
     int any=0;
-    
+
     if (argc<2)
         die("%s termtime <%s> ...\n", _("Usage:"), _("filename"));
     for (i=1;i<argc;i++)

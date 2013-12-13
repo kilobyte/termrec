@@ -32,7 +32,7 @@ static void cmp(long long cx, char *opname)
 int main()
 {
     int i;
-    
+
     for (i=0;i<1000;i++)
     {
         gen();

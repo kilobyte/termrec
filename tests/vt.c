@@ -45,7 +45,7 @@ void tl_free(vt100 vt)
 void dump(vt100 vt)
 {
     int x,y,attr;
-    
+
     printf(".-===[ %dx%d ]\n", vt->sx, vt->sy);
     attr=0xFFFF;
     for (y=0; y<vt->sy; y++)
@@ -75,9 +75,9 @@ int main(int argc, char **argv)
     vt100 vt;
     char buf[BUFFER_SIZE];
     int len;
-    
+
     vt = vt100_init(20, 5, 0, 0);
-    
+
     while (1)
         switch(getopt(argc, argv, "ed"))
         {
@@ -101,11 +101,11 @@ int main(int argc, char **argv)
 run:
     while ((len=read(0, buf, BUFFER_SIZE))>0)
         vt100_write(vt, buf, len);
-    
+
     if (crap)
         dump(vt);
-    
+
     vt100_free(vt);
-    
+
     return 0;
 }

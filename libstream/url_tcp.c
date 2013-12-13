@@ -29,7 +29,7 @@ static char *resolve_host(char *host, int port, struct addrinfo **ai)
     int err;
     struct addrinfo hints;
     char portstr[10];
-    
+
     // free the hostname from IPv6-style trappings: [::1] -> ::1
     if (*host=='[')
     {
@@ -51,7 +51,7 @@ static char *resolve_host(char *host, int port, struct addrinfo **ai)
     {
     getrport:
         *cp=0;
-        cp++; 
+        cp++;
         i=strtoul(cp, &cp, 10);
         if (*cp || !i || i>65535)
             return _("Invalid port number");
@@ -59,14 +59,14 @@ static char *resolve_host(char *host, int port, struct addrinfo **ai)
     }
     else if (port<=0)
         return _("No port number given");
-    
+
     memset(&hints, 0, sizeof(hints));
     hints.ai_family=AF_UNSPEC;
     hints.ai_socktype=SOCK_STREAM;
     hints.ai_protocol=IPPROTO_TCP;
     hints.ai_flags=AI_ADDRCONFIG|AI_NUMERICSERV;
     sprintf(portstr, "%u", port);
-    
+
     if ((err=getaddrinfo(host, portstr, &hints, ai)))
     {
         if (err==EAI_NONAME)
@@ -82,12 +82,12 @@ static int connect_out(struct addrinfo *ai)
 {
     struct addrinfo *addr;
     int sock;
-    
+
     for (addr=ai; addr; addr=addr->ai_next)
     {
         if ((sock=socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol))==-1)
             continue;
-    
+
     intr:
         if ((connect(sock, addr->ai_addr, addr->ai_addrlen)))
         {
@@ -111,7 +111,7 @@ static void sock2file(int sock, int file, char *arg)
 {
     char buf[BUFSIZ];
     int len;
-    
+
     if (arg)
     {
         while ((len=read(file, buf, BUFSIZ))>0)
@@ -134,7 +134,7 @@ int connect_tcp(char *url, int port, char **rest, char **error)
     char host[128], *cp;
     struct addrinfo *ai;
     int fd;
-    
+
     if ((cp=strchr(url, '/')))
         snprintf(host, 128, "%.*s", (int)(cp-url), url);
     else
@@ -148,7 +148,7 @@ int connect_tcp(char *url, int port, char **rest, char **error)
     if ((fd=connect_out(ai))==-1)
         *error=strerror(errno);
     freeaddrinfo(ai);
-    
+
     return fd;
 }
 
@@ -157,16 +157,16 @@ int open_tcp(char* url, int mode, char **error)
 {
     int fd;
     char *rest;
-    
+
     fd=connect_tcp(url, 0, &rest, error);
     // we may write the rest of the URL to the socket here ...
-    
+
     // no bidi streams
     if (mode&M_WRITE)
         shutdown(fd, SHUT_RD);
     else
         shutdown(fd, SHUT_WR);
-    
+
 #ifdef IS_WIN32
     fd=filter(sock2file, fd, !!(mode&M_WRITE), (mode&M_WRITE)?"":0, error);
 #endif

@@ -22,7 +22,7 @@ int main(int argc, char **argv)
 {
     int i;
     int any=0;
-    
+
     if (argc<3)
         die("%s termcat <%s> ... <dest>\n", _("Usage:"), _("filename"));
     tt.tv_sec=tt.tv_usec=0;

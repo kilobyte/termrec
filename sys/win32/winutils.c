@@ -13,7 +13,7 @@ void die(const char *txt, ...)
     va_start(ap, txt);
     len=vsnprintf(buf, BUFFER_SIZE, txt, ap);
     va_end(ap);
-    
+
     if (len && buf[len-1]!='\n')
     {
         FormatMessage(
@@ -28,7 +28,7 @@ void die(const char *txt, ...)
             errstr="unknown error";
         snprintf(buf+len, BUFFER_SIZE-len, ": %s\n", errstr);
     }
-    
+
     MessageBox(0, buf, "TermRec", MB_ICONERROR);
     exit(1);
 }

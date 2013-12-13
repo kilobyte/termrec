@@ -58,7 +58,7 @@ void win32_init()
     WNDCLASS wc;
 
     INITCOMMONCONTROLSEX icex;
-    
+
     icex.dwSize = sizeof(INITCOMMONCONTROLSEX);
     icex.dwICC = ICC_BAR_CLASSES;
     InitCommonControlsEx(&icex);
@@ -91,7 +91,7 @@ void win32_init()
 
     if (!RegisterClass(&wc))
         die("RegisterClass");
-    
+
     load_font();
     draw_init(&df);
     InitializeCriticalSection(&vt_mutex);
@@ -108,7 +108,7 @@ void create_window(int nCmdShow)
         CW_USEDEFAULT, CW_USEDEFAULT,
         80*chx, 25*chy, NULL, NULL, inst,
         NULL);
-    
+
     if (nCmdShow==SW_SHOWDEFAULT)
         nCmdShow=SW_MAXIMIZE;
     ShowWindow(wnd, nCmdShow);
@@ -150,7 +150,7 @@ int speeds[]={100,500,1000,2000,5000,10000,25000,100000};
 int bcd(int a, int b)
 {
     int c;
-    
+
     while (a>1 && b>1)
     {
         if (a>b)
@@ -175,7 +175,7 @@ void vulgar_fraction(char *buf, int x)
         sprintf(buf, "%d/%d", x, d);
     else
         sprintf(buf, "%d", x);
-} 
+}
 
 
 void set_button_state(int id, int onoff)
@@ -209,7 +209,7 @@ int create_toolbar(HWND wnd)
     RECT rc;
     LOGFONT lf;
     HFONT font;
-    
+
     memset(&lf, 0, sizeof(lf));
     lf.lfQuality=ANTIALIASED_QUALITY;
     lf.lfHeight=-9;
@@ -218,147 +218,147 @@ int create_toolbar(HWND wnd)
 
     // The toolbar.
 
-    wndTB = CreateWindowEx(0, TOOLBARCLASSNAME, (LPSTR) NULL, 
+    wndTB = CreateWindowEx(0, TOOLBARCLASSNAME, (LPSTR) NULL,
          WS_CHILD|WS_VISIBLE|CCS_BOTTOM|WS_CLIPSIBLINGS|TBSTYLE_CUSTOMERASE,
-         0, 0, 0, 0, wnd, NULL, inst, NULL); 
+         0, 0, 0, 0, wnd, NULL, inst, NULL);
 
-    SendMessage(wndTB, TB_BUTTONSTRUCTSIZE, (WPARAM) sizeof(TBBUTTON), 0); 
+    SendMessage(wndTB, TB_BUTTONSTRUCTSIZE, (WPARAM) sizeof(TBBUTTON), 0);
 
     tab.hInst=inst;
 
     tab.nID=100;
-    tbb[0].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab); 
-    tbb[0].idCommand = 100; 
-    tbb[0].fsState = TBSTATE_ENABLED; 
+    tbb[0].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab);
+    tbb[0].idCommand = 100;
+    tbb[0].fsState = TBSTATE_ENABLED;
     tbb[0].fsStyle = TBSTYLE_BUTTON;
-    tbb[0].dwData = 0; 
+    tbb[0].dwData = 0;
     tbb[0].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"Open");
-    
+
     tbb[1].iBitmap = 175;
-    tbb[1].fsState = 0; 
+    tbb[1].fsState = 0;
     tbb[1].fsStyle = TBSTYLE_SEP;
     tbb[1].dwData = 0;
 
     tab.nID=101;
-    tbb[2].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab); 
-    tbb[2].idCommand = 101; 
+    tbb[2].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab);
+    tbb[2].idCommand = 101;
     tbb[2].fsState = 0;
     tbb[2].fsStyle = TBSTYLE_BUTTON;
-    tbb[2].dwData = 0; 
+    tbb[2].dwData = 0;
     tbb[2].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"Restart");
- 
+
     tab.nID=102;
-    tbb[3].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab); 
+    tbb[3].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab);
     tbb[3].idCommand = 102;
-    tbb[3].fsState = 0; 
+    tbb[3].fsState = 0;
     tbb[3].fsStyle = TBSTYLE_CHECK;
-    tbb[3].dwData = 0; 
+    tbb[3].dwData = 0;
     tbb[3].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"Pause");
 
     tab.nID=103;
-    tbb[4].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab); 
+    tbb[4].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab);
     tbb[4].idCommand = 103;
-    tbb[4].fsState = 0; 
-    tbb[4].fsStyle = TBSTYLE_CHECK; 
-    tbb[4].dwData = 0; 
+    tbb[4].fsState = 0;
+    tbb[4].fsStyle = TBSTYLE_CHECK;
+    tbb[4].dwData = 0;
     tbb[4].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"Play");
-    
+
     tbb[5].iBitmap = 150;
-    tbb[5].fsState = 0; 
+    tbb[5].fsState = 0;
     tbb[5].fsStyle = TBSTYLE_SEP;
     tbb[5].dwData = 0;
-    
+
     tab.nID=104;
-    tbb[6].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab); 
+    tbb[6].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab);
     tbb[6].idCommand = 104;
-    tbb[6].fsState = 0; 
-    tbb[6].fsStyle = 0; 
-    tbb[6].dwData = 0; 
+    tbb[6].fsState = 0;
+    tbb[6].fsStyle = 0;
+    tbb[6].dwData = 0;
     tbb[6].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"SelStart");
-    
+
     tab.nID=105;
-    tbb[7].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab); 
+    tbb[7].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab);
     tbb[7].idCommand = 105;
-    tbb[7].fsState = 0; 
-    tbb[7].fsStyle = 0; 
-    tbb[7].dwData = 0; 
+    tbb[7].fsState = 0;
+    tbb[7].fsStyle = 0;
+    tbb[7].dwData = 0;
     tbb[7].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"SelEnd");
-    
+
     tab.nID=106;
-    tbb[8].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab); 
+    tbb[8].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab);
     tbb[8].idCommand = 106;
-    tbb[8].fsState = 0; 
-    tbb[8].fsStyle = 0; 
-    tbb[8].dwData = 0; 
+    tbb[8].fsState = 0;
+    tbb[8].fsStyle = 0;
+    tbb[8].dwData = 0;
     tbb[8].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"Export");
 
     SendMessage(wndTB, TB_ADDBUTTONS, (WPARAM) ARRAYSIZE(tbb),
          (LPARAM) (LPTBBUTTON) &tbb);
-    
-    SendMessage(wndTB, TB_AUTOSIZE, 0, 0); 
+
+    SendMessage(wndTB, TB_AUTOSIZE, 0, 0);
     button_state=0;
 
-    
-    // The progress bar.
-    
-    SendMessage(wndTB, TB_GETITEMRECT, 5, (LPARAM)&rc);
-    
-    wndProg = CreateWindowEx( 
-        0,                             // no extended styles 
-        TRACKBAR_CLASS,                // class name 
-        "Progress",            // title (caption) 
-        WS_CHILD | WS_VISIBLE | WS_DISABLED |
-        TBS_NOTICKS | TBS_ENABLESELRANGE | TBS_FIXEDLENGTH,  // style 
-        rc.left+5, rc.top+5, 
-        rc.right-rc.left-10, rc.bottom-rc.top-10,
-        wnd,                       // parent window 
-        NULL,             // control identifier 
-        inst,                       // instance 
-        NULL                           // no WM_CREATE parameter 
-        ); 
 
-//    SendMessage(wndProg, TBM_SETPAGESIZE, 
-//        0, (LPARAM) 4);                  // new page size 
+    // The progress bar.
+
+    SendMessage(wndTB, TB_GETITEMRECT, 5, (LPARAM)&rc);
+
+    wndProg = CreateWindowEx(
+        0,                             // no extended styles
+        TRACKBAR_CLASS,                // class name
+        "Progress",            // title (caption)
+        WS_CHILD | WS_VISIBLE | WS_DISABLED |
+        TBS_NOTICKS | TBS_ENABLESELRANGE | TBS_FIXEDLENGTH,  // style
+        rc.left+5, rc.top+5,
+        rc.right-rc.left-10, rc.bottom-rc.top-10,
+        wnd,                       // parent window
+        NULL,             // control identifier
+        inst,                       // instance
+        NULL                           // no WM_CREATE parameter
+        );
+
+//    SendMessage(wndProg, TBM_SETPAGESIZE,
+//        0, (LPARAM) 4);                  // new page size
 
     SetParent(wndProg, wndTB);
-    
-    
-    SendMessage(wndTB, TB_GETITEMRECT, 1, (LPARAM)&rc);    
+
+
+    SendMessage(wndTB, TB_GETITEMRECT, 1, (LPARAM)&rc);
     ssSpeed = CreateWindowEx(0,
         "STATIC",
         "Speed: x1",
         WS_CHILD|WS_VISIBLE|SS_LEFTNOWORDWRAP|WS_DISABLED,
-        rc.left+5, rc.top+10, 
+        rc.left+5, rc.top+10,
         55, rc.bottom-rc.top-15,
         wndTB,
         0,
         inst,
         NULL);
     SendMessage(ssSpeed, WM_SETFONT, (WPARAM)font, 0);
-        
+
     // The speed bar.
-        
-    wndSpeed = CreateWindowEx( 
-        0,                             // no extended styles 
-        TRACKBAR_CLASS,                // class name 
-        "Speed",            // title (caption) 
+
+    wndSpeed = CreateWindowEx(
+        0,                             // no extended styles
+        TRACKBAR_CLASS,                // class name
+        "Speed",            // title (caption)
         WS_CHILD | WS_VISIBLE | TBS_AUTOTICKS |WS_DISABLED,
-        rc.left+70, rc.top+3, 
+        rc.left+70, rc.top+3,
         rc.right-rc.left-75, rc.bottom-rc.top-3,
-        wnd,                       // parent window 
-        (HMENU)104,             // control identifier 
-        inst,                       // instance 
-        NULL                           // no WM_CREATE parameter 
-        ); 
+        wnd,                       // parent window
+        (HMENU)104,             // control identifier
+        inst,                       // instance
+        NULL                           // no WM_CREATE parameter
+        );
 
     speed=1000;
     SendMessage(wndSpeed, TBM_SETRANGE, 0, MAKELONG(0,ARRAYSIZE(speeds)-1));
     SendMessage(wndSpeed, TBM_SETPOS, 1, 2);
 
     SetParent(wndSpeed, wndTB);
-    
+
     SetFocus(wndProg);
-    
+
     GetWindowRect(wndTB, &rc);
     height=rc.bottom-rc.top;
     height+=25*chy;
@@ -369,7 +369,7 @@ int create_toolbar(HWND wnd)
     rc.left=0;
     rc.top=0;
     AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, 0);
-    SetWindowPos(wnd, 0, 0, 0, rc.right-rc.left, rc.bottom-rc.top, 
+    SetWindowPos(wnd, 0, 0, 0, rc.right-rc.left, rc.bottom-rc.top,
         SWP_NOMOVE|SWP_NOREPOSITION);
 
     return 1;
@@ -410,7 +410,7 @@ void set_prog_max()
 void set_prog()
 {
     int t=tr.tv_sec*(1000000/progdiv)+tr.tv_usec/progdiv;
-    
+
     if (t!=progval)
     {
         progval=t;
@@ -434,7 +434,7 @@ void set_prog_sel()
 {
     int t1=selstart.tv_sec*(1000000/progdiv)+selstart.tv_usec/progdiv;
     int t2=selend.tv_sec*(1000000/progdiv)+selend.tv_usec/progdiv;
-    
+
     SendMessage(wndProg, TBM_SETSEL, 1, (LPARAM)MAKELONG(t1,t2));
     SendMessage(wndTB, TB_ENABLEBUTTON, 106, tcmp(selstart, selend)<0);
 }
@@ -460,7 +460,7 @@ void draw_size()
 void playfile(vt100 tev_vt)
 {
     char buf[1024];
-    
+
     ttr=ttyrec_load(play_f, play_format, play_filename, tev_vt);
     if (!ttr)
         return;
@@ -512,10 +512,10 @@ int replay_play(struct timeval *delay)
 { // structures touched: tev, vt
     struct timeval tr1;
     ttyrec_frame fn;
-    
+
     switch(play_state)
     {
-    case 0: 
+    case 0:
     default:
     case 1:
         return 0;
@@ -556,12 +556,12 @@ int replay_play(struct timeval *delay)
 void replay_seek()
 {
     struct timeval t;
-    
+
     t=tr;
     tadd(t, tdate);
     tev_cur=ttyrec_seek(ttr, &t, &vt);
     tev_curlp=0;
-    
+
     gettimeofday(&t0, 0);
     tdiv1000(tr, speed);
     tsub(t0, tr);
@@ -573,14 +573,14 @@ void replay_start()
     vt100 tev_vt;
     ttyrec_frame tev_tail;
     struct timeval doomsday;
-    
+
     ttyrec_free(ttr);
     tev_vt=vt100_init(defsx, defsy, 1, 0);
     vt100_printf(tev_vt, "\e[36m");
     vt100_printf(tev_vt, _("Termplay v%s\n\n"),
-        "\e[36;1m"PACKAGE_VERSION"\e[0;36m");  
+        "\e[36;1m"PACKAGE_VERSION"\e[0;36m");
     vt100_printf(tev_vt, "\e[0m");
-    
+
     tr.tv_sec=tr.tv_usec=0;
     tev_done=0;
     tmax.tv_sec=tmax.tv_usec=0;
@@ -628,7 +628,7 @@ int start_file(char *name)
 {
     char buf[MAXFILENAME+20];
     int fd;
-    
+
     if (play_f!=-1)
     {
         replay_abort();
@@ -658,7 +658,7 @@ void open_file()
 {
     char fn[MAXFILENAME];
     OPENFILENAME dlg;
-    
+
     memset(&dlg, 0, sizeof(dlg));
     dlg.lStructSize=sizeof(dlg);
     dlg.hwndOwner=wnd;
@@ -674,10 +674,10 @@ void open_file()
     dlg.nMaxFile=MAXFILENAME;
     dlg.Flags=OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_LONGNAMES;
     *fn=0;
-    
+
     if (!GetOpenFileName(&dlg))
         return;
-    
+
     strncpy(filename, fn, MAXFILENAME);
     start_file(filename);
 }
@@ -723,7 +723,7 @@ void paint(HWND hwnd)
 {
     HDC dc;
     PAINTSTRUCT paints;
-    
+
     if (!(dc=BeginPaint(hwnd,&paints)))
         return;
     EnterCriticalSection(&vt_mutex);
@@ -740,7 +740,7 @@ void do_replay()
     HDC dc;
     struct timeval delay;
     LARGE_INTEGER del;
-    
+
 again:
     if (play_state!=2)
     {
@@ -776,7 +776,7 @@ void speed_scrolled()
 {
     char buf[32];
     int pos=SendMessage(wndSpeed, TBM_GETPOS, 0, 0);
-    
+
     if (pos<0)
         pos=0;
     if (pos>=ARRAYSIZE(speeds))
@@ -801,7 +801,7 @@ void adjust_speed(int dir)
 void redraw_term()
 {
     HDC dc;
-    
+
     EnterCriticalSection(&vt_mutex);
     draw_size();
     dc=GetDC(termwnd);
@@ -816,11 +816,11 @@ void prog_scrolled()
     uint64_t v;
     int oldstate=play_state;
     int pos=SendMessage(wndProg, TBM_GETPOS, 0, 0);
-    
+
     if (pos<0)
         pos=0;
     replay_pause();
-    
+
     v=pos;
     v*=progdiv;
     tr.tv_sec=v/1000000;
@@ -835,7 +835,7 @@ void prog_scrolled()
 void adjust_pos(int d)
 {
     int oldstate=play_state;
-    
+
     if (play_state==-1)
         return;
     replay_pause();
@@ -855,7 +855,7 @@ void adjust_pos(int d)
 void get_def_size(int nx, int ny)
 {
     RECT r;
-    
+
     GetWindowRect(wndTB, &r);
 
     defsx=nx/chx;
@@ -872,7 +872,7 @@ void constrain_size(RECT *r)
     GetWindowRect(wndTB, &tbr);
     fx=(wr.right-wr.left)-(cr.right-cr.left);
     fy=(wr.bottom-wr.top)-(cr.bottom-cr.top);
-    
+
     fx+=80*chx;
     fy+=25*chy+tbr.bottom-tbr.top;
     if (r->right-r->left<fx)
@@ -889,7 +889,7 @@ void export_file()
     int record_f;
     char *format;
     struct timeval sel1, sel2;
-    
+
     memset(&dlg, 0, sizeof(dlg));
     dlg.lStructSize=sizeof(dlg);
     dlg.hwndOwner=wnd;
@@ -906,10 +906,10 @@ void export_file()
     dlg.Flags=OFN_HIDEREADONLY|OFN_LONGNAMES;
     dlg.lpstrDefExt="ttyrec.bz2";
     *fn=0;
-    
+
     if (!GetSaveFileName(&dlg))
         return;
-    
+
     format=ttyrec_w_find_format(0, fn, "ansi");
     if ((record_f=open(fn, O_WRONLY|O_CREAT|O_TRUNC, 0666))==-1)
     {
@@ -931,11 +931,11 @@ void load_font()
     HKEY reg;
     int i;
     DWORD len;
-    
+
     memset(&df, 0, sizeof(LOGFONT));
     df.lfHeight=16;
     strcpy(df.lfFaceName, "Courier New");
-    
+
     if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\1KB\\termrec", 0, KEY_READ, &reg))
         return;
     len=LF_FACESIZE;
@@ -957,7 +957,7 @@ void save_font()
 {
     HKEY reg;
     int i;
-    
+
     if (RegCreateKeyEx(HKEY_CURRENT_USER, "Software\\1KB\\termrec", 0, 0, 0, KEY_WRITE, 0, &reg, 0))
         return;
     RegSetValueEx(reg, "FontName", 0, REG_SZ, (BYTE*)df.lfFaceName, strlen(df.lfFaceName)+1);
@@ -974,7 +974,7 @@ void save_font()
 void choose_font()
 {
     CHOOSEFONT cf;
-    
+
     memset(&cf, 0, sizeof(CHOOSEFONT));
     cf.lStructSize=sizeof(CHOOSEFONT);
     cf.hwndOwner=wnd;
@@ -998,7 +998,7 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             create_sysmenu(hwnd);
 
             return 0;
-        
+
         case WM_SIZE:
             SendMessage(wndTB, TB_AUTOSIZE, 0, 0);
             get_def_size(LOWORD(lParam), HIWORD(lParam));
@@ -1007,7 +1007,7 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case WM_DESTROY:
             PostQuitMessage(0);
             return 0;
-        
+
         case WM_COMMAND:
             switch(LOWORD(wParam))
             {
@@ -1067,7 +1067,7 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 break;
             }
             return 0;
-        
+
         case WM_SYSCOMMAND:
             switch(LOWORD(wParam))
             {
@@ -1077,14 +1077,14 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 choose_font();
             }
             return 0;
-        
+
         case WM_HSCROLL:
             if ((HANDLE)lParam==wndSpeed)
                 speed_scrolled();
             else if ((HANDLE)lParam==wndProg)
                 prog_scrolled();
             return 0;
-        
+
         case WM_KEYDOWN:
             switch(wParam)
             {
@@ -1145,11 +1145,11 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 break;
             }
             return 0;
-            
+
         case WM_SIZING:
             constrain_size((LPRECT)lParam);
             return 1;
-        
+
         default:
             return DefWindowProc(hwnd, uMsg, wParam, lParam);
     }
@@ -1163,11 +1163,11 @@ LRESULT APIENTRY TermWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case WM_PAINT:
             paint(hwnd);
             return 0;
-        
+
         case WM_LBUTTONDOWN:
             SetFocus(wnd);
             return 0;
-        
+
         default:
             return DefWindowProc(hwnd, uMsg, wParam, lParam);
     }
@@ -1178,19 +1178,19 @@ LRESULT APIENTRY TermWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 int APIENTRY WinMain(HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
     inst = instance;
-    
+
     win32_init();
-    
+
     speed=1000;
     play_f=-1;
     play_state=-1;
     tsx=tsy=0;
-    
+
     defsx=80;
     defsy=25;
-    
+
     vt=vt100_init(defsx, defsy, 1, 0);
-    
+
     if (*lpCmdLine=='"')	// FIXME: proper parsing
     {
         strncpy(filename, lpCmdLine+1, MAXFILENAME-1);
@@ -1199,13 +1199,13 @@ int APIENTRY WinMain(HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
     else
         strncpy(filename, lpCmdLine, MAXFILENAME-1);
     filename[MAXFILENAME-1]=0;
-    
+
     create_window(nCmdShow);
-    
+
     print_banner();
     draw_size();
     UpdateWindow(wnd);
-    
+
     ttr=0;
 
     if (*filename)

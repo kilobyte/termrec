@@ -22,12 +22,12 @@ static inline int unix_pthread_create(pthread_t *th, int det, void *start, void 
 {
     pthread_attr_t attr;
     int ret;
-    
+
     pthread_attr_init(&attr);
     pthread_attr_setdetachstate(&attr, det);
     ret=pthread_create(th, &attr, start, arg);
     pthread_attr_destroy(&attr);
-    
+
     return ret;
 }
 

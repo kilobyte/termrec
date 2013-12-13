@@ -12,7 +12,7 @@ struct vtvt_data
 {
     FILE *tty;
     int sx,sy;
-    
+
     int attr;
     int cx,cy;
 };
@@ -64,7 +64,7 @@ static char *vt100graph = 0;
 static void build_vt100graph()
 {
     int i;
-    
+
     /* the reverse mapping Unicode->vt100_graphic takes a chunk of memory, so
        build it only on demand.  This won't happen most of the time. */
     if (!(vt100graph=malloc(MAXVT100GRAPH+1)))
@@ -98,7 +98,7 @@ export void vtvt_dump(vt100 vt)
 {
     int x,y;
     attrchar *ch;
-    
+
     ch=vt->scr;
     for (y=0; y<vt->sy; y++)
     {
@@ -114,7 +114,7 @@ export void vtvt_dump(vt100 vt)
 static void vtvt_clear(vt100 vt, int x, int y, int len)
 {
     int c;
-    
+
     setattr(vt, vt->attr);
     if (x==0 && y==0 && len==SX*SY)
         fprintf(DATA->tty, "\e[2J");
@@ -185,10 +185,10 @@ export void vtvt_attach(vt100 vt, FILE *tty, int dump)
     CX=CY=-1;
     DATA->attr=-1;
     DATA->tty=tty;
-    
+
     SX=80; SY=25;
     get_tty_size(fileno(tty), &SX, &SY);
-    
+
     vt->l_char=vtvt_char;
     vt->l_cursor=vtvt_cursor;
     vt->l_clear=vtvt_clear;
@@ -197,7 +197,7 @@ export void vtvt_attach(vt100 vt, FILE *tty, int dump)
     vt->l_resize=vtvt_resized;
     vt->l_flush=vtvt_flush;
     vt->l_free=vtvt_free;
-    
+
     if (dump)
     {
         fprintf(DATA->tty, "\ec");

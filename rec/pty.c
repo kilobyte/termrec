@@ -22,7 +22,7 @@ extern char **environ;
 
 
 #ifndef HAVE_FORKPTY
-# if !(defined(HAVE__GETPTY) || defined(HAVE_GRANTPT))  
+# if !(defined(HAVE__GETPTY) || defined(HAVE_GRANTPT))
 /*
  * if no PTYRANGE[01] is in the config file, we pick a default
  */
@@ -153,7 +153,7 @@ ok:
     if (wp)
         ioctl(master,TIOCSWINSZ,wp);
     // let's ignore errors on this ioctl silently
-    
+
     pid=fork();
     switch(pid)
     {
@@ -219,7 +219,7 @@ int run(char *command, int sx, int sy)
     case 0:
         {
             char *argv[4], *cmd;
-            
+
             if (asprintf(&cmd, "exec %s", command) == -1)
                 abort();
             argv[0]="sh";
@@ -241,7 +241,7 @@ int run(char *command, int sx, int sy)
 FILE *mypopen(const char *command, const char *wr)
 {
     int p[2];
-    
+
     if (pipe(p))
         return 0;
     switch(fork())

@@ -3,11 +3,11 @@
 static void* LoadFunc(char *dll, char *name)
 {
     HMODULE hdll;
-    
+
     hdll=LoadLibrary(dll);
     if (!hdll)
         return 0;
-    
+
     return GetProcAddress(hdll, name);
 }
 
@@ -25,7 +25,7 @@ static void sockets_init()
     WSADATA wsaData;
 
     WSAStartup(MAKEWORD(2,2), &wsaData);
-    
+
     if (!(pgetaddrinfo=LoadFunc("ws2_32", "getaddrinfo"))) // WinXP+
         pgetaddrinfo=LoadFunc("wship6", "getaddrinfo"); // Win2K
 }
@@ -38,13 +38,13 @@ int getaddrinfo(const char *node, const char *service,
 {
     struct hostent *hp;
     struct sockaddr_in *sin;
-    
+
     if (!initialized)
         sockets_init();
-    
+
     if (pgetaddrinfo)
         return (*pgetaddrinfo)(node, service, hints, res);
-    
+
     if (!(hp=gethostbyname(node)))
     {
         switch(h_errno)
@@ -60,7 +60,7 @@ int getaddrinfo(const char *node, const char *service,
         }
         return -1; // ?
     }
-    
+
     *res=malloc(sizeof(struct addrinfo));
     memset(*res, 0, sizeof(struct addrinfo));
     (*res)->ai_family=AF_INET;
@@ -72,7 +72,7 @@ int getaddrinfo(const char *node, const char *service,
     sin->sin_family=AF_INET;
     memcpy((char *)&sin->sin_addr, hp->h_addr, sizeof(sin->sin_addr));
     sin->sin_port=htons(atoi(service));
-    
+
     return 0;
 }
 

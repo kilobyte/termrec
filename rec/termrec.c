@@ -55,7 +55,7 @@ void sigpipe(int s)
 void setsignals()
 {
     struct sigaction act;
-    
+
     sigemptyset(&act.sa_mask);
     act.sa_flags=SA_RESTART;
     act.sa_handler=sigwinch;
@@ -115,7 +115,7 @@ void tty_raw()
 
     memset(&ta, 0, sizeof(ta));
     tcgetattr(0, &ta);
-    
+
     rta=ta;
     pty_makeraw(&rta);
     tcsetattr(0, TCSADRAIN, &rta);
@@ -155,30 +155,30 @@ int main(int argc, char **argv)
         fprintf(stderr, "Couldn't allocaty pty.\n");
         return 1;
     }
-    
+
     gettimeofday(&tv, 0);
-    
+
     rec=ttyrec_w_open(record_f, format, record_name, &tv);
     need_utf=is_utf8();
     record_size();
- 
+
     setsignals();
     tty_raw();
-    
+
     while (1)
     {
         FD_ZERO(&rfds);
         FD_SET(0, &rfds);
         FD_SET(ptym, &rfds);
         r=select(ptym+1, &rfds, 0, 0, 0);
-        
+
         if (need_resize)
         {
             need_resize=0;
             tty_get_size();
             record_size();
         }
-        
+
         switch(r)
         {
         case 0:
@@ -189,7 +189,7 @@ int main(int argc, char **argv)
             tty_restore();
             die("select()");
         }
-        
+
         if (FD_ISSET(0, &rfds))
         {
             r=read(0, buf, BS);

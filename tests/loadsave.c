@@ -5,10 +5,10 @@
 int main(int argc, char **argv)
 {
     ttyrec tr;
-    
+
     if (argc!=3)
         die("Usage: loadsave f1 f2\n");
-    
+
     if (!(tr=ttyrec_load(-1, 0, argv[1], 0)))
         die("Can't read the ttyrec from %s\n", argv[1]);
     if (!ttyrec_save(tr, -1, 0, argv[2], 0, 0))

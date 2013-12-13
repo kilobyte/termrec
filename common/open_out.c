@@ -58,7 +58,7 @@ int open_out(char **file_name, char *format_ext, int append)
     char add[10],date[24];
     time_t t;
     char *error;
-    
+
     if (!*file_name)
     {
         *add=0;

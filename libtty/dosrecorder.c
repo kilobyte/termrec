@@ -1,7 +1,7 @@
 #include "config.h"
 #ifdef HAVE_ZLIB_H
 # include <zlib.h>
-#else 
+#else
 # ifdef SHIPPED_LIBZ
 #  include SHIPPED_LIBZ_H
 # endif
@@ -49,14 +49,14 @@ static inline void wrchar(attrchar *ch, int *oattr, char **b)
 static inline int sp_string(attrchar *ch, int a, int max)
 {
     int i=0;
-    
+
     while (ch->c==' ' && ch->a==a && max--)
         i++, ch++;
     return i;
 }
 
 #define BUFFER_SIZE 65536
-/* Note: no checks if buf is big enough.  We won't produce more than 25*80 symbols, 
+/* Note: no checks if buf is big enough.  We won't produce more than 25*80 symbols,
    each consisting of an UTF-8 char (max 3 bytes) and attrs, plus cursor movements,
    one per line plus one per >=10 symbols skipped.
    Thus, don't skimp on BUFFER_SIZE.  16k should be more than enough, but it's better
@@ -70,7 +70,7 @@ static int scrdiff(screen *tty, screen *scr, char *buf)
     int cx=-1,cy=-1;
     int attr=-1;
     int sp;
-    
+
     for (y=0; y<25; y++)
         for (x=0; x<80; x++)
             if (tty[y][x]!=scr[y][x])
@@ -96,7 +96,7 @@ static int scrdiff(screen *tty, screen *scr, char *buf)
                     x+=sp-1;
                 }
             }
-    
+
     return bp-buf;
 }
 
@@ -132,7 +132,7 @@ void play_dosrecorder(FILE *f,
 #pragma pack(pop)
     char buf[BUFFER_SIZE], *bp;
     struct timeval tv;
-    
+
     if (!(g=gzdopen(dup(fileno(f)), "rb")))
     {
         synch_print(buf, snprintf(buf, BUFFER_SIZE, _("Not a DosRecorder recording!")), arg);
@@ -143,7 +143,7 @@ void play_dosrecorder(FILE *f,
         for (y=0; y<25; y++)
             for (x=0; x<80; x++)
                 screens[i][y][x].c=' ', screens[i][y][x].a=7;
-    
+
     bp=buf+sprintf(buf, "\ec\e%%G");
     while (gzread(g, &fh, sizeof(fh))==sizeof(fh))
     {
@@ -161,7 +161,7 @@ void play_dosrecorder(FILE *f,
             gzread(g, &scr[0][0]+chs[i].pos, chs[i].len*sizeof(attrchar));
         }
         memcpy(&screens[fh.dscr], &scr, sizeof(screen));
-        
+
         if (note)
         {
             if (gzread(g, &nh, sizeof(nh)!=sizeof(nh)))
@@ -175,17 +175,17 @@ void play_dosrecorder(FILE *f,
             bp+=nh.titlelen;
             *bp++=7;
         }
-        
+
         bp+=scrdiff(&tty, &scr, bp);
-        
+
         tv.tv_sec=fh.delay/1000;
         tv.tv_usec=(fh.delay-tv.tv_sec*1000)*1000;
         synch_wait(&tv, arg);
         synch_print(buf, bp-buf, arg);
-        
+
         bp=buf;
     }
-    
+
 end:
     gzclose(g);
 }

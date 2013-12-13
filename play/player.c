@@ -22,7 +22,7 @@ static int player(void *arg)
 {
     ttyrec_frame nf;
     struct timeval tt, wall;
-    
+
     do
     {
         while ((nf=ttyrec_next_frame(tr, fr)))
@@ -92,7 +92,7 @@ static void replay_stop()
 static void adjust_pos(int diff)
 {
     int old_state=play_state;
-    
+
     replay_stop();
     tc.tv_sec+=diff;
     if (tc.tv_sec<0)
@@ -107,7 +107,7 @@ static void adjust_pos(int diff)
 static void adjust_speed(int dir)
 {
     int old_state=play_state;
-    
+
     replay_stop();
     switch(dir)
     {
@@ -146,7 +146,7 @@ static void replay_rewind()
 static void adv_frame()
 {
     ttyrec_frame nf;
-    
+
     replay_stop();
     if (!(nf=ttyrec_next_frame(tr, fr)))
         return;
@@ -208,13 +208,13 @@ void replay()
     char *kptr;
     int ch;
     struct bind *bp;
-    
+
     play_state=0;
     tc.tv_sec=tc.tv_usec=0;
     fr=ttyrec_seek(tr, 0, &term);
     vtvt_attach(term, stdout, 1);
     replay_start();
-    
+
     while (1)
     {
         kptr=keycode;
@@ -261,7 +261,7 @@ void replay()
                 else
                     goto end;
             }
-            
+
     }
 end:
     replay_stop();
