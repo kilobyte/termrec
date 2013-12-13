@@ -119,7 +119,7 @@ static void read_gz(int f, int fd, char *arg)
         close(fd);
         return;
     }
-    while((nBuf=gzread(g, buf, BUFFER_SIZE))>0)
+    while ((nBuf=gzread(g, buf, BUFFER_SIZE))>0)
     {
         if (write(fd, buf, nBuf)!=nBuf)
         {
@@ -150,7 +150,7 @@ static void write_gz(int f, int fd, char *arg)
         close(fd);
         return;
     }
-    while((nBuf=read(fd, buf, BUFFER_SIZE))>0)
+    while ((nBuf=read(fd, buf, BUFFER_SIZE))>0)
     {
         if (gzwrite(g, buf, nBuf)!=nBuf)
         {
@@ -280,7 +280,7 @@ compress_info decompressors[]={
 
 compress_info *comp_from_ext(char *name, compress_info *ci)
 {
-    for(;ci->name;ci++)
+    for (;ci->name;ci++)
         if (match_suffix(name, ci->ext, 0))
             return ci;
     return 0;

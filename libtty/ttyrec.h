@@ -51,12 +51,12 @@ int		ttyrec_save(ttyrec tr, int fd, char *format, char *filename,
                         {if (((t).tv_usec+=(d).tv_usec)>=1000000)	\
                             (t).tv_usec-=1000000, (t).tv_sec++;		\
                          (t).tv_sec+=(d).tv_sec;			\
-                        } while(0)
+                        } while (0)
 #define tsub(t, d)	do						\
                         {if ((signed)((t).tv_usec-=(d).tv_usec)<0)	\
                             (t).tv_usec+=1000000, (t).tv_sec--;		\
                          (t).tv_sec-=(d).tv_sec;			\
-                        } while(0)
+                        } while (0)
 #define tmul1000(t, m)	do						\
                         {long long v;					\
                          v=((long long)(t).tv_usec)*(m)/1000+		\
@@ -65,7 +65,7 @@ int		ttyrec_save(ttyrec tr, int fd, char *format, char *filename,
                          (t).tv_sec=v/1000000;				\
                          if ((t).tv_usec<0)				\
                              (t).tv_usec+=1000000, (t).tv_sec--;	\
-                        } while(0)
+                        } while (0)
 #define tdiv1000(t, m)	do						\
                         {long long v;					\
                          v=((long long)(t).tv_sec)*1000000+(t).tv_usec;	\
@@ -75,7 +75,7 @@ int		ttyrec_save(ttyrec tr, int fd, char *format, char *filename,
                          (t).tv_sec=v/1000000;				\
                          if ((t).tv_usec<0)				\
                              (t).tv_usec+=1000000, (t).tv_sec--;	\
-                        } while(0)
+                        } while (0)
 #define tcmp(t1, t2)	(((t1).tv_sec>(t2).tv_sec)?1:		\
                          ((t1).tv_sec<(t2).tv_sec)?-1:		\
                          ((t1).tv_usec>(t2).tv_usec)?1:		\

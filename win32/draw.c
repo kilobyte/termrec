@@ -111,13 +111,13 @@ void draw_vt(HDC dc, int px, int py, vt100 vt)
     oldfont=SelectObject(dc, norm_font);
     ch=vt->scr;
     cnt=0;
-    for(y=0;y<vt->sy;y++)
+    for (y=0;y<vt->sy;y++)
     {
         cnt=0;
         x0=x=0;
         attr=ch->attr;
         
-        while(1)
+        while (1)
         {
             if (x>=vt->sx || attr!=ch->attr)
             {

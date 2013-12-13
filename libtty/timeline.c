@@ -100,7 +100,7 @@ export void ttyrec_free(ttyrec tr)
         return;
     
     tev_tail=tr->tev_head;
-    while(tev_tail)
+    while (tev_tail)
     {
         tc=tev_tail;
         tev_tail=tev_tail->next;
@@ -140,7 +140,7 @@ export struct ttyrec_frame* ttyrec_seek(ttyrec tr, struct timeval *t, vt100 *vt)
     tfs = 0;
     
     if (t)
-        while(tfv->next && tcmp(tfv->next->t, *t)<=0)
+        while (tfv->next && tcmp(tfv->next->t, *t)<=0)
         {
             tfv=tfv->next;
             if (tfv->snapshot)
@@ -201,7 +201,7 @@ export int ttyrec_save(ttyrec tr, int fd, char *format, char *filename, struct t
     fr=ttyrec_seek(tr, selstart, 0);
     if (!(rec=ttyrec_w_open(fd, format, filename, &fr->t)))
         return 0;
-    while(fr)
+    while (fr)
     {
         if (selend && tcmp(fr->t, *selend)>0)
             break;

@@ -38,7 +38,7 @@ void get_play_parms(int argc, char **argv)
     follow=0;
     speed=1000;
     
-    while(1)
+    while (1)
     {
 #if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
         switch(getopt_long(argc, argv, "f:s:ph", play_opts, 0))

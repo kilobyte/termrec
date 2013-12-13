@@ -165,7 +165,7 @@ int main(int argc, char **argv)
     setsignals();
     tty_raw();
     
-    while(1)
+    while (1)
     {
         FD_ZERO(&rfds);
         FD_SET(0, &rfds);

@@ -135,7 +135,7 @@ ok:
               close(master);
               continue;
             }
-          if((slave=open(TtyName, O_RDWR|O_NOCTTY))==-1)
+          if ((slave=open(TtyName, O_RDWR|O_NOCTTY))==-1)
 	  {
 	  	close(master);
 	  	continue;
@@ -215,7 +215,7 @@ int run(char *command, int sx, int sy)
     switch(forkpty(&fd,0,0,(sx&&sy)?&ws:0))
     {
     case -1:
-        return(-1);
+        return -1;
     case 0:
         {
             char *argv[4], *cmd;
@@ -231,7 +231,7 @@ int run(char *command, int sx, int sy)
             exit(127);
         }
     default:
-        return(fd);
+        return fd;
     }
 
     return -1;
@@ -254,7 +254,7 @@ FILE *mypopen(const char *command, const char *wr)
         {
             char *argv[4], *cmd;
 
-            if(*wr=='r')
+            if (*wr=='r')
             {
                 close(p[0]);
                 close(0);

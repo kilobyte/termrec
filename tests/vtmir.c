@@ -16,7 +16,7 @@ void copier(void *args)
     char buf[BUFFER_SIZE];
     int len;
     
-    while((len=read(fd, buf, BUFFER_SIZE))>0)
+    while ((len=read(fd, buf, BUFFER_SIZE))>0)
         vt100_write(vt2, buf, len);
 }
 
@@ -24,7 +24,7 @@ void dump(vt100 vt)
 {
     int x,y,c;
     
-    for(y=0;y<vt->sy;y++)
+    for (y=0;y<vt->sy;y++)
     {
         for (x=0;x<vt->sx;x++)
         {
@@ -54,12 +54,12 @@ int main()
     f=fdopen(p[1], "w");
     vtvt_attach(vt1, f, 0);
     
-    while((len=read(0, buf, BUF2))>0)
+    while ((len=read(0, buf, BUF2))>0)
         vt100_write(vt1, buf, len);
     fclose(f);
     thread_join(cop);
     
-    for(i=0; i<vt1->sx*vt1->sy; i++)
+    for (i=0; i<vt1->sx*vt1->sy; i++)
         if (vt1->scr[i].ch!=vt2->scr[i].ch || vt1->scr[i].attr!=vt2->scr[i].attr)
         {
             printf("Mismatch!  Dumps:\n");

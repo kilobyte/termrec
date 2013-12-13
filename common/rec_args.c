@@ -51,7 +51,7 @@ void get_rec_parms(int argc, char **argv)
     comp_ext="";
 #endif
     
-    while(1)
+    while (1)
     {
 #if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
         switch(getopt_long(argc, argv, "f:e:rah", rec_opts, 0))

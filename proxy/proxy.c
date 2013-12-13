@@ -88,7 +88,7 @@ void workthread(struct workstate *ws)
     who=ws->who++;
     mutex_unlock(ws->mutex);
     state=0;
-    while((cnt=recv(ws->fd[who], buf, BUFFER_SIZE, 0))>0)
+    while ((cnt=recv(ws->fd[who], buf, BUFFER_SIZE, 0))>0)
     {
         if (send(ws->fd[1-who], buf, cnt, 0)<cnt)
             break;
@@ -99,12 +99,12 @@ void workthread(struct workstate *ws)
 #endif
         if (raw)
         {
-            while(cnt--)
+            while (cnt--)
                 *op++=*bp++;
             goto no_traffic_analysis;
         }
         
-        while(cnt--)
+        while (cnt--)
             switch(state)
             {
             default: // normal
@@ -428,7 +428,7 @@ void get_proxy_parms(int argc, char **argv)
     raw=1;
     append=0;
     
-    while(1)
+    while (1)
     {
 #if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
         switch(getopt_long(argc, argv, "f:l:rtahp:", proxy_opts, 0))
@@ -536,7 +536,7 @@ int main(int argc, char **argv)
     sock=listen_lo();
     if (verbose)
         printf(_("Listening...\n"));
-    while((s=accept(sock, 0, 0))>=0)
+    while ((s=accept(sock, 0, 0))>=0)
     {
         if (record_name)
         {

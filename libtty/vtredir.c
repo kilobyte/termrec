@@ -70,7 +70,7 @@ static void build_vt100graph()
     if (!(vt100graph=malloc(MAXVT100GRAPH+1)))
         abort();
     memset(vt100graph, 0, MAXVT100GRAPH+1);
-    for(i=32; i<127; i++)
+    for (i=32; i<127; i++)
         if (charset_vt100[i]<=MAXVT100GRAPH)
             vt100graph[charset_vt100[i]]=i;
 }
@@ -100,9 +100,9 @@ export void vtvt_dump(vt100 vt)
     attrchar *ch;
     
     ch=vt->scr;
-    for(y=0; y<vt->sy; y++)
+    for (y=0; y<vt->sy; y++)
     {
-        for(x=0; x<vt->sx; x++)
+        for (x=0; x<vt->sx; x++)
         {
             vtvt_char(vt, x, y, ch->ch, ch->attr);
             ch++;
@@ -129,7 +129,7 @@ static void vtvt_clear(vt100 vt, int x, int y, int len)
     else if (x==CX && y==CY && len==SX-CX)
         fprintf(DATA->tty, "\e[0K");
     else
-        while(len)
+        while (len)
         {
             vtvt_cursor(vt, x, y);
             c=(len>SX-x)? SX-x : len;

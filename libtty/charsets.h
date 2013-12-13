@@ -23,7 +23,7 @@ extern unsigned short charset_cp437[256];
 	*(vb)++ = (((uv) >>  6) & 0x3f) | 0x80;	\
 	*(vb)++ = ( (uv)        & 0x3f) | 0x80;	\
     }						\
-} while(0)
+} while (0)
 #if 0 // we do only Unicode, not full TF8
     else if ((uv) < 0x4000000) {		\
 	*(vb)++ = ( (uv) >> 24)         | 0xf8;	\

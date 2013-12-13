@@ -33,7 +33,7 @@ int main()
 {
     int i;
     
-    for(i=0;i<1000;i++)
+    for (i=0;i<1000;i++)
     {
         gen();
         //printf("%3d:%09u + %3d:%09u = ", a.tv_sec, a.tv_usec, b.tv_sec, b.tv_usec);
@@ -41,13 +41,13 @@ int main()
         //printf("%3d:%09u\n", a.tv_sec, a.tv_usec);
         cmp(ax+bx, "tadd");
     }
-    for(i=0;i<1000;i++)
+    for (i=0;i<1000;i++)
     {
         gen();
         tsub(a, b);
         cmp(ax-bx, "tsub");
     }
-    for(i=0;i<1000;i++)
+    for (i=0;i<1000;i++)
     {
         gen();
         b.tv_usec/=100;
@@ -56,7 +56,7 @@ int main()
         //printf("%3d:%06u vs %lld\n", a.tv_sec, a.tv_usec, ax*b.tv_usec/1000);
         cmp(ax*b.tv_usec/1000, "tmul1000");
     }
-    for(i=0;i<1000;i++)
+    for (i=0;i<1000;i++)
     {
         gen();
         b.tv_usec/=100;

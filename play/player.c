@@ -25,7 +25,7 @@ static int player(void *arg)
     
     do
     {
-        while((nf=ttyrec_next_frame(tr, fr)))
+        while ((nf=ttyrec_next_frame(tr, fr)))
         {
             tt=nf->t;
             tdiv1000(tt, speed);
@@ -53,7 +53,7 @@ static int player(void *arg)
         }
         mutex_unlock(waitm);
     }
-    while(nf || !loaded);
+    while (nf || !loaded);
     return 0;
 }
 
@@ -240,7 +240,7 @@ void replay()
                     break;
                 case '0': case '1': case '2': case '3': case '4':
                 case '5': case '6': case '7': case '8': case '9':
-                    while(ch>='0' && ch<='9' && kptr-keycode<6)
+                    while (ch>='0' && ch<='9' && kptr-keycode<6)
                     {
                         GETKEY{}
                         // ESC [ 11 ~
@@ -253,7 +253,7 @@ void replay()
             break;
         }
         *kptr=0;
-        for(bp=binds; bp->keycode; bp++)
+        for (bp=binds; bp->keycode; bp++)
             if (!strcmp(bp->keycode, keycode))
             {
                 if (bp->func)

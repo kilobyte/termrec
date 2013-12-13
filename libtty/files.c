@@ -32,7 +32,7 @@ static int find_w_format(char *format, char *filename, char *fallback)
     // given explicitely
     if (format)
     {
-        for(nf=0; rec[nf].name; nf++)
+        for (nf=0; rec[nf].name; nf++)
             if (!strcasecmp(format, rec[nf].name))
                 return nf;
         return -1;	// no fallback to default
@@ -48,12 +48,12 @@ static int find_w_format(char *format, char *filename, char *fallback)
             skip=strlen(ci->ext);
         else
             skip=0;
-        for(nf=0; rec[nf].name; nf++)
+        for (nf=0; rec[nf].name; nf++)
             if (rec[nf].ext && match_suffix(filename, rec[nf].ext, skip))
                 return nf;
     }
     // is the default valid?
-    for(nf=0; rec[nf].name; nf++)
+    for (nf=0; rec[nf].name; nf++)
         if (!strcasecmp(fallback, rec[nf].name))
             return nf;
     return -1;
@@ -152,7 +152,7 @@ static int find_r_format(char *format, char *filename, char *fallback)
     // given explicitely
     if (format)
     {
-        for(nf=0; play[nf].name; nf++)
+        for (nf=0; play[nf].name; nf++)
             if (!strcasecmp(format, play[nf].name))
                 return nf;
         return -1;	// no fallback to default
@@ -168,12 +168,12 @@ static int find_r_format(char *format, char *filename, char *fallback)
             skip=strlen(ci->ext);
         else
             skip=0;
-        for(nf=0; play[nf].name; nf++)
+        for (nf=0; play[nf].name; nf++)
             if (play[nf].ext && match_suffix(filename, play[nf].ext, skip))
                 return nf;
     }
     // is the default valid?
-    for(nf=0; play[nf].name; nf++)
+    for (nf=0; play[nf].name; nf++)
         if (!strcasecmp(fallback, play[nf].name))
             return nf;
     return -1;

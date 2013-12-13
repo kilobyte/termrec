@@ -54,12 +54,12 @@ void telnet(int sock, int fd, char *arg)
     
     neg[0]=IAC;
     state=0;
-    while((cnt=recv(sock, buf, BUFSIZ, 0))>0)
+    while ((cnt=recv(sock, buf, BUFSIZ, 0))>0)
     {
         bp=buf;
         op=out;
         
-        while(cnt--)
+        while (cnt--)
         {
             switch(state)
             {

@@ -50,7 +50,7 @@ static inline int sp_string(attrchar *ch, int a, int max)
 {
     int i=0;
     
-    while(ch->c==' ' && ch->a==a && max--)
+    while (ch->c==' ' && ch->a==a && max--)
         i++, ch++;
     return i;
 }
@@ -71,15 +71,15 @@ static int scrdiff(screen *tty, screen *scr, char *buf)
     int attr=-1;
     int sp;
     
-    for(y=0; y<25; y++)
-        for(x=0; x<80; x++)
+    for (y=0; y<25; y++)
+        for (x=0; x<80; x++)
             if (tty[y][x]!=scr[y][x])
             {
                 if (y!=cy || cx+10<x)
                     bp+=sprintf(bp, "\e[%d;%df", (cy=y)+1, cx=x+1);
                 else
                 {
-                    while(cx<x)
+                    while (cx<x)
                     {
                         setattr(&(*scr)[y][cx], &attr, &bp);
                         wrchar(&(*scr)[y][cx], &attr, &bp);
@@ -139,13 +139,13 @@ void play_dosrecorder(FILE *f,
         return;
     }
     memset(tty, 0, sizeof(screen));
-    for(i=0; i<MAXSCREENS; i++)
-        for(y=0; y<25; y++)
-            for(x=0; x<80; x++)
+    for (i=0; i<MAXSCREENS; i++)
+        for (y=0; y<25; y++)
+            for (x=0; x<80; x++)
                 screens[i][y][x].c=' ', screens[i][y][x].a=7;
     
     bp=buf+sprintf(buf, "\ec\e%%G");
-    while(gzread(g, &fh, sizeof(fh))==sizeof(fh))
+    while (gzread(g, &fh, sizeof(fh))==sizeof(fh))
     {
         note=fh.nchunks&0x8000;
         memcpy(&scr, &screens[fh.sscr], sizeof(screen));
@@ -154,7 +154,7 @@ void play_dosrecorder(FILE *f,
         if (gzread(g, chs, fh.nchunks*sizeof(struct ch))
                    !=(int)(fh.nchunks*sizeof(struct ch)))
             goto end;
-        for(i=0; i<fh.nchunks; i++)
+        for (i=0; i<fh.nchunks; i++)
         {
             if (chs[i].pos>=25*80 || chs[i].len+chs[i].pos>25*80)
                 goto end;	// corrupted file
@@ -166,7 +166,7 @@ void play_dosrecorder(FILE *f,
         {
             if (gzread(g, &nh, sizeof(nh)!=sizeof(nh)))
                 goto end;
-            for(i=0; i<nh.h; i++)
+            for (i=0; i<nh.h; i++)
                 gzread(g, &scr[nh.y+i][nh.x], nh.w*sizeof(attrchar));
             if (nh.titlelen>80)
                 goto end;

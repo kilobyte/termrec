@@ -176,11 +176,11 @@ void vtrec_char(int x, int y, CHAR_INFO c)
             CHAR_INFO *sp;
             
             sp=cscr+vtrec_cy*vtrec_cols+vtrec_cx;
-            for(z=vtrec_cx;z<x;z++)
+            for (z=vtrec_cx;z<x;z++)
                 if (sp++->Attributes!=vtrec_attr)
                     goto jump;
             sp=cscr+vtrec_cy*vtrec_cols+vtrec_cx;
-            for(z=vtrec_cx;z<x;z++)
+            for (z=vtrec_cx;z<x;z++)
                 vtrec_outchar(*sp++);
         }
         else
@@ -272,9 +272,9 @@ dump_ok:
     if (full)
     {
         sp=scr;
-        for(y=0;y<vtrec_rows;y++)
+        for (y=0;y<vtrec_rows;y++)
         {
-            for(x=0;x<vtrec_cols;x++)
+            for (x=0;x<vtrec_cols;x++)
                 vtrec_char(x,y,*sp++);
         }
         memcpy(cscr, scr, vtrec_rows*vtrec_cols*sizeof(CHAR_INFO));
@@ -283,9 +283,9 @@ dump_ok:
     {
         sp=scr;
         cp=cscr;
-        for(y=0;y<vtrec_rows;y++)
+        for (y=0;y<vtrec_rows;y++)
         {
-            for(x=0;x<vtrec_cols;x++)
+            for (x=0;x<vtrec_cols;x++)
             {
                 if (sp->Char.UnicodeChar!=cp->Char.UnicodeChar
                  || sp->Attributes!=cp->Attributes)
@@ -349,7 +349,7 @@ void vtrec_scroll(int d)
         memmove(cscr, cscr+h*vtrec_cols, (vtrec_cols*(vtrec_rows-h))*sizeof(CHAR_INFO));
         cp=cscr+(vtrec_cols*(vtrec_rows-h));
         vtrec_printf("\e[%df", vtrec_rows);
-        while(h--)
+        while (h--)
             vtrec_printf("\eD");
     }
     else
@@ -357,10 +357,10 @@ void vtrec_scroll(int d)
         memmove(cscr+h*vtrec_cols, cscr, (vtrec_cols*(vtrec_rows-h))*sizeof(CHAR_INFO));
         cp=cscr;
         vtrec_printf("\e[f");
-        while(h--)
+        while (h--)
             vtrec_printf("\eM");
     }
-    while(x--)
+    while (x--)
     {
         cp->Char.UnicodeChar=' ';
         cp->Attributes=vtrec_attr;

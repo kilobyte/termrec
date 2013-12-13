@@ -44,16 +44,16 @@ export int vt100_resize(vt100 vt, int nsx, int nsy)
     printf("Resize from %dx%d to %dx%d\n", SX, SY, nsx, nsy);
 #endif
     nscr=malloc(nsx*nsy*sizeof(attrchar));
-    for(y=0;y<nsy;y++)
-        for(x=0;x<nsx;x++)
+    for (y=0;y<nsy;y++)
+        for (x=0;x<nsx;x++)
         {
             nscr[y*nsx+x].ch=' ';
             nscr[y*nsx+x].attr=vt->attr;
         }
     if (vt->scr)
     {
-        for(y=0;y<SY && y<nsy;y++)
-            for(x=0;x<SX && x<nsx;x++)
+        for (y=0;y<SY && y<nsy;y++)
+            for (x=0;x<SX && x<nsx;x++)
                 nscr[y*nsx+x]=vt->scr[y*SX+x];
         free(vt->scr);
     }
@@ -107,7 +107,7 @@ static void vt100_clear_region(vt100 vt, int st, int l)
     blank.attr=vt->attr;
 
     c=vt->scr+st;
-    while(l--)
+    while (l--)
         *c++=blank;
 }
 
@@ -200,7 +200,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
     ucs c;
 
     buf--;
-    while(len--)
+    while (len--)
     {
 
         switch(*++buf)
@@ -221,7 +221,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                     CX++;
                     if (vt->l_char)
                         vt->l_char(vt, CX-1, CY, ' ', vt->attr);
-                } while(CX<SX && CX&7);
+                } while (CX<SX && CX&7);
             continue;
         case 10:
             CX=0;
@@ -286,7 +286,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 case 4: printf(" [ ?"); break;
                 case 7: printf(" %%"); break;
                 }
-                for(i=0;i<=vt->ntok;i++)
+                for (i=0;i<=vt->ntok;i++)
                     printf("%c%u%s", i?';':' ', vt->tok[i], vt->tok[i]?"":"?");
                 printf(" %c\n", *buf);
                 break;
@@ -490,7 +490,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 break;
                 
             case 'm':	// ESC[m -> change color/attribs
-                for(i=0;i<=vt->ntok;i++)
+                for (i=0;i<=vt->ntok;i++)
                     switch(vt->tok[i])
                     {
                     case 0:
@@ -740,7 +740,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 case 8:	    // ESC8;<h>;<w>t -> resize
                     if (!vt->opt_allow_resize)
                         break;
-                    while(vt->ntok<2)
+                    while (vt->ntok<2)
                         vt->tok[++vt->ntok]=0;
                     if (vt->tok[1]<=0)
                         vt->tok[1]=SY;
@@ -777,7 +777,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 break;
                 
             case 'h':
-                for(i=0;i<=vt->ntok;i++)
+                for (i=0;i<=vt->ntok;i++)
 		    switch(vt->tok[i])
 		    {
 		    case 7:
@@ -795,7 +795,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 break;
                 
             case 'l':
-                for(i=0;i<=vt->ntok;i++)
+                for (i=0;i<=vt->ntok;i++)
 		    switch(vt->tok[i])
 		    {
 		    case 7:

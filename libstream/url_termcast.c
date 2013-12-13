@@ -21,7 +21,7 @@ static int match(char *rp, char *rest)
         return 0;
     if (*rp++!='[')
         return 0;
-    while(*rp>='0' && *rp<='9')
+    while (*rp>='0' && *rp<='9')
         rp++;
     if (*rp++!='d')
         return 0;
@@ -32,7 +32,7 @@ static int match(char *rp, char *rest)
         return 0;
     if (*rp++!=' ')
         return 0;
-    while(*rest)
+    while (*rest)
         if (*rp++!=*rest++)
             return 0;
     if (*rp++!=' ')
@@ -71,7 +71,7 @@ static void termcast(int in, int out, char *arg)
     
     inbuf=0;
     rp=buf;
-    while(1)
+    while (1)
     {
         if (rp!=buf)
         {
@@ -111,7 +111,7 @@ found:
     free(rest);
     if (write(sock, &ses, 1) != 1)
         return;
-    while((len=read(in, buf, BUFSIZ))>0)
+    while ((len=read(in, buf, BUFSIZ))>0)
         if (write(out, buf, len)!=len)
             return;
     

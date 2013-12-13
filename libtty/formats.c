@@ -122,7 +122,7 @@ static void play_baudrate(FILE *f,
     
     tv.tv_sec=0;
     tv.tv_usec=200000;
-    while((b=fread(buf, 1, 60, f))>0)	// 2400 baud
+    while ((b=fread(buf, 1, 60, f))>0)	// 2400 baud
     {
         synch_print(buf, b, arg);
         
@@ -169,7 +169,7 @@ static void play_live(FILE *f,
     }
     
     // using read() not fread(), we need unbuffered IO
-    while((len=read(fileno(f), buf, BUFFER_SIZE))>0)
+    while ((len=read(fileno(f), buf, BUFFER_SIZE))>0)
     {
         gettimeofday(&tv, 0);
         tm=tv;
@@ -244,7 +244,7 @@ static void play_ttyrec(FILE *f,
         first=0;
     }
 
-    while(fread(&head, 1, sizeof(struct ttyrec_header), f)
+    while (fread(&head, 1, sizeof(struct ttyrec_header), f)
       ==sizeof(struct ttyrec_header))
     {
         b=little_endian(head.len);
@@ -282,7 +282,7 @@ static void play_ttyrec(FILE *f,
             synch_wait(&tl, arg);
         }
         
-        while(w>0)
+        while (w>0)
         {
             synch_print(buf, w, arg);
             if (!b)
@@ -338,10 +338,10 @@ static void play_nh_recorder(FILE *f,
     
     t=0;
     i=b=0;
-    while((b=fread(buf+b-i, 1, BUFFER_SIZE-(b-i), f))>0)
+    while ((b=fread(buf+b-i, 1, BUFFER_SIZE-(b-i), f))>0)
     {
         i0=0;
-        for(i=0;i<b;i++)
+        for (i=0;i<b;i++)
             if (!buf[i])
             {
                 if (i0<i)
@@ -427,7 +427,7 @@ static void play_auto(FILE *f,
         tv.tv_usec=little_endian(tth.usec);
         synch_init_wait(&tv, arg);
         got=little_endian(tth.len);
-        while(got>0)
+        while (got>0)
         {
             if ((len=fread(buf, 1, (got>BUFFER_SIZE)?BUFFER_SIZE:got, f))<=0)
                 return;

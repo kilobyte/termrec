@@ -31,10 +31,10 @@ static void nameinc(char *add)
     char *ae,*ai;
 
     ae=add;
-    while(*ae)
+    while (*ae)
         ae++;
     ai=ae;      // start at the end of the string
-    while(1)
+    while (1)
     {
         if (--ai<add)
         {
@@ -64,7 +64,7 @@ int open_out(char **file_name, char *format_ext, int append)
         *add=0;
         time(&t);
         strftime(date, sizeof(date), "%Y-%m-%d.%H-%M-%S", localtime(&t));
-        while(1)
+        while (1)
         {
             if (asprintf(file_name, "%s%s%s%s", date, add, format_ext, append?"":comp_ext) == -1)
                 abort();

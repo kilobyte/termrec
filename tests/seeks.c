@@ -19,7 +19,7 @@ void sub(int t1, int t2, char *exp)
     tv.tv_usec=0;
     fr=ttyrec_seek(tr, (t1!=-1)?&tv:0, 0);
     bptr=buf;
-    while(fr && (t2==-1 || fr->t.tv_sec<=t2))
+    while (fr && (t2==-1 || fr->t.tv_sec<=t2))
     {
         if (bptr+10>buf+BUFFER_SIZE)
             die("Buffer overflow!\n");
@@ -45,7 +45,7 @@ int main()
     tv.tv_sec=1;
     tv.tv_usec=0;
     
-    for(i=1;i<=10;i++)
+    for (i=1;i<=10;i++)
     {
         word[0]=i+'A'-1;
         ttyrec_add_frame(tr, &tv, word, 1);

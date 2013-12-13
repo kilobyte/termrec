@@ -18,7 +18,7 @@ void get_w_format(char **format)
     {
         fprintf(stderr, _("No such format: %s\n"), optarg);
         fprintf(stderr, _("Valid formats:\n"));
-        for(i=0;(fn=ttyrec_w_get_format_name(i));i++)
+        for (i=0;(fn=ttyrec_w_get_format_name(i));i++)
             if ((fe=ttyrec_w_get_format_ext(fn)))
                 fprintf(stderr, " %-15s (%s)\n", fn, fe);
             else
@@ -38,7 +38,7 @@ void get_r_format(char **format)
     {
         fprintf(stderr, _("No such format: %s\n"), optarg);
         fprintf(stderr, _("Valid formats:\n"));
-        for(i=0;(fn=ttyrec_r_get_format_name(i));i++)
+        for (i=0;(fn=ttyrec_r_get_format_name(i));i++)
             if ((fe=ttyrec_r_get_format_ext(fn)))
                 fprintf(stderr, " %-15s (%s)\n", fn, fe);
             else

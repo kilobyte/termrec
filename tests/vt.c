@@ -48,10 +48,10 @@ void dump(vt100 vt)
     
     printf(".-===[ %dx%d ]\n", vt->sx, vt->sy);
     attr=0xFFFF;
-    for(y=0; y<vt->sy; y++)
+    for (y=0; y<vt->sy; y++)
     {
         printf("| ");
-        for(x=0; x<vt->sx; x++)
+        for (x=0; x<vt->sx; x++)
         {
 #define SCR vt->scr[x+y*vt->sx]
             if (SCR.attr!=attr)
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
     
     vt = vt100_init(20, 5, 0, 0);
     
-    while(1)
+    while (1)
         switch(getopt(argc, argv, "ed"))
         {
         case -1:
@@ -99,7 +99,7 @@ int main(int argc, char **argv)
             crap=1;
         }
 run:
-    while((len=read(0, buf, BUFFER_SIZE))>0)
+    while ((len=read(0, buf, BUFFER_SIZE))>0)
         vt100_write(vt, buf, len);
     
     if (crap)

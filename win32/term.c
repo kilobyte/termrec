@@ -1216,7 +1216,7 @@ int APIENTRY WinMain(HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
             redraw_term();
         }
 
-    while(message_loop(&timer, 1)==0)
+    while (message_loop(&timer, 1)==0)
         do_replay();
     return 0;
     UNREFERENCED_PARAMETER(hPrevInstance);
