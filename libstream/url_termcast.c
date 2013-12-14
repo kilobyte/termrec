@@ -9,6 +9,18 @@
 #include "gettext.h"
 
 
+#define EAT_COLOUR \
+    if (*rp=='\e')					\
+    {							\
+        rp++;						\
+        if (*rp++!='[')					\
+            return 0;					\
+        while ((*rp>='0' && *rp<='9') || *rp==';')	\
+            rp++;					\
+        if (*rp++!='m')					\
+            return 0;					\
+    }
+
 static int match(char *rp, char *rest)
 {	// pattern is /\r\n\e\[\d+d ([a-z])\) $rest (\e\[[0-9;]*m)?\(/
     char res;
@@ -32,21 +44,14 @@ static int match(char *rp, char *rest)
         return 0;
     if (*rp++!=' ')
         return 0;
+    EAT_COLOUR;
     while (*rest)
         if (*rp++!=*rest++)
             return 0;
+    EAT_COLOUR;
     if (*rp++!=' ')
         return 0;
-    if (*rp=='\e')
-    {
-        rp++;
-        if (*rp++!='[')
-            return 0;
-        while ((*rp>='0' && *rp<='9') || *rp==';')
-            rp++;
-        if (*rp++!='m')
-            return 0;
-    }
+    EAT_COLOUR;
     if (*rp++!='(')
         return 0;
     return res;
