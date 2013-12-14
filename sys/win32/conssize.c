@@ -8,7 +8,7 @@ int get_tty_size(int fd, int *x, int *y)
     CONSOLE_SCREEN_BUFFER_INFO bi;
     HANDLE h;
 
-    if (!(h=_get_osfhandle(fd)))
+    if (!(h=(HANDLE)_get_osfhandle(fd)))
         return 0;
     if (!GetConsoleScreenBufferInfo(h, &bi))
         return 0;
