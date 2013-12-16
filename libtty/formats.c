@@ -309,9 +309,9 @@ static void record_ttyrec(FILE *f, void* state, struct timeval *tm, char *buf, i
 {
     struct ttyrec_header h;
 
-    h.sec=tm->tv_sec;
-    h.usec=tm->tv_usec;
-    h.len=len;
+    h.sec=little_endian(tm->tv_sec);
+    h.usec=little_endian(tm->tv_usec);
+    h.len=little_endian(len);
     fwrite(&h, 1, sizeof(h), f);
     fwrite(buf, 1, len, f);
 }
