@@ -492,6 +492,8 @@ player_info play[]={
 {0, 0, 0},
 };
 
-#define ARRAYSIZE(a) (sizeof(a)/sizeof(a[0]))
+#ifndef ARRAYSIZE
+# define ARRAYSIZE(a) (sizeof(a)/sizeof(a[0]))
+#endif
 int rec_n=ARRAYSIZE(rec)-1;
 int play_n=ARRAYSIZE(play)-1;
