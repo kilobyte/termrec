@@ -33,14 +33,30 @@ int main(){WSACleanup();return 0;}])], [
 
 dnl Check if gai_strerror is #defined (like in new MINGW headers).
 
-AC_DEFUN([AC_FUNC_GAI_STERRROR], [
-AC_MSG_CHECKING([if gai_strerror is a macro])
+AC_DEFUN([AC_FUNC_WIN32_GAI_STERRROR], [
+AC_MSG_CHECKING([if gai_strerror is a winsock macro])
 AC_LINK_IFELSE([AC_LANG_SOURCE([
 #include <winsock2.h>
 #include <windows.h>
 #include <ws2tcpip.h>
 int main(){gai_strerror(0);return 0;}])], [
-  AC_DEFINE([HAVE_GAI_STRERROR], [1], [Define if a macro])
+  AC_DEFINE([HAVE_WIN32_GAI_STRERROR], [1], [Define if a macro])
+  AC_MSG_RESULT([yes])
+], [
+  AC_MSG_RESULT([no])
+])
+])
+
+dnl Check if getaddrinfo is #defined (like in MINGW-W64 headers).
+
+AC_DEFUN([AC_FUNC_WIN32_GETADDRINFO], [
+AC_MSG_CHECKING([for winsock getaddrinfo])
+AC_LINK_IFELSE([AC_LANG_SOURCE([
+#include <winsock2.h>
+#include <windows.h>
+#include <ws2tcpip.h>
+int main(){getaddrinfo(0,0,0,0);return 0;}])], [
+  AC_DEFINE([HAVE_WIN32_GETADDRINFO], [1], [Define if available])
   AC_MSG_RESULT([yes])
 ], [
   AC_MSG_RESULT([no])
