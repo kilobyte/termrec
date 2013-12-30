@@ -1,12 +1,12 @@
 #include <string.h>
 #include <unistd.h>
 #include "config.h"
+#include "compat.h"
 #include "error.h"
 #include "threads.h"
 #include "export.h"
 #include "compress.h"
 #include "stream.h"
-#include "compat.h"
 
 
 // disabled: #ifdef HAVE_FORK
