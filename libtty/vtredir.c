@@ -42,9 +42,9 @@ static inline void setattr(vt100 vt, int attr)
             fprintf(DATA->tty, ";5");
         if (attr&VT100_ATTR_INVERSE)
             fprintf(DATA->tty, ";7");
-        if ((attr&0xff)!=0xff)
+        if ((attr&0xff)!=0x10)
             fprintf(DATA->tty, ";3%u", attr&0xff);
-        if ((attr&0xff00)!=0xff00)
+        if ((attr&0xff00)!=0x1000)
             fprintf(DATA->tty, ";4%u", (attr&0xff00)>>8);
         fprintf(DATA->tty, "m");
     }
@@ -148,7 +148,7 @@ static void vtvt_scroll(vt100 vt, int nl)
     else if (nl<0)
         fprintf(DATA->tty, "\e[0m\e[%d;%dr\e[%d;1f\e[%dL\e[r", vt->s1+1, vt->s2, vt->s1+1, -nl);
     CX=CY=-1;
-    DATA->attr=0xFFFF;
+    DATA->attr=0x1010;
 
 //  vtvt_dump(vt);
 }

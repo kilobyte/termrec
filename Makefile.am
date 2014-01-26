@@ -9,7 +9,7 @@ DISTCLEANFILES = _stdint.h
 
 CLEANFILES =
 
-AM_CFLAGS = @WALL@ -I${srcdir}/sys -I${srcdir}/libtty -I${srcdir}/common
+AM_CFLAGS = @WALL@ -I${srcdir}/sys -I${srcdir}/libtty -I${srcdir}/common -Wno-parentheses
 include sys/Makefile.am
 include libstream/Makefile.am
 include libtty/Makefile.am

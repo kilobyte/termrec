@@ -117,7 +117,7 @@ export void vt100_reset(vt100 vt)
     CX=CY=vt->save_cx=vt->save_cy=0;
     vt->s1=0;
     vt->s2=SY;
-    vt->attr=0xffff;
+    vt->attr=0x1010;
     vt->state=0;
     vt->opt_auto_wrap=1;
     vt->opt_cursor=1;
@@ -494,7 +494,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                     switch(vt->tok[i])
                     {
                     case 0:
-                        vt->attr=0xffff;
+                        vt->attr=0x1010;
                         break;
                     case 1:
                         vt->attr|=VT100_ATTR_BOLD;
@@ -539,14 +539,14 @@ export void vt100_write(vt100 vt, char *buf, int len)
                         vt->attr=(vt->attr&~0xff)|(vt->tok[i]-30);
                         break;
                     case 39:
-                        vt->attr|=0xff;
+                        vt->attr=vt->attr&~0xff|0x10;
                         break;
                     case 40: case 41: case 42: case 43:
                     case 44: case 45: case 46: case 47:
                         vt->attr=(vt->attr&~0xff00)|(vt->tok[i]-40)<<8;
                         break;
                     case 49:
-                        vt->attr|=0xff00;
+                        vt->attr=vt->attr&~0xff00|0x1000;
                     }
                 vt->state=0;
                 break;

@@ -47,7 +47,7 @@ void dump(vt100 vt)
     int x,y,attr;
 
     printf(".-===[ %dx%d ]\n", vt->sx, vt->sy);
-    attr=0xFFFF;
+    attr=0x1010;
     for (y=0; y<vt->sy; y++)
     {
         printf("| ");
