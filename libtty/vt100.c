@@ -538,12 +538,32 @@ export void vt100_write(vt100 vt, char *buf, int len)
                     case 34: case 35: case 36: case 37:
                         vt->attr=(vt->attr&~0xff)|(vt->tok[i]-30);
                         break;
+                    case 38:
+                        // Other subcommands, none of which we support:
+                        // * 2: RGB
+                        // * 3: CMY
+                        // * 4: CMYK
+                        if (vt->tok[++i]!=5)
+                            break;
+                        if (vt->tok[++i]==16)
+                            vt->attr&=~0xff; // colour 16 is same as 0
+                        else
+                            vt->attr=vt->attr&~0xff|vt->tok[i];
+                        break;
                     case 39:
                         vt->attr=vt->attr&~0xff|0x10;
                         break;
                     case 40: case 41: case 42: case 43:
                     case 44: case 45: case 46: case 47:
                         vt->attr=(vt->attr&~0xff00)|(vt->tok[i]-40)<<8;
+                        break;
+                    case 48:
+                        if (vt->tok[++i]!=5)
+                            break;
+                        if (vt->tok[++i]==16)
+                            vt->attr&=~0xff00; // colour 16 is same as 0
+                        else
+                            vt->attr=vt->attr&~0xff00|vt->tok[i]<<8;
                         break;
                     case 49:
                         vt->attr=vt->attr&~0xff00|0x1000;
