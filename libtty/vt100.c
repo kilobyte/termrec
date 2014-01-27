@@ -477,7 +477,9 @@ export void vt100_write(vt100 vt, char *buf, int len)
             {
                 vt->state=ESques;
                 break;
-            }	// fallthru
+            }
+            else
+                vt->state=ESgetpars; // fallthru
         case ESgetpars:	// ESC [, with params
             switch(*buf)
             {
