@@ -17,7 +17,7 @@
 #define CY vt->cy
 
 enum { ESnormal, ESesc, ESgetpars, ESsquare, ESques, ESsetG0, ESsetG1,
-       ESpercent };
+       ESpercent, ESosc };
 
 export vt100 vt100_init(int sx, int sy, int resizable, int utf)
 {
@@ -209,6 +209,10 @@ export void vt100_write(vt100 vt, char *buf, int len)
         switch(*++buf)
         {
         case 0:
+            continue;
+        case 7:
+            if (vt->state == ESosc)
+                vt->state = ESnormal;
             continue;
         case 8:
             if (CX)
@@ -405,6 +409,10 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 vt->state=ESsquare;
                 vt->ntok=0;
                 vt->tok[0]=0;
+                break;
+
+            case ']':
+                vt->state=ESosc;
                 break;
 
             case '(':
@@ -872,6 +880,9 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 goto error;
             }
             vt->state=ESnormal;
+            break;
+
+        case ESosc:
             break;
 
         default:

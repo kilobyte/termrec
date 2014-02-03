@@ -4,4 +4,5 @@ chomp;
 s/\\b/\b/g;
 s/\\n/\n/g;
 s/\\e/\e/g;
+s/\\a/\a/g;
 s/\\\\/\\/g;
