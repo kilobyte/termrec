@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
-AC_INIT(termrec, 0.16, [kilobyte@angband.pl])
+AC_INIT(termrec, 0.17, [kilobyte@angband.pl])
 AM_INIT_AUTOMAKE([-Wall dist-xz no-dist-gzip])
 AC_CONFIG_SRCDIR([libtty/vt100.h])
 AC_CONFIG_HEADER([config.h])
