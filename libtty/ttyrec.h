@@ -14,10 +14,10 @@ typedef struct
 } *ttyrec_frame;
 #endif
 
-#define M_READ		0
-#define M_WRITE		1
-#define M_REPREAD	2
-#define M_APPEND	3
+#define SM_READ		0
+#define SM_WRITE	1
+#define SM_REPREAD	2
+#define SM_APPEND	3
 
 int		open_stream(int fd, char* url, int mode, char **error);
 

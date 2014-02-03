@@ -162,13 +162,13 @@ int open_tcp(char* url, int mode, char **error)
     // we may write the rest of the URL to the socket here ...
 
     // no bidi streams
-    if (mode&M_WRITE)
+    if (mode&SM_WRITE)
         shutdown(fd, SHUT_RD);
     else
         shutdown(fd, SHUT_WR);
 
 #ifdef IS_WIN32
-    fd=filter(sock2file, fd, !!(mode&M_WRITE), (mode&M_WRITE)?"":0, error);
+    fd=filter(sock2file, fd, !!(mode&SM_WRITE), (mode&SM_WRITE)?"":0, error);
 #endif
     return fd;
 }

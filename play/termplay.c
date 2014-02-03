@@ -149,7 +149,7 @@ int main(int argc, char **argv)
     char *error;
 
     get_play_parms(argc, argv);
-    if ((fd=open_stream(-1, play_name, follow?M_REPREAD:M_READ, &error))==-1)
+    if ((fd=open_stream(-1, play_name, follow?SM_REPREAD:SM_READ, &error))==-1)
         die("%s: %s\n", play_name, error);
     tr=ttyrec_init(vt100_init(200, 100, 1, 1));
     mutex_init(waitm);

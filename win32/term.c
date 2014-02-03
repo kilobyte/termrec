@@ -638,7 +638,7 @@ int start_file(char *name)
         replay_pause();
         set_buttons(0);
     }
-    fd=open_stream(-1, name, M_READ, 0);
+    fd=open_stream(-1, name, SM_READ, 0);
     if (fd==-1)
         return 0;
     play_f=fd;
@@ -917,7 +917,7 @@ void export_file()
         MessageBox(wnd, errmsg, "Write error", MB_ICONERROR);
         return;
     }
-    record_f=open_stream(record_f, fn, M_WRITE, 0);
+    record_f=open_stream(record_f, fn, SM_WRITE, 0);
     sel1=selstart;
     tadd(sel1, tdate);
     sel2=selend;

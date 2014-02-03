@@ -126,7 +126,7 @@ failpipe:
 
 export int open_stream(int fd, char* url, int mode, char **error)
 {
-    int wr= !!(mode&M_WRITE);
+    int wr= !!(mode&SM_WRITE);
     compress_info *ci;
     char *dummy;
 

@@ -165,7 +165,7 @@ int open_telnet(char* url, int mode, char **error)
     int fd;
     char *rest;
 
-    if (mode&M_WRITE)
+    if (mode&SM_WRITE)
     {
         *error="Writing to telnet streams is not supported (yet?)";
         return -1;
@@ -177,5 +177,5 @@ int open_telnet(char* url, int mode, char **error)
 
     // we may write the rest of the URL to the socket here ...
 
-    return filter(telnet, fd, !!(mode&M_WRITE), 0, error);
+    return filter(telnet, fd, !!(mode&SM_WRITE), 0, error);
 }

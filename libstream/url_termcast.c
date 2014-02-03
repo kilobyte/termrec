@@ -129,7 +129,7 @@ int open_termcast(char* url, int mode, char **error)
     int fd, fdmid;
     char *rest;
 
-    if (mode&M_WRITE)
+    if (mode&SM_WRITE)
     {
         *error="Writing to termcast streams is not supported (yet?)";
         return -1;
@@ -143,10 +143,10 @@ int open_termcast(char* url, int mode, char **error)
         *error=_("What termcast session to look for?");
         return -1;
     }
-    if ((fdmid=filter(telnet, fd, !!(mode&M_WRITE), 0, error))==-1)
+    if ((fdmid=filter(telnet, fd, !!(mode&SM_WRITE), 0, error))==-1)
         return -1;
     struct filterarg *fa = malloc(sizeof(struct filterarg));
     fa->sock=fd;
     fa->rest=strdup(rest);
-    return filter(termcast, fdmid, !!(mode&M_WRITE), (char*)fa, error);
+    return filter(termcast, fdmid, !!(mode&SM_WRITE), (char*)fa, error);
 }

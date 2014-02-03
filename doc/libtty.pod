@@ -22,13 +22,13 @@ it is the descriptor you already opened; if it is -1, the file is opened.  The I
 
 =over
 
-=item M_READ
+=item SM_READ
 
-=item M_WRITE
+=item SM_WRITE
 
-=item M_REPREAD
+=item SM_REPREAD
 
-=item M_APPEND
+=item SM_APPEND
 
 =back
 
