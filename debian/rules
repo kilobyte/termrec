@@ -1,115 +1,16 @@
 #!/usr/bin/make -f
-# -*- makefile -*-
 
-# Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
+%:
+	dh $@ --parallel --with autoreconf
 
-
-DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
-DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
-ifneq ($(DEB_HOST_GNU_TYPE),$(DEB_BUILD_GNU_TYPE))
-CROSS= --build $(DEB_BUILD_GNU_TYPE) --host $(DEB_HOST_GNU_TYPE)
-else
-CROSS= --build $(DEB_BUILD_GNU_TYPE)
-endif
-
-
-
-
-# shared library versions, option 1
-#version=2.0.5
-#major=2
-# option 2, assuming the library is created as src/.libs/libfoo.so.2.0.5 or so
-version=`ls src/.libs/lib*.so.* | \
- awk '{if (match($$0,/[0-9]+\.[0-9]+\.[0-9]+$$/)) print substr($$0,RSTART)}'`
-major=`ls src/.libs/lib*.so.* | \
- awk '{if (match($$0,/\.so\.[0-9]+$$/)) print substr($$0,RSTART+4)}'`
-
-config.status: configure
-	dh_testdir
-ifneq "$(wildcard /usr/share/misc/config.sub)" ""
-	cp -f /usr/share/misc/config.sub config.sub
-endif
-ifneq "$(wildcard /usr/share/misc/config.guess)" ""
-	cp -f /usr/share/misc/config.guess config.guess
-endif
-	./configure $(CROSS) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info CFLAGS="$(CFLAGS)" LDFLAGS="-Wl,-z,defs"
-
-
-build: build-stamp check
-build-stamp:  config.status 
-	dh_testdir
-	$(MAKE)
-	touch $@
-
-CURDIR  := $(shell pwd)
-
-check: check-stamp
-check-stamp: build-stamp
+override_dh_auto_test:
 ifeq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
-	-sh debian/locale-gen
-	LOCPATH=$(CURDIR)/locales $(MAKE) check || debian/rules testfail
+	LC_ALL=C.UTF-8 $(MAKE) check || debian/rules testfail
 else
 	@echo Suppressing 'make check', because this is a cross build
 endif
-	touch check-stamp
 
 testfail:
 	@echo "!!!TESTS FAILED!!!"
 	@cat tests/testsuite.log
 	@false
-
-clean: 
-	dh_testdir
-	dh_testroot
-	rm -f build-stamp check-stamp
-
-	[ ! -f Makefile ] || $(MAKE) distclean
-	rm -f config.sub config.guess
-
-	dh_clean
-
-install: build
-	dh_testdir
-	dh_testroot
-	dh_prep
-	dh_installdirs
-
-	# Add here commands to install the package into debian/tmp
-	$(MAKE) DESTDIR=$(CURDIR)/debian/tmp install
-
-
-binary-indep: install
-
-binary-arch: install
-	dh_testdir
-	dh_testroot
-	dh_installchangelogs ChangeLog
-	dh_installdocs
-	dh_installexamples
-	dh_install
-#	dh_installmenu
-#	dh_installdebconf
-#	dh_installlogrotate
-#	dh_installemacsen
-#	dh_installpam
-#	dh_installmime
-#	dh_installinit
-#	dh_installcron
-#	dh_installinfo
-	dh_installman
-	dh_link
-	dh_strip
-	dh_compress
-	dh_fixperms
-#	dh_perl
-#	dh_python
-	dh_makeshlibs
-	dh_installdeb
-	dh_shlibdeps
-	dh_gencontrol
-	dh_md5sums
-	dh_builddeb
-
-binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install 

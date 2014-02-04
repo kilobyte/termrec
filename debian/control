@@ -1,8 +1,9 @@
 Source: termrec
 Priority: optional
 Maintainer: Adam Borowski <kilobyte@angband.pl>
-Build-Depends: debhelper (>= 7), autotools-dev, libbz2-dev, zlib1g-dev
-Standards-Version: 3.8.0
+Build-Depends: debhelper (>= 9), dh-autoreconf, libbz2-dev, zlib1g-dev,
+  liblzma-dev
+Standards-Version: 3.9.5
 Section: libs
 Homepage: http://angband.pl/termrec.html
 
@@ -20,7 +21,7 @@ Description: terminal videos/scripts recorder and player
 Package: libtty-dev
 Section: libdevel
 Architecture: any
-Depends: libtty0 (= ${binary:Version})
+Depends: libtty0 (= ${binary:Version}), ${misc:Depends}
 Description: terminal/ttyrec library -- development
  libtty is a library for handling terminal output.  It is kind of "reverse
  curses" -- it is on the receiving end of tty data, accepting vt100 codes
@@ -36,7 +37,7 @@ Description: terminal/ttyrec library -- development
 Package: libtty0
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${misc:Pre-Depends}
 Description: terminal/ttyrec library -- runtime
  libtty is a library for handling terminal output.  It is kind of "reverse
  curses" -- it is on the receiving end of tty data, accepting vt100 codes
