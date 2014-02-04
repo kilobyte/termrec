@@ -10,3 +10,5 @@
 #ifndef ARRAYSIZE
 # define ARRAYSIZE(a) (sizeof(a)/sizeof(a[0]))
 #endif
+
+void debuglog(const char *txt, ...);

@@ -13,7 +13,7 @@ static ttyrec_frame fr;
 static struct timeval t0, tc;
 
 
-void waitm_unlock(void *arg)
+static void waitm_unlock(void *arg)
 {
     mutex_unlock(waitm);
 }

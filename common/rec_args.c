@@ -18,9 +18,6 @@
 #include "common.h"
 
 
-extern char *optarg;
-extern int optopt;
-
 #if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
 static struct option rec_opts[]={
 {"format",	1, 0, 'f'},

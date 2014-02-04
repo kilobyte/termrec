@@ -5,9 +5,9 @@
 #include "sys/error.h"
 #include "gettext.h"
 
-struct timeval tt;
+static struct timeval tt;
 
-void delay(struct timeval *tm, void *arg)
+static void delay(struct timeval *tm, void *arg)
 {
     tadd(tt, *tm);
 }

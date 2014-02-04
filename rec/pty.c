@@ -18,8 +18,6 @@
 #include <signal.h>
 #include <stdio.h>
 
-extern char **environ;
-
 
 #ifndef HAVE_FORKPTY
 # if !(defined(HAVE__GETPTY) || defined(HAVE_GRANTPT))

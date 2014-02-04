@@ -464,13 +464,6 @@ static void record_null_finish(FILE *f, void* state)
 }
 
 
-
-void play_dosrecorder(FILE *f,
-    void *(synch_init_wait)(struct timeval *ts, void *arg),
-    void *(synch_wait)(struct timeval *tv, void *arg),
-    void *(synch_print)(char *buf, int len, void *arg),
-    void *arg, struct timeval *cont);
-
 recorder_info rec[]={
 {"ansi",".txt",record_baudrate_init,record_baudrate,record_baudrate_finish},
 {"ttyrec",".ttyrec",record_ttyrec_init,record_ttyrec,record_ttyrec_finish},

@@ -5,15 +5,15 @@
 #include "sys/error.h"
 #include "gettext.h"
 
-struct timeval tt;
-recorder rec;
+static struct timeval tt;
+static recorder rec;
 
-void delay(struct timeval *tm, void *arg)
+static void delay(struct timeval *tm, void *arg)
 {
     tadd(tt, *tm);
 }
 
-void print(char *buf, int len, void *arg)
+static void print(char *buf, int len, void *arg)
 {
     ttyrec_w_write(rec, &tt, buf, len);
 }

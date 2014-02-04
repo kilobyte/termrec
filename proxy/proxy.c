@@ -77,7 +77,7 @@ struct workstate
     int who;
 };
 
-void workthread(struct workstate *ws)
+static void workthread(struct workstate *ws)
 {
     int state,will=0 /*lint food*/,who;
     ssize_t cnt;
@@ -227,7 +227,7 @@ static int connect_out()
 }
 
 
-void connthread(void *arg)
+static void connthread(void *arg)
 {
     thread_t th;
     char *filename;
@@ -283,7 +283,7 @@ void connthread(void *arg)
 }
 
 
-void resolve_out()
+static void resolve_out()
 {
     int err;
     struct addrinfo hints;
@@ -309,7 +309,7 @@ void resolve_out()
 
 #if 0
 // postponed until listening on non-localhost gets added
-int listen_lo()
+static int listen_lo()
 {
     int sock;
     int opt, err;
@@ -339,7 +339,7 @@ int listen_lo()
     return sock;
 }
 #else
-int listen_lo()
+static int listen_lo()
 {
     int sock;
     struct sockaddr_in sin;
@@ -363,7 +363,7 @@ int listen_lo()
 
 
 // free the hostname from IPv6-style trappings: [::1] -> ::1, extract :rport
-void get_host_rport()
+static void get_host_rport()
 {
     long i;
     char *cp;
@@ -398,9 +398,6 @@ void get_host_rport()
 }
 
 
-extern char *optarg;
-extern int optopt;
-
 #if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
 static struct option proxy_opts[]={
 {"format",	1, 0, 'f'},
@@ -415,7 +412,7 @@ static struct option proxy_opts[]={
 };
 #endif
 
-void get_proxy_parms(int argc, char **argv)
+static void get_proxy_parms(int argc, char **argv)
 {
     char *cp;
     long i;

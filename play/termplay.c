@@ -6,16 +6,12 @@
 #include <getopt.h>
 #include <stdlib.h>
 #include "_stdint.h"
-#include "error.h"
 #include "gettext.h"
 #include "common.h"
 #include "sys/threads.h"
 #include "sys/utils.h"
 #include "play/player.h"
 
-
-extern char *optarg;
-extern int optopt;
 
 #if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
 static struct option play_opts[]={
@@ -27,10 +23,10 @@ static struct option play_opts[]={
 };
 #endif
 
-char *play_name, *format;
-int follow;
+static char *play_name, *format;
+static int follow;
 
-void get_play_parms(int argc, char **argv)
+static void get_play_parms(int argc, char **argv)
 {
     char *ep;
 
@@ -96,7 +92,7 @@ finish_args:
 }
 
 
-void loader_end(void *arg)
+static void loader_end(void *arg)
 {
     mutex_lock(waitm);
     loaded=1;
@@ -108,19 +104,19 @@ void loader_end(void *arg)
     mutex_unlock(waitm);
 }
 
-struct timeval lt;
+static struct timeval lt;
 
-void loader_init_wait(struct timeval *ts, void *arg)
+static void loader_init_wait(struct timeval *ts, void *arg)
 {
 //    lt=*ts;
 }
 
-void loader_wait(struct timeval *delay, void *arg)
+static void loader_wait(struct timeval *delay, void *arg)
 {
     tadd(lt, *delay);
 }
 
-void loader_print(char *data, int len, void *arg)
+static void loader_print(char *data, int len, void *arg)
 {
     ttyrec_add_frame(tr, &lt, data, len);
     lt.tv_sec=lt.tv_usec=0;
@@ -133,7 +129,7 @@ void loader_print(char *data, int len, void *arg)
     mutex_unlock(waitm);
 }
 
-int loader(void *arg)
+static int loader(void *arg)
 {
     pthread_cleanup_push(loader_end, 0);
     ttyrec_r_play((intptr_t)arg, format, play_name,   loader_init_wait, loader_wait, loader_print, 0);

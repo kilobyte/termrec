@@ -1,5 +1,4 @@
 #include "config.h"
-#include "error.h"
 #include <stdio.h>
 #include <unistd.h>
 #ifdef HAVE_SYS_SELECT_H
@@ -26,33 +25,33 @@
 #include "common.h"
 #include "rec_args.h"
 
-volatile int need_resize;
-int need_utf;
-struct termios ta;
-int ptym;
-int sx, sy;
-int record_f;
-recorder rec;
+static volatile int need_resize;
+static int need_utf;
+static struct termios ta;
+static int ptym;
+static int sx, sy;
+static int record_f;
+static recorder rec;
 
-void sigwinch(int s)
+static void sigwinch(int s)
 {
     need_resize=1;
 }
 
-void sigpass(int s)
+static void sigpass(int s)
 {
     kill(ptym, s);
 }
 
-void tty_restore();
-void sigpipe(int s)
+static void tty_restore();
+static void sigpipe(int s)
 {
     tty_restore();
     fprintf(stderr, "Broken pipe.  Disk full?\n");
     exit(0);
 }
 
-void setsignals()
+static void setsignals()
 {
     struct sigaction act;
 
@@ -77,7 +76,7 @@ void setsignals()
         die("sigaction SIGPIPE");
 }
 
-void tty_get_size()
+static void tty_get_size()
 {
     struct winsize ts;
 
@@ -91,7 +90,7 @@ void tty_get_size()
     sy=ts.ws_row;
 }
 
-void record_size()
+static void record_size()
 {
     struct timeval tv;
     char buf[20], *bp;
@@ -109,7 +108,7 @@ void record_size()
     ttyrec_w_write(rec, &tv, buf, bp-buf);
 }
 
-void tty_raw()
+static void tty_raw()
 {
     struct termios rta;
 
@@ -121,7 +120,7 @@ void tty_raw()
     tcsetattr(0, TCSADRAIN, &rta);
 }
 
-void tty_restore()
+static void tty_restore()
 {
     tcsetattr(0, TCSADRAIN, &ta);
 }

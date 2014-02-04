@@ -2,6 +2,7 @@
 #include <strings.h>
 #include <string.h>
 #include "export.h"
+#include "stream.h"
 
 int match_suffix(char *txt, char *ext, int skip)
 {
