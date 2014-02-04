@@ -10,7 +10,7 @@ int filter(void func(int,int,char*), int fd, int wr, char *arg, char **error);
 int connect_tcp(char *url, int port, char **rest, char **error);
 void telnet(int sock, int fd, char *arg);
 
-/* bits: 1 = writing, 2 = growing */
+// bits: 1 = writing, 2 = growing
 #define M_READ		0
 #define M_WRITE		1
 #define M_REPREAD	2

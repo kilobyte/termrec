@@ -22,7 +22,7 @@ extern char **environ;
 
 
 #ifndef HAVE_FORKPTY
-# if !(defined(HAVE__GETPTY) || defined(HAVE_GRANTPT))  
+# if !(defined(HAVE__GETPTY) || defined(HAVE_GRANTPT))
 /*
  * if no PTYRANGE[01] is in the config file, we pick a default
  */
@@ -103,7 +103,7 @@ int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsize *wp)
 
     goto ok;
 
-/*close_slave:*/
+//close_slave:
     close (slave);
 
 close_master:
@@ -125,7 +125,7 @@ ok:
     {
       for (d = PTYRANGE1; (p[1] = *d) != '\0'; d++)
         {
-/*        tintin_printf(0,"OpenPTY tries '%s'", PtyName);*/
+//        tintin_printf(0,"OpenPTY tries '%s'", PtyName);
           if ((master = open(PtyName, O_RDWR | O_NOCTTY)) == -1)
             continue;
           q[0] = *l;
@@ -135,7 +135,7 @@ ok:
               close(master);
               continue;
             }
-          if((slave=open(TtyName, O_RDWR|O_NOCTTY))==-1)
+          if ((slave=open(TtyName, O_RDWR|O_NOCTTY))==-1)
 	  {
 	  	close(master);
 	  	continue;
@@ -152,8 +152,8 @@ ok:
         tcsetattr(master, TCSANOW, termp);
     if (wp)
         ioctl(master,TIOCSWINSZ,wp);
-    /* let's ignore errors on this ioctl silently */
-    
+    // let's ignore errors on this ioctl silently
+
     pid=fork();
     switch(pid)
     {
@@ -215,12 +215,13 @@ int run(char *command, int sx, int sy)
     switch(forkpty(&fd,0,0,(sx&&sy)?&ws:0))
     {
     case -1:
-        return(-1);
+        return -1;
     case 0:
         {
             char *argv[4], *cmd;
-            
-            asprintf(&cmd, "exec %s", command);
+
+            if (asprintf(&cmd, "exec %s", command) == -1)
+                abort();
             argv[0]="sh";
             argv[1]="-c";
             argv[2]=cmd;
@@ -230,7 +231,7 @@ int run(char *command, int sx, int sy)
             exit(127);
         }
     default:
-        return(fd);
+        return fd;
     }
 
     return -1;
@@ -240,7 +241,7 @@ int run(char *command, int sx, int sy)
 FILE *mypopen(const char *command, const char *wr)
 {
     int p[2];
-    
+
     if (pipe(p))
         return 0;
     switch(fork())
@@ -253,7 +254,7 @@ FILE *mypopen(const char *command, const char *wr)
         {
             char *argv[4], *cmd;
 
-            if(*wr=='r')
+            if (*wr=='r')
             {
                 close(p[0]);
                 close(0);
@@ -273,7 +274,8 @@ FILE *mypopen(const char *command, const char *wr)
                 signal(SIGHUP, SIG_IGN);
                 signal(SIGTSTP, SIG_IGN);
             }
-            asprintf(&cmd, "exec %s", command);
+            if (asprintf(&cmd, "exec %s", command) == -1)
+                abort();
             argv[0]="sh";
             argv[1]="-c";
             argv[2]=cmd;

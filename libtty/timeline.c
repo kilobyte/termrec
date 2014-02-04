@@ -1,8 +1,8 @@
 #include "config.h"
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 #include "error.h"
-#include "sys/threads.h"
 #include "vt100.h"
 
 typedef struct {} *recorder;
@@ -41,7 +41,7 @@ static const struct timeval maxd = {5,0};
 static void synch_wait(struct timeval *tv, void *arg)
 {
     if (tv->tv_sec>=maxd.tv_sec || tv->tv_sec<0)
-        tadd(tr->ndelay, maxd)
+        tadd(tr->ndelay, maxd);
     else
         tadd(tr->ndelay, *tv);
 }
@@ -49,7 +49,7 @@ static void synch_wait(struct timeval *tv, void *arg)
 static void synch_print(char *buf, int len, void *arg)
 {
     struct ttyrec_frame *nf;
-    
+
     if (!(nf=malloc(sizeof(struct ttyrec_frame))))
         return;
     if (!(nf->data=malloc(len)))
@@ -67,7 +67,7 @@ static void synch_print(char *buf, int len, void *arg)
     tr->tev_tail->next=nf;
     tr->tev_tail=nf;
     vt100_write(tr->tev_vt, buf, len);
-    if ((tr->nchunk+=len)>=SNAPSHOT_CHUNK) /* do a snapshot every 64KB of data */
+    if ((tr->nchunk+=len)>=SNAPSHOT_CHUNK) // do a snapshot every 64KB of data
     {
         nf->snapshot=vt100_copy(tr->tev_vt);
         tr->nchunk=0;
@@ -84,10 +84,10 @@ export ttyrec ttyrec_init(vt100 vt)
     memset(tr->tev_head, 0, sizeof(struct ttyrec_frame));
     tr->tev_tail=tr->tev_head;
     tr->nchunk=SNAPSHOT_CHUNK;
-    
-    tr->tev_vt = vt? vt : vt100_init(80, 25, 1, 0);
+
+    tr->tev_vt = vt? vt : vt100_init(80, 25, 1, 1);
     tr->tev_head->snapshot = vt100_copy(tr->tev_vt);
-    
+
     return tr;
 }
 
@@ -95,12 +95,12 @@ export ttyrec ttyrec_init(vt100 vt)
 export void ttyrec_free(ttyrec tr)
 {
     struct ttyrec_frame *tev_tail, *tc;
-    
+
     if (!tr)
         return;
-    
+
     tev_tail=tr->tev_head;
-    while(tev_tail)
+    while (tev_tail)
     {
         tc=tev_tail;
         tev_tail=tev_tail->next;
@@ -117,7 +117,7 @@ export void ttyrec_free(ttyrec tr)
 export ttyrec ttyrec_load(int fd, char *format, char *filename, vt100 vt)
 {
     ttyrec tr;
-    
+
     if (!(tr=ttyrec_init(vt)))
         return 0;
     if (!ttyrec_r_play(fd, format, filename, synch_init_wait, synch_wait, synch_print, tr))
@@ -132,15 +132,15 @@ export ttyrec ttyrec_load(int fd, char *format, char *filename, vt100 vt)
 export struct ttyrec_frame* ttyrec_seek(ttyrec tr, struct timeval *t, vt100 *vt)
 {
     struct ttyrec_frame *tfv, *tfs;
-    
+
     if (!tr)
         return 0;
-    
+
     tfv = tr->tev_head;
     tfs = 0;
-    
+
     if (t)
-        while(tfv->next && tcmp(tfv->next->t, *t)<=0)
+        while (tfv->next && tcmp(tfv->next->t, *t)<=0)
         {
             tfv=tfv->next;
             if (tfv->snapshot)
@@ -149,10 +149,10 @@ export struct ttyrec_frame* ttyrec_seek(ttyrec tr, struct timeval *t, vt100 *vt)
     else
         if (tfv->next)
             tfv=tfv->next;
-    
+
     if (tfv->snapshot)
         tfs=tfv;
-    
+
     if (vt)
     {
         vt100_free(*vt);
@@ -161,7 +161,7 @@ export struct ttyrec_frame* ttyrec_seek(ttyrec tr, struct timeval *t, vt100 *vt)
         else
         {
             tfs=tr->tev_head;
-            *vt=vt100_init(80, 25, 1, 0);
+            *vt=vt100_init(80, 25, 1, 1);
         }
         if (!*vt)
             return 0;
@@ -172,7 +172,7 @@ export struct ttyrec_frame* ttyrec_seek(ttyrec tr, struct timeval *t, vt100 *vt)
                 vt100_write(*vt, tfs->data, tfs->len);
         };
     }
-    
+
     return tfv;
 }
 
@@ -197,11 +197,11 @@ export int ttyrec_save(ttyrec tr, int fd, char *format, char *filename, struct t
 {
     struct ttyrec_frame *fr;
     recorder rec;
-    
+
     fr=ttyrec_seek(tr, selstart, 0);
     if (!(rec=ttyrec_w_open(fd, format, filename, &fr->t)))
         return 0;
-    while(fr)
+    while (fr)
     {
         if (selend && tcmp(fr->t, *selend)>0)
             break;

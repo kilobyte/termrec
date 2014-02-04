@@ -25,29 +25,29 @@
 #endif
 
 
-/* Generate the next name in the sequence: "", a, b, ... z, aa, ab, ... */
+// Generate the next name in the sequence: "", a, b, ... z, aa, ab, ...
 static void nameinc(char *add)
 {
     char *ae,*ai;
 
     ae=add;
-    while(*ae)
+    while (*ae)
         ae++;
-    ai=ae;      /* start at the end of the string */
-    while(1)
+    ai=ae;      // start at the end of the string
+    while (1)
     {
         if (--ai<add)
         {
-            *ae++='a';  /* if all combinations are exhausted, */
-            *ae=0;      /*  append a new letter */
+            *ae++='a';  // if all combinations are exhausted,
+            *ae=0;      //  append a new letter
             return;
         }
         if (*ai!='z')
         {
-            (*ai)++;	/* increase the first non-'z' */
+            (*ai)++;	// increase the first non-'z'
             return;
         }
-        *ai='a';	/* ... replacing 'z's by 'a' */
+        *ai='a';	// ... replacing 'z's by 'a'
     }
 }
 
@@ -58,17 +58,18 @@ int open_out(char **file_name, char *format_ext, int append)
     char add[10],date[24];
     time_t t;
     char *error;
-    
+
     if (!*file_name)
     {
         *add=0;
         time(&t);
         strftime(date, sizeof(date), "%Y-%m-%d.%H-%M-%S", localtime(&t));
-        while(1)
+        while (1)
         {
-            asprintf(file_name, "%s%s%s%s", date, add, format_ext, append?"":comp_ext);
+            if (asprintf(file_name, "%s%s%s%s", date, add, format_ext, append?"":comp_ext) == -1)
+                abort();
             fd=open(*file_name, (append?O_APPEND:O_CREAT|O_EXCL)|O_WRONLY|O_BINARY, 0666);
-            /* We do some autoconf magic to exclude O_BINARY when inappropiate. */
+            // We do some autoconf magic to exclude O_BINARY when inappropiate.
             if (fd!=-1)
                 goto finish;
             if (errno!=EEXIST)
@@ -89,6 +90,6 @@ int open_out(char **file_name, char *format_ext, int append)
         die(_("Can't write to the record file (%s): %s\n"), *file_name, strerror(errno));
 finish:
     if ((fd=open_stream(fd, *file_name, append?M_APPEND:M_WRITE, &error))==-1)
-        die(error);
+        die("%s", error);
     return fd;
 }

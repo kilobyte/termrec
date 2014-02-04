@@ -15,7 +15,7 @@ int kbd_raw()
 
     tcgetattr(0,&old_tattr);
     tattr=old_tattr;
-    /* cfmakeraw(&tattr); */
+    // cfmakeraw(&tattr);
     tattr.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP
                        |INLCR|IGNCR|ICRNL|IXON);
     tattr.c_oflag &= ~OPOST;
@@ -24,7 +24,7 @@ int kbd_raw()
     tattr.c_cflag |= CS8;
 
 #ifndef IGNORE_INT
-    tattr.c_lflag|=ISIG;        /* allow C-c, C-\ and C-z */
+    tattr.c_lflag|=ISIG;        // allow C-c, C-\ and C-z
 #endif
     tattr.c_cc[VMIN]=1;
     tattr.c_cc[VTIME]=0;

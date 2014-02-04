@@ -45,13 +45,13 @@ void tl_free(vt100 vt)
 void dump(vt100 vt)
 {
     int x,y,attr;
-    
+
     printf(".-===[ %dx%d ]\n", vt->sx, vt->sy);
-    attr=0xFFFF;
-    for(y=0; y<vt->sy; y++)
+    attr=0x1010;
+    for (y=0; y<vt->sy; y++)
     {
         printf("| ");
-        for(x=0; x<vt->sx; x++)
+        for (x=0; x<vt->sx; x++)
         {
 #define SCR vt->scr[x+y*vt->sx]
             if (SCR.attr!=attr)
@@ -75,10 +75,10 @@ int main(int argc, char **argv)
     vt100 vt;
     char buf[BUFFER_SIZE];
     int len;
-    
+
     vt = vt100_init(20, 5, 0, 0);
-    
-    while(1)
+
+    while (1)
         switch(getopt(argc, argv, "ed"))
         {
         case -1:
@@ -99,13 +99,13 @@ int main(int argc, char **argv)
             crap=1;
         }
 run:
-    while((len=read(0, buf, BUFFER_SIZE))>0)
+    while ((len=read(0, buf, BUFFER_SIZE))>0)
         vt100_write(vt, buf, len);
-    
+
     if (crap)
         dump(vt);
-    
+
     vt100_free(vt);
-    
+
     return 0;
 }

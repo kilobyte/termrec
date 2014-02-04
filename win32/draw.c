@@ -64,7 +64,7 @@ int chx, chy;
 void draw_line(HDC dc, int x, int y, wchar_t *txt, int cnt, int attr)
 {
     union {color p;int v;} fg,bg,t;
-    
+
     fg.v=fpal[!!(attr&VT100_ATTR_BOLD)][(signed char)(attr)+1];
     bg.v=bpal[(signed char)(attr>>8)+1];
     if (attr&VT100_ATTR_DIM)
@@ -111,13 +111,13 @@ void draw_vt(HDC dc, int px, int py, vt100 vt)
     oldfont=SelectObject(dc, norm_font);
     ch=vt->scr;
     cnt=0;
-    for(y=0;y<vt->sy;y++)
+    for (y=0;y<vt->sy;y++)
     {
         cnt=0;
         x0=x=0;
         attr=ch->attr;
-        
-        while(1)
+
+        while (1)
         {
             if (x>=vt->sx || attr!=ch->attr)
             {
@@ -128,7 +128,7 @@ void draw_vt(HDC dc, int px, int py, vt100 vt)
                     break;
                 attr=ch->attr;
             }
-            if (ch->ch>0xffff)	/* UTF-16 surrogates */
+            if (ch->ch>0xffff)	// UTF-16 surrogates
             {
                 linebuf[cnt++]=0xD800-(0x10000>>10)+(ch->ch>>10);
                 linebuf[cnt++]=0xDC00+(ch->ch&0x3FF);
@@ -171,9 +171,9 @@ void draw_init(LOGFONT *df)
     LOGFONT lf;
     HFONT oldfont;
     SIZE sf;
-    
+
     dc=GetDC(0);
-    
+
     memset(&lf,0,sizeof(LOGFONT));
     lf.lfHeight=df->lfHeight;
     strcpy(lf.lfFaceName, df->lfFaceName);
@@ -190,7 +190,7 @@ void draw_init(LOGFONT *df)
     SelectObject(dc, oldfont);
     lf.lfUnderline=1;
     und_font=CreateFontIndirect(&lf);
-    
+
     ReleaseDC(0, dc);
 
     switch(bpal[0]&0xffffff)
@@ -217,7 +217,7 @@ void draw_border(HDC dc, vt100 vt)
 {
     int sx,sy;
     HPEN pen, oldpen;
-    
+
     sx=vt->sx*chx;
     sy=vt->sy*chy;
 

@@ -33,12 +33,12 @@ int follow;
 void get_play_parms(int argc, char **argv)
 {
     char *ep;
-    
+
     play_name=0;
     follow=0;
     speed=1000;
-    
-    while(1)
+
+    while (1)
     {
 #if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
         switch(getopt_long(argc, argv, "f:s:ph", play_opts, 0))
@@ -90,7 +90,7 @@ finish_args:
         die("%s termplay <%s>\n", _("Usage:"), _("filename"));
     if (optind<argc)
         die(_("You specified the file to play multiple times.\n"));
-    
+
     if (!format)
         format=ttyrec_r_find_format(0, play_name, "auto");
 }
@@ -112,7 +112,7 @@ struct timeval lt;
 
 void loader_init_wait(struct timeval *ts, void *arg)
 {
-/*    lt=*ts;*/
+//    lt=*ts;
 }
 
 void loader_wait(struct timeval *delay, void *arg)
@@ -147,7 +147,7 @@ int main(int argc, char **argv)
     int fd;
     thread_t loadth;
     char *error;
-    
+
     get_play_parms(argc, argv);
     if ((fd=open_stream(-1, play_name, follow?M_REPREAD:M_READ, &error))==-1)
         die("%s: %s\n", play_name, error);

@@ -43,15 +43,15 @@ void get_rec_parms(int argc, char **argv)
     append=0;
 #if (defined HAVE_LIBBZ2) || (defined SHIPPED_LIBBZ2)
     comp_ext=".bz2";
-#else
-# if (defined HAVE_LIBZ) || (defined SHIPPED_LIBZ)
+#elif (defined HAVE_LIBZ) || (defined SHIPPED_LIBZ)
     comp_ext=".gz";
-# else
+#elif (defined HAVE_LIBLZMA) || (defined SHIPPED_LIBLZMA)
+    comp_ext=".xz";
+#else
     comp_ext="";
-# endif
 #endif
-    
-    while(1)
+
+    while (1)
     {
 #if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
         switch(getopt_long(argc, argv, "f:e:rah", rec_opts, 0))
@@ -99,7 +99,7 @@ void get_rec_parms(int argc, char **argv)
                   "    and the given format.\n"),
                 _("If no format is given, it will be set according to the extension of the\n"
                   "    filename, or default to ttyrec if nothing is given.\n"),
-                _("You can specify compression by appending .gz or .bz2 to the file name.\n"));
+                _("You can specify compression by appending .gz, .xz or .bz2 to the file name.\n"));
             exit(0);
         }
     }
@@ -108,7 +108,7 @@ finish_args:
         record_name=argv[optind++];
     if (optind<argc)
         die(_("You can specify at most one file to record to.\n"));
-    
+
     if (!format)
         format=ttyrec_w_find_format(0, record_name, "ttyrec");
     if (!(format_ext=ttyrec_w_get_format_ext(format)))

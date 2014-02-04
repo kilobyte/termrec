@@ -1,3 +1,17 @@
+/*
+Termrec uses "MSAA" ("Microsoft Active Accessability", I wonder what clown
+can come up with such a name), it's present on WinXP and some regional
+(Japanese, ...) versions of Win2K and Win98.  If that API is not there,
+termrec will fall back to polling the screen 50 times per second, possibly
+losing some of fast-scrolled text.  Even MSAA is not atomic, too.
+
+Due to the unholy mess of code pages (on Polish version, there are 3
+non-compatible pages and Unicode), termrec will use UTF-8 where available.
+This means, on NT-based versions of Windows.  If you're on Win95/98/ME, your
+mileage will vary according to the program you use -- termplay is hard-coded
+for CP437, fit for NetHack.
+*/
+
 #define WINVER 0x501
 #define _WIN32_WINDOWS 0x501
 #define _WIN32_WINNT 0x501
@@ -45,6 +59,7 @@ void vtrec_commit()
 }
 
 
+void vtrec_printf(const char *fmt, ...) __attribute__((format (printf, 1, 2)));
 void vtrec_printf(const char *fmt, ...)
 {
     va_list ap;
@@ -159,13 +174,13 @@ void vtrec_char(int x, int y, CHAR_INFO c)
                 // the same place as the old one.
             int z;
             CHAR_INFO *sp;
-            
+
             sp=cscr+vtrec_cy*vtrec_cols+vtrec_cx;
-            for(z=vtrec_cx;z<x;z++)
+            for (z=vtrec_cx;z<x;z++)
                 if (sp++->Attributes!=vtrec_attr)
                     goto jump;
             sp=cscr+vtrec_cy*vtrec_cols+vtrec_cx;
-            for(z=vtrec_cx;z<x;z++)
+            for (z=vtrec_cx;z<x;z++)
                 vtrec_outchar(*sp++);
         }
         else
@@ -253,13 +268,13 @@ void vtrec_dump(int full)
 dump_ok:
     // FIXME: the region could have changed between the calls, resulting in
     // garbage in the output.
-    
+
     if (full)
     {
         sp=scr;
-        for(y=0;y<vtrec_rows;y++)
+        for (y=0;y<vtrec_rows;y++)
         {
-            for(x=0;x<vtrec_cols;x++)
+            for (x=0;x<vtrec_cols;x++)
                 vtrec_char(x,y,*sp++);
         }
         memcpy(cscr, scr, vtrec_rows*vtrec_cols*sizeof(CHAR_INFO));
@@ -268,9 +283,9 @@ dump_ok:
     {
         sp=scr;
         cp=cscr;
-        for(y=0;y<vtrec_rows;y++)
+        for (y=0;y<vtrec_rows;y++)
         {
-            for(x=0;x<vtrec_cols;x++)
+            for (x=0;x<vtrec_cols;x++)
             {
                 if (sp->Char.UnicodeChar!=cp->Char.UnicodeChar
                  || sp->Attributes!=cp->Attributes)
@@ -291,7 +306,7 @@ void vtrec_dump_char(int wx, int wy, DWORD ch)
     CHAR_INFO c;
     SMALL_RECT reg;
     COORD sz,org;
-    
+
     sz.X=1;
     sz.Y=1;
     org.X=0;
@@ -305,7 +320,7 @@ void vtrec_dump_char(int wx, int wy, DWORD ch)
         c.Char.UnicodeChar=LOWORD(ch);
         c.Attributes=HIWORD(ch);
     }
-    
+
     wx-=vtrec_x1;
     wy-=vtrec_y1;
     vtrec_char(wx, wy, c);
@@ -319,7 +334,7 @@ void vtrec_scroll(int d)
     CONSOLE_SCREEN_BUFFER_INFO cbi;
     CHAR_INFO *cp;
     int x,h=abs(d);
-    
+
     if (h>=vtrec_rows)
     {
         vtrec_dump(1);
@@ -334,7 +349,7 @@ void vtrec_scroll(int d)
         memmove(cscr, cscr+h*vtrec_cols, (vtrec_cols*(vtrec_rows-h))*sizeof(CHAR_INFO));
         cp=cscr+(vtrec_cols*(vtrec_rows-h));
         vtrec_printf("\e[%df", vtrec_rows);
-        while(h--)
+        while (h--)
             vtrec_printf("\eD");
     }
     else
@@ -342,10 +357,10 @@ void vtrec_scroll(int d)
         memmove(cscr+h*vtrec_cols, cscr, (vtrec_cols*(vtrec_rows-h))*sizeof(CHAR_INFO));
         cp=cscr;
         vtrec_printf("\e[f");
-        while(h--)
+        while (h--)
             vtrec_printf("\eM");
     }
-    while(x--)
+    while (x--)
     {
         cp->Char.UnicodeChar=' ';
         cp->Attributes=vtrec_attr;
@@ -505,7 +520,7 @@ BOOL WINAPI CtrlHandler(DWORD dwCtrlType)
 int check_console()
 {
     CONSOLE_SCREEN_BUFFER_INFO cbi;
-    
+
     if (!(con=GetStdHandle(STD_OUTPUT_HANDLE)) || con==INVALID_HANDLE_VALUE)
         return 0;
     if (!GetConsoleScreenBufferInfo(con, &cbi))
@@ -528,24 +543,24 @@ int create_console()
     FreeConsole();
     AllocConsole();
     SetConsoleTitle("termrec");
-    
+
     sec.nLength=sizeof(SECURITY_ATTRIBUTES);
     sec.lpSecurityDescriptor=0;
     sec.bInheritHandle=1;
-    
+
     fd=CreateFile("CONIN$", GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|
         FILE_SHARE_WRITE, &sec, OPEN_EXISTING, 0, 0);
     if (fd==INVALID_HANDLE_VALUE)
         return 0;
     SetStdHandle(STD_INPUT_HANDLE, fd);
-    
+
     fd=CreateFile("CONOUT$", GENERIC_READ|GENERIC_WRITE, FILE_SHARE_READ|
         FILE_SHARE_WRITE, &sec, OPEN_EXISTING, 0, 0);
     if (fd==INVALID_HANDLE_VALUE)
         return 0;
     SetStdHandle(STD_OUTPUT_HANDLE, fd);
     SetStdHandle(STD_ERROR_HANDLE, fd);
-    
+
     return 1;
 }
 
@@ -555,7 +570,7 @@ void set_event_hook()
     typedef HWINEVENTHOOK (WINAPI* SWEH)(UINT,UINT,HMODULE,WINEVENTPROC,DWORD,DWORD,UINT);
     HMODULE dll;
     SWEH sweh;
-    
+
     if ((dll=LoadLibrary("user32")))
         if ((sweh=(SWEH)GetProcAddress(dll,"SetWinEventHook")))
             sweh(EVENT_CONSOLE_CARET,
@@ -576,7 +591,7 @@ void spawn_process()
 {
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
-    
+
     memset(&si, 0, sizeof(si));
     si.cb=sizeof(STARTUPINFO);
     memset(&pi, 0, sizeof(pi));
@@ -652,5 +667,5 @@ int main(int argc, char **argv)
     }
     message_loop(&proch, 1);
     finish_up();
-    return 0;           
+    return 0;
 }

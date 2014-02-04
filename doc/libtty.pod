@@ -16,7 +16,7 @@ Link with I<-ltty>.
 
 =item B<int	open_stream(int >I<fd>B<, char* >I<url>B<, int >I<mode>B<, char **>I<error>B<);>
 
-This function opens a stream designated by the I<url>.  If the given url ends in ".gz" or ".bz2"), the
+This function opens a stream designated by the I<url>.  If the given url ends in ".gz", ".xz" or ".bz2"), the
 stream is assumed to be compressed and gets passed through the appropiate [un]packer.  If the I<fd> is not -1,
 it is the descriptor you already opened; if it is -1, the file is opened.  The I<mode> can be:
 
@@ -98,7 +98,7 @@ I<synch_print>.  Note that in some formats, two or more consecutive delays or tw
 frames can happen one after another.  If you provide an arbitrary I<arg>, it will be passed to
 all callbacks.
 
-The function doesn't return until the end of input data.
+The function doesn't return until the end of input data.  Returns 1 on success, 0 on failure.
 
 =back
 

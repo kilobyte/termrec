@@ -30,6 +30,7 @@ volatile int need_resize;
 int need_utf;
 struct termios ta;
 int ptym;
+int sx, sy;
 int record_f;
 recorder rec;
 
@@ -54,7 +55,7 @@ void sigpipe(int s)
 void setsignals()
 {
     struct sigaction act;
-    
+
     sigemptyset(&act.sa_mask);
     act.sa_flags=SA_RESTART;
     act.sa_handler=sigwinch;
@@ -76,23 +77,36 @@ void setsignals()
         die("sigaction SIGPIPE");
 }
 
-void resize()
+void tty_get_size()
 {
     struct winsize ts;
-    struct timeval tv;
-    char buf[20];
 
-    if (raw)
-        return;
     if (ioctl(1,TIOCGWINSZ,&ts))
         return;
     if (!ts.ws_row || !ts.ws_col)
         return;
-    ioctl(ptym,TIOCSWINSZ,&ts);
+    if (ptym!=-1)
+        ioctl(ptym,TIOCSWINSZ,&ts);
+    sx=ts.ws_col;
+    sy=ts.ws_row;
+}
+
+void record_size()
+{
+    struct timeval tv;
+    char buf[20], *bp;
+
+    if (raw)
+        return;
+    bp = buf;
+    if (need_utf)
+        bp+=sprintf(bp, "\e%%G"), need_utf=0;
+    if (sx && sy)
+        bp+=sprintf(bp, "\e[8;%d;%dt", sy, sx);
+    if (buf==bp)
+        return;
     gettimeofday(&tv, 0);
-    ttyrec_w_write(rec, &tv, buf, snprintf(buf, sizeof(buf),
-        "%s\e[8;%d;%dt", need_utf?"\e%G":"", ts.ws_row, ts.ws_col));
-    need_utf=0;
+    ttyrec_w_write(rec, &tv, buf, bp-buf);
 }
 
 void tty_raw()
@@ -101,7 +115,7 @@ void tty_raw()
 
     memset(&ta, 0, sizeof(ta));
     tcgetattr(0, &ta);
-    
+
     rta=ta;
     pty_makeraw(&rta);
     tcsetattr(0, TCSADRAIN, &rta);
@@ -133,34 +147,38 @@ int main(int argc, char **argv)
     if (!command)
         command="/bin/sh";
 
-    if ((ptym=run(command,0,0))==-1)
+    ptym=-1;
+    sx=sy=0;
+    tty_get_size();
+    if ((ptym=run(command, sx, sy))==-1)
     {
         fprintf(stderr, "Couldn't allocaty pty.\n");
         return 1;
     }
-    
+
     gettimeofday(&tv, 0);
-    
+
     rec=ttyrec_w_open(record_f, format, record_name, &tv);
-    need_resize=1;
     need_utf=is_utf8();
- 
+    record_size();
+
     setsignals();
     tty_raw();
-    
-    while(1)
+
+    while (1)
     {
         FD_ZERO(&rfds);
         FD_SET(0, &rfds);
         FD_SET(ptym, &rfds);
         r=select(ptym+1, &rfds, 0, 0, 0);
-        
+
         if (need_resize)
         {
             need_resize=0;
-            resize();
+            tty_get_size();
+            record_size();
         }
-        
+
         switch(r)
         {
         case 0:
@@ -171,31 +189,28 @@ int main(int argc, char **argv)
             tty_restore();
             die("select()");
         }
-        
+
         if (FD_ISSET(0, &rfds))
         {
             r=read(0, buf, BS);
             if (r<=0)
-            {
-                close(ptym);
                 break;
-            }
-            write(ptym, buf, r);
+            if (write(ptym, buf, r) != r)
+                break;
         }
         if (FD_ISSET(ptym, &rfds))
         {
             r=read(ptym, buf, BS);
             if (r<=0)
-            {
-                close(ptym);
                 break;
-            }
             gettimeofday(&tv, 0);
             ttyrec_w_write(rec, &tv, buf, r);
-            write(1, buf, r);
+            if (write(1, buf, r) != r)
+                break;
         }
     }
-    
+
+    close(ptym);
     ttyrec_w_close(rec);
     tty_restore();
     wait(0);

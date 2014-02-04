@@ -23,7 +23,7 @@ void usleep(unsigned int usec);
 int pipe(int pipefd[2]);
 #endif
 #ifndef HAVE_SELECT
-/* for now, select() _only_ as microsecond sleep() */
+// for now, select() _only_ as microsecond sleep()
 # define select(d1,d2,d3,d4,timeout) uselect(timeout)
 int uselect(struct timeval *timeout);
 #endif

@@ -1,3 +1,8 @@
-#!/bin/sh
+#!/usr/bin/perl -wp
 
-tr -d '\n'|sed 's/\\b/\b/g;s/\\n/\n/g;s/\\e/\d027/g;s/\\\\/\\/g'
+chomp;
+s/\\b/\b/g;
+s/\\n/\n/g;
+s/\\e/\e/g;
+s/\\a/\a/g;
+s/\\\\/\\/g;

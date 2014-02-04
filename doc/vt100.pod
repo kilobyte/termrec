@@ -12,7 +12,7 @@ Link with I<-ltty>.
 
 =head2 Functions:
 
-=over 
+=over
 
 =item B<vt100  vt100_init(int >I<sx>B<, int >I<sy>B<, int >I<resizable>B<, int >I<utf>B<);>
 
@@ -58,13 +58,13 @@ You'll most likely be interested in the following fields of the structure:
 
 =item vt100 {
 
-=item     int I<sx>,I<sy>;             /* screen size */
+=item     int I<sx>,I<sy>;             // screen size
 
-=item     int I<cx>,I<cy>;             /* cursor position */
+=item     int I<cx>,I<cy>;             // cursor position
 
-=item     attrchar *I<scr>;         /* screen buffer */
+=item     attrchar *I<scr>;         // screen buffer
 
-=item     int I<attr>;              /* current attribute */
+=item     int I<attr>;              // current attribute
 
 =back
 

@@ -37,23 +37,23 @@ char *host;
 char *record_name;
 char *format, *format_ext;
 
-#define EOR 239     /* End of Record */
-#define SE  240     /* subnegotiation end */
-#define NOP 241     /* no operation */
-#define DM  242     /* Data Mark */
-#define BRK 243     /* Break */
-#define IP  244     /* interrupt process */
-#define AO  245     /* abort output */
-#define AYT 246     /* Are you there? */
-#define EC  247     /* erase character */
-#define EL  248     /* erase line */
-#define GA  249     /* go ahead */
-#define SB  250     /* subnegotiations */
+#define EOR 239     // End of Record
+#define SE  240     // subnegotiation end
+#define NOP 241     // no operation
+#define DM  242     // Data Mark
+#define BRK 243     // Break
+#define IP  244     // interrupt process
+#define AO  245     // abort output
+#define AYT 246     // Are you there?
+#define EC  247     // erase character
+#define EL  248     // erase line
+#define GA  249     // go ahead
+#define SB  250     // subnegotiations
 #define WILL    251
 #define WONT    252
 #define DO      253
 #define DONT    254
-#define IAC 255     /* interpret as command */
+#define IAC 255     // interpret as command
 
 /*
 #define ECHO                1
@@ -80,7 +80,7 @@ struct workstate
 void workthread(struct workstate *ws)
 {
     int state,will=0 /*lint food*/,who;
-    size_t cnt;
+    ssize_t cnt;
     unsigned char buf[BUFFER_SIZE],out[BUFFER_SIZE],*bp,*op;
     struct timeval tv;
 
@@ -88,7 +88,7 @@ void workthread(struct workstate *ws)
     who=ws->who++;
     mutex_unlock(ws->mutex);
     state=0;
-    while((cnt=recv(ws->fd[who], buf, BUFFER_SIZE, 0))>0)
+    while ((cnt=recv(ws->fd[who], buf, BUFFER_SIZE, 0))>0)
     {
         if (send(ws->fd[1-who], buf, cnt, 0)<cnt)
             break;
@@ -99,18 +99,18 @@ void workthread(struct workstate *ws)
 #endif
         if (raw)
         {
-            while(cnt--)
+            while (cnt--)
                 *op++=*bp++;
             goto no_traffic_analysis;
         }
-        
-        while(cnt--)
+
+        while (cnt--)
             switch(state)
             {
-            default: /* normal */
+            default: // normal
                 switch(*bp)
                 {
-                case IAC:	/* IAC = start a TELNET sequence */
+                case IAC:	// IAC = start a TELNET sequence
                     bp++;
                     state=1;
                     break;
@@ -118,10 +118,10 @@ void workthread(struct workstate *ws)
                     *op++=*bp++;
                 }
                 break;
-            case 1: /* IAC */
+            case 1: // IAC
                 switch(*bp)
                 {
-                case IAC: 	/* IAC IAC = literal 255 byte */
+                case IAC: 	// IAC IAC = literal 255 byte
                     bp++;
                     *op++=255;
                     state=0;
@@ -129,12 +129,12 @@ void workthread(struct workstate *ws)
                 case WILL:
                 case WONT:
                 case DO:
-                case DONT:	/* IAC WILL/WONT/DO/DONT x = negotiating option x */
+                case DONT:	// IAC WILL/WONT/DO/DONT x = negotiating option x
                     will=*bp;
                     bp++;
                     state=2;
                     break;
-                case SB:	/* IAC SB x = subnegotiations of option x */
+                case SB:	// IAC SB x = subnegotiations of option x
                     bp++;
                     state=3;
                     break;
@@ -143,8 +143,8 @@ void workthread(struct workstate *ws)
                     state=0;
                 }
                 break;
-            case 2: /* IAC WILL/WONT/DO/DONT */
-                if (*bp==1)	/* ECHO */
+            case 2: // IAC WILL/WONT/DO/DONT
+                if (*bp==1)	// ECHO
                 {
                     if (will==WILL)
                         ws->echoing[1-who]=1;
@@ -158,11 +158,11 @@ void workthread(struct workstate *ws)
                 bp++;
                 state=0;
                 break;
-            case 3: /* IAC SB */
+            case 3: // IAC SB
                 bp++;
                 state=4;
                 break;
-            case 4: /* IAC SB x ... */
+            case 4: // IAC SB x ...
                 if (*bp++==IAC)
                     state=5;
                 else
@@ -173,7 +173,7 @@ void workthread(struct workstate *ws)
                  *   are expected to do.
                  */
                 break;
-            case 5: /* IAC SB x ... IAC */
+            case 5: // IAC SB x ... IAC
                 if (*bp++==SE)
                     state=0;
                 else
@@ -187,7 +187,7 @@ void workthread(struct workstate *ws)
             ttyrec_w_write(ws->rec, &tv, (char*)out, op-out);
             mutex_unlock(ws->mutex);
         }
-        /* FIXME: No error handling. */
+        // FIXME: No error handling.
     }
     shutdown(ws->fd[who], SHUT_RD);
     shutdown(ws->fd[1-who], SHUT_WR);
@@ -198,7 +198,7 @@ static int connect_out()
 {
     struct addrinfo *addr;
     int sock;
-    
+
     for (addr=ai; addr; addr=addr->ai_next)
     {
         if ((sock=socket(addr->ai_family, addr->ai_socktype, addr->ai_protocol))==-1)
@@ -207,7 +207,7 @@ static int connect_out()
                 printf("* %s\n", strerror(errno));
             continue;
         }
-        
+
     intr:
         if ((connect(sock, addr->ai_addr, addr->ai_addrlen)))
         {
@@ -235,7 +235,7 @@ void connthread(void *arg)
     struct workstate ws;
     int fd;
     int sock=(intptr_t)arg;
-    
+
     if (verbose)
         printf(_("Incoming connection!\n"));
     memset(&ws, 0, sizeof(ws));
@@ -247,7 +247,7 @@ void connthread(void *arg)
         return;
     }
     if (verbose)
-        printf(_("Ok.\n")); /* managed to connect out */
+        printf(_("Ok.\n")); // managed to connect out
     filename=record_name;
     fd=open_out(&filename, format_ext, append);
     gettimeofday(&tv, 0);
@@ -296,7 +296,7 @@ void resolve_out()
     hints.ai_flags=AI_ADDRCONFIG|AI_NUMERICSERV;
     assert(rport>0 && rport<65536);
     sprintf(port, "%u", rport);
-    
+
     if ((err=getaddrinfo(host, port, &hints, &ai)))
     {
         if (err==EAI_NONAME)
@@ -308,7 +308,7 @@ void resolve_out()
 
 
 #if 0
-/* postponed until listening on non-localhost gets added */
+// postponed until listening on non-localhost gets added
 int listen_lo()
 {
     int sock;
@@ -323,13 +323,13 @@ int listen_lo()
     hints.ai_flags=AI_ADDRCONFIG|AI_NUMERICSERV;
     assert(lport>0 && lport<65536);
     sprintf(port, "%u", lport);
-    
+
     if ((err=getaddrinfo(0, port, &hints, &ai)))
         die("%s", gai_strerror(err));
-    
+
     if ((sock=socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol))==-1)
         die(_("Can't listen: %s\n"), strerror(errno));
-    
+
     opt=1;
     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt));
     if (bind(sock, ai->ai_addr, ai->ai_addrlen))
@@ -347,7 +347,7 @@ int listen_lo()
 
     if ((sock=socket(AF_INET, SOCK_STREAM, IPPROTO_TCP))<0)
         die(_("socket() failed: %s\n"), strerror(errno));
-    
+
     opt=1;
     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt));
     sin.sin_family=AF_INET;
@@ -362,12 +362,12 @@ int listen_lo()
 #endif
 
 
-/* free the hostname from IPv6-style trappings: [::1] -> ::1, extract :rport */
+// free the hostname from IPv6-style trappings: [::1] -> ::1, extract :rport
 void get_host_rport()
 {
     long i;
     char *cp;
-    
+
     if (*host=='[')
     {
         host++;
@@ -380,7 +380,7 @@ void get_host_rport()
             if (*cp==':')
                 goto getrport;
             else
-                die("%s\n", _("Cruft after the [host name].")); /* IPv6-style host name */
+                die("%s\n", _("Cruft after the [host name].")); // IPv6-style host name
         }
     }
     if ((cp=strrchr(host, ':')))
@@ -427,8 +427,8 @@ void get_proxy_parms(int argc, char **argv)
     rport=-1;
     raw=1;
     append=0;
-    
-    while(1)
+
+    while (1)
     {
 #if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
         switch(getopt_long(argc, argv, "f:l:rtahp:", proxy_opts, 0))
@@ -503,12 +503,12 @@ finish_args:
     else
         die(_("You MUST specify the host to connect to!\n"));
     get_host_rport();
-    
+
     if (optind<argc)
         record_name=argv[optind++];
     if (optind<argc)
         die(_("You can specify at most one file to record to.\n"));
-    
+
     if (!format)
         format=ttyrec_w_find_format(0, record_name, "ansi");
     if (!(format_ext=ttyrec_w_get_format_ext(format)))
@@ -520,7 +520,7 @@ int main(int argc, char **argv)
 {
     int sock,s;
     thread_t th;
-    
+
     get_proxy_parms(argc, argv);
     if (rport==-1)
         rport=23;
@@ -528,7 +528,7 @@ int main(int argc, char **argv)
         lport=9999;
 
     verbose=isatty(1);
-    
+
     if (verbose)
         printf(_("Resolving %s...\n"), host);
     resolve_out();
@@ -536,7 +536,7 @@ int main(int argc, char **argv)
     sock=listen_lo();
     if (verbose)
         printf(_("Listening...\n"));
-    while((s=accept(sock, 0, 0))>=0)
+    while ((s=accept(sock, 0, 0))>=0)
     {
         if (record_name)
         {

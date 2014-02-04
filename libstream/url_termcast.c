@@ -1,6 +1,7 @@
 #include "config.h"
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include "export.h"
@@ -8,10 +9,22 @@
 #include "gettext.h"
 
 
+#define EAT_COLOUR \
+    if (*rp=='\e')					\
+    {							\
+        rp++;						\
+        if (*rp++!='[')					\
+            return 0;					\
+        while ((*rp>='0' && *rp<='9') || *rp==';')	\
+            rp++;					\
+        if (*rp++!='m')					\
+            return 0;					\
+    }
+
 static int match(char *rp, char *rest)
-{	/* pattern is /\r\n\e\[\d+d ([a-z])\) $rest \(/ */
+{	// pattern is /\r\n\e\[\d+d ([a-z])\) $rest (\e\[[0-9;]*m)?\(/
     char res;
-    
+
     if (*rp++!='\r')
         return 0;
     if (*rp++!='\n')
@@ -20,22 +33,25 @@ static int match(char *rp, char *rest)
         return 0;
     if (*rp++!='[')
         return 0;
-    while(*rp>='0' && *rp<='9')
+    while (*rp>='0' && *rp<='9')
         rp++;
     if (*rp++!='d')
         return 0;
-    if (*rp++!=' ')
-        return 0;
+    if (*rp==' ')
+        rp++;
     res=*rp++;
     if (*rp++!=')')
         return 0;
     if (*rp++!=' ')
         return 0;
-    while(*rest)
+    EAT_COLOUR;
+    while (*rest)
         if (*rp++!=*rest++)
             return 0;
+    EAT_COLOUR;
     if (*rp++!=' ')
         return 0;
+    EAT_COLOUR;
     if (*rp++!='(')
         return 0;
     return res;
@@ -52,14 +68,15 @@ struct filterarg
 static void termcast(int in, int out, char *arg)
 {
     char buf[BUFSIZ+64], *cp, ses;
-    char *rp;	/* potential \r */
+    char *rp;	// potential \r
     int len, inbuf;
     int sock=((struct filterarg *)arg)->sock;
     char *rest=((struct filterarg *)arg)->rest;
-    
+    free(arg);
+
     inbuf=0;
     rp=buf;
-    while(1)
+    while (1)
     {
         if (rp!=buf)
         {
@@ -79,43 +96,45 @@ static void termcast(int in, int out, char *arg)
                 len=snprintf(buf, BUFSIZ, "\e[0m%s\n", strerror(errno));
             else
                 len=snprintf(buf, BUFSIZ, "\e[0m%s\n", _("Input terminated."));
-            write(out, buf, len);
-            return;
+            if (write(out, buf, len)); // ignore result, we're failing already
+            return free(rest);
         }
-        write(out, buf+inbuf, len);
+        if (write(out, buf+inbuf, len) != len)
+            return free(rest);
         inbuf+=len;
         memset(buf+inbuf, 0, 64);
-        
-        /* try screen-scraping */
+
+        // try screen-scraping
         cp=rp;
         do if ((ses=match(cp, rest)))
             goto found;
           while ((cp=strchr((rp=cp)+1, '\r')));
-        
-        /* TODO: press space every some time */
+
+        // TODO: press space every some time
     }
 found:
-    write(sock, &ses, 1);
-    while((len=read(in, buf, BUFSIZ))>0)
+    free(rest);
+    if (write(sock, &ses, 1) != 1)
+        return;
+    while ((len=read(in, buf, BUFSIZ))>0)
         if (write(out, buf, len)!=len)
             return;
-    
-    /* TODO: try to guess when the session ends, then quit or re-scrape */
+
+    // TODO: try to guess when the session ends, then quit or re-scrape
 }
 
 
 int open_termcast(char* url, int mode, char **error)
 {
-    int fd;
+    int fd, fdmid;
     char *rest;
-    struct filterarg fa;
-    
+
     if (mode&M_WRITE)
     {
         *error="Writing to termcast streams is not supported (yet?)";
         return -1;
     }
-    
+
     if ((fd=connect_tcp(url, 23, &rest, error))==-1)
         return -1;
     if (!rest || *rest++!='/' || !*rest)
@@ -124,9 +143,10 @@ int open_termcast(char* url, int mode, char **error)
         *error=_("What termcast session to look for?");
         return -1;
     }
-    fa.sock=fd;
-    fa.rest=rest;
-    if ((fd=filter(telnet, fd, !!(mode&M_WRITE), 0, error))==-1)
+    if ((fdmid=filter(telnet, fd, !!(mode&M_WRITE), 0, error))==-1)
         return -1;
-    return filter(termcast, fd, !!(mode&M_WRITE), (char*)&fa, error);
+    struct filterarg *fa = malloc(sizeof(struct filterarg));
+    fa->sock=fd;
+    fa->rest=strdup(rest);
+    return filter(termcast, fdmid, !!(mode&M_WRITE), (char*)fa, error);
 }
