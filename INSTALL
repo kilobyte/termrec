@@ -1,6 +1,6 @@
 On an Unix system, do:
-    + apt-get install libz-dev libbz2-dev
-       Or equivalent.  If you skip this step, the .gz/.bz2 support won't
+    + apt-get install libz-dev libbz2-dev liblzma-dev
+       Or equivalent.  If you skip this step, the .gz/.bz2/.xz support won't
        get compiled in.
     + ./configure
     + make
