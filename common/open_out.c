@@ -69,7 +69,7 @@ int open_out(char **file_name, char *format_ext, int append)
             if (asprintf(file_name, "%s%s%s%s", date, add, format_ext, append?"":comp_ext) == -1)
                 abort();
             fd=open(*file_name, (append?O_APPEND:O_CREAT|O_EXCL)|O_WRONLY|O_BINARY, 0666);
-            // We do some autoconf magic to exclude O_BINARY when inappropiate.
+            // We do some autoconf magic to exclude O_BINARY when inappropriate.
             if (fd!=-1)
                 goto finish;
             if (errno!=EEXIST)
