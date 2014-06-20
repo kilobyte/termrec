@@ -779,6 +779,8 @@ export void vt100_write(vt100 vt, char *buf, int len)
                         break;
                     while (vt->ntok<2)
                         vt->tok[++vt->ntok]=0;
+                    if (vt->tok[1]>256 || vt->tok[2]>512) // arbitrary
+                        break; // sanity check
                     if (vt->tok[1]<=0)
                         vt->tok[1]=SY;
                     if (vt->tok[2]<=0)
