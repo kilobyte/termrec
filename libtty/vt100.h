@@ -12,9 +12,12 @@ typedef struct
 
 #define VT100_MAXTOK 10
 
-#define VT100_FLAG_CURSOR	1	// visible cursor
-#define VT100_FLAG_KPAD		2	// application keypad mode
-#define VT100_FLAG_AUTO_WRAP	3	// auto wrap at right margin
+enum
+{
+    VT100_FLAG_CURSOR,		// visible cursor
+    VT100_FLAG_KPAD,		// application keypad mode
+    VT100_FLAG_AUTO_WRAP,	// auto wrap at right margin
+};
 
 typedef struct vt100
 {
