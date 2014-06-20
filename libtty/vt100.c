@@ -28,7 +28,7 @@ export vt100 vt100_init(int sx, int sy, int resizable)
         return 0;
 
     memset(vt, 0, sizeof(struct vt100));
-    vt->opt_allow_resize=resizable;
+    vt->allow_resize=resizable;
     vt100_reset(vt);
     if (sx && sy)
         vt100_resize(vt, sx, sy);
@@ -773,7 +773,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 switch(vt->tok[0])
                 {
                 case 8:	    // ESC8;<h>;<w>t -> resize
-                    if (!vt->opt_allow_resize)
+                    if (!vt->allow_resize)
                         break;
                     while (vt->ntok<2)
                         vt->tok[++vt->ntok]=0;

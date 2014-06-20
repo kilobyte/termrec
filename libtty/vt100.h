@@ -12,7 +12,6 @@ typedef struct
 
 #define VT100_MAXTOK 10
 
-#define VT100_FLAG_RESIZABLE	0	// should the input be allowed to resize?
 #define VT100_FLAG_CURSOR	1	// visible cursor
 #define VT100_FLAG_KPAD		2	// application keypad mode
 #define VT100_FLAG_AUTO_WRAP	3	// auto wrap at right margin
@@ -39,7 +38,7 @@ typedef struct vt100
     int state;
     // flags
     int cp437 :1;               // non-UTF-8
-    int opt_allow_resize :1;	// is input allowed to resize?
+    int allow_resize :1;	// is input allowed to resize?
     int opt_auto_wrap :1;	// ?7: auto wrap at right margin
     int opt_cursor :1;		// ?25: show/hide cursor
     int opt_kpad :1;		// keypad: application/numeric
