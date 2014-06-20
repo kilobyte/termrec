@@ -1,6 +1,7 @@
 #!/usr/bin/perl -wp
 
 chomp;
+s/^#.*//;
 s/\\b/\b/g;
 s/\\n/\n/g;
 s/\\e/\e/g;
