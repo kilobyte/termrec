@@ -376,31 +376,30 @@ export void vt100_write(vt100 vt, char *buf, int len)
                     cnt=0, c=ic;
             else
                 c=charset_cp437[ic];
-            if (c>31)
+            if (c<32)
+                break;
+            if (c<128 && vt->G&(1<<vt->curG))
+                c=charset_vt100[c];
+            if (CX>=SX)
             {
-                if (c<128 && vt->G&(1<<vt->curG))
-                    c=charset_vt100[c];
-                if (CX>=SX)
+                if (vt->opt_auto_wrap)
                 {
-                    if (vt->opt_auto_wrap)
+                    CX=0;
+                    CY++;
+                    if (CY>=vt->s2)
                     {
-                        CX=0;
-                        CY++;
-                        if (CY>=vt->s2)
-                        {
-                            CY=vt->s2-1;
-                            SCROLL(1);
-                        }
+                        CY=vt->s2-1;
+                        SCROLL(1);
                     }
-                    else
-                        CX=SX-1;
                 }
-                vt->scr[CY*SX+CX].ch=c;
-                vt->scr[CY*SX+CX].attr=vt->attr;
-                CX++;
-                if (vt->l_char)
-                    vt->l_char(vt, CX-1, CY, c, vt->attr);
+                else
+                    CX=SX-1;
             }
+            vt->scr[CY*SX+CX].ch=c;
+            vt->scr[CY*SX+CX].attr=vt->attr;
+            CX++;
+            if (vt->l_char)
+                vt->l_char(vt, CX-1, CY, c, vt->attr);
             break;
 #undef ic
 #undef tc
