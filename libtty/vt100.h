@@ -30,7 +30,6 @@ typedef struct vt100
     int G;                 // bitfield: do G0 and G1 use vt100 graphics?
     int curG;              // current G charset
     // UTF-8 state
-    int utf;               // UTF-8 on/off
     ucs utf_char;
     ucs utf_surrogate;
     int utf_count;
@@ -39,6 +38,7 @@ typedef struct vt100
     int tok[VT100_MAXTOK];
     int state;
     // flags
+    int cp437 :1;               // non-UTF-8
     int opt_allow_resize :1;	// is input allowed to resize?
     int opt_auto_wrap :1;	// ?7: auto wrap at right margin
     int opt_cursor :1;		// ?25: show/hide cursor
@@ -78,7 +78,7 @@ typedef struct vt100
 #define VT100_ATTR_BLINK	0x100000
 #define VT100_ATTR_INVERSE	0x200000
 
-vt100	vt100_init(int sx, int sy, int resizable, int utf);
+vt100	vt100_init(int sx, int sy, int resizable);
 int	vt100_resize(vt100 vt, int nsx, int nsy);
 void	vt100_reset(vt100 vt);
 void	vt100_free(vt100 vt);

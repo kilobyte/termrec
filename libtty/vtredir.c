@@ -90,7 +90,7 @@ static void vtvt_char(vt100 vt, int x, int y, ucs ch, int attr)
     setattr(vt, attr);
     if (fprintf(DATA->tty, "%lc", ch)<0)
     {
-        if (!vt->utf)
+        if (vt->cp437)
         {
             if (!vt100graph)
                 build_vt100graph();

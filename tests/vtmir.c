@@ -45,8 +45,8 @@ int main()
     char buf[BUF2];
     int len, i;
 
-    vt1=vt100_init(20, 5, 0, 0);
-    vt2=vt100_init(20, 5, 0, 0);
+    vt1=vt100_init(20, 5, 0);
+    vt2=vt100_init(20, 5, 0);
     if (pipe(p))
         die("pipe()");
     if (thread_create_joinable(&cop, copier, (void*)(intptr_t)p[0]))

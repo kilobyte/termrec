@@ -76,7 +76,7 @@ int main(int argc, char **argv)
     char buf[BUFFER_SIZE];
     int len;
 
-    vt = vt100_init(20, 5, 0, 0);
+    vt = vt100_init(20, 5, 0);
 
     while (1)
         switch(getopt(argc, argv, "ed"))

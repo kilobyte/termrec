@@ -575,7 +575,8 @@ void replay_start()
     struct timeval doomsday;
 
     ttyrec_free(ttr);
-    tev_vt=vt100_init(defsx, defsy, 1, 0);
+    tev_vt=vt100_init(defsx, defsy, 1);
+    tev_vt->cp437=1;
     vt100_printf(tev_vt, "\e[36m");
     vt100_printf(tev_vt, _("Termplay v%s\n\n"),
         "\e[36;1m"PACKAGE_VERSION"\e[0;36m");
@@ -1189,7 +1190,8 @@ int APIENTRY WinMain(HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
     defsx=80;
     defsy=25;
 
-    vt=vt100_init(defsx, defsy, 1, 0);
+    vt=vt100_init(defsx, defsy, 1);
+    vt->cp437=1;
 
     if (*lpCmdLine=='"')	// FIXME: proper parsing
     {

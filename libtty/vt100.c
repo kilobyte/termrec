@@ -19,7 +19,7 @@
 enum { ESnormal, ESesc, ESgetpars, ESsquare, ESques, ESsetG0, ESsetG1,
        ESpercent, ESosc };
 
-export vt100 vt100_init(int sx, int sy, int resizable, int utf)
+export vt100 vt100_init(int sx, int sy, int resizable)
 {
     vt100 vt;
 
@@ -29,7 +29,6 @@ export vt100 vt100_init(int sx, int sy, int resizable, int utf)
 
     memset(vt, 0, sizeof(struct vt100));
     vt->opt_allow_resize=resizable;
-    vt->utf=utf;
     vt100_reset(vt);
     if (sx && sy)
         vt100_resize(vt, sx, sy);
@@ -312,7 +311,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
 #define tc (vt->utf_char)
 #define cnt (vt->utf_count)
         case ESnormal:
-            if (vt->utf)
+            if (!vt->cp437)
                 if (ic>0x7f)
                     if (cnt>0 && (ic&0xc0)==0x80)
                     {
@@ -869,14 +868,14 @@ export void vt100_write(vt100 vt, char *buf, int len)
             switch(*buf)
             {
             case '@':	// ESC % @ -> disable UTF-8
-                vt->utf=0;
+                vt->cp437=1;
 #ifdef VT100_DEBUG
                 printf("Disabling UTF-8.\n");
 #endif
                 break;
             case '8':	// ESC % 8, ESC % G -> enable UTF-8
             case 'G':
-                vt->utf=1;
+                vt->cp437=0;
 #ifdef VT100_DEBUG
                 printf("Enabling UTF-8.\n");
 #endif

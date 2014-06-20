@@ -85,7 +85,7 @@ export ttyrec ttyrec_init(vt100 vt)
     tr->tev_tail=tr->tev_head;
     tr->nchunk=SNAPSHOT_CHUNK;
 
-    tr->tev_vt = vt? vt : vt100_init(80, 25, 1, 1);
+    tr->tev_vt = vt? vt : vt100_init(80, 25, 1);
     tr->tev_head->snapshot = vt100_copy(tr->tev_vt);
 
     return tr;
@@ -161,7 +161,7 @@ export struct ttyrec_frame* ttyrec_seek(ttyrec tr, struct timeval *t, vt100 *vt)
         else
         {
             tfs=tr->tev_head;
-            *vt=vt100_init(80, 25, 1, 1);
+            *vt=vt100_init(80, 25, 1);
         }
         if (!*vt)
             return 0;
