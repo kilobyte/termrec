@@ -69,6 +69,10 @@ export int vt100_resize(vt100 vt, int nsx, int nsy)
         CX=nsx;
     if (CY>=nsy)
         CY=nsy-1;
+    if (vt->save_cx>nsx)
+        vt->save_cx=nsx;
+    if (vt->save_cy>=nsy)
+        vt->save_cy=nsy-1;
     return 1;
 }
 
