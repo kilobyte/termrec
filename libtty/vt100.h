@@ -92,6 +92,4 @@ vt100	vt100_copy(vt100 vt);
 void	vtvt_dump(vt100 vt);
 void	vtvt_resize(vt100 vt, int sx, int sy);
 void	vtvt_attach(vt100 vt, FILE *tty, int dump);
-
-int	is_utf8();
 #endif

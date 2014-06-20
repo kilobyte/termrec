@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <getopt.h>
 #include <stdlib.h>
+#include <locale.h>
 #include "_stdint.h"
 #include "gettext.h"
 #include "common.h"
@@ -144,6 +145,7 @@ int main(int argc, char **argv)
     thread_t loadth;
     char *error;
 
+    setlocale(LC_CTYPE, "");
     get_play_parms(argc, argv);
     if ((fd=open_stream(-1, play_name, follow?SM_REPREAD:SM_READ, &error))==-1)
         die("%s: %s\n", play_name, error);

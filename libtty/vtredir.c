@@ -191,7 +191,6 @@ export void vtvt_resize(vt100 vt, int sx, int sy)
 
 export void vtvt_attach(vt100 vt, FILE *tty, int dump)
 {
-    is_utf8();
     vt->l_data=malloc(sizeof(struct vtvt_data));
     CX=CY=-1;
     DATA->attr=-1;

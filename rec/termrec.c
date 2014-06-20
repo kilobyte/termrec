@@ -18,6 +18,8 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <locale.h>
+#include <langinfo.h>
 #include "pty.h"
 #include "compat.h"
 #include "utils.h"
@@ -134,6 +136,7 @@ int main(int argc, char **argv)
     int r;
     struct timeval tv;
 
+    setlocale(LC_CTYPE, "");
     get_rec_parms(argc, argv);
     record_f=open_out(&record_name, format_ext, append);
     if (record_f==-1)
@@ -158,7 +161,7 @@ int main(int argc, char **argv)
     gettimeofday(&tv, 0);
 
     rec=ttyrec_w_open(record_f, format, record_name, &tv);
-    need_utf=is_utf8();
+    need_utf=!strcmp(nl_langinfo(CODESET), "UTF-8");
     record_size();
 
     setsignals();
