@@ -88,12 +88,17 @@ static void vtvt_char(vt100 vt, int x, int y, ucs ch, int attr)
     if (x!=CX || y!=CY)
         vtvt_cursor(vt, x, y);
     setattr(vt, attr);
-    if (fprintf(DATA->tty, "%lc", ch)<0 && !vt->utf)
+    if (fprintf(DATA->tty, "%lc", ch)<0)
     {
-        if (!vt100graph)
-            build_vt100graph();
-        if (ch<=MAXVT100GRAPH && vt100graph[ch])
-            fprintf(DATA->tty, "\016%c\017", vt100graph[ch]);
+        if (!vt->utf)
+        {
+            if (!vt100graph)
+                build_vt100graph();
+            if (ch<=MAXVT100GRAPH && vt100graph[ch])
+                fprintf(DATA->tty, "\016%c\017", vt100graph[ch]);
+            else
+                fprintf(DATA->tty, "?");
+        }
         else
             fprintf(DATA->tty, "?");
     }
