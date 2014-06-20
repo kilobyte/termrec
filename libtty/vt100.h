@@ -26,7 +26,7 @@ typedef struct vt100
     int cx,cy;             // cursor position
     attrchar *scr;         // screen buffer
     int attr;              // current attribute
-    /*=[ private stuff ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
+    /*=[ internal vt state ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
     int s1,s2;             // scrolling region
     int save_cx,save_cy;   // saved cursor position
     int G;                 // bitfield: do G0 and G1 use vt100 graphics?
