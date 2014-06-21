@@ -1,7 +1,7 @@
 noinst_LTLIBRARIES = libcompat.la libutils.la libttyutils.la
 libcompat_la_SOURCES = sys/asprintf.c sys/threads.h sys/compat.h
-libutils_la_SOURCES = sys/utils.h sys/error.h
-libttyutils_la_SOURCES = sys/ttysize.h sys/debuglog.c
+libutils_la_SOURCES = sys/utils.h sys/error.h sys/debuglog.c
+libttyutils_la_SOURCES = sys/ttysize.h
 
 libutils_la_LIBADD = libcompat.la
 
