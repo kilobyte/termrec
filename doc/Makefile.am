@@ -1,4 +1,4 @@
-MANPAGES = vt100.3 libtty.3 termrec.1 termplay.1 proxyrec.1 termtime.1 termcat.1
+MANPAGES = vt100.3 libttyrec.3 termrec.1 termplay.1 proxyrec.1 termtime.1 termcat.1
 dist_man_MANS = $(MANPAGES:%=doc/%)
 EXTRA_DIST += $(dist_man_MANS:%.1=%.pod) $(dist_man_MANS:%.3=%.pod)
 

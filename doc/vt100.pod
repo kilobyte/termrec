@@ -171,4 +171,4 @@ Forces a full-screen redraw of the current contents of I<vt>.
 
 =head1 SEE ALSO
 
-L<libtty(3)>
+L<libttyrec(3)>

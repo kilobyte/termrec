@@ -1,6 +1,6 @@
 =head1 NAME
 
-libtty - a library for handling ttyrec files
+libttyrec - a library for handling ttyrec files
 
 =head1 SYNOPSIS
 
