@@ -66,11 +66,11 @@ typedef struct vt100
     void (*l_flag)(struct vt100 *vt, int f, int v);
         // when a flag changes to v
     void (*l_resize)(struct vt100 *vt, int sx, int sy);
-        // after the tty has been resized
+        // after the terminal has been resized
     void (*l_flush)(struct vt100 *vt);
         // when a write chunk ends
     void (*l_free)(struct vt100 *vt);
-        // before the tty is destroyed
+        // before the terminal is destroyed
 } *vt100;
 
 #define VT100_ATTR_BOLD		0x010000
@@ -91,5 +91,5 @@ vt100	vt100_copy(vt100 vt);
 
 void	vtvt_dump(vt100 vt);
 void	vtvt_resize(vt100 vt, int sx, int sy);
-void	vtvt_attach(vt100 vt, FILE *tty, int dump);
+void	vtvt_attach(vt100 vt, FILE *f, int dump);
 #endif

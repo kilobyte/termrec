@@ -129,7 +129,7 @@ application keypad mode (more detailed codes for keypad arrow keys)
 
 =item B<void (*l_resize)(vt100 >I<vt>B<, int >I<sx>B<, int >I<sy>B<);>
 
-after the tty has been resized
+after the terminal has been resized
 
 =item B<void (*l_flush)(vt100 >I<vt>B<);>
 
@@ -137,7 +137,7 @@ when a write chunk ends
 
 =item B<void (*l_free)(vt100 >I<vt>B<);>
 
-before the tty is destroyed
+before the terminal is destroyed
 
 =back
 
@@ -148,9 +148,9 @@ For the case when you want the output go to a real terminal, there are:
 
 =over
 
-=item B<void   vtvt_attach(vt100 >I<vt>B<, FILE *>I<tty>B<, int >I<dump>B<);>
+=item B<void   vtvt_attach(vt100 >I<vt>B<, FILE *>I<f>B<, int >I<dump>B<);>
 
-Attaches the FILE stream I<tty> to terminal I<vt>.  Usually, I<tty> will be B<stdout>.
+Attaches the FILE stream I<f> to terminal I<vt>.  Usually, I<f> will be B<stdout>.
 Whenever the contents of I<vt> changes, appropriate data will be written to the stream
 as well.  If I<dump> is non-zero, the current state will be drawn, otherwise, only
 subsequent changes will be shown.

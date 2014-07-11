@@ -63,7 +63,7 @@ static inline int sp_string(attrchar *ch, int a, int max)
    to waste memory than have a buf overflow.
 */
 #define MINCL 20
-static int scrdiff(screen *tty, screen *scr, char *buf)
+static int scrdiff(screen *vt, screen *scr, char *buf)
 {
     char *bp=buf;
     int x,y;
@@ -73,7 +73,7 @@ static int scrdiff(screen *tty, screen *scr, char *buf)
 
     for (y=0; y<25; y++)
         for (x=0; x<80; x++)
-            if (tty[y][x]!=scr[y][x])
+            if (vt[y][x]!=scr[y][x])
             {
                 if (y!=cy || cx+10<x)
                     bp+=sprintf(bp, "\e[%d;%df", (cy=y)+1, cx=x+1);
@@ -107,7 +107,7 @@ void play_dosrecorder(FILE *f,
     void *arg, struct timeval *cont)
 {
     gzFile g;
-    screen tty, scr, screens[MAXSCREENS];
+    screen vt, scr, screens[MAXSCREENS];
     int i, x, y, note;
 #pragma pack(push)
 #pragma pack(1)
@@ -138,7 +138,7 @@ void play_dosrecorder(FILE *f,
         synch_print(buf, snprintf(buf, BUFFER_SIZE, _("Not a DosRecorder recording!")), arg);
         return;
     }
-    memset(tty, 0, sizeof(screen));
+    memset(vt, 0, sizeof(screen));
     for (i=0; i<MAXSCREENS; i++)
         for (y=0; y<25; y++)
             for (x=0; x<80; x++)
@@ -176,7 +176,7 @@ void play_dosrecorder(FILE *f,
             *bp++=7;
         }
 
-        bp+=scrdiff(&tty, &scr, bp);
+        bp+=scrdiff(&vt, &scr, bp);
 
         tv.tv_sec=fh.delay/1000;
         tv.tv_usec=(fh.delay-tv.tv_sec*1000)*1000;
