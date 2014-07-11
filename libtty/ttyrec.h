@@ -1,7 +1,7 @@
 #ifndef _TTYREC_H
 #define _TTYREC_H
 #include <sys/time.h>
-#include <vt100.h>
+#include <tty.h>
 
 #ifndef _TTYREC_H_NO_TYPES
 typedef struct {} *recorder;

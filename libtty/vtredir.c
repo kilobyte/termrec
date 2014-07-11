@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include "vt100.h"
+#include "tty.h"
 #include "sys/ttysize.h"
 #include "export.h"
 #include "charsets.h"

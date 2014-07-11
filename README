@@ -1,8 +1,8 @@
 The library consists of two parts:
 	* pseudo-terminal handling (as in "vt100-like", not in "pty")
-	  These parts are documented in "man vt100".
+	  These parts are documented in "man libtty".
 	* ttyrec files
-	  For documentation, look at "man libtty".
+	  For documentation, look at "man libttyrec".
 
 The utilities are:
 	* termrec

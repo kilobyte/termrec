@@ -1,5 +1,5 @@
 #include "config.h"
-#include <vt100.h>
+#include <tty.h>
 #include <stdio.h>
 #include "sys/threads.h"
 #include "sys/compat.h"

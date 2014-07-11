@@ -1,6 +1,6 @@
 #define _GNU_SOURCE
 #include "config.h"
-#include <vt100.h>
+#include <tty.h>
 #include <ttyrec.h>
 #include <stdio.h>
 #include <getopt.h>

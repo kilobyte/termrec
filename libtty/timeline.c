@@ -3,7 +3,7 @@
 #include <string.h>
 #include <sys/time.h>
 #include "error.h"
-#include "vt100.h"
+#include "tty.h"
 
 typedef struct {} *recorder;
 

@@ -1,7 +1,7 @@
 //#define VT100_DEBUG
 #include "config.h"
 #define _GNU_SOURCE
-#include "vt100.h"
+#include "tty.h"
 #include "charsets.h"
 #include <string.h>
 #include <stdlib.h>

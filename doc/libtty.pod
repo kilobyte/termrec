@@ -1,10 +1,10 @@
 =head1 NAME
 
-vt100 - a library for handling vt100 pseudo-terminals
+libtty - a library for handling vt100-like pseudo-terminals
 
 =head1 SYNOPSIS
 
-B<#include E<lt>vt100.hE<gt>>
+B<#include E<lt>tty.hE<gt>>
 
 Link with I<-ltty>.
 
@@ -69,7 +69,7 @@ I<scr> is an array of character/attribute pairs, more exactly, each element is a
 The array is a flat one of I<vt>B<-E<gt>>I<sx>*I<vt>B<-E<gt>>I<sy> elements, arranged row by row.  A screen
 coordinate I<x>,I<y> is stored at I<x>+I<y>*I<vt>B<-E<gt>>I<sy>.
 
-For other fields, please RTFS the header itself: B<vt100.h>
+For other fields, please RTFS the header itself: B<tty.h>
 
 
 =head2 TTY event callbacks

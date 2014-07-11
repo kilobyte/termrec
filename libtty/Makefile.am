@@ -1,7 +1,7 @@
 lib_LTLIBRARIES = libtty.la
 
 libtty_la_SOURCES = $(LIBSTREAM) \
-	libtty/vt100.c \
+	libtty/tty.c \
 	libtty/charsets.c \
 	libtty/charsets.h \
 	libtty/formats.c \
@@ -18,4 +18,4 @@ libtty_la_LIBADD += @PTHREAD_LIBS@
 libtty_la_LDFLAGS += @PTHREAD_CFLAGS@
 #endif
 
-include_HEADERS = libtty/vt100.h libtty/ttyrec.h
+include_HEADERS = libtty/tty.h libtty/ttyrec.h

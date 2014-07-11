@@ -2,7 +2,7 @@
 #include <wchar.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include "vt100.h"
+#include "tty.h"
 
 void tl_char(vt100 vt, int x, int y, ucs ch, int attr)
 {

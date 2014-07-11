@@ -5,7 +5,7 @@ AC_PREREQ(2.59)
 AC_INIT(termrec, 0.17, [kilobyte@angband.pl])
 AM_INIT_AUTOMAKE([-Wall dist-xz no-dist-gzip foreign])
 AC_CONFIG_MACRO_DIR([m4])
-AC_CONFIG_SRCDIR([libtty/vt100.h])
+AC_CONFIG_SRCDIR([libtty/tty.h])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_FILES(Makefile
 	win32/icons/Makefile

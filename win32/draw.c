@@ -1,5 +1,5 @@
 #include <windows.h>
-#include "vt100.h"
+#include "tty.h"
 #include "draw.h"
 
 

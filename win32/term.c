@@ -9,7 +9,7 @@
 #include "config.h"
 #include "_stdint.h"
 #include "sys/utils.h"
-#include "vt100.h"
+#include "tty.h"
 #include "draw.h"
 #include "ttyrec.h"
 #include "gettext.h"
