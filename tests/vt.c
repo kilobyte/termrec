@@ -4,27 +4,27 @@
 #include <stdlib.h>
 #include "tty.h"
 
-void tl_char(vt100 vt, int x, int y, ucs ch, int attr)
+void tl_char(tty vt, int x, int y, ucs ch, int attr)
 {
     printf("== char U+%04X attr=%X at %d,%d\n", ch, attr, x, y);
 }
 
-void tl_cursor(vt100 vt, int x, int y)
+void tl_cursor(tty vt, int x, int y)
 {
     printf("== cursor to %d,%d\n", x, y);
 }
 
-void tl_clear(vt100 vt, int x, int y, int len)
+void tl_clear(tty vt, int x, int y, int len)
 {
     printf("== clear from %d,%d len %d\n", x, y, len);
 }
 
-void tl_scroll(vt100 vt, int nl)
+void tl_scroll(tty vt, int nl)
 {
     printf("== scroll by %d lines\n", nl);
 }
 
-void tl_flag(vt100 vt, int f, int v)
+void tl_flag(tty vt, int f, int v)
 {
     printf("== flag %d (%s) set to %d\n", f,
         (v==VT100_FLAG_CURSOR)?"cursor visibility":
@@ -32,17 +32,17 @@ void tl_flag(vt100 vt, int f, int v)
         "unknown", v);
 }
 
-void tl_resize(vt100 vt, int sx, int sy)
+void tl_resize(tty vt, int sx, int sy)
 {
     printf("== resize to %dx%d\n", sx, sy);
 }
 
-void tl_free(vt100 vt)
+void tl_free(tty vt)
 {
     printf("== free\n");
 }
 
-void dump(vt100 vt)
+void dump(tty vt)
 {
     int x,y,attr;
 
@@ -72,11 +72,11 @@ int crap=0;
 
 int main(int argc, char **argv)
 {
-    vt100 vt;
+    tty vt;
     char buf[BUFFER_SIZE];
     int len;
 
-    vt = vt100_init(20, 5, 0);
+    vt = tty_init(20, 5, 0);
 
     while (1)
         switch(getopt(argc, argv, "ed"))
@@ -100,12 +100,12 @@ int main(int argc, char **argv)
         }
 run:
     while ((len=read(0, buf, BUFFER_SIZE))>0)
-        vt100_write(vt, buf, len);
+        tty_write(vt, buf, len);
 
     if (crap)
         dump(vt);
 
-    vt100_free(vt);
+    tty_free(vt);
 
     return 0;
 }

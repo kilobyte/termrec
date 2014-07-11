@@ -7,7 +7,7 @@
 #include "_stdint.h"
 
 
-vt100 vt1, vt2;
+tty vt1, vt2;
 
 #define BUFFER_SIZE 128
 void copier(void *args)
@@ -17,10 +17,10 @@ void copier(void *args)
     int len;
 
     while ((len=read(fd, buf, BUFFER_SIZE))>0)
-        vt100_write(vt2, buf, len);
+        tty_write(vt2, buf, len);
 }
 
-void dump(vt100 vt)
+void dump(tty vt)
 {
     int x,y,c;
 
@@ -45,8 +45,8 @@ int main()
     char buf[BUF2];
     int len, i;
 
-    vt1=vt100_init(20, 5, 0);
-    vt2=vt100_init(20, 5, 0);
+    vt1=tty_init(20, 5, 0);
+    vt2=tty_init(20, 5, 0);
     if (pipe(p))
         die("pipe()");
     if (thread_create_joinable(&cop, copier, (void*)(intptr_t)p[0]))
@@ -55,7 +55,7 @@ int main()
     vtvt_attach(vt1, f, 0);
 
     while ((len=read(0, buf, BUF2))>0)
-        vt100_write(vt1, buf, len);
+        tty_write(vt1, buf, len);
     fclose(f);
     thread_join(cop);
 

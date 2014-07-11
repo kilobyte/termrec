@@ -19,7 +19,7 @@ enum
     VT100_FLAG_AUTO_WRAP,	// auto wrap at right margin
 };
 
-typedef struct vt100
+typedef struct tty
 {
     /*=[ basic data ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
     int sx,sy;	           // screen size
@@ -48,30 +48,30 @@ typedef struct vt100
     /*=[ listeners ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
     void *l_data;
         // any private data
-    void (*l_char)(struct vt100 *vt, int x, int y, ucs ch, int attr);
+    void (*l_char)(struct tty *vt, int x, int y, ucs ch, int attr);
         // after a character has been written to the screen
-    void (*l_cursor)(struct vt100 *vt, int x, int y);
+    void (*l_cursor)(struct tty *vt, int x, int y);
         // after the cursor has moved
-    void (*l_clear)(struct vt100 *vt, int x, int y, int len);
+    void (*l_clear)(struct tty *vt, int x, int y, int len);
         // after a chunk of screen has been cleared
         // If an endpoint spills outside of the current line, it
         // must go all the way to an end of screen.
         // If the cursor moves, you'll get a separate l_cursor, although
         // it is already in place during the l_clear call.
-    void (*l_scroll)(struct vt100 *vt, int nl);
+    void (*l_scroll)(struct tty *vt, int nl);
         // after the region s1<=y<s2 is scrolled nl lines
         //  * nl<0 -> scrolling backwards
         //  * nl>0 -> scrolling forwards
         // The cursor is already moved.
-    void (*l_flag)(struct vt100 *vt, int f, int v);
+    void (*l_flag)(struct tty *vt, int f, int v);
         // when a flag changes to v
-    void (*l_resize)(struct vt100 *vt, int sx, int sy);
+    void (*l_resize)(struct tty *vt, int sx, int sy);
         // after the terminal has been resized
-    void (*l_flush)(struct vt100 *vt);
+    void (*l_flush)(struct tty *vt);
         // when a write chunk ends
-    void (*l_free)(struct vt100 *vt);
+    void (*l_free)(struct tty *vt);
         // before the terminal is destroyed
-} *vt100;
+} *tty;
 
 #define VT100_ATTR_BOLD		0x010000
 #define VT100_ATTR_DIM		0x020000
@@ -80,16 +80,16 @@ typedef struct vt100
 #define VT100_ATTR_BLINK	0x100000
 #define VT100_ATTR_INVERSE	0x200000
 
-vt100	vt100_init(int sx, int sy, int resizable);
-int	vt100_resize(vt100 vt, int nsx, int nsy);
-void	vt100_reset(vt100 vt);
-void	vt100_free(vt100 vt);
-void	vt100_write(vt100 vt, char *buf, int len);
-void	vt100_printf(vt100 vt, const char *fmt, ...) \
+tty	tty_init(int sx, int sy, int resizable);
+int	tty_resize(tty vt, int nsx, int nsy);
+void	tty_reset(tty vt);
+void	tty_free(tty vt);
+void	tty_write(tty vt, char *buf, int len);
+void	tty_printf(tty vt, const char *fmt, ...) \
 	    __attribute__((format (printf, 2, 3)));
-vt100	vt100_copy(vt100 vt);
+tty	tty_copy(tty vt);
 
-void	vtvt_dump(vt100 vt);
-void	vtvt_resize(vt100 vt, int sx, int sy);
-void	vtvt_attach(vt100 vt, FILE *f, int dump);
+void	vtvt_dump(tty vt);
+void	vtvt_resize(tty vt, int sx, int sy);
+void	vtvt_attach(tty vt, FILE *f, int dump);
 #endif

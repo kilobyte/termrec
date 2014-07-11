@@ -106,12 +106,12 @@ The function doesn't return until the end of input data.  Returns 1 on success, 
 
 =over
 
-=item B<ttyrec		ttyrec_init(vt100 >I<vt>B<);>
+=item B<ttyrec		ttyrec_init(tty >I<vt>B<);>
 
 An empty one is allocated.  If a I<vt> is provided, it becomes the screen that the ttyrec is
 internally played on; otherwise, a blank 80x25 one is allocated.  The I<vt> is consumed.
 
-=item B<ttyrec		ttyrec_load(int >I<fd>B<, char *>I<format>B<, char *>I<filename>B<, vt100 >I<vt>B<);>
+=item B<ttyrec		ttyrec_load(int >I<fd>B<, char *>I<format>B<, char *>I<filename>B<, tty >I<vt>B<);>
 
 This function will load a ttyrec from the file designated with I<fd>.  If it's not open yet
 (I<fd>=-1), it will be opened with B<open_stream>.  The ttyrec is played on the I<vt> you provide
@@ -135,7 +135,7 @@ typedef struct
 
 =over
 
-=item B<ttyrec_frame	ttyrec_seek(ttyrec >I<tr>B<, struct timeval *>I<t>B<, vt100 *>I<vt>B<);>
+=item B<ttyrec_frame	ttyrec_seek(ttyrec >I<tr>B<, struct timeval *>I<t>B<, tty *>I<vt>B<);>
 
 Finds the frame that should be shown at time I<*t>, or the first frame if I<t> is null.
 If I<vt> is not-null, it will receive a terminal containing the screen at that frame.
@@ -185,6 +185,6 @@ If t1E<lt>t2, -1.  If t1E<gt>t2, +1.  0 otherwise.
 
 =head1 SEE ALSO
 
-L<vt100(3)>
+L<libtty(3)>
 
 =cut

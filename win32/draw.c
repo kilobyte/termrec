@@ -98,7 +98,7 @@ void draw_line(HDC dc, int x, int y, wchar_t *txt, int cnt, int attr)
 }
 
 
-void draw_vt(HDC dc, int px, int py, vt100 vt)
+void draw_vt(HDC dc, int px, int py, tty vt)
 {
     int x,y,x0;
     int attr;
@@ -213,7 +213,7 @@ void draw_free()
     DeleteObject(bg_brush);
 }
 
-void draw_border(HDC dc, vt100 vt)
+void draw_border(HDC dc, tty vt)
 {
     int sx,sy;
     HPEN pen, oldpen;

@@ -14,33 +14,33 @@ Link with I<-ltty>.
 
 =over
 
-=item B<vt100  vt100_init(int >I<sx>B<, int >I<sy>B<, int >I<resizable>B<);>
+=item B<tty    tty_init(int >I<sx>B<, int >I<sy>B<, int >I<resizable>B<);>
 
 Creates a new vt100 terminal, of size I<sx>E<times>I<sy>.  If you want user input to
 be allowed to change that size, set I<resizable> to non-zero.
 
-=item B<int    vt100_resize(vt100 >I<vt>B<, int >I<nsx>B<, int >I<nsy>B<);>
+=item B<int    tty_resize(tty >I<vt>B<, int >I<nsx>B<, int >I<nsy>B<);>
 
 Resizes the I<vt> to I<nsx>E<times>I<nsy>.  This works even on terminals marked as
 non-resizable since that prevents only user input from resizing, not you.
 
-=item B<void   vt100_reset(vt100 >I<vt>B<);>
+=item B<void   tty_reset(tty >I<vt>B<);>
 
 Clears the screen and attributes.
 
-=item B<void   vt100_free(vt100 >I<vt>B<);>
+=item B<void   tty_free(tty >I<vt>B<);>
 
 Deallocates the I<vt> and all its internal structures.
 
-=item B<void   vt100_write(vt100 >I<vt>B<, char *>I<buf>B<, int >I<len>B<);>
+=item B<void   tty_write(tty >I<vt>B<, char *>I<buf>B<, int >I<len>B<);>
 
 Writes I<len> bytes into the terminal, parsing them as vt100 codes.
 
-=item B<void   vt100_printf(vt100 >I<vt>B<, const char *>I<fmt>B<, >I<...>B<);>
+=item B<void   tty_printf(tty >I<vt>B<, const char *>I<fmt>B<, >I<...>B<);>
 
 Does a B<printf> into the terminal.
 
-=item B<vt100  vt100_copy(vt100 >I<vt>B<);>
+=item B<tty    tty_copy(tty >I<vt>B<);>
 
 Allocates a new vt100 terminal, making it an exact copy of an existing one,
 including its internal state.
@@ -53,7 +53,7 @@ You'll most likely be interested in the following fields of the structure:
 
 =over
 
-=item vt100 {
+=item tty {
 
 =item     int I<sx>,I<sy>;             // screen size
 
@@ -75,10 +75,10 @@ For other fields, please RTFS the header itself: B<tty.h>
 =head2 TTY event callbacks
 
 Well, you have written some data to the terminal.  Now you probably want to put it
-somewhere.  What now?  The vt100 structure has a number of I<event hooks> that you
+somewhere.  What now?  The tty structure has a number of I<event hooks> that you
 can attach your functions to.
 
-These hooks are callbacks inside the B<vt100> structure that you can set.  The
+These hooks are callbacks inside the B<tty> structure that you can set.  The
 callback fields are:
 
 =over
@@ -87,15 +87,15 @@ callback fields are:
 
 it's a place to put your private data in
 
-=item B<void (*l_char)(vt100 >I<vt>B<, int >I<x>B<, int >I<y>B<, ucs >I<ch>B<, int >I<attr>B<);>
+=item B<void (*l_char)(tty >I<vt>B<, int >I<x>B<, int >I<y>B<, ucs >I<ch>B<, int >I<attr>B<);>
 
 after a character has been written to the screen; the cursor advances by that character
 
-=item B<void (*l_cursor)(vt100 >I<vt>B<, int >I<x>B<, int >I<y>B<);>
+=item B<void (*l_cursor)(tty >I<vt>B<, int >I<x>B<, int >I<y>B<);>
 
 after the cursor has moved
 
-=item B<void (*l_clear)(vt100 >I<vt>B<, int >I<x>B<, int >I<y>B<, int >I<len>B<);>
+=item B<void (*l_clear)(tty >I<vt>B<, int >I<x>B<, int >I<y>B<, int >I<len>B<);>
 
 after a chunk of screen has been cleared
 
@@ -105,13 +105,13 @@ it will go all the way to an end of screen.
 If the cursor moves, you'll get a separate I<l_cursor>, although
 it is already in place during the I<l_clear> call.
 
-=item B<void (*l_scroll)(vt100 >I<vt>B<, int >I<nl>B<);>
+=item B<void (*l_scroll)(tty >I<vt>B<, int >I<nl>B<);>
 
 after the region s1<=y<s2 is scrolled nl lines (nl<0 -> backwards, nl>0 -> forward).
 
 There's no separare I<l_cursor> event, I<cx> and I<cy> are already updated.
 
-=item B<void (*l_flag)(vt100 >I<vt>B<, int >I<f>B<, int >I<v>B<);>
+=item B<void (*l_flag)(tty >I<vt>B<, int >I<f>B<, int >I<v>B<);>
 
 when a flag changes to I<v>.  Flags that are likely to be of interest to you are:
 
@@ -127,15 +127,15 @@ application keypad mode (more detailed codes for keypad arrow keys)
 
 =back
 
-=item B<void (*l_resize)(vt100 >I<vt>B<, int >I<sx>B<, int >I<sy>B<);>
+=item B<void (*l_resize)(tty >I<vt>B<, int >I<sx>B<, int >I<sy>B<);>
 
 after the terminal has been resized
 
-=item B<void (*l_flush)(vt100 >I<vt>B<);>
+=item B<void (*l_flush)(tty >I<vt>B<);>
 
 when a write chunk ends
 
-=item B<void (*l_free)(vt100 >I<vt>B<);>
+=item B<void (*l_free)(tty >I<vt>B<);>
 
 before the terminal is destroyed
 
@@ -148,21 +148,21 @@ For the case when you want the output go to a real terminal, there are:
 
 =over
 
-=item B<void   vtvt_attach(vt100 >I<vt>B<, FILE *>I<f>B<, int >I<dump>B<);>
+=item B<void   vtvt_attach(tty >I<vt>B<, FILE *>I<f>B<, int >I<dump>B<);>
 
 Attaches the FILE stream I<f> to terminal I<vt>.  Usually, I<f> will be B<stdout>.
 Whenever the contents of I<vt> changes, appropriate data will be written to the stream
 as well.  If I<dump> is non-zero, the current state will be drawn, otherwise, only
 subsequent changes will be shown.
 
-The redirection will last until the terminal is destroyed by B<vt100_free()>.
+The redirection will last until the terminal is destroyed by B<tty_free()>.
 
-=item B<void   vtvt_resize(vt100 >I<vt>B<, int >I<sx>B<, int >I<sy>B<);>
+=item B<void   vtvt_resize(tty >I<vt>B<, int >I<sx>B<, int >I<sy>B<);>
 
 Tells libtty that the B<real> terminal has been resized (for resizing the virtual one,
-please use B<vt100_resize()>).
+please use B<tty_resize()>).
 
-=item B<void   vtvt_dump(vt100 >I<vt>B<);>
+=item B<void   vtvt_dump(tty >I<vt>B<);>
 
 Forces a full-screen redraw of the current contents of I<vt>.
 

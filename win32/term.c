@@ -34,7 +34,7 @@ struct timeval t0,tdate,tmax,selstart,selend;
 int progmax,progdiv,progval;
 int defsx, defsy;
 
-vt100 vt;
+tty vt;
 int play_f;
 char *play_format, *play_filename;
 HANDLE pth_sem;
@@ -457,7 +457,7 @@ void draw_size()
 }
 
 
-void playfile(vt100 tev_vt)
+void playfile(tty tev_vt)
 {
     char buf[1024];
 
@@ -527,14 +527,14 @@ int replay_play(struct timeval *delay)
         tadd(tr1, tdate);
         if (tev_cur && tev_cur->len>tev_curlp)
         {
-            vt100_write(vt, tev_cur->data+tev_curlp, tev_cur->len-tev_curlp);
+            tty_write(vt, tev_cur->data+tev_curlp, tev_cur->len-tev_curlp);
             tev_curlp=tev_cur->len;
         }
         while ((fn=ttyrec_next_frame(ttr, tev_cur)) && tcmp(fn->t, tr1)==-1)
         {
             tev_cur=fn;
             if (tev_cur->data)
-                vt100_write(vt, tev_cur->data, tev_cur->len);
+                tty_write(vt, tev_cur->data, tev_cur->len);
             tev_curlp=tev_cur->len;
         }
         if ((fn=ttyrec_next_frame(ttr, tev_cur)))
@@ -570,17 +570,17 @@ void replay_seek()
 
 void replay_start()
 {
-    vt100 tev_vt;
+    tty tev_vt;
     ttyrec_frame tev_tail;
     struct timeval doomsday;
 
     ttyrec_free(ttr);
-    tev_vt=vt100_init(defsx, defsy, 1);
+    tev_vt=tty_init(defsx, defsy, 1);
     tev_vt->cp437=1;
-    vt100_printf(tev_vt, "\e[36m");
-    vt100_printf(tev_vt, _("Termplay v%s\n\n"),
+    tty_printf(tev_vt, "\e[36m");
+    tty_printf(tev_vt, _("Termplay v%s\n\n"),
         "\e[36;1m"PACKAGE_VERSION"\e[0;36m");
-    vt100_printf(tev_vt, "\e[0m");
+    tty_printf(tev_vt, "\e[0m");
 
     tr.tv_sec=tr.tv_usec=0;
     tev_done=0;
@@ -703,20 +703,20 @@ void print_banner()
     int i;
     char *pn;
 
-    vt100_printf(vt, "\e[?25l\e[36mTermplay v\e[1m"PACKAGE_VERSION"\e[0m\n");
-    vt100_printf(vt, "\e[33mTerminal size: \e[1m%d\e[21mx\e[1m%d\e[0m\n", vt->sx, vt->sy);
-    vt100_printf(vt, "\e[34;1m\e%%G\xd0\xa1\xd0\xb4\xd0\xb5\xd0\xbb\xd0\xb0\xd0\xbd\xd0\xbe by KiloByte (kilobyte@angband.pl)\e[0m\n");
-    vt100_printf(vt, "Compression plugins:\n");
+    tty_printf(vt, "\e[?25l\e[36mTermplay v\e[1m"PACKAGE_VERSION"\e[0m\n");
+    tty_printf(vt, "\e[33mTerminal size: \e[1m%d\e[21mx\e[1m%d\e[0m\n", vt->sx, vt->sy);
+    tty_printf(vt, "\e[34;1m\e%%G\xd0\xa1\xd0\xb4\xd0\xb5\xd0\xbb\xd0\xb0\xd0\xbd\xd0\xbe by KiloByte (kilobyte@angband.pl)\e[0m\n");
+    tty_printf(vt, "Compression plugins:\n");
 #if (defined HAVE_LIBZ) || (SHIPPED_LIBZ)
-    vt100_printf(vt, "* gzip\n");
+    tty_printf(vt, "* gzip\n");
 #endif
 #if (defined HAVE_LIBBZ2) || (defined SHIPPED_LIBBZ2)
-    vt100_printf(vt, "* bzip2\n");
+    tty_printf(vt, "* bzip2\n");
 #endif
-    vt100_printf(vt, "Replay plugins:\n");
+    tty_printf(vt, "Replay plugins:\n");
     for (i=0;(pn=ttyrec_r_get_format_name(i));i++)
         if (strcmp(pn, "live"))
-            vt100_printf(vt, "* %s\n", pn);
+            tty_printf(vt, "* %s\n", pn);
 }
 
 
@@ -1190,7 +1190,7 @@ int APIENTRY WinMain(HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
     defsx=80;
     defsy=25;
 
-    vt=vt100_init(defsx, defsy, 1);
+    vt=tty_init(defsx, defsy, 1);
     vt->cp437=1;
 
     if (*lpCmdLine=='"')	// FIXME: proper parsing
@@ -1213,7 +1213,7 @@ int APIENTRY WinMain(HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
     if (*filename)
         if (!start_file(filename))
         {
-            vt100_printf(vt, "\n\e[41;1mFile not found: %s\e[0m\n", filename);
+            tty_printf(vt, "\n\e[41;1mFile not found: %s\e[0m\n", filename);
             *filename=0;
             redraw_term();
         }

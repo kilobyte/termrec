@@ -24,7 +24,7 @@ struct vtvt_data
 #define CY	DATA->cy
 
 
-static inline void setattr(vt100 vt, int attr)
+static inline void setattr(tty vt, int attr)
 {
     if (DATA->attr!=attr)
     {
@@ -56,7 +56,7 @@ static inline void setattr(vt100 vt, int attr)
     }
 }
 
-static void vtvt_cursor(vt100 vt, int x, int y)
+static void vtvt_cursor(tty vt, int x, int y)
 {
     if (x==CX && y==CY)
         return;
@@ -71,7 +71,7 @@ static void build_vt100graph()
 {
     int i;
 
-    /* the reverse mapping Unicode->vt100_graphic takes a chunk of memory, so
+    /* the reverse mapping Unicode->tty_graphic takes a chunk of memory, so
        build it only on demand.  This won't happen most of the time. */
     if (!(vt100graph=malloc(MAXVT100GRAPH+1)))
         abort();
@@ -81,7 +81,7 @@ static void build_vt100graph()
             vt100graph[charset_vt100[i]]=i;
 }
 
-static void vtvt_char(vt100 vt, int x, int y, ucs ch, int attr)
+static void vtvt_char(tty vt, int x, int y, ucs ch, int attr)
 {
     if (x>=SX || y>SY)
         return;
@@ -105,7 +105,7 @@ static void vtvt_char(vt100 vt, int x, int y, ucs ch, int attr)
     CX++;
 }
 
-export void vtvt_dump(vt100 vt)
+export void vtvt_dump(tty vt)
 {
     int x,y;
     attrchar *ch;
@@ -122,7 +122,7 @@ export void vtvt_dump(vt100 vt)
     vtvt_cursor(vt, vt->cx, vt->cy);
 }
 
-static void vtvt_clear(vt100 vt, int x, int y, int len)
+static void vtvt_clear(tty vt, int x, int y, int len)
 {
     int c;
 
@@ -152,7 +152,7 @@ static void vtvt_clear(vt100 vt, int x, int y, int len)
     vtvt_cursor(vt, vt->cx, vt->cy);
 }
 
-static void vtvt_scroll(vt100 vt, int nl)
+static void vtvt_scroll(tty vt, int nl)
 {
     if (nl>0)
         fprintf(DATA->f, "\e[0m\e[%d;%dr\e[%d;1f\e[%dM\e[r", vt->s1+1, vt->s2, vt->s1+1, nl);
@@ -164,32 +164,32 @@ static void vtvt_scroll(vt100 vt, int nl)
 //  vtvt_dump(vt);
 }
 
-static void vtvt_flag(vt100 vt, int f, int v)
+static void vtvt_flag(tty vt, int f, int v)
 {
     // TODO: invisible cursor
 }
 
-static void vtvt_resized(vt100 vt, int sx, int sy)
+static void vtvt_resized(tty vt, int sx, int sy)
 {
     fprintf(DATA->f, "\e[8;%u;%ut", sy, sx);
 }
 
-static void vtvt_flush(vt100 vt)
+static void vtvt_flush(tty vt)
 {
     fflush(DATA->f);
 }
 
-static void vtvt_free(vt100 vt)
+static void vtvt_free(tty vt)
 {
     free(vt->l_data);
 }
 
-export void vtvt_resize(vt100 vt, int sx, int sy)
+export void vtvt_resize(tty vt, int sx, int sy)
 {
     SX=sx; SY=sy;
 }
 
-export void vtvt_attach(vt100 vt, FILE *f, int dump)
+export void vtvt_attach(tty vt, FILE *f, int dump)
 {
     vt->l_data=malloc(sizeof(struct vtvt_data));
     CX=CY=-1;

@@ -38,7 +38,7 @@ static int player(void *arg)
                 tsub(t0, tt);      // (tt is negative)
             pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
             fr=nf;
-            vt100_write(term, fr->data, fr->len);
+            tty_write(term, fr->data, fr->len);
             pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
         }
         mutex_lock(waitm);
@@ -151,7 +151,7 @@ static void adv_frame()
     if (!(nf=ttyrec_next_frame(tr, fr)))
         return;
     tc=nf->t;
-    vt100_write(term, nf->data, nf->len);
+    tty_write(term, nf->data, nf->len);
     fr=nf;
 }
 
@@ -265,6 +265,6 @@ void replay()
     }
 end:
     replay_stop();
-    vt100_printf(term, "\e[f\e[200B");
-    vt100_free(term);
+    tty_printf(term, "\e[f\e[200B");
+    tty_free(term);
 }

@@ -12,7 +12,7 @@ struct ttyrec_frame
     struct timeval t;
     int len;
     char *data;
-    vt100 snapshot;
+    tty snapshot;
     struct ttyrec_frame *next;
 };
 typedef struct ttyrec_frame *ttyrec_frame;
@@ -20,7 +20,7 @@ typedef struct ttyrec_frame *ttyrec_frame;
 typedef struct ttyrec
 {
     struct ttyrec_frame *tev_head, *tev_tail;
-    vt100 tev_vt;
+    tty tev_vt;
     int nchunk;
     struct timeval ndelay;
 } *ttyrec;
@@ -66,17 +66,17 @@ static void synch_print(char *buf, int len, void *arg)
     nf->next=0;
     tr->tev_tail->next=nf;
     tr->tev_tail=nf;
-    vt100_write(tr->tev_vt, buf, len);
+    tty_write(tr->tev_vt, buf, len);
     if ((tr->nchunk+=len)>=SNAPSHOT_CHUNK) // do a snapshot every 64KB of data
     {
-        nf->snapshot=vt100_copy(tr->tev_vt);
+        nf->snapshot=tty_copy(tr->tev_vt);
         tr->nchunk=0;
     }
 }
 #undef tr
 
 
-export ttyrec ttyrec_init(vt100 vt)
+export ttyrec ttyrec_init(tty vt)
 {
     ttyrec tr = malloc(sizeof(struct ttyrec));
     memset(tr, 0, sizeof(struct ttyrec));
@@ -85,8 +85,8 @@ export ttyrec ttyrec_init(vt100 vt)
     tr->tev_tail=tr->tev_head;
     tr->nchunk=SNAPSHOT_CHUNK;
 
-    tr->tev_vt = vt? vt : vt100_init(80, 25, 1);
-    tr->tev_head->snapshot = vt100_copy(tr->tev_vt);
+    tr->tev_vt = vt? vt : tty_init(80, 25, 1);
+    tr->tev_head->snapshot = tty_copy(tr->tev_vt);
 
     return tr;
 }
@@ -106,15 +106,15 @@ export void ttyrec_free(ttyrec tr)
         tev_tail=tev_tail->next;
         free(tc->data);
         if (tc->snapshot)
-            vt100_free(tc->snapshot);
+            tty_free(tc->snapshot);
         free(tc);
     }
-    vt100_free(tr->tev_vt);
+    tty_free(tr->tev_vt);
     free(tr);
 }
 
 
-export ttyrec ttyrec_load(int fd, char *format, char *filename, vt100 vt)
+export ttyrec ttyrec_load(int fd, char *format, char *filename, tty vt)
 {
     ttyrec tr;
 
@@ -129,7 +129,7 @@ export ttyrec ttyrec_load(int fd, char *format, char *filename, vt100 vt)
 }
 
 
-export struct ttyrec_frame* ttyrec_seek(ttyrec tr, struct timeval *t, vt100 *vt)
+export struct ttyrec_frame* ttyrec_seek(ttyrec tr, struct timeval *t, tty *vt)
 {
     struct ttyrec_frame *tfv, *tfs;
 
@@ -155,13 +155,13 @@ export struct ttyrec_frame* ttyrec_seek(ttyrec tr, struct timeval *t, vt100 *vt)
 
     if (vt)
     {
-        vt100_free(*vt);
+        tty_free(*vt);
         if (tfs)
-            *vt=vt100_copy(tfs->snapshot);
+            *vt=tty_copy(tfs->snapshot);
         else
         {
             tfs=tr->tev_head;
-            *vt=vt100_init(80, 25, 1);
+            *vt=tty_init(80, 25, 1);
         }
         if (!*vt)
             return 0;
@@ -169,7 +169,7 @@ export struct ttyrec_frame* ttyrec_seek(ttyrec tr, struct timeval *t, vt100 *vt)
         {
             tfs = tfs->next;
             if (tfs->data)
-                vt100_write(*vt, tfs->data, tfs->len);
+                tty_write(*vt, tfs->data, tfs->len);
         };
     }
 

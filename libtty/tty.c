@@ -19,23 +19,23 @@
 enum { ESnormal, ESesc, ESgetpars, ESsquare, ESques, ESsetG0, ESsetG1,
        ESpercent, ESosc };
 
-export vt100 vt100_init(int sx, int sy, int resizable)
+export tty tty_init(int sx, int sy, int resizable)
 {
-    vt100 vt;
+    tty vt;
 
-    vt=malloc(sizeof(struct vt100));
+    vt=malloc(sizeof(struct tty));
     if (!vt)
         return 0;
 
-    memset(vt, 0, sizeof(struct vt100));
+    memset(vt, 0, sizeof(struct tty));
     vt->allow_resize=resizable;
-    vt100_reset(vt);
+    tty_reset(vt);
     if (sx && sy)
-        vt100_resize(vt, sx, sy);
+        tty_resize(vt, sx, sy);
     return vt;
 }
 
-export int vt100_resize(vt100 vt, int nsx, int nsy)
+export int tty_resize(tty vt, int nsx, int nsy)
 {
     int x,y;
     attrchar *nscr;
@@ -75,7 +75,7 @@ export int vt100_resize(vt100 vt, int nsx, int nsy)
     return 1;
 }
 
-export void vt100_free(vt100 vt)
+export void tty_free(tty vt)
 {
     if (!vt)
         return;
@@ -86,13 +86,13 @@ export void vt100_free(vt100 vt)
     free(vt);
 }
 
-export vt100 vt100_copy(vt100 vt)
+export tty tty_copy(tty vt)
 {
-    vt100 nvt=malloc(sizeof(struct vt100));
+    tty nvt=malloc(sizeof(struct tty));
     if (!nvt)
         return 0;
 
-    memcpy(nvt, vt, sizeof(struct vt100));
+    memcpy(nvt, vt, sizeof(struct tty));
     if (!(nvt->scr=malloc(SX*SY*sizeof(attrchar))))
     {
         free(nvt);
@@ -102,7 +102,7 @@ export vt100 vt100_copy(vt100 vt)
     return nvt;
 }
 
-static void vt100_clear_region(vt100 vt, int st, int l)
+static void tty_clear_region(tty vt, int st, int l)
 {
     attrchar *c, blank;
 
@@ -117,9 +117,9 @@ static void vt100_clear_region(vt100 vt, int st, int l)
         *c++=blank;
 }
 
-export void vt100_reset(vt100 vt)
+export void tty_reset(tty vt)
 {
-    vt100_clear_region(vt, 0, SX*SY);
+    tty_clear_region(vt, 0, SX*SY);
     CX=CY=vt->save_cx=vt->save_cy=0;
     vt->s1=0;
     vt->s2=SY;
@@ -133,30 +133,30 @@ export void vt100_reset(vt100 vt)
     vt->utf_count=0;
 }
 
-static void vt100_scroll(vt100 vt, int nl)
+static void tty_scroll(tty vt, int nl)
 {
     int s;
 
     assert(vt->s1<vt->s2);
     if ((s=vt->s2-vt->s1-abs(nl))<=0)
     {
-        vt100_clear_region(vt, vt->s1*SX, (vt->s2-vt->s1)*SX);
+        tty_clear_region(vt, vt->s1*SX, (vt->s2-vt->s1)*SX);
         return;
     }
     if (nl<0)
     {
         memmove(vt->scr+(vt->s1-nl)*SX, vt->scr+vt->s1*SX, s*SX*sizeof(attrchar));
-        vt100_clear_region(vt, vt->s1*SX, -nl*SX);
+        tty_clear_region(vt, vt->s1*SX, -nl*SX);
     }
     else
     {
         memmove(vt->scr+vt->s1*SX, vt->scr+(vt->s1+nl)*SX, s*SX*sizeof(attrchar));
-        vt100_clear_region(vt, (vt->s2-nl)*SX, nl*SX);
+        tty_clear_region(vt, (vt->s2-nl)*SX, nl*SX);
     }
 }
 
 
-static void set_charset(vt100 vt, int g, char x)
+static void set_charset(tty vt, int g, char x)
 {
 #ifdef VT100_DEBUG
     printf("Changing charset G%d to %c.\n", g, x);
@@ -189,18 +189,18 @@ static void set_charset(vt100 vt, int g, char x)
     }
 #define SCROLL(nl) \
     {						\
-        vt100_scroll(vt, nl);			\
+        tty_scroll(vt, nl);			\
         if (vt->l_scroll)			\
             vt->l_scroll(vt, nl);		\
     }
 #define CLEAR(x,y,l) \
     {						\
-        vt100_clear_region(vt, y*SX+x, l);	\
+        tty_clear_region(vt, y*SX+x, l);	\
         if (vt->l_clear)			\
             vt->l_clear(vt, x, y, l);		\
     }
 
-export void vt100_write(vt100 vt, char *buf, int len)
+export void tty_write(tty vt, char *buf, int len)
 {
     int i;
     ucs c;
@@ -762,7 +762,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                 break;
 
             case 'c':	// ESC[c -> reset to power-on defaults
-                vt100_reset(vt);
+                tty_reset(vt);
                 if (vt->l_clear)
                     vt->l_clear(vt, 0, 0, SX*SY);
                 L_CURSOR;
@@ -783,7 +783,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
                         vt->tok[1]=SY;
                     if (vt->tok[2]<=0)
                         vt->tok[2]=SX;
-                    vt100_resize(vt, vt->tok[2], vt->tok[1]);
+                    tty_resize(vt, vt->tok[2], vt->tok[1]);
                     if (vt->l_resize)
                         vt->l_resize(vt, vt->tok[2], vt->tok[1]);
                     break;
@@ -900,7 +900,7 @@ export void vt100_write(vt100 vt, char *buf, int len)
 
 #define BUFFER_SIZE 16384
 
-export void vt100_printf(vt100 vt, const char *fmt, ...)
+export void tty_printf(tty vt, const char *fmt, ...)
 {
     va_list ap;
     char buf[BUFFER_SIZE], *bigstr;
@@ -916,7 +916,7 @@ export void vt100_printf(vt100 vt, const char *fmt, ...)
         va_end(ap);
         if (len<=0 || !bigstr)
             return;
-        vt100_write(vt, buf, len);
+        tty_write(vt, buf, len);
         free(bigstr);
     }
     else if (len>=BUFFER_SIZE)
@@ -926,9 +926,9 @@ export void vt100_printf(vt100 vt, const char *fmt, ...)
         va_start(ap, fmt);
         len=vsnprintf(bigstr, len+1, fmt, ap);
         va_end(ap);
-        vt100_write(vt, buf, len);
+        tty_write(vt, buf, len);
         free(bigstr);
     }
     else
-        vt100_write(vt, buf, len);
+        tty_write(vt, buf, len);
 }

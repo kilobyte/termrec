@@ -1,7 +1,7 @@
 ttyrec tr;
 
 int speed;
-vt100 term;
+tty term;
 
 int waiting, loaded;
 mutex_t waitm;

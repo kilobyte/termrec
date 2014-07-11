@@ -37,10 +37,10 @@ int		ttyrec_r_play(int fd, char *format, char *filename,
 		    void (*synch_print)(char *data, int len, void *arg),
 		    void *arg);
 
-ttyrec		ttyrec_init(vt100 vt);
-ttyrec		ttyrec_load(int fd, char *format, char *filename, vt100 vt);
+ttyrec		ttyrec_init(tty vt);
+ttyrec		ttyrec_load(int fd, char *format, char *filename, tty vt);
 void		ttyrec_free(ttyrec tr);
-ttyrec_frame	ttyrec_seek(ttyrec tr, struct timeval *t, vt100 *vt);
+ttyrec_frame	ttyrec_seek(ttyrec tr, struct timeval *t, tty *vt);
 ttyrec_frame	ttyrec_next_frame(ttyrec tr, ttyrec_frame tfv);
 void		ttyrec_add_frame(ttyrec tr, struct timeval *delay, char *data, int len);
 int		ttyrec_save(ttyrec tr, int fd, char *format, char *filename,
