@@ -133,7 +133,8 @@ static void loader_print(char *data, int len, void *arg)
 static int loader(void *arg)
 {
     pthread_cleanup_push(loader_end, 0);
-    ttyrec_r_play((intptr_t)arg, format, play_name,   loader_init_wait, loader_wait, loader_print, 0);
+    ttyrec_r_play((intptr_t)arg, format, play_name,
+                  loader_init_wait, loader_wait, loader_print, 0);
     pthread_cleanup_pop(1);
     return 1;
 }
