@@ -76,7 +76,7 @@ static void get_play_parms(int argc, char **argv)
                 _("show this usage message"),
                 _("If no format is given, it will be set according to the extension of the\n"
                   "    filename.\n"),
-                _("You don't have to uncompress .gz and .bz2 files first.\n"));
+                _("You don't have to uncompress .gz, .bz2 and .xz files first.\n"));
             exit(0);
         }
     }
