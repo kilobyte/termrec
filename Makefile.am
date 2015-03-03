@@ -4,7 +4,7 @@ if WIN32
 SUBDIRS += win32/icons
 endif
 
-EXTRA_DIST= BUGS autogen gettext.h export.h win32/lib/README win32/termrec.iss
+EXTRA_DIST= BUGS autogen.sh gettext.h export.h win32/lib/README win32/termrec.iss
 DISTCLEANFILES = _stdint.h
 ACLOCAL_AMFLAGS = -I m4
 
