@@ -14,7 +14,7 @@
 #include "play/player.h"
 
 
-#if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
+#ifdef HAVE_GETOPT_LONG
 static struct option play_opts[]={
 {"format",	1, 0, 'f'},
 {"speed",	1, 0, 's'},
@@ -37,7 +37,7 @@ static void get_play_parms(int argc, char **argv)
 
     while (1)
     {
-#if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
+#ifdef HAVE_GETOPT_LONG
         switch(getopt_long(argc, argv, "f:s:ph", play_opts, 0))
 #else
         switch(getopt(argc, argv, "f:s:ph"))

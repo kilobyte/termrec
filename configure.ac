@@ -39,7 +39,7 @@ AC_HEADER_TIOCGWINSZ
 AX_CREATE_STDINT_H
 AC_HEADER_TIME
 AC_CHECK_HEADERS([fcntl.h stdlib.h string.h strings.h sys/ioctl.h termios.h \
-	unistd.h bzlib.h zlib.h sys/time.h getopt.h sys/select.h langinfo.h \
+	unistd.h bzlib.h zlib.h sys/time.h sys/select.h langinfo.h \
 	netinet/in.h lzma.h])
 AC_CHECK_HEADERS([arpa/inet.h netdb.h sys/socket.h])
 AC_CHECK_HEADERS([winsock2.h])
