@@ -27,8 +27,10 @@ need a way to run the GNU configure.  It can be done by:
     + make
 
 
-For the compression plugins, you'll need to grab zlib and/or libbz2.  If
-you're putting them together by hand, put the files into win32/lib/ :
+For the compression plugins, you'll need to grab zlib, libbz2 and/or lzma.
+It's easiest to do so by cloning the submodule:
+    + git submodule update --init
+If you're putting them together by hand, put the files into win32/lib/ :
 * zlib:
     + zconf.h
     + zlib.h
@@ -38,3 +40,8 @@ you're putting them together by hand, put the files into win32/lib/ :
     + bzlib.h
     + libbz2.dll.a
     + bzip2.dll
+* lzma:
+    + lzma.h
+    + lzma/*.h
+    + liblzma.a
+    + liblzma.dll
