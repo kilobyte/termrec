@@ -22,17 +22,8 @@ Root: HKCR; SubKey: ttyrec; ValueType: string; ValueData: ttyrec replay; Flags: 
 Root: HKCR; SubKey: ttyrec\Shell\Open\Command; ValueType: string; ValueData: """{app}\termplay.exe"" ""%1"""; Flags: uninsdeletevalue
 Root: HKCR; Subkey: ttyrec\DefaultIcon; ValueType: string; ValueData: {app}\termplay.exe; Flags: uninsdeletevalue
 Root: HKCR; SubKey: .ttyrec.bz2; ValueType: string; ValueData: ttyrec; Flags: uninsdeletekey
-Root: HKCR; SubKey: ttyrec; ValueType: string; ValueData: ttyrec replay; Flags: uninsdeletekey
-Root: HKCR; SubKey: ttyrec\Shell\Open\Command; ValueType: string; ValueData: """{app}\termplay.exe"" ""%1"""; Flags: uninsdeletevalue
-Root: HKCR; Subkey: ttyrec\DefaultIcon; ValueType: string; ValueData: {app}\termplay.exe; Flags: uninsdeletevalue
 Root: HKCR; SubKey: .ttyrec.gz; ValueType: string; ValueData: ttyrec; Flags: uninsdeletekey
-Root: HKCR; SubKey: ttyrec; ValueType: string; ValueData: ttyrec replay; Flags: uninsdeletekey
-Root: HKCR; SubKey: ttyrec\Shell\Open\Command; ValueType: string; ValueData: """{app}\termplay.exe"" ""%1"""; Flags: uninsdeletevalue
-Root: HKCR; Subkey: ttyrec\DefaultIcon; ValueType: string; ValueData: {app}\termplay.exe; Flags: uninsdeletevalue
 Root: HKCR; SubKey: .dm2; ValueType: string; ValueData: ttyrec; Flags: uninsdeletekey
-Root: HKCR; SubKey: ttyrec; ValueType: string; ValueData: ttyrec replay; Flags: uninsdeletekey
-Root: HKCR; SubKey: ttyrec\Shell\Open\Command; ValueType: string; ValueData: """{app}\termplay.exe"" ""%1"""; Flags: uninsdeletevalue
-Root: HKCR; Subkey: ttyrec\DefaultIcon; ValueType: string; ValueData: {app}\termplay.exe; Flags: uninsdeletevalue
 [Icons]
 Name: {group}\ttyrec player; Filename: {app}\termplay.exe; WorkingDir: {userdocs}; IconIndex: 0
 Name: {group}\ttyrec recorder; Filename: {app}\termrec.exe; WorkingDir: {userdocs}
