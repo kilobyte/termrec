@@ -21,8 +21,8 @@
 #ifdef HAVE_LZMA_H
 # include <lzma.h>
 #else
-# ifdef SHIPPED_LZMA
-#  include SHIPPED_LZMA_H
+# ifdef SHIPPED_LIBLZMA
+#  include SHIPPED_LIBLZMA_H
 # endif
 #endif
 #include "export.h"
@@ -164,7 +164,7 @@ static void write_gz(int f, int fd, char *arg)
 }
 #endif
 
-#if (defined HAVE_LIBLZMA) || (SHIPPED_LIBLZMA)
+#if (defined HAVE_LIBLZMA) || (defined SHIPPED_LIBLZMA)
 static void read_xz(int f, int fd, char *arg)
 {
     uint8_t inbuf[BUFFER_SIZE], outbuf[BUFFER_SIZE];
