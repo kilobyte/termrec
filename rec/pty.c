@@ -39,6 +39,7 @@ static char TtyProto[] = "/dev/ttyXY";
 #  endif
 # endif
 
+extern char **environ;
 
 
 int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsize *wp)
