@@ -10,6 +10,7 @@
 #include "gettext.h"
 #include "common.h"
 #include "sys/threads.h"
+#include "sys/ttysize.h"
 #include "sys/utils.h"
 #include "play/player.h"
 
@@ -145,12 +146,15 @@ int main(int argc, char **argv)
     int fd;
     thread_t loadth;
     char *error;
+    int sx, sy;
 
     setlocale(LC_CTYPE, "");
     get_play_parms(argc, argv);
     if ((fd=open_stream(-1, play_name, follow?SM_REPREAD:SM_READ, &error))==-1)
         die("%s: %s\n", play_name, error);
-    tr=ttyrec_init(tty_init(200, 100, 1));
+    sx=80; sy=25;
+    get_tty_size(1, &sx, &sy);
+    tr=ttyrec_init(tty_init(sx, sy, 1));
     mutex_init(waitm);
     cond_init(waitc);
     waiting=0;
