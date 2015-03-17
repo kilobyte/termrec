@@ -473,7 +473,7 @@ void playfile(tty tev_vt)
     ttr=ttyrec_load(play_f, play_format, play_filename, tev_vt);
     if (!ttr)
         return;
-    ttyrec_add_frame(ttr, 0, buf, snprintf(buf, 1024, "\e[0m%s", _("End of recording.")));
+    ttyrec_add_frame(ttr, 0, buf, snprintf(buf, sizeof(buf), "\e[0m%s", _("End of recording.")));
 }
 
 
@@ -655,7 +655,7 @@ int start_file(char *name)
     play_format=ttyrec_r_find_format(0, name, "baudrate");
     play_filename=name;
     replay_start();
-    snprintf(buf, MAXFILENAME+20, "Termplay: %s (%s)", filename, play_format);
+    snprintf(buf, sizeof(buf), "Termplay: %s (%s)", filename, play_format);
     SetWindowText(wnd, buf);
     set_toolbar_state(1);
     play_state=2;
@@ -807,7 +807,7 @@ void speed_scrolled()
     replay_speed(speeds[pos]);
     vulgar_fraction(buf+sprintf(buf, "Speed: x"), speed);
     SetWindowText(ssSpeed, buf);
-    GetWindowText(ssSpeed, buf, 32);
+    GetWindowText(ssSpeed, buf, sizeof(buf));
 }
 
 
