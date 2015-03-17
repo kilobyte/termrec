@@ -1012,7 +1012,8 @@ void choose_font()
 
 LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    switch (uMsg) {
+    switch (uMsg)
+    {
         case WM_CREATE:
 	    create_toolbar(hwnd);
             create_term(hwnd);
@@ -1180,7 +1181,8 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 LRESULT APIENTRY TermWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-    switch (uMsg) {
+    switch (uMsg)
+    {
         case WM_PAINT:
             paint(hwnd);
             return 0;
