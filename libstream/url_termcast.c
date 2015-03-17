@@ -96,7 +96,8 @@ static void termcast(int in, int out, char *arg)
                 len=snprintf(buf, BUFSIZ, "\e[0m%s\n", strerror(errno));
             else
                 len=snprintf(buf, BUFSIZ, "\e[0m%s\n", _("Input terminated."));
-            if (write(out, buf, len)); // ignore result, we're failing already
+            if (write(out, buf, len))
+                ; // ignore result, we're failing already
             return free(rest);
         }
         if (write(out, buf+inbuf, len) != len)
