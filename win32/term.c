@@ -16,6 +16,14 @@
 
 #undef THREADED
 
+#define BUT_OPEN	100
+#define BUT_REWIND	101
+#define BUT_PAUSE	102
+#define BUT_PLAY	103
+#define BUT_SELSTART	104
+#define BUT_SELEND	105
+#define BUT_EXPORT	106
+
 HINSTANCE inst;
 HWND wnd, termwnd, wndTB, ssProg, wndProg, ssSpeed, wndSpeed;
 int tsx,tsy;
@@ -226,9 +234,9 @@ int create_toolbar(HWND wnd)
 
     tab.hInst=inst;
 
-    tab.nID=100;
+    tab.nID=BUT_OPEN;
     tbb[0].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab);
-    tbb[0].idCommand = 100;
+    tbb[0].idCommand = BUT_OPEN;
     tbb[0].fsState = TBSTATE_ENABLED;
     tbb[0].fsStyle = TBSTYLE_BUTTON;
     tbb[0].dwData = 0;
@@ -239,25 +247,25 @@ int create_toolbar(HWND wnd)
     tbb[1].fsStyle = TBSTYLE_SEP;
     tbb[1].dwData = 0;
 
-    tab.nID=101;
+    tab.nID=BUT_REWIND;
     tbb[2].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab);
-    tbb[2].idCommand = 101;
+    tbb[2].idCommand = BUT_REWIND;
     tbb[2].fsState = 0;
     tbb[2].fsStyle = TBSTYLE_BUTTON;
     tbb[2].dwData = 0;
     tbb[2].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"Restart");
 
-    tab.nID=102;
+    tab.nID=BUT_PAUSE;
     tbb[3].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab);
-    tbb[3].idCommand = 102;
+    tbb[3].idCommand = BUT_PAUSE;
     tbb[3].fsState = 0;
     tbb[3].fsStyle = TBSTYLE_CHECK;
     tbb[3].dwData = 0;
     tbb[3].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"Pause");
 
-    tab.nID=103;
+    tab.nID=BUT_PLAY;
     tbb[4].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab);
-    tbb[4].idCommand = 103;
+    tbb[4].idCommand = BUT_PLAY;
     tbb[4].fsState = 0;
     tbb[4].fsStyle = TBSTYLE_CHECK;
     tbb[4].dwData = 0;
@@ -268,25 +276,25 @@ int create_toolbar(HWND wnd)
     tbb[5].fsStyle = TBSTYLE_SEP;
     tbb[5].dwData = 0;
 
-    tab.nID=104;
+    tab.nID=BUT_SELSTART;
     tbb[6].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab);
-    tbb[6].idCommand = 104;
+    tbb[6].idCommand = BUT_SELSTART;
     tbb[6].fsState = 0;
     tbb[6].fsStyle = 0;
     tbb[6].dwData = 0;
     tbb[6].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"SelStart");
 
-    tab.nID=105;
+    tab.nID=BUT_SELEND;
     tbb[7].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab);
-    tbb[7].idCommand = 105;
+    tbb[7].idCommand = BUT_SELEND;
     tbb[7].fsState = 0;
     tbb[7].fsStyle = 0;
     tbb[7].dwData = 0;
     tbb[7].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"SelEnd");
 
-    tab.nID=106;
+    tab.nID=BUT_EXPORT;
     tbb[8].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab);
-    tbb[8].idCommand = 106;
+    tbb[8].idCommand = BUT_EXPORT;
     tbb[8].fsState = 0;
     tbb[8].fsStyle = 0;
     tbb[8].dwData = 0;
@@ -378,14 +386,14 @@ int create_toolbar(HWND wnd)
 
 void set_toolbar_state(int onoff)
 {
-    SendMessage(wndTB, TB_ENABLEBUTTON, 101, onoff);
-    SendMessage(wndTB, TB_ENABLEBUTTON, 102, onoff);
-    SendMessage(wndTB, TB_ENABLEBUTTON, 103, onoff);
+    SendMessage(wndTB, TB_ENABLEBUTTON, BUT_REWIND, onoff);
+    SendMessage(wndTB, TB_ENABLEBUTTON, BUT_PAUSE, onoff);
+    SendMessage(wndTB, TB_ENABLEBUTTON, BUT_PLAY, onoff);
     EnableWindow(wndSpeed, onoff);
     EnableWindow(ssSpeed, onoff);
-    SendMessage(wndTB, TB_ENABLEBUTTON, 104, onoff);
-    SendMessage(wndTB, TB_ENABLEBUTTON, 105, onoff);
-    SendMessage(wndTB, TB_ENABLEBUTTON, 106, onoff);
+    SendMessage(wndTB, TB_ENABLEBUTTON, BUT_SELSTART, onoff);
+    SendMessage(wndTB, TB_ENABLEBUTTON, BUT_SELEND, onoff);
+    SendMessage(wndTB, TB_ENABLEBUTTON, BUT_EXPORT, onoff);
 }
 
 
@@ -393,8 +401,8 @@ void set_buttons(int force)
 {
     if (play_state==button_state && !force)
         return;
-    set_button_state(102, play_state==1);
-    set_button_state(103, play_state>1);
+    set_button_state(BUT_PAUSE, play_state==1);
+    set_button_state(BUT_PLAY, play_state>1);
 }
 
 
@@ -436,7 +444,7 @@ void set_prog_sel()
     int t2=selend.tv_sec*(1000000/progdiv)+selend.tv_usec/progdiv;
 
     SendMessage(wndProg, TBM_SETSEL, 1, (LPARAM)MAKELONG(t1,t2));
-    SendMessage(wndTB, TB_ENABLEBUTTON, 106, tcmp(selstart, selend)<0);
+    SendMessage(wndTB, TB_ENABLEBUTTON, BUT_EXPORT, tcmp(selstart, selend)<0);
 }
 
 
@@ -1023,10 +1031,10 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case WM_COMMAND:
             switch (LOWORD(wParam))
             {
-            case 100:
+            case BUT_OPEN:
                 open_file();
                 break;
-            case 101:
+            case BUT_REWIND:
             but_rewind:
                 if (play_state==-1)
                     break;
@@ -1041,7 +1049,7 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 replay_resume();
                 do_replay();
                 break;
-            case 102:
+            case BUT_PAUSE:
                 if (play_state==1)
                     goto but_unpause;
             but_pause:
@@ -1049,7 +1057,7 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 replay_pause();
                 set_buttons(1);
                 break;
-            case 103:
+            case BUT_PLAY:
                 if (play_state>1)
                     goto but_pause;
             but_unpause:
@@ -1057,20 +1065,20 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 do_replay();
                 set_buttons(1);
                 break;
-            case 104:
+            case BUT_SELSTART:
                 if (play_state==-1)
                     break;
                 get_pos();
                 selstart=tr;
                 set_prog_sel();
                 break;
-            case 105:
+            case BUT_SELEND:
                 if (play_state==-1)
                     break;
                 selend=tr;
                 set_prog_sel();
                 break;
-            case 106:
+            case BUT_EXPORT:
                 if (play_state==-1)
                     break;
                 if (tcmp(selstart, selend)>=0)
