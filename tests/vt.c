@@ -63,7 +63,7 @@ void dump(tty vt)
         }
         printf("\n");
     }
-    printf("`-===[ cursor at %d,%d]\n", vt->cx, vt->cy);
+    printf("`-===[ cursor at %d,%d ]\n", vt->cx, vt->cy);
 }
 
 int crap=0;
