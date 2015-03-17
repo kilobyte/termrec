@@ -23,6 +23,7 @@
 #define BUT_SELSTART	104
 #define BUT_SELEND	105
 #define BUT_EXPORT	106
+#define BUT_FONT	200
 
 HINSTANCE inst;
 HWND wnd, termwnd, wndTB, ssProg, wndProg, ssSpeed, wndSpeed;
@@ -148,7 +149,7 @@ void create_sysmenu(HWND wnd)
 {
     HMENU sysmenu=GetSystemMenu(wnd, 0);
     AppendMenu(sysmenu, MF_SEPARATOR, 0, 0);
-    AppendMenu(sysmenu, MF_STRING, 200, "Choose &font");
+    AppendMenu(sysmenu, MF_STRING, BUT_FONT, "Choose &font");
 }
 
 
@@ -1093,7 +1094,7 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             {
             default:
                 return DefWindowProc(hwnd, uMsg, wParam, lParam);
-            case 200:
+            case BUT_FONT:
                 choose_font();
             }
             return 0;
