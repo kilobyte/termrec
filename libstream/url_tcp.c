@@ -91,7 +91,7 @@ static int connect_out(struct addrinfo *ai)
     intr:
         if ((connect(sock, addr->ai_addr, addr->ai_addrlen)))
         {
-            switch(errno)
+            switch (errno)
             {
             case EINTR:
                 goto intr;

@@ -20,7 +20,7 @@ int filter(void func(int,int,char*), int fd, int wr, char *arg, char **error)
         close(fd);
         return -1;
     }
-    switch(fork())
+    switch (fork())
     {
     case -1:
         *error="fork() failed";

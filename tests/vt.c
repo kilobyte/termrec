@@ -79,7 +79,7 @@ int main(int argc, char **argv)
     vt = tty_init(20, 5, 0);
 
     while (1)
-        switch(getopt(argc, argv, "ed"))
+        switch (getopt(argc, argv, "ed"))
         {
         case -1:
             goto run;

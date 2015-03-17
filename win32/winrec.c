@@ -433,7 +433,7 @@ VOID CALLBACK WinEventProc(
         vtrec_reent=0;
         return;
     }
-    switch(event)
+    switch (event)
     {
     case EVENT_CONSOLE_CARET:
         if (vtrec_cursor!=!!(idObject&CONSOLE_CARET_VISIBLE))
@@ -500,7 +500,7 @@ VOID CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 
 BOOL WINAPI CtrlHandler(DWORD dwCtrlType)
 {
-    switch(dwCtrlType)
+    switch (dwCtrlType)
     {
     case CTRL_C_EVENT:
     case CTRL_BREAK_EVENT:

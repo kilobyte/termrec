@@ -161,7 +161,7 @@ static void set_charset(tty vt, int g, char x)
 #ifdef VT100_DEBUG
     printf("Changing charset G%d to %c.\n", g, x);
 #endif
-    switch(x)
+    switch (x)
     {
         case '0':
             vt->G|=1<<g;
@@ -209,7 +209,7 @@ export void tty_write(tty vt, char *buf, int len)
     while (len--)
     {
 
-        switch(*++buf)
+        switch (*++buf)
         {
         case 0:
             continue;
@@ -276,11 +276,11 @@ export void tty_write(tty vt, char *buf, int len)
             continue;
         }
 
-        switch(vt->state)
+        switch (vt->state)
         {
         error:
 #ifdef VT100_DEBUG
-            switch(vt->state)
+            switch (vt->state)
             {
             case ESnormal:
                 printf("Unknown code 0x%2x\n", *buf);
@@ -290,7 +290,7 @@ export void tty_write(tty vt, char *buf, int len)
                 break;
             case ESsquare: case ESques: case ESpercent:
                 printf("Unknown code ESC");
-                switch(vt->state)
+                switch (vt->state)
                 {
                 case ESsquare:  printf(" ["); break;
                 case ESques:    printf(" [ ?"); break;
@@ -405,7 +405,7 @@ export void tty_write(tty vt, char *buf, int len)
 #undef cnt
 
         case ESesc:	// ESC
-            switch(*buf)
+            switch (*buf)
             {
             case '[':
                 vt->state=ESsquare;
@@ -491,7 +491,7 @@ export void tty_write(tty vt, char *buf, int len)
             else
                 vt->state=ESgetpars; // fallthru
         case ESgetpars:	// ESC [, with params
-            switch(*buf)
+            switch (*buf)
             {
             case '0': case '1': case '2': case '3': case '4':
             case '5': case '6': case '7': case '8': case '9':
@@ -506,7 +506,7 @@ export void tty_write(tty vt, char *buf, int len)
 
             case 'm':	// ESC[m -> change color/attribs
                 for (i=0;i<=vt->ntok;i++)
-                    switch(vt->tok[i])
+                    switch (vt->tok[i])
                     {
                     case 0:
                         vt->attr=0x1010;
@@ -652,7 +652,7 @@ export void tty_write(tty vt, char *buf, int len)
                 break;
 
             case 'J':	// ESC[J -> erase screen
-                switch(vt->tok[0])
+                switch (vt->tok[0])
                 {
                 case 0: // from cursor
                     CLEAR(CX, CY, SX*SY-(CY*SX+CX));
@@ -667,7 +667,7 @@ export void tty_write(tty vt, char *buf, int len)
                 break;
 
             case 'K':	// ESC[K -> erase line
-                switch(vt->tok[0])
+                switch (vt->tok[0])
                 {
                 case 0: // from cursor
                     CLEAR(CX, CY, SX-CX);
@@ -770,7 +770,7 @@ export void tty_write(tty vt, char *buf, int len)
 
             case 't':	// ESC[t -> window manipulation
                 vt->state=ESnormal;
-                switch(vt->tok[0])
+                switch (vt->tok[0])
                 {
                 case 8:	    // ESC8;<h>;<w>t -> resize
                     if (!vt->allow_resize)
@@ -800,7 +800,7 @@ export void tty_write(tty vt, char *buf, int len)
             break;
 
         case ESques:	// ESC [ ?
-            switch(*buf)
+            switch (*buf)
             {
             case '0': case '1': case '2': case '3': case '4':
             case '5': case '6': case '7': case '8': case '9':
@@ -815,7 +815,7 @@ export void tty_write(tty vt, char *buf, int len)
 
             case 'h':
                 for (i=0;i<=vt->ntok;i++)
-		    switch(vt->tok[i])
+		    switch (vt->tok[i])
 		    {
 		    case 7:
 		        vt->opt_auto_wrap=1;
@@ -833,7 +833,7 @@ export void tty_write(tty vt, char *buf, int len)
 
             case 'l':
                 for (i=0;i<=vt->ntok;i++)
-		    switch(vt->tok[i])
+		    switch (vt->tok[i])
 		    {
 		    case 7:
 		        vt->opt_auto_wrap=0;
@@ -865,7 +865,7 @@ export void tty_write(tty vt, char *buf, int len)
             break;
 
         case ESpercent:	// ESC %
-            switch(*buf)
+            switch (*buf)
             {
             case '@':	// ESC % @ -> disable UTF-8
                 vt->cp437=1;

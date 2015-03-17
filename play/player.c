@@ -109,7 +109,7 @@ static void adjust_speed(int dir)
     int old_state=play_state;
 
     replay_stop();
-    switch(dir)
+    switch (dir)
     {
     case 0:
         speed=1000;
@@ -202,7 +202,7 @@ static char keycode[10];
         if ((ch=getchar())==EOF)\
             goto end;		\
         *kptr++=ch;		\
-        switch(ch)
+        switch (ch)
 void replay()
 {
     char *kptr;

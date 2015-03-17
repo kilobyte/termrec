@@ -470,7 +470,7 @@ void playfile(tty tev_vt)
 
 void replay_pause()
 {
-    switch(play_state)
+    switch (play_state)
     {
     case 0:
     default:
@@ -490,7 +490,7 @@ void replay_resume()
 {
     struct timeval t;
 
-    switch(play_state)
+    switch (play_state)
     {
     case 0:
     default:
@@ -513,7 +513,7 @@ int replay_play(struct timeval *delay)
     struct timeval tr1;
     ttyrec_frame fn;
 
-    switch(play_state)
+    switch (play_state)
     {
     case 0:
     default:
@@ -1021,7 +1021,7 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             return 0;
 
         case WM_COMMAND:
-            switch(LOWORD(wParam))
+            switch (LOWORD(wParam))
             {
             case 100:
                 open_file();
@@ -1081,7 +1081,7 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             return 0;
 
         case WM_SYSCOMMAND:
-            switch(LOWORD(wParam))
+            switch (LOWORD(wParam))
             {
             default:
                 return DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -1098,7 +1098,7 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             return 0;
 
         case WM_KEYDOWN:
-            switch(wParam)
+            switch (wParam)
             {
             case VK_ADD:
             case 'F':
@@ -1119,7 +1119,7 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 open_file();
                 break;
             case VK_SPACE:
-                switch(play_state)
+                switch (play_state)
                 {
                 case -1:
                     open_file();

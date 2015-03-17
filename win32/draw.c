@@ -193,7 +193,7 @@ void draw_init(LOGFONT *df)
 
     ReleaseDC(0, dc);
 
-    switch(bpal[0]&0xffffff)
+    switch (bpal[0]&0xffffff)
     {
     case 0x000000:
         bg_brush=GetStockObject(BLACK_BRUSH);

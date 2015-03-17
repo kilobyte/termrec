@@ -154,7 +154,7 @@ ok:
     // let's ignore errors on this ioctl silently
 
     pid=fork();
-    switch(pid)
+    switch (pid)
     {
     case -1:
         close(master);
@@ -211,7 +211,7 @@ int run(char *command, int sx, int sy)
     ws.ws_xpixel=0;
     ws.ws_ypixel=0;
 
-    switch(forkpty(&fd,0,0,(sx&&sy)?&ws:0))
+    switch (forkpty(&fd,0,0,(sx&&sy)?&ws:0))
     {
     case -1:
         return -1;
@@ -243,7 +243,7 @@ FILE *mypopen(const char *command, const char *wr)
 
     if (pipe(p))
         return 0;
-    switch(fork())
+    switch (fork())
     {
     case -1:
         close(p[0]);

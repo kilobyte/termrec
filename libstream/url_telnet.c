@@ -61,10 +61,10 @@ void telnet(int sock, int fd, char *arg)
 
         while (cnt--)
         {
-            switch(state)
+            switch (state)
             {
             default: // normal
-                switch(*bp)
+                switch (*bp)
                 {
                 case IAC:	// IAC = start a TELNET sequence
                     bp++;
@@ -75,7 +75,7 @@ void telnet(int sock, int fd, char *arg)
                 }
                 break;
             case 1: // IAC
-                switch(*bp)
+                switch (*bp)
                 {
                 case IAC: 	// IAC IAC = literal 255 byte
                     bp++;
@@ -101,10 +101,10 @@ void telnet(int sock, int fd, char *arg)
                 break;
             case 2: // IAC WILL/WONT/DO/DONT
                 neg[2]=*bp;
-                switch(*bp)
+                switch (*bp)
                 {
                 case ECHO:
-                    switch(will)
+                    switch (will)
                     {
                         case WILL:  neg[1]=DO;   break; // makes servers happy
                         case DO:    neg[1]=WONT; break;
@@ -113,7 +113,7 @@ void telnet(int sock, int fd, char *arg)
                     }
                     break;
                 case SUPPRESS_GO_AHEAD:
-                    switch(will)
+                    switch (will)
                     {
                         case WILL:  neg[1]=DO;   break;
                         case DO:    neg[1]=WILL; break;
@@ -122,7 +122,7 @@ void telnet(int sock, int fd, char *arg)
                     }
                     break;
                 default:
-                    switch(will)
+                    switch (will)
                     {
                         case WILL:  neg[1]=DONT; break;
                         case DO:    neg[1]=WONT; break;

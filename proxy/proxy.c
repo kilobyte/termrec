@@ -105,10 +105,10 @@ static void workthread(struct workstate *ws)
         }
 
         while (cnt--)
-            switch(state)
+            switch (state)
             {
             default: // normal
-                switch(*bp)
+                switch (*bp)
                 {
                 case IAC:	// IAC = start a TELNET sequence
                     bp++;
@@ -119,7 +119,7 @@ static void workthread(struct workstate *ws)
                 }
                 break;
             case 1: // IAC
-                switch(*bp)
+                switch (*bp)
                 {
                 case IAC: 	// IAC IAC = literal 255 byte
                     bp++;
@@ -211,7 +211,7 @@ static int connect_out()
     intr:
         if ((connect(sock, addr->ai_addr, addr->ai_addrlen)))
         {
-            switch(errno)
+            switch (errno)
             {
             case EINTR:
                 goto intr;
@@ -428,9 +428,9 @@ static void get_proxy_parms(int argc, char **argv)
     while (1)
     {
 #ifdef HAVE_GETOPT_LONG
-        switch(getopt_long(argc, argv, "f:l:rtahp:", proxy_opts, 0))
+        switch (getopt_long(argc, argv, "f:l:rtahp:", proxy_opts, 0))
 #else
-        switch(getopt(argc, argv, "f:l:rtahp:"))
+        switch (getopt(argc, argv, "f:l:rtahp:"))
 #endif
         {
         case -1:

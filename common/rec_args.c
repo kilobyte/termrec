@@ -51,9 +51,9 @@ void get_rec_parms(int argc, char **argv)
     while (1)
     {
 #ifdef HAVE_GETOPT_LONG
-        switch(getopt_long(argc, argv, "f:e:rah", rec_opts, 0))
+        switch (getopt_long(argc, argv, "f:e:rah", rec_opts, 0))
 #else
-        switch(getopt(argc, argv, "f:e:rah"))
+        switch (getopt(argc, argv, "f:e:rah"))
 #endif
         {
         case -1:

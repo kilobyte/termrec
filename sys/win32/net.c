@@ -48,7 +48,7 @@ int getaddrinfo(const char *node, const char *service,
 
     if (!(hp=gethostbyname(node)))
     {
-        switch(h_errno)
+        switch (h_errno)
         {
         case HOST_NOT_FOUND:
             return EAI_NONAME;

@@ -181,7 +181,7 @@ int main(int argc, char **argv)
             record_size();
         }
 
-        switch(r)
+        switch (r)
         {
         case 0:
             continue;
