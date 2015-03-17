@@ -210,11 +210,24 @@ int get_button_state(int id)
 }
 
 
+static void create_button(TBBUTTON *tb, int id, const char *caption)
+{
+    TBADDBITMAP tab;
+
+    tab.hInst=inst;
+    tab.nID=id;
+    tb->iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab);
+    tb->idCommand = id;
+    tb->fsState = 0;
+    tb->fsStyle = TBSTYLE_BUTTON;
+    tb->dwData = 0;
+    tb->iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)caption);
+}
+
 int create_toolbar(HWND wnd)
 {
     int height;
     TBBUTTON tbb[9];
-    TBADDBITMAP tab;
     RECT rc;
     LOGFONT lf;
     HFONT font;
@@ -233,73 +246,29 @@ int create_toolbar(HWND wnd)
 
     SendMessage(wndTB, TB_BUTTONSTRUCTSIZE, (WPARAM) sizeof(TBBUTTON), 0);
 
-    tab.hInst=inst;
 
-    tab.nID=BUT_OPEN;
-    tbb[0].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab);
-    tbb[0].idCommand = BUT_OPEN;
+    create_button(&tbb[0], BUT_OPEN, "Open");
     tbb[0].fsState = TBSTATE_ENABLED;
-    tbb[0].fsStyle = TBSTYLE_BUTTON;
-    tbb[0].dwData = 0;
-    tbb[0].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"Open");
 
     tbb[1].iBitmap = 175;
     tbb[1].fsState = 0;
     tbb[1].fsStyle = TBSTYLE_SEP;
     tbb[1].dwData = 0;
 
-    tab.nID=BUT_REWIND;
-    tbb[2].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab);
-    tbb[2].idCommand = BUT_REWIND;
-    tbb[2].fsState = 0;
-    tbb[2].fsStyle = TBSTYLE_BUTTON;
-    tbb[2].dwData = 0;
-    tbb[2].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"Restart");
-
-    tab.nID=BUT_PAUSE;
-    tbb[3].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab);
-    tbb[3].idCommand = BUT_PAUSE;
-    tbb[3].fsState = 0;
+    create_button(&tbb[2], BUT_REWIND, "Restart");
+    create_button(&tbb[3], BUT_PAUSE, "Pause");
     tbb[3].fsStyle = TBSTYLE_CHECK;
-    tbb[3].dwData = 0;
-    tbb[3].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"Pause");
-
-    tab.nID=BUT_PLAY;
-    tbb[4].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab);
-    tbb[4].idCommand = BUT_PLAY;
-    tbb[4].fsState = 0;
+    create_button(&tbb[4], BUT_PLAY, "Play");
     tbb[4].fsStyle = TBSTYLE_CHECK;
-    tbb[4].dwData = 0;
-    tbb[4].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"Play");
 
     tbb[5].iBitmap = 150;
     tbb[5].fsState = 0;
     tbb[5].fsStyle = TBSTYLE_SEP;
     tbb[5].dwData = 0;
 
-    tab.nID=BUT_SELSTART;
-    tbb[6].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab);
-    tbb[6].idCommand = BUT_SELSTART;
-    tbb[6].fsState = 0;
-    tbb[6].fsStyle = 0;
-    tbb[6].dwData = 0;
-    tbb[6].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"SelStart");
-
-    tab.nID=BUT_SELEND;
-    tbb[7].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab);
-    tbb[7].idCommand = BUT_SELEND;
-    tbb[7].fsState = 0;
-    tbb[7].fsStyle = 0;
-    tbb[7].dwData = 0;
-    tbb[7].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"SelEnd");
-
-    tab.nID=BUT_EXPORT;
-    tbb[8].iBitmap = SendMessage(wndTB, TB_ADDBITMAP, 1, (LPARAM)&tab);
-    tbb[8].idCommand = BUT_EXPORT;
-    tbb[8].fsState = 0;
-    tbb[8].fsStyle = 0;
-    tbb[8].dwData = 0;
-    tbb[8].iString = SendMessage(wndTB, TB_ADDSTRING, 0, (LPARAM)(LPSTR)"Export");
+    create_button(&tbb[6], BUT_SELSTART, "SelStart");
+    create_button(&tbb[7], BUT_SELEND, "SelEnd");
+    create_button(&tbb[8], BUT_EXPORT, "Export");
 
     SendMessage(wndTB, TB_ADDBUTTONS, (WPARAM) ARRAYSIZE(tbb),
          (LPARAM) (LPTBBUTTON) &tbb);
