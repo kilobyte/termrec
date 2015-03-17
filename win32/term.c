@@ -961,13 +961,13 @@ void load_font()
         return;
     len=LF_FACESIZE;
     RegQueryValueEx(reg, "FontName", 0, 0, (BYTE*)df.lfFaceName, &len);
-    len=4;
+    len=sizeof(i);
     if (!RegQueryValueEx(reg, "FontHeight", 0, 0, (BYTE*)&i, &len))
         df.lfHeight=i;
-    len=4;
+    len=sizeof(i);
     if (!RegQueryValueEx(reg, "FontWeight", 0, 0, (BYTE*)&i, &len))
         df.lfWeight=i;
-    len=4;
+    len=sizeof(i);
     if (!RegQueryValueEx(reg, "FontItalic", 0, 0, (BYTE*)&i, &len))
         df.lfItalic=i;
     RegCloseKey(reg);
@@ -983,11 +983,11 @@ void save_font()
         return;
     RegSetValueEx(reg, "FontName", 0, REG_SZ, (BYTE*)df.lfFaceName, strlen(df.lfFaceName)+1);
     i=df.lfHeight;
-    RegSetValueEx(reg, "FontHeight", 0, REG_DWORD, (BYTE*)&i, 4);
+    RegSetValueEx(reg, "FontHeight", 0, REG_DWORD, (BYTE*)&i, sizeof(i));
     i=df.lfWeight;
-    RegSetValueEx(reg, "FontWeight", 0, REG_DWORD, (BYTE*)&i, 4);
+    RegSetValueEx(reg, "FontWeight", 0, REG_DWORD, (BYTE*)&i, sizeof(i));
     i=df.lfItalic;
-    RegSetValueEx(reg, "FontItalic", 0, REG_DWORD, (BYTE*)&i, 4);
+    RegSetValueEx(reg, "FontItalic", 0, REG_DWORD, (BYTE*)&i, sizeof(i));
     RegCloseKey(reg);
 }
 
