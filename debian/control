@@ -37,6 +37,7 @@ Description: terminal/ttyrec library -- development
 Package: libtty0
 Section: libs
 Architecture: any
+Multi-Arch: same
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${misc:Pre-Depends}
 Description: terminal/ttyrec library -- runtime
  libtty is a library for handling terminal output.  It is kind of "reverse
