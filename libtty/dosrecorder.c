@@ -144,7 +144,7 @@ void play_dosrecorder(FILE *f,
             for (x=0; x<80; x++)
                 screens[i][y][x].c=' ', screens[i][y][x].a=7;
 
-    bp=buf+sprintf(buf, "\ec\e%%G");
+    bp=buf+sprintf(buf, "\ec\e%%G\e[8;25;80t");
     while (gzread(g, &fh, sizeof(fh))==sizeof(fh))
     {
         note=fh.nchunks&0x8000;
