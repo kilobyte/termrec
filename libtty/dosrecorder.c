@@ -46,7 +46,7 @@ static inline void wrchar(attrchar *ch, int *oattr, char **b)
 }
 #undef bp
 
-static inline int sp_string(attrchar *ch, int a, int max)
+static inline int cnt_spaces(attrchar *ch, int a, int max)
 {
     int i=0;
 
@@ -62,7 +62,8 @@ static inline int sp_string(attrchar *ch, int a, int max)
    Thus, don't skimp on BUFFER_SIZE.  16k should be more than enough, but it's better
    to waste memory than have a buf overflow.
 */
-#define MINCL 20
+#define MINJUMP 10 /* when to jump instead of overwriting same text */
+#define MINCL 20 /* when to prefer clears over writing spaces */
 static int scrdiff(screen *vt, screen *scr, char *buf)
 {
     char *bp=buf;
@@ -75,7 +76,7 @@ static int scrdiff(screen *vt, screen *scr, char *buf)
         for (x=0; x<80; x++)
             if (vt[y][x]!=scr[y][x])
             {
-                if (y!=cy || cx+10<x)
+                if (y!=cy || cx+MINJUMP<x)
                     bp+=sprintf(bp, "\e[%d;%df", (cy=y)+1, cx=x+1);
                 else
                 {
@@ -88,7 +89,7 @@ static int scrdiff(screen *vt, screen *scr, char *buf)
                     cx++;
                 }
                 setattr(&(*scr)[y][x], &attr, &bp);
-                if (cx>80-MINCL || (sp=sp_string(&(*scr)[y][x], attr, 80-cx))<MINCL)
+                if (cx>80-MINCL || (sp=cnt_spaces(&(*scr)[y][x], attr, 80-cx))<MINCL)
                     wrchar(&(*scr)[y][x], &attr, &bp);
                 else
                 {
