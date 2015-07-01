@@ -56,11 +56,9 @@ static inline int cnt_spaces(attrchar *ch, int a, int max)
 }
 
 #define BUFFER_SIZE 65536
-/* Note: no checks if buf is big enough.  We won't produce more than 25*80 symbols,
-   each consisting of an UTF-8 char (max 3 bytes) and attrs, plus cursor movements,
-   one per line plus one per >=10 symbols skipped.
-   Thus, don't skimp on BUFFER_SIZE.  16k should be more than enough, but it's better
-   to waste memory than have a buf overflow.
+/* Max frame size is 34166: 25*80 cells of an UTF-8 char (max 3 bytes) and attrs
+   (max 14 bytes), plus cursor movements, one per line plus one per >=10 symbols
+   skipped.  Rounding up to 64KB just to be safe.
 */
 #define MINJUMP 10 /* when to jump instead of overwriting same text */
 #define MINCL 20 /* when to prefer clears over writing spaces */
