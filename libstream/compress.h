@@ -4,7 +4,7 @@ typedef struct
 {
     char                *name;
     char                *ext;
-    compress_func	*comp;
+    compress_func       *comp;
 } compress_info;
 
 extern compress_info compressors[];

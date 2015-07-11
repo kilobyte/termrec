@@ -254,26 +254,26 @@ xz_write_end:
 
 compress_info compressors[]={
 #if (defined HAVE_LIBZ) || (SHIPPED_LIBZ)
-{"gzip",	".gz",	write_gz},
+{"gzip", ".gz",  write_gz},
 #endif
 #if (defined HAVE_LIBBZ2) || (defined SHIPPED_LIBBZ2)
-{"bzip2",	".bz2",	write_bz2},
+{"bzip2", ".bz2", write_bz2},
 #endif
 #if (defined HAVE_LIBLZMA) || (defined SHIPPED_LIBLZMA)
-{"xz",		".xz",	write_xz},
+{"xz", ".xz",  write_xz},
 #endif
 {0, 0, 0},
 };
 
 compress_info decompressors[]={
 #if (defined HAVE_LIBZ) || (SHIPPED_LIBZ)
-{"gzip",	".gz",	read_gz},
+{"gzip", ".gz",  read_gz},
 #endif
 #if (defined HAVE_LIBBZ2) || (defined SHIPPED_LIBBZ2)
-{"bzip2",	".bz2",	read_bz2},
+{"bzip2", ".bz2", read_bz2},
 #endif
 #if (defined HAVE_LIBLZMA) || (defined SHIPPED_LIBLZMA)
-{"xz",		".xz",	read_xz},
+{"xz", ".xz",  read_xz},
 #endif
 {0, 0, 0},
 };

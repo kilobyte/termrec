@@ -44,10 +44,10 @@ static void nameinc(char *add)
         }
         if (*ai!='z')
         {
-            (*ai)++;	// increase the first non-'z'
+            (*ai)++;    // increase the first non-'z'
             return;
         }
-        *ai='a';	// ... replacing 'z's by 'a'
+        *ai='a';        // ... replacing 'z's by 'a'
     }
 }
 
