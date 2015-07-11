@@ -42,7 +42,15 @@ static inline void setattr(attrchar *ch, int *oattr, char **b)
 
 static inline void wrchar(attrchar *ch, int *oattr, char **b)
 {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
+#ifdef __clang__
+# pragma GCC diagnostic ignored "-Wtautological-constant-out-of-range-compare"
+#endif
+    // Unicode is 32-bit, charset_cp437[] only 16-bit as all its entries fit
+    // into the range.  Thus, hush the compiler warning.
     tf8(bp, charset_cp437[(unsigned char)ch->c]);
+#pragma GCC diagnostic pop
 }
 #undef bp
 
