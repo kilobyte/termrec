@@ -90,15 +90,10 @@ static int connect_out(struct addrinfo *ai)
 
     intr:
         if ((connect(sock, addr->ai_addr, addr->ai_addrlen)))
-        {
-            switch (errno)
-            {
-            case EINTR:
+            if (errno == EINTR)
                 goto intr;
-            default:
+            else
                 continue;
-            }
-        }
         return sock;
     }
     return -1;	// errno will be valid here
