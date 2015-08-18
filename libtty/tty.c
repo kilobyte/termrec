@@ -582,6 +582,15 @@ export void tty_write(tty vt, char *buf, int len)
                         break;
                     case 49:
                         vt->attr=vt->attr&~0xff00|0x1000;
+                        break;
+                    case 90: case 91: case 92: case 93:
+                    case 94: case 95: case 96: case 97:
+                        vt->attr=(vt->attr&~0xff)|(vt->tok[i]-90+8);
+                        break;
+                    case 100: case 101: case 102: case 103:
+                    case 104: case 105: case 106: case 107:
+                        vt->attr=(vt->attr&~0xff00)|(vt->tok[i]-100+8)<<8;
+                        break;
                     }
                 vt->state=ESnormal;
                 break;
