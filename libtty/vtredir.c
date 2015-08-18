@@ -43,12 +43,12 @@ static inline void setattr(tty vt, int attr)
         if (attr&VT100_ATTR_INVERSE)
             fprintf(DATA->f, ";7");
         if ((attr&0xff)!=0x10)
-            if ((attr&0xff)<0x10)
+            if ((attr&0xff)<8)
                 fprintf(DATA->f, ";3%u", attr&0xff);
             else
                 fprintf(DATA->f, ";38;5;%u", attr&0xff);
         if ((attr&0xff00)!=0x1000)
-            if ((attr&0xff00)<0x1000)
+            if ((attr&0xff00)<0x800)
                 fprintf(DATA->f, ";4%u", (attr&0xff00)>>8);
             else
                 fprintf(DATA->f, ";48;5;%u", (attr&0xff00)>>8);
