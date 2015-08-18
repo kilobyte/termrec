@@ -722,6 +722,27 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESnormal;
                 break;
 
+            case 'P':	// ESC[P -> delete characters
+                i=vt->tok[0];
+                if (i<=0)
+                    i=1;
+                if (i+CX>SX)
+                    i=SX-CX;
+                if (i<=0)
+                    break;
+                for (int j=CX+i;j<SX;j++)
+                {
+                    vt->scr[CY*SX+j-i]=vt->scr[CY*SX+j];
+                    if (vt->l_char)
+                    {
+                        vt->l_char(vt, j-i, CY, vt->scr[CY*SX+j].ch,
+                                                vt->scr[CY*SX+j].attr);
+                    }
+                }
+                CLEAR(SX-i, CY, i);
+                vt->state=ESnormal;
+                break;
+
             case 'X':	// ESC[X -> erase to the right
                 i=vt->tok[0];
                 if (i<=0)
