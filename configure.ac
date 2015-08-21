@@ -24,6 +24,10 @@ AM_CONDITIONAL(POD, test x$ac_cv_prog_POD2MAN = xyes)
 AC_WALL
 AC_VISIBILITY
 
+# Use a modern C dialect.
+AX_CHECK_COMPILE_FLAG(-std=gnu11, [CFLAGS+=" -std=gnu11"],
+ AX_CHECK_COMPILE_FLAG(-std=gnu99, [CFLAGS+=" -std=gnu99"]))
+
 # Checks for Winblows.
 AC_CHECK_WIN32
 AC_CHECK_TOOL(WINDRES, windres, :)
