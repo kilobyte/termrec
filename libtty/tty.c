@@ -619,6 +619,8 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESnormal;
                 break;
 
+            case 'F':	// ESC[F -> move cursor up and home, no scrolling
+                CX=0;
             case 'A':	// ESC[A -> move cursor up, no scrolling
                 i=vt->tok[0];
                 if (i<1)
@@ -631,6 +633,8 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESnormal;
                 break;
 
+            case 'E':	// ESC[E -> move cursor down and home, no scrolling
+                CX=0;
             case 'B':	// ESC[B -> move cursor down, no scrolling
                 i=vt->tok[0];
                 if (i<1)
