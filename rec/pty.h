@@ -20,5 +20,4 @@ extern int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsiz
 
 extern void pty_resize(int fd, int sx, int sy);
 extern int run(char *command, int sx, int sy);
-extern FILE *mypopen(const char *command, const char *wr);
 extern void pty_makeraw(struct termios *ta);
