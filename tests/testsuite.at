@@ -35,7 +35,8 @@ AT_SETUP([vt100 sequences])
 for x in "$top_srcdir/tests/vt.in/"*
   do
     unescape <"$x" >stdin
-    cat "${x/vt.in/vt.out}" >expout
+    y="$(echo "$x"|sed 's/vt\.in/vt.out/')"
+    cat "$y" >expout
     AT_CHECK([vt -d <stdin],,[expout])
   done
 AT_CLEANUP
