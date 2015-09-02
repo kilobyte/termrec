@@ -14,12 +14,12 @@ if POD
 # timestamps there -- oh lookie, it already depends on the built manpages.
 .pod.1:
 	$(QUIET_POD)d=`git log -1 --pretty="format:%ct" $<|cut -f 1 -d ' '`;\
-	if test -n "$$d";then touch $< -d "@$$d";fi;\
+	if test -n "$$d";then touch -d "@$$d" $<;fi;\
 	pod2man -c termrec -s 1 -n `basename "$@"|sed 's/\.[0-9]$$//'|tr a-z A-Z` -r "$(VERSION)" $< >$@
 
 .pod.3:
 	$(QUIET_POD)d=`git log -1 --pretty="format:%ct" $<|cut -f 1 -d ' '`;\
-	if test -n "$$d";then touch $< -d "@$$d";fi;\
+	if test -n "$$d";then touch -d "@$$d" $<;fi;\
 	pod2man -c termrec -s 3 -n `basename "$@"|sed 's/\.[0-9]$$//'|tr a-z A-Z` -r "$(VERSION)" $< >$@
 
 CLEANFILES += $(dist_man_MANS)
