@@ -12,14 +12,16 @@ if POD
 # likely a tarball with files with good timestamps.
 # Since leaving the git world goes through "make dist", let's update the
 # timestamps there -- oh lookie, it already depends on the built manpages.
+#
+# Use perl instead of touch -d @foo because OpenBSD.
 .pod.1:
 	$(QUIET_POD)d=`git log -1 --pretty="format:%ct" $<|cut -f 1 -d ' '`;\
-	if test -n "$$d";then touch -d "@$$d" $<;fi;\
+	if test -n "$$d";then perl -e "utime undef,$$d,'$<'";fi;\
 	pod2man -c termrec -s 1 -n `basename "$@"|sed 's/\.[0-9]$$//'|tr a-z A-Z` -r "$(VERSION)" $< >$@
 
 .pod.3:
 	$(QUIET_POD)d=`git log -1 --pretty="format:%ct" $<|cut -f 1 -d ' '`;\
-	if test -n "$$d";then touch -d "@$$d" $<;fi;\
+	if test -n "$$d";then perl -e "utime undef,$$d,'$<'";fi;\
 	pod2man -c termrec -s 3 -n `basename "$@"|sed 's/\.[0-9]$$//'|tr a-z A-Z` -r "$(VERSION)" $< >$@
 
 CLEANFILES += $(dist_man_MANS)
