@@ -13,8 +13,8 @@ Architecture: any
 Depends: libtty0 (>= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: terminal videos/scripts recorder and player
  This package contains "termrec", a program which can record a terminal
- session and play it back.  It can handle both line-based programs and
- full-screen things that use curses or curses-like methods.
+ session and "termplay" to play it back.  They can handle both line-based
+ programs and full-screen things that use curses or curses-like methods.
  Unlike "ttyrec", termrec can scroll back, use .gz/.bz2 files or files
  in several other tty recorder formats.
 
