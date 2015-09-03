@@ -25,4 +25,9 @@ if POD
 	pod2man -c termrec -s 3 -n `basename "$@"|sed 's/\.[0-9]$$//'|tr a-z A-Z` -r "$(VERSION)" $< >$@
 
 CLEANFILES += $(dist_man_MANS)
+else
+.pod.1:
+	@echo "No pod2man -> not building" $<
+.pod.3:
+	@echo "No pod2man -> not building" $<
 endif
