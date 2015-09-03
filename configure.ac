@@ -67,6 +67,7 @@ AC_CHECK_FUNCS([getpt ptsname snprintf vsnprintf _getpty grantpt forkpty asprint
 AM_CONDITIONAL(HAVE_FORK, test x$ac_cv_func_fork = xyes)
 AC_FUNC_WIN32_GAI_STERRROR
 AC_FUNC_WIN32_GETADDRINFO
+AX_LIB_SOCKET_NSL
 AC_CHECK_LIB([bz2], [BZ2_bzBuffToBuffCompress], [AC_HAVE_LIB([bz2], [BZ2])], [
   AC_SHIPPED_LIB(LIBBZ2, bzip2.dll, bzlib.h, [BZ2_bzRead(0,0,0,0)], [win32/])])
 AC_SUBST([LIBBZ2])
