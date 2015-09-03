@@ -90,6 +90,7 @@ static void vtvt_char(tty vt, int x, int y, ucs ch, int attr)
     setattr(vt, attr);
     if (fprintf(DATA->f, "%lc", ch)<0)
     {
+        clearerr(DATA->f); // required on BSD
         if (vt->cp437)
         {
             if (!vt100graph)
