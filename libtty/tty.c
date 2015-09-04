@@ -212,18 +212,18 @@ export void tty_write(tty vt, char *buf, int len)
         switch (*++buf)
         {
         case 0:
-        case 5:
+        case 5: // ENQ -> ask for terminal's name
             continue;
-        case 7:
+        case 7: // BEL -> beep; also terminates OSC
             if (vt->state == ESosc)
                 vt->state = ESnormal;
             continue;
-        case 8:
+        case 8: // backspace
             if (CX)
                 CX--;
             L_CURSOR;
             continue;
-        case 9:
+        case 9: // tab
             if (CX<SX)
                 do
                 {
@@ -234,9 +234,9 @@ export void tty_write(tty vt, char *buf, int len)
                         vt->l_char(vt, CX-1, CY, ' ', vt->attr);
                 } while (CX<SX && CX&7);
             continue;
-        case 10:
+        case 10: // LF (newline)
             CX=0;
-        case 11:
+        case 11: // VT (vertical tab)
         newline:
             CY++;
             if (CY==vt->s2)
@@ -251,26 +251,26 @@ export void tty_write(tty vt, char *buf, int len)
                 L_CURSOR;
             }
             continue;
-        case 12:
+        case 12: // Form Feed
             CX=CY=0;
             CLEAR(0, 0, SX*SY);
             L_CURSOR;
             continue;
-        case 13:
+        case 13: // CR
             CX=0;
             L_CURSOR;
             continue;
-        case 14:
+        case 14: // S0 -> select character set
             vt->curG=1;
             continue;
-        case 15:
+        case 15: // S1 -> select character set
             vt->curG=0;
             continue;
-        case 24:
-        case 26:
+        case 24: // ???
+        case 26: // ???
             vt->state=ESnormal;
             continue;
-        case 27:
+        case 27: // ESC
             vt->state=ESesc;
             continue;
         case 127:
