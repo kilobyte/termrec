@@ -212,6 +212,7 @@ export void tty_write(tty vt, char *buf, int len)
         switch (*++buf)
         {
         case 0:
+        case 5:
             continue;
         case 7:
             if (vt->state == ESosc)
