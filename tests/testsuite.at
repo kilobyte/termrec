@@ -27,7 +27,7 @@ AT_SKIP_IF([! grep -q "^#define \\(HAVE_BZLIB_H\\|SHIPPED_LIBBZ2\\) 1" $abs_top_
 AT_CHECK([rec test.ttyrec.bz2 && loadsave test.ttyrec.bz2 out.ttyrec.bz2 && cmp test.ttyrec.bz2 out.ttyrec.bz2])
 AT_CLEANUP
 AT_SETUP([loading and saving ttyrecs to memory (.xz)])
-AT_SKIP_IF([! grep -q "^#define \\(HAVE_LZMA_H\\|SHIPPED_LZMA\\) 1" $abs_top_builddir/config.h])
+AT_SKIP_IF([! grep -q "^#define \\(HAVE_LZMA_H\\|SHIPPED_LIBLZMA\\) 1" $abs_top_builddir/config.h])
 AT_CHECK([rec test.ttyrec.xz && loadsave test.ttyrec.xz out.ttyrec.xz && cmp test.ttyrec.xz out.ttyrec.xz])
 AT_CLEANUP
 
