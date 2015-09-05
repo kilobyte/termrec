@@ -1,7 +1,7 @@
-SUBDIRS = tests
-
 if WIN32
-SUBDIRS += win32/icons
+SUBDIRS = win32/icons . tests
+else
+SUBDIRS = . tests
 endif
 
 EXTRA_DIST= BUGS autogen.sh gettext.h export.h win32/lib/README win32/termrec.iss
