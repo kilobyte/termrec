@@ -54,7 +54,7 @@ void telnet(int sock, int fd, char *arg)
 
     neg[0]=IAC;
     state=0;
-    while ((cnt=recv(sock, buf, BUFSIZ, 0))>0)
+    while ((cnt=recv(sock, (char*)buf, BUFSIZ, 0))>0)
     {
         bp=buf;
         op=out;
@@ -130,7 +130,7 @@ void telnet(int sock, int fd, char *arg)
                         case DONT:  neg[1]=WONT; break;
                     }
                 }
-                send(sock, neg, 3, 0);
+                send(sock, (char*)neg, 3, 0);
                 bp++;
                 state=0;
                 break;
