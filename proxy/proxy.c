@@ -187,7 +187,6 @@ static void workthread(struct workstate *ws)
             ttyrec_w_write(ws->rec, &tv, (char*)out, op-out);
             mutex_unlock(ws->mutex);
         }
-        // FIXME: No error handling.
     }
     shutdown(ws->fd[who], SHUT_RD);
     shutdown(ws->fd[1-who], SHUT_WR);
