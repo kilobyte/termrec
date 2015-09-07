@@ -88,7 +88,7 @@ static void workthread(struct workstate *ws)
     who=ws->who++;
     mutex_unlock(ws->mutex);
     state=0;
-    while ((cnt=recv(ws->fd[who], (char*)buf, BUFFER_SIZE, 0))>0)
+    while ((cnt=recv(ws->fd[who], (char*)buf, sizeof(buf), 0))>0)
     {
         if (send(ws->fd[1-who], (char*)buf, cnt, 0)<cnt)
             break;
