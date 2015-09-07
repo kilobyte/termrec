@@ -153,7 +153,8 @@ int open_tcp(char* url, int mode, char **error)
     int fd;
     char *rest;
 
-    fd=connect_tcp(url, 0, &rest, error);
+    if ((fd=connect_tcp(url, 0, &rest, error))==-1)
+        return -1;
     // we may write the rest of the URL to the socket here ...
 
     // no bidi streams
