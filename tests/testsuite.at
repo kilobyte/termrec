@@ -34,6 +34,7 @@ AT_CLEANUP
 AT_SETUP([vt100 sequences])
 for x in "$top_srcdir/tests/vt.in/"*
   do
+    if echo "$x"|grep -vq '/[[a-zA-Z0-9_-]]*$'; then continue; fi
     unescape <"$x" >stdin
     y="$(echo "$x"|sed 's/vt\.in/vt.out/')"
     cat "$y" >expout
@@ -51,6 +52,7 @@ AT_CLEANUP
 AT_SETUP([vt-on-vt])
 for x in "$top_srcdir/tests/vt.in/"*
   do
+    if echo "$x"|grep -vq '/[[a-zA-Z0-9_-]]*$'; then continue; fi
     [if LC_ALL=C grep -q '[^[:cntrl:] -~]' "$x"]
       then
 	echo "Skipping $x"
