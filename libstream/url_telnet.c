@@ -49,7 +49,7 @@
 void telnet(int sock, int fd, char *arg)
 {
     int state,will=0 /*lint food*/,sublen=0;
-    size_t cnt;
+    ssize_t cnt;
     unsigned char buf[BUFSIZ],out[BUFSIZ],*bp,*op,neg[3];
 
     neg[0]=IAC;
@@ -155,8 +155,11 @@ void telnet(int sock, int fd, char *arg)
             }
         }
         if (write(fd, (char*)out, op-out)!=op-out)
-            return;
+            break;
     }
+
+    close(sock);
+    close(fd);
 }
 
 

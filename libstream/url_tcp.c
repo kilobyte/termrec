@@ -111,15 +111,16 @@ static void sock2file(int sock, int file, char *arg)
     {
         while ((len=read(file, buf, BUFSIZ))>0)
             if (send(sock, buf, len, 0)!=len)
-                return;
+                break;
     }
     else
     {
         while ((len=recv(sock, buf, BUFSIZ, 0))>0)
             if (write(file, buf, len)!=len)
-                return;
+                break;
     }
     closesocket(sock);
+    close(file);
 }
 #endif
 

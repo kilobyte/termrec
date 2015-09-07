@@ -98,10 +98,14 @@ static void termcast(int in, int out, char *arg)
                 len=snprintf(buf, BUFSIZ, "\e[0m%s\n", _("Input terminated."));
             if (write(out, buf, len))
                 {}; // ignore the result, we're failing already
-            return free(rest);
+            free(rest);
+            goto end;
         }
         if (write(out, buf+inbuf, len) != len)
-            return free(rest);
+        {
+            free(rest);
+            goto end;
+        }
         inbuf+=len;
         memset(buf+inbuf, 0, 64);
 
@@ -119,9 +123,12 @@ found:
         return;
     while ((len=read(in, buf, BUFSIZ))>0)
         if (write(out, buf, len)!=len)
-            return;
+            break;;
 
     // TODO: try to guess when the session ends, then quit or re-scrape
+end:
+    close(sock);
+    close(out);
 }
 
 
