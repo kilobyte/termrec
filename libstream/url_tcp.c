@@ -131,10 +131,10 @@ int connect_tcp(char *url, int port, char **rest, char **error)
     int fd;
 
     if ((cp=strchr(url, '/')))
-        snprintf(host, 128, "%.*s", (int)(cp-url), url);
+        snprintf(host, sizeof(host), "%.*s", (int)(cp-url), url);
     else
     {
-        snprintf(host, 128, "%s", url);
+        snprintf(host, sizeof(host), "%s", url);
         cp="";
     }
     *rest=cp;
