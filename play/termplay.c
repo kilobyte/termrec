@@ -36,16 +36,15 @@ static void get_play_parms(int argc, char **argv)
     follow=0;
     speed=1000;
 
-    while (1)
-    {
+    int opt;
 #ifdef HAVE_GETOPT_LONG
-        switch (getopt_long(argc, argv, "f:s:ph", play_opts, 0))
+    while ((opt = getopt_long(argc, argv, "f:s:ph", play_opts, 0)) != -1)
 #else
-        switch (getopt(argc, argv, "f:s:ph"))
+    while ((opt = getopt(argc, argv, "f:s:ph")) != -1)
 #endif
+    {
+        switch (opt)
         {
-        case -1:
-            goto finish_args;
         case ':':
         case '?':
             exit(1);
@@ -81,7 +80,7 @@ static void get_play_parms(int argc, char **argv)
             exit(0);
         }
     }
-finish_args:
+
     if (optind<argc)
         play_name=argv[optind++];
     else
