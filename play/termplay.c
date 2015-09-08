@@ -166,5 +166,7 @@ int main(int argc, char **argv)
     thread_join(loadth);
     ttyrec_free(tr);
     kbd_restore();
-    return 0;
+
+    // Need to kill termcast/etc threads.
+    _exit(0);
 }
