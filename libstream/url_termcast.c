@@ -125,7 +125,8 @@ found:
         if (write(out, buf, len)!=len)
             break;;
 
-    // TODO: try to guess when the session ends, then quit or re-scrape
+    // Alas, there's no real way to detect when the session ends, other
+    // than a server disconnect.
 end:
     close(sock);
     close(out);
