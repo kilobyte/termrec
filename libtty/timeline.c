@@ -79,6 +79,8 @@ static void synch_print(char *buf, int len, void *arg)
 export ttyrec ttyrec_init(tty vt)
 {
     ttyrec tr = malloc(sizeof(struct ttyrec));
+    if (!tr)
+        return NULL;
     memset(tr, 0, sizeof(struct ttyrec));
     tr->tev_head = malloc(sizeof(struct ttyrec_frame));
     memset(tr->tev_head, 0, sizeof(struct ttyrec_frame));

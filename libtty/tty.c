@@ -46,6 +46,8 @@ export int tty_resize(tty vt, int nsx, int nsy)
     printf("Resize from %dx%d to %dx%d\n", SX, SY, nsx, nsy);
 #endif
     nscr=malloc(nsx*nsy*sizeof(attrchar));
+    if (!nscr)
+        return 0;
     for (y=0;y<nsy;y++)
         for (x=0;x<nsx;x++)
         {
