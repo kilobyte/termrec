@@ -106,7 +106,7 @@ export int ttyrec_w_write(recorder *r, struct timeval *tm, char *buf, int len)
     assert(r);
     assert(r->f);
     r->format->write(r->f, r->state, tm, buf, len);
-    return 0;	// FIXME
+    return 1;	// FIXME
 }
 
 
