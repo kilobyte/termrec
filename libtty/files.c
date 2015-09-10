@@ -115,13 +115,10 @@ export int ttyrec_w_close(recorder *r)
     assert(r);
     assert(r->f);
     r->format->finish(r->f, r->state);
-    if (fclose(r->f))
-    {
-        free(r);
-        return 0;
-    }
+    int ok=!ferror(r->f);
+    ok&=!fclose(r->f);
     free(r);
-    return 1;
+    return ok;
 }
 
 
