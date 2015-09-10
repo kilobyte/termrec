@@ -213,8 +213,8 @@ int main(int argc, char **argv)
     }
 
     close(ptym);
-    ttyrec_w_close(rec);
+    int err=!ttyrec_w_close(rec);
     tty_restore();
     wait(0);
-    return 0;
+    return err;
 }

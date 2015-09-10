@@ -22,6 +22,5 @@ int main(int argc, char **argv)
     ttyrec_w_write(r, &tv, "Ef", 2);
     ttyrec_w_write(r, &tv, "G", 1);
     ttyrec_w_write(r, &tv, "Hij\n", 4);
-    ttyrec_w_close(r);
-    return 0;
+    return !ttyrec_w_close(r);
 }

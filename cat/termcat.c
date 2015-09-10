@@ -33,6 +33,5 @@ int main(int argc, char **argv)
             fprintf(stderr, "%s: %s\n", argv[i], strerror(errno));
         else
             any=1;
-    ttyrec_w_close(rec);
-    return !any;
+    return !ttyrec_w_close(rec) || !any;
 }
