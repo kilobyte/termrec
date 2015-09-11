@@ -57,10 +57,12 @@ If you provide a timestamp I<ts>, it becomes date of the recording.
 =item B<int	ttyrec_w_write(recorder >I<r>B<, struct timeval *tm, char *>I<data>B<, int >I<len>B<);>
 
 A chunk of data of length I<len> is written to recorder I<r>, with timestamp I<tm>.
+Returns 1 if some sort of write error happened.
 
 =item B<int	ttyrec_w_close(recorder >I<r>B<);>
 
 All pending data is flushed, recorder closed and its memory freed.
+Returns 1 if there's some kind of failure.
 
 =item B<char*	ttyrec_w_get_format_name(int >I<i>B<);>
 
