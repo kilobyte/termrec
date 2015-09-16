@@ -531,7 +531,7 @@ int main(int argc, char **argv)
 
     sock=listen_lo();
     if (verbose)
-        printf(_("Listening...\n"));
+        printf(_("Listening on %s port %d...\n"), "127.0.0.1", lport);
     while ((s=accept(sock, 0, 0))>=0)
     {
         if (record_name)
