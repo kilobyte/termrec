@@ -1,3 +1,7 @@
+The instructions below assume you're building from the tarball.  If you're
+pulling the sources from git, you need to install libtool, automake and
+autoconf then run ./autogen.sh prior to running ./configure.
+
 On an Unix system, do:
     + apt-get install libz-dev libbz2-dev liblzma-dev
        Or equivalent.  If you skip this step, the .gz/.bz2/.xz support won't
