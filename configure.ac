@@ -63,7 +63,7 @@ AX_PTHREAD
 
 # Checks for library functions.
 AC_CHECK_FUNCS([getpt ptsname snprintf vsnprintf _getpty grantpt forkpty asprintf \
-	 gettimeofday usleep ctime_r getopt_long getaddrinfo fork pipe select])
+	 gettimeofday usleep ctime_r getopt_long getaddrinfo fork pipe select uselect])
 AM_CONDITIONAL(HAVE_FORK, test x$ac_cv_func_fork = xyes)
 AC_FUNC_WIN32_GAI_STERRROR
 AC_FUNC_WIN32_GETADDRINFO

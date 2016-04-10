@@ -34,7 +34,7 @@ int pipe(int p[2])
 }
 #endif
 
-#ifndef HAVE_USLEEP
+#ifndef HAVE_USELECT
 void uselect(struct timeval *timeout)
 {
     if (!timeout || timeout->tv_sec<0)
