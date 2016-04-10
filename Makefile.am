@@ -4,7 +4,7 @@ else
 SUBDIRS = . tests
 endif
 
-EXTRA_DIST= BUGS autogen.sh gettext.h export.h win32/lib/README win32/termrec.iss
+EXTRA_DIST= BUGS autogen.sh gettext.h export.h win32/termrec.iss
 DISTCLEANFILES = _stdint.h
 ACLOCAL_AMFLAGS = -I m4
 
