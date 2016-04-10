@@ -2,6 +2,10 @@ The instructions below assume you're building from the tarball.  If you're
 pulling the sources from git, you need to install libtool, automake and
 autoconf then run ./autogen.sh prior to running ./configure.
 
+
+Unix
+====
+
 On an Unix system, do:
     + apt-get install libz-dev libbz2-dev liblzma-dev
        Or equivalent.  If you skip this step, the .gz/.bz2/.xz support won't
@@ -9,7 +13,11 @@ On an Unix system, do:
     + ./configure
     + make
 
-Building the Win32 version from source is more tricky.  To compile it, you
+
+Windows
+=======
+
+Building the Windows version from source is more tricky.  To compile it, you
 need a way to run the GNU configure.  It can be done by:
 
 * getting MinGW and MSYS
