@@ -1,6 +1,7 @@
 #include "config.h"
 #include <windows.h>
 #include <io.h>
+#include <sys/time.h>
 
 #ifndef HAVE_GETTIMEOFDAY
 void gettimeofday(struct timeval *tv, void * dummy)
