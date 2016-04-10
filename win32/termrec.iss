@@ -5,7 +5,7 @@ Source: ../.libs/proxyrec.exe; DestDir: {app}; Flags: ignoreversion
 Source: ../.libs/termplay.exe; DestDir: {app}; Flags: ignoreversion
 Source: ../.libs/termrec.exe; DestDir: {app}; Flags: ignoreversion
 Source: lib/zlib1.dll; DestDir: {app}
-Source: lib/libzma.dll; DestDir: {app}
+Source: lib/liblzma.dll; DestDir: {app}
 [_ISTool]
 UseAbsolutePaths=false
 [Setup]
