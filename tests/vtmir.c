@@ -1,8 +1,8 @@
 #include "config.h"
 #include <tty.h>
 #include <stdio.h>
-#include "sys/threads.h"
 #include "sys/compat.h"
+#include "sys/threads.h"
 #include "sys/error.h"
 #include "_stdint.h"
 
