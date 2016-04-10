@@ -5,6 +5,7 @@
 #include "sys/threads.h"
 #include "sys/error.h"
 #include "_stdint.h"
+#include <unistd.h>
 
 
 tty vt1, vt2;
