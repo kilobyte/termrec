@@ -154,7 +154,7 @@ int main(int argc, char **argv)
     tty_get_size();
     if ((ptym=run(command, sx, sy))==-1)
     {
-        fprintf(stderr, "Couldn't allocaty pty.\n");
+        fprintf(stderr, "Couldn't allocate pty.\n");
         return 1;
     }
 
