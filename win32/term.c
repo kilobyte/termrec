@@ -577,7 +577,7 @@ void replay_start()
     tev_cur=ttyrec_seek(ttr, 0, 0);
     tdate=tev_cur->t;
     replay_seek();
-    doomsday.tv_sec=(((unsigned long)1)<<(sizeof(time_t)*8-1))-1;
+    doomsday.tv_sec=1ULL<<(sizeof(doomsday.tv_sec)*8-1)-1;
     doomsday.tv_usec=0;
     tev_tail=ttyrec_seek(ttr, &doomsday, 0);
     tmax=tev_tail->t;
