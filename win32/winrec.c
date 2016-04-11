@@ -28,6 +28,9 @@ for CP437, fit for NetHack.
 recorder rec;
 #ifdef EVDEBUG
 FILE *evlog;
+# define EVLOG(...) do {fprintf(evlog, __VA_ARGS__); fflush(evlog);} while(0)
+#else
+# define EVLOG(...)
 #endif
 
 HANDLE con,proch;
@@ -163,7 +166,7 @@ void vtrec_char(int x, int y, CHAR_INFO c)
 {
 #ifdef EVDEBUG
     if (x<0 || x>=vtrec_cols || y<0 || y>=vtrec_rows)
-        fprintf(evlog, "Out of bounds: %d,%d\n", x, y);
+        EVLOG("Out of bounds: %d,%d\n", x, y);
 #endif
     if (x!=vtrec_cx || y!=vtrec_cy)
     {
@@ -236,9 +239,7 @@ void vtrec_dump(int full)
         return;
     vtrec_wx=cbi.dwCursorPosition.X-vtrec_x1;
     vtrec_wy=cbi.dwCursorPosition.Y-vtrec_y1;
-#ifdef EVDEBUG
-    fprintf(evlog, "===dump%s===\n", full?" (full)":"");
-#endif
+    EVLOG("===dump%s===\n", full?" (full)":"");
     reg=cbi.srWindow;
     sz.X=vtrec_cols;
     sz.Y=vtrec_rows;
@@ -250,9 +251,7 @@ void vtrec_dump(int full)
             goto dump_ok;
         if (ReadConsoleOutputA(con, scr, sz, org, &reg))
         {
-#ifdef EVDEBUG
-            fprintf(evlog, "Disabling Unicode\n");
-#endif
+            EVLOG("Disabling Unicode\n");
             vtrec_printf("\e%%@");
             utf8=0;
             goto dump_ok;
@@ -261,9 +260,7 @@ void vtrec_dump(int full)
     else
         if (ReadConsoleOutputA(con, scr, sz, org, &reg))
             goto dump_ok;
-#ifdef EVDEBUG
-    fprintf(evlog, "DUMP FAILED!!\n");
-#endif
+    EVLOG("DUMP FAILED!!\n");
     return;
 dump_ok:
     // FIXME: the region could have changed between the calls, resulting in
@@ -405,14 +402,14 @@ VOID CALLBACK WinEventProc(
 {
 #ifdef EVDEBUG
     if (event>0x4000 && event<=0x4007)
-    fprintf(evlog, "%s: %d(%d,%d), %d(%d,%d)\n",
-        evnames[event-0x4000],
-        (int)idObject,
-        (short int)LOWORD(idObject),
-        (short int)HIWORD(idObject),
-        (int)idChild,
-        (short int)LOWORD(idChild),
-        (short int)HIWORD(idChild));
+        EVLOG("%s: %d(%d,%d), %d(%d,%d)\n",
+            evnames[event-0x4000],
+            (int)idObject,
+            (short int)LOWORD(idObject),
+            (short int)HIWORD(idObject),
+            (int)idChild,
+            (short int)LOWORD(idChild),
+            (short int)HIWORD(idChild));
 #endif
     if (timer)	// If events work, let's disable polling.
     {
@@ -482,9 +479,7 @@ void finish_up()
     vtrec_printf("\e[7?h\e[?4h");
     vtrec_commit();
     ttyrec_w_close(rec);
-#ifdef EVDEBUG
-    fprintf(evlog, "*** THE END ***\n");
-#endif
+    EVLOG("*** THE END ***\n");
 }
 
 
