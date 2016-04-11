@@ -1,9 +1,14 @@
-#!/usr/bin/perl -wp
+#!/usr/bin/env perl
+use warnings;
 
-chomp;
-s/^#.*//;
-s/\\b/\b/g;
-s/\\n/\n/g;
-s/\\e/\e/g;
-s/\\a/\a/g;
-s/\\\\/\\/g;
+while(<>)
+{
+    chomp;
+    s/^#.*//;
+    s/\\b/\b/g;
+    s/\\n/\n/g;
+    s/\\e/\e/g;
+    s/\\a/\a/g;
+    s/\\\\/\\/g;
+    print;
+}
