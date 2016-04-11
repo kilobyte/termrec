@@ -11,9 +11,6 @@
 * replay_export(): should record UTF-8ness and add an option to dump the
   initial screen
 
-* open_stream(): race condition if something wants to read a file we wrote
-  just as we exit.  Should wait for the writer process to end.
-
 * tty: not all control sequences are supported.  It'd be nice to have a
   good subset of http://invisible-island.net/xterm/ctlseqs/ctlseqs.html
   implemented.
