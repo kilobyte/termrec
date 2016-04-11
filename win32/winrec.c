@@ -474,12 +474,16 @@ VOID CALLBACK WinEventProc(
 }
 
 
+// Work around in Windows' (but not Cygwin's) bug in atexit.
+extern void reap_streams();
+
 void finish_up()
 {
     vtrec_printf("\e[7?h\e[?4h");
     vtrec_commit();
     ttyrec_w_close(rec);
     EVLOG("*** THE END ***\n");
+    reap_streams();
 }
 
 

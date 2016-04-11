@@ -80,6 +80,15 @@ static void finish_up()
     mutex_unlock(nsm);
 }
 
+#ifdef WIN32
+// Because of a bug in Windows' atexit, we need to export this function
+// then call it manually from users.
+export reap_streams()
+{
+    finish_up();
+}
+#endif
+
 
 int filter(void func(int,int,char*), int fd, int wr, char *arg, char **error)
 {
