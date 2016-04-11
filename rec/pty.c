@@ -17,10 +17,13 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <stdio.h>
+#include <sys/ioctl.h>
 
 
 #ifndef HAVE_FORKPTY
-# if !(defined(HAVE__GETPTY) || defined(HAVE_GRANTPT))
+# if !(defined(HAVE__GETPTY) || defined(HAVE_GRANTPT) \
+    && (defined(HAVE_GETPT) || defined(HAVE_DEV_PTMX) \
+    || defined(HAVE_POSIX_OPENPT)))
 /*
  * if no PTYRANGE[01] is in the config file, we pick a default
  */
@@ -61,8 +64,7 @@ int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsize *wp)
     }
     master=filedes[0];
     slave=filedes[1];
-#else
-#ifdef HAVE_GRANTPT
+#elif defined(HAVE_GRANTPT) && (defined(HAVE_GETPT) || defined(HAVE_DEV_PTMX) || defined(HAVE_POSIX_OPENPT))
 # ifdef HAVE_PTSNAME
     char *name;
 # else
@@ -71,6 +73,8 @@ int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsize *wp)
 
 # ifdef HAVE_GETPT
     master=getpt();
+# elif HAVE_POSIX_OPENPT
+    master=posix_openpt(O_RDWR);
 # else
     master=open("/dev/ptmx", O_RDWR);
 # endif
@@ -82,7 +86,7 @@ int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsize *wp)
         goto close_master;
 
 # ifdef HAVE_PTSNAME
-    if (!(name=(char*)ptsname(master)))
+    if (!(name=ptsname(master)))
         goto close_master;
 # else
     if (ptsname_r(master,name,80))
@@ -144,7 +148,6 @@ ok:
     }
   return -1;
   ok:
-#endif
 #endif
 
     if (termp)

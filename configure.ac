@@ -57,13 +57,15 @@ AC_C_INLINE
 AC_C_BIGENDIAN
 
 AC_PTYRANGES
+AC_DEV_PTMX
 
 # Check for Posix threads.
 AX_PTHREAD
 
 # Checks for library functions.
 AC_CHECK_FUNCS([getpt ptsname snprintf vsnprintf _getpty grantpt forkpty asprintf \
-	 gettimeofday usleep ctime_r getopt_long getaddrinfo fork pipe select uselect])
+	 gettimeofday usleep ctime_r getopt_long getaddrinfo fork pipe select \
+	 uselect posix_openpt])
 AM_CONDITIONAL(HAVE_FORK, test x$ac_cv_func_fork = xyes)
 AC_FUNC_WIN32_GAI_STERRROR
 AC_FUNC_WIN32_GETADDRINFO
