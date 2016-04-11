@@ -18,6 +18,14 @@
 #include <signal.h>
 #include <stdio.h>
 #include <sys/ioctl.h>
+#ifdef HAVE_PTY_H
+# include <pty.h>
+#endif
+#if defined(HAVE_FORKPTY) && defined(HAVE_LIBUTIL_H)
+# include <libutil.h>
+#endif
+
+extern char **environ;
 
 
 #ifndef HAVE_FORKPTY
@@ -41,8 +49,6 @@ static char PtyProto[] = "/dev/ptyXY";
 static char TtyProto[] = "/dev/ttyXY";
 #  endif
 # endif
-
-extern char **environ;
 
 
 int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsize *wp)

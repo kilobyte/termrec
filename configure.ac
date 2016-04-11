@@ -44,7 +44,7 @@ AX_CREATE_STDINT_H
 AC_HEADER_TIME
 AC_CHECK_HEADERS([fcntl.h stdlib.h string.h strings.h sys/ioctl.h termios.h \
 	unistd.h bzlib.h zlib.h sys/time.h sys/select.h langinfo.h \
-	netinet/in.h lzma.h])
+	netinet/in.h lzma.h pty.h libutil.h])
 AC_CHECK_HEADERS([arpa/inet.h netdb.h sys/socket.h])
 AC_CHECK_HEADERS([winsock2.h])
 AC_DECL_OR_ZERO([O_BINARY], [fcntl.h])
@@ -63,6 +63,7 @@ AC_DEV_PTMX
 AX_PTHREAD
 
 # Checks for library functions.
+AC_SEARCH_LIBS(forkpty, util)
 AC_CHECK_FUNCS([getpt ptsname snprintf vsnprintf _getpty grantpt forkpty asprintf \
 	 gettimeofday usleep ctime_r getopt_long getaddrinfo fork pipe select \
 	 uselect posix_openpt])
