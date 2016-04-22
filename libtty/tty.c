@@ -43,7 +43,7 @@ export int tty_resize(tty vt, int nsx, int nsy)
     if (nsx==SX && nsy==SY)
         return 0;
 #ifdef VT100_DEBUG
-    printf("Resize from %dx%d to %dx%d\n", SX, SY, nsx, nsy);
+    debuglog("Resize from %dx%d to %dx%d\n", SX, SY, nsx, nsy);
 #endif
     nscr=malloc(nsx*nsy*sizeof(attrchar));
     if (!nscr)
@@ -161,7 +161,7 @@ static void tty_scroll(tty vt, int nl)
 static void set_charset(tty vt, int g, char x)
 {
 #ifdef VT100_DEBUG
-    printf("Changing charset G%d to %c.\n", g, x);
+    debuglog("Changing charset G%d to %c.\n", g, x);
 #endif
     switch (x)
     {
@@ -175,7 +175,7 @@ static void set_charset(tty vt, int g, char x)
             break;
         default:
 #ifdef VT100_DEBUG
-        printf("Unknown charset: %c\n", x);
+        debuglog("Unknown charset: %c\n", x);
 #endif
             return;
     }
@@ -286,25 +286,25 @@ export void tty_write(tty vt, char *buf, int len)
             switch (vt->state)
             {
             case ESnormal:
-                printf("Unknown code 0x%2x\n", *buf);
+                debuglog("Unknown code 0x%2x\n", *buf);
                 break;
             case ESesc:
-                printf("Unknown code ESC %c\n", *buf);
+                debuglog("Unknown code ESC %c\n", *buf);
                 break;
             case ESsquare: case ESques: case ESpercent:
-                printf("Unknown code ESC");
+                debuglog("Unknown code ESC");
                 switch (vt->state)
                 {
-                case ESsquare:  printf(" ["); break;
-                case ESques:    printf(" [ ?"); break;
-                case ESpercent: printf(" %%"); break;
+                case ESsquare:  debuglog(" ["); break;
+                case ESques:    debuglog(" [ ?"); break;
+                case ESpercent: debuglog(" %%"); break;
                 }
                 for (i=0;i<=vt->ntok;i++)
-                    printf("%c%u%s", i?';':' ', vt->tok[i], vt->tok[i]?"":"?");
-                printf(" %c\n", *buf);
+                    debuglog("%c%u%s", i?';':' ', vt->tok[i], vt->tok[i]?"":"?");
+                debuglog(" %c\n", *buf);
                 break;
             default:
-                printf("Unknown state %d\n", vt->state);
+                debuglog("Unknown state %d\n", vt->state);
             }
 #endif
             vt->state=ESnormal;
@@ -844,7 +844,7 @@ export void tty_write(tty vt, char *buf, int len)
                     break;
 #ifdef VT100_DEBUG
                 default:
-                    printf("Unknown extended window manipulation: %d\n", vt->tok[0]);
+                    debuglog("Unknown extended window manipulation: %d\n", vt->tok[0]);
 #endif
                 }
                 break;
@@ -880,7 +880,7 @@ export void tty_write(tty vt, char *buf, int len)
                         break;
 #ifdef VT100_DEBUG
                     default:
-                        printf("Unknown option: ?%u\n", vt->tok[i]);
+                        debuglog("Unknown option: ?%u\n", vt->tok[i]);
 #endif
                     }
                 vt->state=ESnormal;
@@ -898,7 +898,7 @@ export void tty_write(tty vt, char *buf, int len)
                         break;
 #ifdef VT100_DEBUG
                     default:
-                        printf("Unknown option: ?%u\n", vt->tok[i]);
+                        debuglog("Unknown option: ?%u\n", vt->tok[i]);
 #endif
 		    }
                 vt->state=ESnormal;
@@ -925,14 +925,14 @@ export void tty_write(tty vt, char *buf, int len)
             case '@':	// ESC % @ -> disable UTF-8
                 vt->cp437=1;
 #ifdef VT100_DEBUG
-                printf("Disabling UTF-8.\n");
+                debuglog("Disabling UTF-8.\n");
 #endif
                 break;
             case '8':	// ESC % 8, ESC % G -> enable UTF-8
             case 'G':
                 vt->cp437=0;
 #ifdef VT100_DEBUG
-                printf("Enabling UTF-8.\n");
+                debuglog("Enabling UTF-8.\n");
 #endif
                 break;
             default:
