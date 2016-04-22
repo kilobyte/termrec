@@ -291,10 +291,11 @@ export void tty_write(tty vt, char *buf, int len)
             case ESesc:
                 debuglog("Unknown code ESC %c\n", *buf);
                 break;
-            case ESsquare: case ESques: case ESpercent:
+            case ESsquare: case ESgetpars: case ESques: case ESpercent:
                 debuglog("Unknown code ESC");
                 switch (vt->state)
                 {
+                case ESgetpars:
                 case ESsquare:  debuglog(" ["); break;
                 case ESques:    debuglog(" [ ?"); break;
                 case ESpercent: debuglog(" %%"); break;
