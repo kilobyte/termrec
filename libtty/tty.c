@@ -371,8 +371,6 @@ export void tty_write(tty vt, char *buf, int len)
                             cnt=5, tc=ic&0x01;
                         else
                             cnt=0;
-                        if (!tc)
-                            cnt=0;  // overlong character
                         continue;
                     }
                 else
