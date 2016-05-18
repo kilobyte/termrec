@@ -28,12 +28,6 @@ AC_VISIBILITY
 AX_CHECK_COMPILE_FLAG(-std=gnu11, [CFLAGS="$CFLAGS -std=gnu11"],
  AX_CHECK_COMPILE_FLAG(-std=gnu99, [CFLAGS="$CFLAGS -std=gnu99"]))
 
-# Checks for Winblows.
-AC_CHECK_WIN32
-AC_CHECK_TOOL(WINDRES, windres, :)
-AM_CONDITIONAL(WIN32, test x$ac_cv_is_win32 = xyes)
-AC_LIB_WINSOCK2
-
 # Check if anyone reads build logs.
 AC_SCO
 
@@ -68,6 +62,13 @@ AC_CHECK_FUNCS([getpt ptsname snprintf vsnprintf _getpty grantpt forkpty asprint
 	 gettimeofday usleep ctime_r getopt_long getaddrinfo fork pipe select \
 	 uselect posix_openpt])
 AM_CONDITIONAL(HAVE_FORK, test x$ac_cv_func_fork = xyes)
+
+# Checks for Winblows.
+AC_CHECK_WIN32
+AC_CHECK_TOOL(WINDRES, windres, :)
+AM_CONDITIONAL(WIN32, test x$ac_cv_is_win32 = xyes)
+AM_CONDITIONAL(WIN32NET, test x$ac_cv_is_win32 = xyes -a x$ac_cv_func_getaddrinfo = xno)
+AC_LIB_WINSOCK2
 AC_FUNC_WIN32_GAI_STERRROR
 AC_FUNC_WIN32_GETADDRINFO
 AX_LIB_SOCKET_NSL
