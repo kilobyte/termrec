@@ -25,7 +25,7 @@ need a way to run the GNU configure.  It can be done by:
     + ./configure
     + make
     
-* using CygWin
+* using Cygwin
     for cygwin:
     + ./configure
     + make
@@ -40,7 +40,10 @@ need a way to run the GNU configure.  It can be done by:
 
 
 For the compression plugins, you'll need to grab zlib, libbz2 and/or lzma.
-It's easiest to do so by cloning the submodule:
+If you're building for Cygwin (but not just on Cygwin), please install them
+from Cygwin's repositories.
+
+For native win32, it's easiest to do so by cloning the submodule:
     + git submodule update --init
 If you're putting them together by hand, put the files into win32/lib/ :
 * zlib:
