@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <errno.h>
 #include "config.h"
 #include "_stdint.h"
 #include "sys/utils.h"
