@@ -80,7 +80,7 @@ static void finish_up()
     mutex_unlock(nsm);
 }
 
-#ifdef WIN32
+#ifdef IS_WIN32
 // Because of a bug in Windows' atexit, we need to export this function
 // then call it manually from users.
 export void reap_streams()
