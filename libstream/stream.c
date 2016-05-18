@@ -83,7 +83,7 @@ static void finish_up()
 #ifdef WIN32
 // Because of a bug in Windows' atexit, we need to export this function
 // then call it manually from users.
-export reap_streams()
+export void reap_streams()
 {
     finish_up();
 }
