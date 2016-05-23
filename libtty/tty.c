@@ -130,8 +130,8 @@ export void tty_reset(tty vt)
     vt->opt_auto_wrap=1;
     vt->opt_cursor=1;
     vt->opt_kpad=0;
-    vt->G=1<<1; // G0: normal, G1: vt100 graphics
-    vt->curG=0;
+    vt->G=vt->save_G=1<<1; // G0: normal, G1: vt100 graphics
+    vt->curG=vt->save_curG=0;
     vt->utf_count=0;
 }
 
@@ -434,12 +434,18 @@ export void tty_write(tty vt, char *buf, int len)
             case '7':		// ESC 7 -> save cursor position
                 vt->save_cx=CX;
                 vt->save_cy=CY;
+                vt->save_attr=vt->attr;
+                vt->save_G=vt->G;
+                vt->save_curG=vt->curG;
                 vt->state=ESnormal;
                 break;
 
             case '8':		// ESC 8 -> restore cursor position
                 CX=vt->save_cx;
                 CY=vt->save_cy;
+                vt->attr=vt->save_attr;
+                vt->G=vt->save_G;
+                vt->curG=vt->save_curG;
                 L_CURSOR;
                 vt->state=ESnormal;
                 break;

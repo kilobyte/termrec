@@ -29,8 +29,11 @@ typedef struct tty
     /*=[ internal vt state ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
     int s1,s2;             // scrolling region
     int save_cx,save_cy;   // saved cursor position
+    int save_attr;         // saved attribute
     unsigned int G:2;      // bitfield: do G0 and G1 use vt100 graphics?
     unsigned int curG:1;   // current G charset
+    unsigned int save_G:2; // saved G, curG
+    unsigned int save_curG:1;
     // UTF-8 state
     ucs utf_char;
     ucs utf_surrogate;
