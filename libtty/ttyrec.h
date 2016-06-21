@@ -14,70 +14,70 @@ typedef struct
 } *ttyrec_frame;
 #endif
 
-#define SM_READ		0
-#define SM_WRITE	1
-#define SM_REPREAD	2
-#define SM_APPEND	3
+#define SM_READ         0
+#define SM_WRITE        1
+#define SM_REPREAD      2
+#define SM_APPEND       3
 
-int		open_stream(int fd, char* url, int mode, char **error);
+int             open_stream(int fd, char* url, int mode, char **error);
 
-char*		ttyrec_w_find_format(char *format, char *filename, char *fallback);
-recorder	ttyrec_w_open(int fd, char *format, char *filename, struct timeval *ts);
-int		ttyrec_w_write(recorder r, struct timeval *tm, char *data, int len);
-int		ttyrec_w_close(recorder r);
-char*		ttyrec_w_get_format_name(int i);
-char*		ttyrec_w_get_format_ext(char *format);
+char*           ttyrec_w_find_format(char *format, char *filename, char *fallback);
+recorder        ttyrec_w_open(int fd, char *format, char *filename, struct timeval *ts);
+int             ttyrec_w_write(recorder r, struct timeval *tm, char *data, int len);
+int             ttyrec_w_close(recorder r);
+char*           ttyrec_w_get_format_name(int i);
+char*           ttyrec_w_get_format_ext(char *format);
 
-char*		ttyrec_r_find_format(char *format, char *filename, char *fallback);
-char*		ttyrec_r_get_format_name(int i);
-char*		ttyrec_r_get_format_ext(char *format);
-int		ttyrec_r_play(int fd, char *format, char *filename,
-		    void (*synch_init_wait)(struct timeval *ts, void *arg),
-		    void (*synch_wait)(struct timeval *delay, void *arg),
-		    void (*synch_print)(char *data, int len, void *arg),
-		    void *arg);
+char*           ttyrec_r_find_format(char *format, char *filename, char *fallback);
+char*           ttyrec_r_get_format_name(int i);
+char*           ttyrec_r_get_format_ext(char *format);
+int             ttyrec_r_play(int fd, char *format, char *filename,
+                    void (*synch_init_wait)(struct timeval *ts, void *arg),
+                    void (*synch_wait)(struct timeval *delay, void *arg),
+                    void (*synch_print)(char *data, int len, void *arg),
+                    void *arg);
 
-ttyrec		ttyrec_init(tty vt);
-ttyrec		ttyrec_load(int fd, char *format, char *filename, tty vt);
-void		ttyrec_free(ttyrec tr);
-ttyrec_frame	ttyrec_seek(ttyrec tr, struct timeval *t, tty *vt);
-ttyrec_frame	ttyrec_next_frame(ttyrec tr, ttyrec_frame tfv);
-void		ttyrec_add_frame(ttyrec tr, struct timeval *delay, char *data, int len);
-int		ttyrec_save(ttyrec tr, int fd, char *format, char *filename,
+ttyrec          ttyrec_init(tty vt);
+ttyrec          ttyrec_load(int fd, char *format, char *filename, tty vt);
+void            ttyrec_free(ttyrec tr);
+ttyrec_frame    ttyrec_seek(ttyrec tr, struct timeval *t, tty *vt);
+ttyrec_frame    ttyrec_next_frame(ttyrec tr, ttyrec_frame tfv);
+void            ttyrec_add_frame(ttyrec tr, struct timeval *delay, char *data, int len);
+int             ttyrec_save(ttyrec tr, int fd, char *format, char *filename,
                     struct timeval *selstart, struct timeval *selend);
 
 
-#define tadd(t, d)	do						\
-                        {if (((t).tv_usec+=(d).tv_usec)>=1000000)	\
-                            (t).tv_usec-=1000000, (t).tv_sec++;		\
-                         (t).tv_sec+=(d).tv_sec;			\
+#define tadd(t, d)      do                                              \
+                        {if (((t).tv_usec+=(d).tv_usec)>=1000000)       \
+                            (t).tv_usec-=1000000, (t).tv_sec++;         \
+                         (t).tv_sec+=(d).tv_sec;                        \
                         } while (0)
-#define tsub(t, d)	do						\
-                        {if ((signed)((t).tv_usec-=(d).tv_usec)<0)	\
-                            (t).tv_usec+=1000000, (t).tv_sec--;		\
-                         (t).tv_sec-=(d).tv_sec;			\
+#define tsub(t, d)      do                                              \
+                        {if ((signed)((t).tv_usec-=(d).tv_usec)<0)      \
+                            (t).tv_usec+=1000000, (t).tv_sec--;         \
+                         (t).tv_sec-=(d).tv_sec;                        \
                         } while (0)
-#define tmul1000(t, m)	do						\
-                        {long long v;					\
-                         v=((long long)(t).tv_usec)*(m)/1000+		\
-                             ((long long)(t).tv_sec)*(m)*1000;		\
-                         (t).tv_usec=v%1000000;				\
-                         (t).tv_sec=v/1000000;				\
-                         if ((t).tv_usec<0)				\
-                             (t).tv_usec+=1000000, (t).tv_sec--;	\
+#define tmul1000(t, m)  do                                              \
+                        {long long v;                                   \
+                         v=((long long)(t).tv_usec)*(m)/1000+           \
+                             ((long long)(t).tv_sec)*(m)*1000;          \
+                         (t).tv_usec=v%1000000;                         \
+                         (t).tv_sec=v/1000000;                          \
+                         if ((t).tv_usec<0)                             \
+                             (t).tv_usec+=1000000, (t).tv_sec--;        \
                         } while (0)
-#define tdiv1000(t, m)	do						\
-                        {long long v;					\
-                         v=((long long)(t).tv_sec)*1000000+(t).tv_usec;	\
-                         v*=1000;					\
-                         v/=m;						\
-                         (t).tv_usec=v%1000000;				\
-                         (t).tv_sec=v/1000000;				\
-                         if ((t).tv_usec<0)				\
-                             (t).tv_usec+=1000000, (t).tv_sec--;	\
+#define tdiv1000(t, m)  do                                              \
+                        {long long v;                                   \
+                         v=((long long)(t).tv_sec)*1000000+(t).tv_usec; \
+                         v*=1000;                                       \
+                         v/=m;                                          \
+                         (t).tv_usec=v%1000000;                         \
+                         (t).tv_sec=v/1000000;                          \
+                         if ((t).tv_usec<0)                             \
+                             (t).tv_usec+=1000000, (t).tv_sec--;        \
                         } while (0)
-#define tcmp(t1, t2)	(((t1).tv_sec>(t2).tv_sec)?1:		\
-                         ((t1).tv_sec<(t2).tv_sec)?-1:		\
-                         ((t1).tv_usec>(t2).tv_usec)?1:		\
+#define tcmp(t1, t2)    (((t1).tv_sec>(t2).tv_sec)?1:           \
+                         ((t1).tv_sec<(t2).tv_sec)?-1:          \
+                         ((t1).tv_usec>(t2).tv_usec)?1:         \
                          ((t1).tv_usec<(t2).tv_usec)?-1:0)
 #endif

@@ -18,10 +18,10 @@ struct vtvt_data
 };
 
 #define DATA ((struct vtvt_data*)(vt->l_data))
-#define SX	DATA->sx
-#define SY	DATA->sy
-#define CX	DATA->cx
-#define CY	DATA->cy
+#define SX      DATA->sx
+#define SY      DATA->sy
+#define CX      DATA->cx
+#define CY      DATA->cy
 
 
 static inline void setattr(tty vt, int attr)

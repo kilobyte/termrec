@@ -8,8 +8,8 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([libtty/tty.h])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_FILES(Makefile
-	win32/icons/Makefile
-	)
+        win32/icons/Makefile
+        )
 # Use kernel-like CC instead of the usual verbose insanity.
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
@@ -37,8 +37,8 @@ AC_HEADER_STDC
 AX_CREATE_STDINT_H
 AC_HEADER_TIME
 AC_CHECK_HEADERS([fcntl.h stdlib.h string.h strings.h sys/ioctl.h termios.h \
-	unistd.h bzlib.h zlib.h sys/time.h sys/select.h langinfo.h \
-	netinet/in.h lzma.h pty.h libutil.h])
+        unistd.h bzlib.h zlib.h sys/time.h sys/select.h langinfo.h \
+        netinet/in.h lzma.h pty.h libutil.h])
 AC_CHECK_HEADERS([arpa/inet.h netdb.h sys/socket.h])
 AC_CHECK_HEADERS([winsock2.h])
 AC_DECL_OR_ZERO([O_BINARY], [fcntl.h])
@@ -59,8 +59,8 @@ AX_PTHREAD
 # Checks for library functions.
 AC_SEARCH_LIBS(forkpty, util)
 AC_CHECK_FUNCS([getpt ptsname snprintf vsnprintf _getpty grantpt forkpty asprintf \
-	 gettimeofday usleep ctime_r getopt_long getaddrinfo fork pipe select \
-	 uselect posix_openpt])
+         gettimeofday usleep ctime_r getopt_long getaddrinfo fork pipe select \
+         uselect posix_openpt])
 AM_CONDITIONAL(HAVE_FORK, test x$ac_cv_func_fork = xyes)
 
 # Checks for Winblows.

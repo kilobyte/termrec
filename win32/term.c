@@ -17,14 +17,14 @@
 
 #undef THREADED
 
-#define BUT_OPEN	100
-#define BUT_REWIND	101
-#define BUT_PAUSE	102
-#define BUT_PLAY	103
-#define BUT_SELSTART	104
-#define BUT_SELEND	105
-#define BUT_EXPORT	106
-#define BUT_FONT	200
+#define BUT_OPEN        100
+#define BUT_REWIND      101
+#define BUT_PAUSE       102
+#define BUT_PLAY        103
+#define BUT_SELSTART    104
+#define BUT_SELEND      105
+#define BUT_EXPORT      106
+#define BUT_FONT        200
 
 HINSTANCE inst;
 HWND wnd, termwnd, wndTB, ssProg, wndProg, ssSpeed, wndSpeed;
@@ -39,7 +39,7 @@ struct timeval t0, // adjusted wall time at t=0
 int tev_curlp;  // amount of data already played from the current block
 int speed;
 fpos_t lastp;
-int play_state;	// 0: not loaded, 1: paused, 2: playing, 3: waiting for input
+int play_state; // 0: not loaded, 1: paused, 2: playing, 3: waiting for input
 struct timeval t0,tdate,tmax,selstart,selend;
 int progmax,progdiv,progval;
 int defsx, defsy;
@@ -749,7 +749,7 @@ again:
     set_prog();
     if (play_state!=2)
     {
-        set_buttons(1);	// finished
+        set_buttons(1); // finished
         return;
     }
     del.QuadPart=delay.tv_sec;
@@ -985,7 +985,7 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     switch (uMsg)
     {
         case WM_CREATE:
-	    create_toolbar(hwnd);
+            create_toolbar(hwnd);
             create_term(hwnd);
             create_sysmenu(hwnd);
 
@@ -1185,7 +1185,7 @@ int APIENTRY WinMain(HINSTANCE instance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
     vt=tty_init(defsx, defsy, 1);
     vt->cp437=1;
 
-    if (*lpCmdLine=='"')	// FIXME: proper parsing
+    if (*lpCmdLine=='"')        // FIXME: proper parsing
     {
         strncpy(filename, lpCmdLine+1, MAXFILENAME-1);
         filename[strlen(filename)-1]=0;

@@ -35,7 +35,7 @@ static int find_w_format(char *format, char *filename, char *fallback)
         for (nf=0; rec[nf].name; nf++)
             if (!strcasecmp(format, rec[nf].name))
                 return nf;
-        return -1;	// no fallback to default
+        return -1;      // no fallback to default
     }
     // guess from the filename
     else if (filename)
@@ -152,7 +152,7 @@ static int find_r_format(char *format, char *filename, char *fallback)
         for (nf=0; play[nf].name; nf++)
             if (!strcasecmp(format, play[nf].name))
                 return nf;
-        return -1;	// no fallback to default
+        return -1;      // no fallback to default
     }
     // guess from the filename
     else if (filename)

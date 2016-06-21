@@ -145,10 +145,10 @@ ok:
               continue;
             }
           if ((slave=open(TtyName, O_RDWR|O_NOCTTY))==-1)
-	  {
-	  	close(master);
-	  	continue;
-	  }
+          {
+                close(master);
+                continue;
+          }
           goto ok;
         }
     }

@@ -157,14 +157,14 @@ void play_dosrecorder(FILE *f,
         note=fh.nchunks&0x8000;
         memcpy(&scr, &screens[fh.sscr], sizeof(screen));
         if ((fh.nchunks&=0x7fff)>25*80)
-            goto end;	// corrupted file -- too many chunks
+            goto end;   // corrupted file -- too many chunks
         if (gzread(g, chs, fh.nchunks*sizeof(struct ch))
                    !=(int)(fh.nchunks*sizeof(struct ch)))
             goto end;
         for (i=0; i<fh.nchunks; i++)
         {
             if (chs[i].pos>=25*80 || chs[i].len+chs[i].pos>25*80)
-                goto end;	// corrupted file
+                goto end;       // corrupted file
             gzread(g, &scr[0][0]+chs[i].pos, chs[i].len*sizeof(attrchar));
         }
         memcpy(&screens[fh.dscr], &scr, sizeof(screen));

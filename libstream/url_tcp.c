@@ -96,7 +96,7 @@ static int connect_out(struct addrinfo *ai)
                 continue;
         return sock;
     }
-    return -1;	// errno will be valid here
+    return -1;  // errno will be valid here
 }
 
 

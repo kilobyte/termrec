@@ -75,7 +75,7 @@ void vtrec_printf(const char *fmt, ...)
 
 
 static inline void vtrec_utf8(unsigned short uv)
-{	// Larry Wall style.  The similarities in formatting are, uhm,
+{       // Larry Wall style.  The similarities in formatting are, uhm,
         // purely accidental.
     if (uv<0x80)
     {
@@ -83,42 +83,42 @@ static inline void vtrec_utf8(unsigned short uv)
         return;
     }
     if (uv < 0x800) {
-	*vb++ = ( uv >>  6)         | 0xc0;
-	*vb++ = ( uv        & 0x3f) | 0x80;
-	return;
+        *vb++ = ( uv >>  6)         | 0xc0;
+        *vb++ = ( uv        & 0x3f) | 0x80;
+        return;
     }
 #ifdef GATES_FIXED_HIS_CONSOLE
     if (uv < 0x10000) {
 #endif
-	*vb++ = ( uv >> 12)         | 0xe0;
-	*vb++ = ((uv >>  6) & 0x3f) | 0x80;
-	*vb++ = ( uv        & 0x3f) | 0x80;
+        *vb++ = ( uv >> 12)         | 0xe0;
+        *vb++ = ((uv >>  6) & 0x3f) | 0x80;
+        *vb++ = ( uv        & 0x3f) | 0x80;
 #ifdef GATES_FIXED_HIS_CONSOLE
-	return;
+        return;
     }
     if (uv < 0x200000) {
-	*vb++ = ( uv >> 18)         | 0xf0;
-	*vb++ = ((uv >> 12) & 0x3f) | 0x80;
-	*vb++ = ((uv >>  6) & 0x3f) | 0x80;
-	*vb++ = ( uv        & 0x3f) | 0x80;
-	return;
+        *vb++ = ( uv >> 18)         | 0xf0;
+        *vb++ = ((uv >> 12) & 0x3f) | 0x80;
+        *vb++ = ((uv >>  6) & 0x3f) | 0x80;
+        *vb++ = ( uv        & 0x3f) | 0x80;
+        return;
     }
     if (uv < 0x4000000) {
-	*vb++ = ( uv >> 24)         | 0xf8;
-	*vb++ = ((uv >> 18) & 0x3f) | 0x80;
-	*vb++ = ((uv >> 12) & 0x3f) | 0x80;
-	*vb++ = ((uv >>  6) & 0x3f) | 0x80;
-	*vb++ = ( uv        & 0x3f) | 0x80;
-	return;
+        *vb++ = ( uv >> 24)         | 0xf8;
+        *vb++ = ((uv >> 18) & 0x3f) | 0x80;
+        *vb++ = ((uv >> 12) & 0x3f) | 0x80;
+        *vb++ = ((uv >>  6) & 0x3f) | 0x80;
+        *vb++ = ( uv        & 0x3f) | 0x80;
+        return;
     }
     if (uv < 0x80000000) {
-	*vb++ = ( uv >> 30)         | 0xfc;
-	*vb++ = ((uv >> 24) & 0x3f) | 0x80;
-	*vb++ = ((uv >> 18) & 0x3f) | 0x80;
-	*vb++ = ((uv >> 12) & 0x3f) | 0x80;
-	*vb++ = ((uv >>  6) & 0x3f) | 0x80;
-	*vb++ = ( uv        & 0x3f) | 0x80;
-	return;
+        *vb++ = ( uv >> 30)         | 0xfc;
+        *vb++ = ((uv >> 24) & 0x3f) | 0x80;
+        *vb++ = ((uv >> 18) & 0x3f) | 0x80;
+        *vb++ = ((uv >> 12) & 0x3f) | 0x80;
+        *vb++ = ((uv >>  6) & 0x3f) | 0x80;
+        *vb++ = ( uv        & 0x3f) | 0x80;
+        return;
     }
 #endif
 }
@@ -171,7 +171,7 @@ void vtrec_char(int x, int y, CHAR_INFO c)
     if (x!=vtrec_cx || y!=vtrec_cy)
     {
         if (y==vtrec_cy && vtrec_cx<x && vtrec_cx+10>=x)
-        {	// On small skips, it's better to rewrite instead of jumping,
+        {       // On small skips, it's better to rewrite instead of jumping,
                 // especially considering that our algorithm produces a lot of
                 // such skips if the new text has a single matching letter in
                 // the same place as the old one.
@@ -203,7 +203,7 @@ void vtrec_char(int x, int y, CHAR_INFO c)
 
 void vtrec_realize_cursor()
 {
-    if (!vtrec_cursor)	// cursor hidden -- its position is irrelevant
+    if (!vtrec_cursor)  // cursor hidden -- its position is irrelevant
         return;
     if (vtrec_cx==vtrec_wx && vtrec_wy==vtrec_cy)
         return;
@@ -313,7 +313,7 @@ void vtrec_dump_char(int wx, int wy, DWORD ch)
     if ((LOWORD(ch)>=32 && LOWORD(ch)<127) ||
         !(utf8?ReadConsoleOutputW(con, &c, sz, org, &reg):
                ReadConsoleOutputA(con, &c, sz, org, &reg)))
-    {	    // last resort
+    {       // last resort
         c.Char.UnicodeChar=LOWORD(ch);
         c.Attributes=HIWORD(ch);
     }
@@ -411,9 +411,9 @@ VOID CALLBACK WinEventProc(
             (short int)LOWORD(idChild),
             (short int)HIWORD(idChild));
 #endif
-    if (timer)	// If events work, let's disable polling.
+    if (timer)  // If events work, let's disable polling.
     {
-        if (timer!=(UINT_PTR)(-1))	// magic cookie for Win95/98/ME
+        if (timer!=(UINT_PTR)(-1))      // magic cookie for Win95/98/ME
             KillTimer(0, timer);
         timer=0;
     }

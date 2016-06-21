@@ -17,11 +17,11 @@
 
 #ifdef HAVE_GETOPT_LONG
 static struct option play_opts[]={
-{"format",	1, 0, 'f'},
-{"speed",	1, 0, 's'},
-{"follow",	0, 0, 'p'},
-{"help",	0, 0, 'h'},
-{0,		0, 0, 0},
+{"format",      1, 0, 'f'},
+{"speed",       1, 0, 's'},
+{"follow",      0, 0, 'p'},
+{"help",        0, 0, 'h'},
+{0,             0, 0, 0},
 };
 #endif
 

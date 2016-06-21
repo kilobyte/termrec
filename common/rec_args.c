@@ -20,12 +20,12 @@
 
 #ifdef HAVE_GETOPT_LONG
 static struct option rec_opts[]={
-{"format",	1, 0, 'f'},
-{"exec",	1, 0, 'e'},
-{"raw",		0, 0, 'r'},
-{"append",	0, 0, 'a'},
-{"help",	0, 0, 'h'},
-{0,		0, 0, 0},
+{"format",      1, 0, 'f'},
+{"exec",        1, 0, 'e'},
+{"raw",         0, 0, 'r'},
+{"append",      0, 0, 'a'},
+{"help",        0, 0, 'h'},
+{0,             0, 0, 0},
 };
 #endif
 

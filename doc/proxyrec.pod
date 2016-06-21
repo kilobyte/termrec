@@ -13,7 +13,7 @@ to I<host>:I<rport>, recording them to disk.  By default, the data is saved with
 timing info, but you can request a format like ttyrec which does include timing.
 
  For example, if you want to debug your WWW server, you can do:
- 	$ proxyrec -l 8080 server:80
+        $ proxyrec -l 8080 server:80
 
 If you specify an I<outfile>, only the first connection will be accepted, so usually
 you'll want to let B<proxyrec> name files on its own.

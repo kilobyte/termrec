@@ -184,22 +184,22 @@ static void set_charset(tty vt, int g, char x)
 
 #define L_CURSOR {if (vt->l_cursor) vt->l_cursor(vt, CX, CY);}
 #define FLAG(opt,f,v) \
-    {						\
-        vt->opt=v;				\
-        if (vt->l_flag)				\
-            vt->l_flag(vt, f, v);		\
+    {                                           \
+        vt->opt=v;                              \
+        if (vt->l_flag)                         \
+            vt->l_flag(vt, f, v);               \
     }
 #define SCROLL(nl) \
-    {						\
-        tty_scroll(vt, nl);			\
-        if (vt->l_scroll)			\
-            vt->l_scroll(vt, nl);		\
+    {                                           \
+        tty_scroll(vt, nl);                     \
+        if (vt->l_scroll)                       \
+            vt->l_scroll(vt, nl);               \
     }
 #define CLEAR(x,y,l) \
-    {						\
-        tty_clear_region(vt, y*SX+x, l);	\
-        if (vt->l_clear)			\
-            vt->l_clear(vt, x, y, l);		\
+    {                                           \
+        tty_clear_region(vt, y*SX+x, l);        \
+        if (vt->l_clear)                        \
+            vt->l_clear(vt, x, y, l);           \
     }
 
 export void tty_write(tty vt, char *buf, int len)
@@ -329,7 +329,7 @@ export void tty_write(tty vt, char *buf, int len)
                         // chars, so we'd better mark them as invalid.
                         if (c<0xA0)
                             c=0xFFFD;
-                        if (c==0xFFEF)	// BOM
+                        if (c==0xFFEF)  // BOM
                             continue;
 
                         /* The following code deals with malformed UTF-16
@@ -340,19 +340,19 @@ export void tty_write(tty vt, char *buf, int len)
                          * We don't go out of our way to detect unpaired
                          * surrogates, though.
                          */
-                        if (c>=0xD800 && c<=0xDFFF)	// UTF-16 surrogates
+                        if (c>=0xD800 && c<=0xDFFF)     // UTF-16 surrogates
                         {
-                            if (c<0xDC00)	// lead surrogate
+                            if (c<0xDC00)       // lead surrogate
                             {
                                 vt->utf_surrogate=c;
                                 continue;
                             }
-                            else		// trailing surrogate
+                            else                // trailing surrogate
                             {
                                 c=(vt->utf_surrogate<<10)+c+
                                     (0x10000 - (0xD800 << 10) - 0xDC00);
                                 vt->utf_surrogate=0;
-                                if (c<0x10000)	// malformed pair
+                                if (c<0x10000)  // malformed pair
                                     continue;
                             }
                         }
@@ -406,7 +406,7 @@ export void tty_write(tty vt, char *buf, int len)
 #undef tc
 #undef cnt
 
-        case ESesc:	// ESC
+        case ESesc:     // ESC
             switch (*buf)
             {
             case '[':
@@ -431,7 +431,7 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESpercent;
                 break;
 
-            case '7':		// ESC 7 -> save cursor position
+            case '7':           // ESC 7 -> save cursor position
                 vt->save_cx=CX;
                 vt->save_cy=CY;
                 vt->save_attr=vt->attr;
@@ -440,7 +440,7 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESnormal;
                 break;
 
-            case '8':		// ESC 8 -> restore cursor position
+            case '8':           // ESC 8 -> restore cursor position
                 CX=vt->save_cx;
                 CY=vt->save_cy;
                 vt->attr=vt->save_attr;
@@ -450,16 +450,16 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESnormal;
                 break;
 
-            case 'D':		// ESC D -> newline
+            case 'D':           // ESC D -> newline
                 vt->state=ESnormal;
                 goto newline;
 
-            case 'E':		// ESC E -> newline+cr
+            case 'E':           // ESC E -> newline+cr
                 vt->state=ESnormal;
                 CX=0;
                 goto newline;
 
-            case 'M':		// ESC M -> reverse newline
+            case 'M':           // ESC M -> reverse newline
                 CY--;
                 if (CY==vt->s1-1)
                 {
@@ -475,12 +475,12 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESnormal;
                 break;
 
-            case '=':		// ESC = -> application keypad mode
+            case '=':           // ESC = -> application keypad mode
                 FLAG(opt_kpad, VT100_FLAG_KPAD, 1);
                 vt->state=ESnormal;
                 break;
 
-            case '>':		// ESC > -> numeric keypad mode
+            case '>':           // ESC > -> numeric keypad mode
                 FLAG(opt_kpad, VT100_FLAG_KPAD, 0);
                 vt->state=ESnormal;
                 break;
@@ -490,7 +490,7 @@ export void tty_write(tty vt, char *buf, int len)
             }
             break;
 
-        case ESsquare:	// ESC [, immediately
+        case ESsquare:  // ESC [, immediately
             if (*buf=='?')
             {
                 vt->state=ESques;
@@ -498,7 +498,7 @@ export void tty_write(tty vt, char *buf, int len)
             }
             else
                 vt->state=ESgetpars; // fallthru
-        case ESgetpars:	// ESC [, with params
+        case ESgetpars: // ESC [, with params
             switch (*buf)
             {
             case '0': case '1': case '2': case '3': case '4':
@@ -512,7 +512,7 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->tok[vt->ntok]=0;
                 break;
 
-            case 'm':	// ESC[m -> change color/attribs
+            case 'm':   // ESC[m -> change color/attribs
                 for (i=0;i<=vt->ntok;i++)
                     switch (vt->tok[i])
                     {
@@ -603,7 +603,7 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESnormal;
                 break;
 
-            case 'D':	// ESC[D -> move cursor left
+            case 'D':   // ESC[D -> move cursor left
                 i=vt->tok[0];
                 if (i<1)
                     i=1;
@@ -615,7 +615,7 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESnormal;
                 break;
 
-            case 'C':	case 'a':	// ESC[C -> move cursor right
+            case 'C':   case 'a':       // ESC[C -> move cursor right
                 i=vt->tok[0];
                 if (i<1)
                     i=1;
@@ -627,9 +627,9 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESnormal;
                 break;
 
-            case 'F':	// ESC[F -> move cursor up and home, no scrolling
+            case 'F':   // ESC[F -> move cursor up and home, no scrolling
                 CX=0;
-            case 'A':	// ESC[A -> move cursor up, no scrolling
+            case 'A':   // ESC[A -> move cursor up, no scrolling
                 i=vt->tok[0];
                 if (i<1)
                     i=1;
@@ -641,9 +641,9 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESnormal;
                 break;
 
-            case 'E':	// ESC[E -> move cursor down and home, no scrolling
+            case 'E':   // ESC[E -> move cursor down and home, no scrolling
                 CX=0;
-            case 'B':	// ESC[B -> move cursor down, no scrolling
+            case 'B':   // ESC[B -> move cursor down, no scrolling
                 i=vt->tok[0];
                 if (i<1)
                     i=1;
@@ -655,7 +655,7 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESnormal;
                 break;
 
-            case 'r':	// ESC[r -> set scrolling region
+            case 'r':   // ESC[r -> set scrolling region
                 if (!vt->tok[0])
                     vt->tok[0]=1;
                 if (!vt->ntok)
@@ -672,7 +672,7 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESnormal;
                 break;
 
-            case 'J':	// ESC[J -> erase screen
+            case 'J':   // ESC[J -> erase screen
                 switch (vt->tok[0])
                 {
                 case 0: // from cursor
@@ -687,7 +687,7 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESnormal;
                 break;
 
-            case 'K':	// ESC[K -> erase line
+            case 'K':   // ESC[K -> erase line
                 switch (vt->tok[0])
                 {
                 case 0: // from cursor
@@ -702,7 +702,7 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESnormal;
                 break;
 
-            case 'L':	// ESC[L -> insert line
+            case 'L':   // ESC[L -> insert line
                 if (vt->s1>CY || vt->s2<=CY)
                 {
                     vt->state=ESnormal;
@@ -718,7 +718,7 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESnormal;
                 break;
 
-            case 'M':	// ESC[M -> delete line
+            case 'M':   // ESC[M -> delete line
                 if (vt->s1>CY || vt->s2<=CY)
                 {
                     vt->state=ESnormal;
@@ -734,7 +734,7 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESnormal;
                 break;
 
-            case '@':	// ESC[@ -> insert spaces
+            case '@':   // ESC[@ -> insert spaces
                 i=vt->tok[0];
                 if (i<=0)
                     i=1;
@@ -752,7 +752,7 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESnormal;
                 break;
 
-            case 'P':	// ESC[P -> delete characters
+            case 'P':   // ESC[P -> delete characters
                 i=vt->tok[0];
                 if (i<=0)
                     i=1;
@@ -773,7 +773,7 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESnormal;
                 break;
 
-            case 'X':	// ESC[X -> erase to the right
+            case 'X':   // ESC[X -> erase to the right
                 i=vt->tok[0];
                 if (i<=0)
                     i=1;
@@ -783,7 +783,7 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESnormal;
                 break;
 
-            case 'f': case 'H':	// ESC[f, ESC[H -> move cursor
+            case 'f': case 'H': // ESC[f, ESC[H -> move cursor
                 CY=vt->tok[0]-1;
                 if (CY<0)
                     CY=0;
@@ -801,7 +801,7 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESnormal;
                 break;
 
-            case 'G': case '`':	// ESC[G, ESC[` -> move cursor horizontally
+            case 'G': case '`': // ESC[G, ESC[` -> move cursor horizontally
                 CX=vt->tok[0]-1;
                 if (CX<0)
                     CX=0;
@@ -811,7 +811,7 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESnormal;
                 break;
 
-            case 'd':	// ESC[d -> move cursor vertically
+            case 'd':   // ESC[d -> move cursor vertically
                 CY=vt->tok[0]-1;
                 if (CY<0)
                     CY=0;
@@ -821,18 +821,18 @@ export void tty_write(tty vt, char *buf, int len)
                 vt->state=ESnormal;
                 break;
 
-            case 'c':	// ESC[c -> reset to power-on defaults
+            case 'c':   // ESC[c -> reset to power-on defaults
                 tty_reset(vt);
                 if (vt->l_clear)
                     vt->l_clear(vt, 0, 0, SX*SY);
                 L_CURSOR;
                 break;
 
-            case 't':	// ESC[t -> window manipulation
+            case 't':   // ESC[t -> window manipulation
                 vt->state=ESnormal;
                 switch (vt->tok[0])
                 {
-                case 8:	    // ESC8;<h>;<w>t -> resize
+                case 8:     // ESC8;<h>;<w>t -> resize
                     if (!vt->allow_resize)
                         break;
                     while (vt->ntok<2)
@@ -859,7 +859,7 @@ export void tty_write(tty vt, char *buf, int len)
             }
             break;
 
-        case ESques:	// ESC [ ?
+        case ESques:    // ESC [ ?
             switch (*buf)
             {
             case '0': case '1': case '2': case '3': case '4':
@@ -875,11 +875,11 @@ export void tty_write(tty vt, char *buf, int len)
 
             case 'h':
                 for (i=0;i<=vt->ntok;i++)
-		    switch (vt->tok[i])
-		    {
-		    case 7:
-		        vt->opt_auto_wrap=1;
-		        break;
+                    switch (vt->tok[i])
+                    {
+                    case 7:
+                        vt->opt_auto_wrap=1;
+                        break;
                     case 25:
                         FLAG(opt_cursor, VT100_FLAG_CURSOR, 1);
                         break;
@@ -893,11 +893,11 @@ export void tty_write(tty vt, char *buf, int len)
 
             case 'l':
                 for (i=0;i<=vt->ntok;i++)
-		    switch (vt->tok[i])
-		    {
-		    case 7:
-		        vt->opt_auto_wrap=0;
-		        break;
+                    switch (vt->tok[i])
+                    {
+                    case 7:
+                        vt->opt_auto_wrap=0;
+                        break;
                     case 25:
                         FLAG(opt_cursor, VT100_FLAG_CURSOR, 0);
                         break;
@@ -905,7 +905,7 @@ export void tty_write(tty vt, char *buf, int len)
                     default:
                         debuglog("Unknown option: ?%u\n", vt->tok[i]);
 #endif
-		    }
+                    }
                 vt->state=ESnormal;
                 break;
 
@@ -914,26 +914,26 @@ export void tty_write(tty vt, char *buf, int len)
             }
             break;
 
-        case ESsetG0:	// ESC ( -> set G0 charset
+        case ESsetG0:   // ESC ( -> set G0 charset
             set_charset(vt, 0, *buf);
             vt->state=ESnormal;
             break;
 
-        case ESsetG1:	// ESC ) -> set G1 charset
+        case ESsetG1:   // ESC ) -> set G1 charset
             set_charset(vt, 1, *buf);
             vt->state=ESnormal;
             break;
 
-        case ESpercent:	// ESC %
+        case ESpercent: // ESC %
             switch (*buf)
             {
-            case '@':	// ESC % @ -> disable UTF-8
+            case '@':   // ESC % @ -> disable UTF-8
                 vt->cp437=1;
 #ifdef VT100_DEBUG
                 debuglog("Disabling UTF-8.\n");
 #endif
                 break;
-            case '8':	// ESC % 8, ESC % G -> enable UTF-8
+            case '8':   // ESC % 8, ESC % G -> enable UTF-8
             case 'G':
                 vt->cp437=0;
 #ifdef VT100_DEBUG

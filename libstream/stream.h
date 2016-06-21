@@ -11,7 +11,7 @@ int connect_tcp(char *url, int port, char **rest, char **error);
 void telnet(int sock, int fd, char *arg);
 
 // bits: 1 = writing, 2 = growing
-#define SM_READ		0
-#define SM_WRITE	1
-#define SM_REPREAD	2
-#define SM_APPEND	3
+#define SM_READ         0
+#define SM_WRITE        1
+#define SM_REPREAD      2
+#define SM_APPEND       3

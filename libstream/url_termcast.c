@@ -10,19 +10,19 @@
 
 
 #define EAT_COLOUR \
-    if (*rp=='\e')					\
-    {							\
-        rp++;						\
-        if (*rp++!='[')					\
-            return 0;					\
-        while ((*rp>='0' && *rp<='9') || *rp==';')	\
-            rp++;					\
-        if (*rp++!='m')					\
-            return 0;					\
+    if (*rp=='\e')                                      \
+    {                                                   \
+        rp++;                                           \
+        if (*rp++!='[')                                 \
+            return 0;                                   \
+        while ((*rp>='0' && *rp<='9') || *rp==';')      \
+            rp++;                                       \
+        if (*rp++!='m')                                 \
+            return 0;                                   \
     }
 
 static int match(char *rp, char *rest)
-{	// pattern is /\r\n\e\[\d+d ([a-z])\) $rest (\e\[[0-9;]*m)?\(/
+{       // pattern is /\r\n\e\[\d+d ([a-z])\) $rest (\e\[[0-9;]*m)?\(/
     char res;
 
     if (*rp++!='\r')
@@ -68,7 +68,7 @@ struct filterarg
 static void termcast(int in, int out, char *arg)
 {
     char buf[BUFSIZ+64], *cp, ses;
-    char *rp;	// potential \r
+    char *rp;   // potential \r
     int len, inbuf;
     int sock=((struct filterarg *)arg)->sock;
     char *rest=((struct filterarg *)arg)->rest;

@@ -110,7 +110,7 @@ static void workthread(struct workstate *ws)
             default: // normal
                 switch (*bp)
                 {
-                case IAC:	// IAC = start a TELNET sequence
+                case IAC:       // IAC = start a TELNET sequence
                     bp++;
                     state=1;
                     break;
@@ -121,7 +121,7 @@ static void workthread(struct workstate *ws)
             case 1: // IAC
                 switch (*bp)
                 {
-                case IAC: 	// IAC IAC = literal 255 byte
+                case IAC:       // IAC IAC = literal 255 byte
                     bp++;
                     *op++=255;
                     state=0;
@@ -129,12 +129,12 @@ static void workthread(struct workstate *ws)
                 case WILL:
                 case WONT:
                 case DO:
-                case DONT:	// IAC WILL/WONT/DO/DONT x = negotiating option x
+                case DONT:      // IAC WILL/WONT/DO/DONT x = negotiating option x
                     will=*bp;
                     bp++;
                     state=2;
                     break;
-                case SB:	// IAC SB x = subnegotiations of option x
+                case SB:        // IAC SB x = subnegotiations of option x
                     bp++;
                     state=3;
                     break;
@@ -144,7 +144,7 @@ static void workthread(struct workstate *ws)
                 }
                 break;
             case 2: // IAC WILL/WONT/DO/DONT
-                if (*bp==1)	// ECHO
+                if (*bp==1)     // ECHO
                 {
                     if (will==WILL)
                         ws->echoing[1-who]=1;
@@ -399,15 +399,15 @@ static void get_host_rport()
 
 #ifdef HAVE_GETOPT_LONG
 static struct option proxy_opts[]={
-{"format",	1, 0, 'f'},
-{"local-port",	1, 0, 'l'},
-{"listen-port",	1, 0, 'l'},
+{"format",      1, 0, 'f'},
+{"local-port",  1, 0, 'l'},
+{"listen-port", 1, 0, 'l'},
 {"port",        1, 0, 'p'},
-{"raw",		0, 0, 'r'},
-{"telnet",	0, 0, 't'},
-{"append",	0, 0, 'a'},
-{"help",	0, 0, 'h'},
-{0,		0, 0, 0},
+{"raw",         0, 0, 'r'},
+{"telnet",      0, 0, 't'},
+{"append",      0, 0, 'a'},
+{"help",        0, 0, 'h'},
+{0,             0, 0, 0},
 };
 #endif
 

@@ -94,13 +94,13 @@ Will be called when the recording ends.
 # define little_endian(x) ((uint32_t)(x))
 #endif
 
-#define tadd(t, d)	{if (((t).tv_usec+=(d).tv_usec)>1000000)	\
-                            (t).tv_usec-=1000000, (t).tv_sec++;		\
-                         (t).tv_sec+=(d).tv_sec;			\
+#define tadd(t, d)      {if (((t).tv_usec+=(d).tv_usec)>1000000)        \
+                            (t).tv_usec-=1000000, (t).tv_sec++;         \
+                         (t).tv_sec+=(d).tv_sec;                        \
                         }
-#define tsub(t, d)	{if ((signed)((t).tv_usec-=(d).tv_usec)<0)	\
-                            (t).tv_usec+=1000000, (t).tv_sec--;		\
-                         (t).tv_sec-=(d).tv_sec;			\
+#define tsub(t, d)      {if ((signed)((t).tv_usec-=(d).tv_usec)<0)      \
+                            (t).tv_usec+=1000000, (t).tv_sec--;         \
+                         (t).tv_sec-=(d).tv_sec;                        \
                         }
 
 #define BUFFER_SIZE 32768
@@ -122,7 +122,7 @@ static void play_baudrate(FILE *f,
 
     tv.tv_sec=0;
     tv.tv_usec=200000;
-    while ((b=fread(buf, 1, 60, f))>0)	// 2400 baud
+    while ((b=fread(buf, 1, 60, f))>0)  // 2400 baud
     {
         synch_print(buf, b, arg);
 
@@ -346,9 +346,9 @@ static void play_nh_recorder(FILE *f,
             {
                 if (i0<i)
                     synch_print(buf+i0, i-i0, arg);
-                if (i+4>b)	// timestamp happened on a block boundary
+                if (i+4>b)      // timestamp happened on a block boundary
                 {
-                    if (b<5)	// incomplete last timestamp
+                    if (b<5)    // incomplete last timestamp
                         return;
                     memmove(buf+i, buf, b-i);
                     goto block_end;

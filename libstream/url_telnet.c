@@ -66,7 +66,7 @@ void telnet(int sock, int fd, char *arg)
             default: // normal
                 switch (*bp)
                 {
-                case IAC:	// IAC = start a TELNET sequence
+                case IAC:       // IAC = start a TELNET sequence
                     bp++;
                     state=1;
                     break;
@@ -77,7 +77,7 @@ void telnet(int sock, int fd, char *arg)
             case 1: // IAC
                 switch (*bp)
                 {
-                case IAC: 	// IAC IAC = literal 255 byte
+                case IAC:       // IAC IAC = literal 255 byte
                     bp++;
                     *op++=255;
                     state=0;
@@ -85,12 +85,12 @@ void telnet(int sock, int fd, char *arg)
                 case WILL:
                 case WONT:
                 case DO:
-                case DONT:	// IAC WILL/WONT/DO/DONT x = negotiating option x
+                case DONT:      // IAC WILL/WONT/DO/DONT x = negotiating option x
                     will=*bp;
                     bp++;
                     state=2;
                     break;
-                case SB:	// IAC SB x = subnegotiations of option x
+                case SB:        // IAC SB x = subnegotiations of option x
                     bp++;
                     state=3;
                     break;
@@ -142,7 +142,7 @@ void telnet(int sock, int fd, char *arg)
             case 4: // IAC SB x ...
                 if (*bp++==IAC)
                     state=5;
-                else if (sublen++>=64)	// probably an unterminated sequence
+                else if (sublen++>=64)  // probably an unterminated sequence
                     state=0;
                 else
                     state=4;

@@ -14,15 +14,15 @@ typedef struct
 
 enum
 {
-    VT100_FLAG_CURSOR,		// visible cursor
-    VT100_FLAG_KPAD,		// application keypad mode
-    VT100_FLAG_AUTO_WRAP,	// auto wrap at right margin
+    VT100_FLAG_CURSOR,          // visible cursor
+    VT100_FLAG_KPAD,            // application keypad mode
+    VT100_FLAG_AUTO_WRAP,       // auto wrap at right margin
 };
 
 typedef struct tty
 {
     /*=[ basic data ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
-    int sx,sy;	           // screen size
+    int sx,sy;             // screen size
     int cx,cy;             // cursor position
     attrchar *scr;         // screen buffer
     int attr;              // current attribute
@@ -44,10 +44,10 @@ typedef struct tty
     int state;
     // flags
     int cp437 :1;               // non-UTF-8
-    int allow_resize :1;	// is input allowed to resize?
-    int opt_auto_wrap :1;	// ?7: auto wrap at right margin
-    int opt_cursor :1;		// ?25: show/hide cursor
-    int opt_kpad :1;		// keypad: application/numeric
+    int allow_resize :1;        // is input allowed to resize?
+    int opt_auto_wrap :1;       // ?7: auto wrap at right margin
+    int opt_cursor :1;          // ?25: show/hide cursor
+    int opt_kpad :1;            // keypad: application/numeric
     /*=[ listeners ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
     void *l_data;
         // any private data
@@ -76,23 +76,23 @@ typedef struct tty
         // before the terminal is destroyed
 } *tty;
 
-#define VT100_ATTR_BOLD		0x010000
-#define VT100_ATTR_DIM		0x020000
-#define VT100_ATTR_ITALIC	0x040000
-#define VT100_ATTR_UNDERLINE	0x080000
-#define VT100_ATTR_BLINK	0x100000
-#define VT100_ATTR_INVERSE	0x200000
+#define VT100_ATTR_BOLD         0x010000
+#define VT100_ATTR_DIM          0x020000
+#define VT100_ATTR_ITALIC       0x040000
+#define VT100_ATTR_UNDERLINE    0x080000
+#define VT100_ATTR_BLINK        0x100000
+#define VT100_ATTR_INVERSE      0x200000
 
-tty	tty_init(int sx, int sy, int resizable);
-int	tty_resize(tty vt, int nsx, int nsy);
-void	tty_reset(tty vt);
-void	tty_free(tty vt);
-void	tty_write(tty vt, char *buf, int len);
-void	tty_printf(tty vt, const char *fmt, ...) \
-	    __attribute__((format (printf, 2, 3)));
-tty	tty_copy(tty vt);
+tty     tty_init(int sx, int sy, int resizable);
+int     tty_resize(tty vt, int nsx, int nsy);
+void    tty_reset(tty vt);
+void    tty_free(tty vt);
+void    tty_write(tty vt, char *buf, int len);
+void    tty_printf(tty vt, const char *fmt, ...) \
+            __attribute__((format (printf, 2, 3)));
+tty     tty_copy(tty vt);
 
-void	vtvt_dump(tty vt);
-void	vtvt_resize(tty vt, int sx, int sy);
-void	vtvt_attach(tty vt, FILE *f, int dump);
+void    vtvt_dump(tty vt);
+void    vtvt_resize(tty vt, int sx, int sy);
+void    vtvt_attach(tty vt, FILE *f, int dump);
 #endif
