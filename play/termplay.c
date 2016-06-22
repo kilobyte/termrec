@@ -25,7 +25,7 @@ static struct option play_opts[]={
 };
 #endif
 
-static char *play_name, *format;
+static const char *play_name, *format;
 static int follow;
 
 static void get_play_parms(int argc, char **argv)
@@ -107,17 +107,17 @@ static void loader_end(void *arg)
 
 static struct timeval lt;
 
-static void loader_init_wait(struct timeval *ts, void *arg)
+static void loader_init_wait(const struct timeval *ts, void *arg)
 {
 //    lt=*ts;
 }
 
-static void loader_wait(struct timeval *delay, void *arg)
+static void loader_wait(const struct timeval *delay, void *arg)
 {
     tadd(lt, *delay);
 }
 
-static void loader_print(char *data, int len, void *arg)
+static void loader_print(const char *data, int len, void *arg)
 {
     ttyrec_add_frame(tr, &lt, data, len);
     lt.tv_sec=lt.tv_usec=0;

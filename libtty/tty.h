@@ -87,7 +87,7 @@ tty     tty_init(int sx, int sy, int resizable);
 int     tty_resize(tty vt, int nsx, int nsy);
 void    tty_reset(tty vt);
 void    tty_free(tty vt);
-void    tty_write(tty vt, char *buf, int len);
+void    tty_write(tty vt, const char *buf, int len);
 void    tty_printf(tty vt, const char *fmt, ...) \
             __attribute__((format (printf, 2, 3)));
 tty     tty_copy(tty vt);

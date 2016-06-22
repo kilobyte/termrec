@@ -4,7 +4,7 @@
 #include "export.h"
 #include "stream.h"
 
-int match_suffix(char *txt, char *ext, int skip)
+int match_suffix(const char *txt, const char *ext, int skip)
 {
     int tl,el;
 
@@ -13,10 +13,10 @@ int match_suffix(char *txt, char *ext, int skip)
     if (tl-el-skip<0)
         return 0;
     txt+=tl-el-skip;
-    return (!strncasecmp(txt, ext, el));
+    return !strncasecmp(txt, ext, el);
 }
 
-int match_prefix(char *txt, char *ext)
+int match_prefix(const char *txt, const char *ext)
 {
-    return (!strncasecmp(txt, ext, strlen(ext)));
+    return !strncasecmp(txt, ext, strlen(ext));
 }

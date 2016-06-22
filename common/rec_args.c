@@ -29,7 +29,7 @@ static struct option rec_opts[]={
 };
 #endif
 
-static char *comp_ext;
+static const char *comp_ext;
 
 void get_rec_parms(int argc, char **argv)
 {

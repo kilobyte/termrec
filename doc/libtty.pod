@@ -33,7 +33,7 @@ Clears the screen and attributes.
 
 Deallocates the I<vt> and all its internal structures.
 
-=item B<void   tty_write(tty >I<vt>B<, char *>I<buf>B<, int >I<len>B<);>
+=item B<void   tty_write(tty >I<vt>B<, const char *>I<buf>B<, int >I<len>B<);>
 
 Writes I<len> bytes into the terminal, parsing them as vt100 codes.
 

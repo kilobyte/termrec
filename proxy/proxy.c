@@ -35,7 +35,7 @@ int verbose, raw, append;
 int lport, rport;
 char *host;
 char *record_name;
-char *format, *format_ext;
+const char *format, *format_ext;
 
 #define EOR 239     // End of Record
 #define SE  240     // subnegotiation end

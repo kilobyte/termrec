@@ -22,7 +22,7 @@
 // The "host" arg will be modified!
 // "port" can be overridden with :
 // Returns: error message, 0 on success.
-static char *resolve_host(char *host, int port, struct addrinfo **ai)
+static const char *resolve_host(char *host, int port, struct addrinfo **ai)
 {
     long i;
     char *cp;
@@ -72,7 +72,7 @@ static char *resolve_host(char *host, int port, struct addrinfo **ai)
         if (err==EAI_NONAME)
             return _("No such host");
         else
-            return (char*)gai_strerror(err);
+            return gai_strerror(err);
     }
     return 0;
 }
@@ -102,7 +102,7 @@ static int connect_out(struct addrinfo *ai)
 
 #if IS_WIN32
 // workaround socket!=file brain damage
-static void sock2file(int sock, int file, char *arg)
+static void sock2file(int sock, int file, const char *arg)
 {
     char buf[BUFSIZ];
     int len;
@@ -125,7 +125,7 @@ static void sock2file(int sock, int file, char *arg)
 #endif
 
 
-int connect_tcp(char *url, int port, char **rest, char **error)
+int connect_tcp(const char *url, int port, const char **rest, const char **error)
 {
     char host[128], *cp;
     struct addrinfo *ai;
@@ -149,10 +149,10 @@ int connect_tcp(char *url, int port, char **rest, char **error)
 }
 
 
-int open_tcp(char* url, int mode, char **error)
+int open_tcp(const char* url, int mode, const char **error)
 {
     int fd;
-    char *rest;
+    const char *rest;
 
     if ((fd=connect_tcp(url, 0, &rest, error))==-1)
         return -1;

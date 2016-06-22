@@ -25,7 +25,7 @@ typedef struct
 } recorder;
 
 
-static int find_w_format(char *format, char *filename, char *fallback)
+static int find_w_format(const char *format, const char *filename, const char *fallback)
 {
     int nf;
 
@@ -60,7 +60,7 @@ static int find_w_format(char *format, char *filename, char *fallback)
 }
 
 
-export char* ttyrec_w_find_format(char *format, char *filename, char *fallback)
+export const char* ttyrec_w_find_format(const char *format, const char *filename, const char *fallback)
 {
     int nf=find_w_format(format, filename, fallback);
 
@@ -68,7 +68,7 @@ export char* ttyrec_w_find_format(char *format, char *filename, char *fallback)
 }
 
 
-export recorder* ttyrec_w_open(int fd, char *format, char *filename, struct timeval *tm)
+export recorder* ttyrec_w_open(int fd, const char *format, const char *filename, const struct timeval *tm)
 {
     int nf;
     recorder *r;
@@ -101,7 +101,7 @@ export recorder* ttyrec_w_open(int fd, char *format, char *filename, struct time
 }
 
 
-export int ttyrec_w_write(recorder *r, struct timeval *tm, char *buf, int len)
+export int ttyrec_w_write(recorder *r, const struct timeval *tm, const char *buf, int len)
 {
     assert(r);
     assert(r->f);
@@ -122,7 +122,7 @@ export int ttyrec_w_close(recorder *r)
 }
 
 
-export char* ttyrec_w_get_format_name(int i)
+export const char* ttyrec_w_get_format_name(int i)
 {
     if (i<0 || i>=rec_n)
         return 0;
@@ -130,7 +130,7 @@ export char* ttyrec_w_get_format_name(int i)
 }
 
 
-export char* ttyrec_w_get_format_ext(char *format)
+export const char* ttyrec_w_get_format_ext(const char *format)
 {
     int i = find_w_format(format, 0, 0);
     if (i<0 || i>=rec_n)
@@ -142,7 +142,7 @@ export char* ttyrec_w_get_format_ext(char *format)
 /* reading ttyrec files */
 /************************/
 
-static int find_r_format(char *format, char *filename, char *fallback)
+static int find_r_format(const char *format, const char *filename, const char *fallback)
 {
     int nf;
 
@@ -177,7 +177,7 @@ static int find_r_format(char *format, char *filename, char *fallback)
 }
 
 
-export char* ttyrec_r_find_format(char *format, char *filename, char *fallback)
+export const char* ttyrec_r_find_format(const char *format, const char *filename, const char *fallback)
 {
     int nf=find_r_format(format, filename, fallback);
 
@@ -185,7 +185,7 @@ export char* ttyrec_r_find_format(char *format, char *filename, char *fallback)
 }
 
 
-export char* ttyrec_r_get_format_name(int i)
+export const char* ttyrec_r_get_format_name(int i)
 {
     if (i<0 || i>=play_n)
         return 0;
@@ -193,7 +193,7 @@ export char* ttyrec_r_get_format_name(int i)
 }
 
 
-export char* ttyrec_r_get_format_ext(char *format)
+export const char* ttyrec_r_get_format_ext(const char *format)
 {
     int i = find_r_format(format, 0, 0);
     if (i<0 || i>=play_n)
@@ -204,10 +204,10 @@ export char* ttyrec_r_get_format_ext(char *format)
 
 static void dummyfunc() {}
 
-export int ttyrec_r_play(int fd, char *format, char *filename,
-    void *(synch_init_wait)(struct timeval *ts, void *arg),
-    void *(synch_wait)(struct timeval *tv, void *arg),
-    void *(synch_print)(char *buf, int len, void *arg),
+export int ttyrec_r_play(int fd, const char *format, const char *filename,
+    void *(synch_init_wait)(const struct timeval *ts, void *arg),
+    void *(synch_wait)(const struct timeval *tv, void *arg),
+    void *(synch_print)(const char *buf, int len, void *arg),
     void *arg)
 {
     int nf;

@@ -9,21 +9,21 @@ To create one, implement:
 + player:
 
 void play_xxx(FILE *f,
-    void *(synch_init_wait)(struct timeval *ts, void *arg),
-    void *(synch_wait)(struct timeval *tv, void *arg),
-    void *(synch_print)(char *buf, int len, void *arg),
-    void *arg, struct timeval *cont);
+    void *(synch_init_wait)(const struct timeval *ts, void *arg),
+    void *(synch_wait)(const struct timeval *tv, void *arg),
+    void *(synch_print)(const char *buf, int len, void *arg),
+    void *arg, const struct timeval *cont);
 You are guaranteed to be running in a thread-equivalent on your own.
     *f
       is the file you're reading from, don't expect it to be seekable.
-    void synch_init_wait(struct timeval *ts, void *arg);
+    void synch_init_wait(const struct timeval *ts, void *arg);
       you may call this to mark the starting time of the stream.  It's purely
       optional, and its only use is to mention the date of the recording, if
       known.
-    void synch_wait(struct timeval *tv, void *arg);
+    void synch_wait(const struct timeval *tv, void *arg);
       call this to convey timing information.  The value given is the _delay_
       since the last call, not the absolute time.
-    void synch_print(char *buf, int len, void *arg);
+    void synch_print(const char *buf, int len, void *arg);
       call this to write the actual output.
     void *arg
       please pass it to each of the functions you call.
@@ -31,7 +31,7 @@ You are guaranteed to be running in a thread-equivalent on your own.
 
 + recorder:
 
-void* record_xxx_init(FILE *f, struct timeval *tm);
+void* record_xxx_init(FILE *f, const struct timeval *tm);
 Will be called exactly once per stream.
     *f
       is the file you're supposed to write the stream to.  Don't expect it to
@@ -44,7 +44,7 @@ Will be called exactly once per stream.
     return the pointer to that memory, it will be passed in every subsequent
     call.  It may be arbitrary data, and is never used outside your code.
 
-void record_xxx(FILE *f, void* state, struct timeval *tm, char *buf, int len);
+void record_xxx(FILE *f, void* state, const struct timeval *tm, const char *buf, int len);
 Will be called every time a new chunk of input comes.
     *f
       is the file we're recording to.
@@ -111,10 +111,10 @@ Will be called when the recording ends.
 /********************/
 
 static void play_baudrate(FILE *f,
-    void *(synch_init_wait)(struct timeval *ts, void *arg),
-    void *(synch_wait)(struct timeval *tv, void *arg),
-    void *(synch_print)(char *buf, int len, void *arg),
-    void *arg, struct timeval *cont)
+    void *(synch_init_wait)(const struct timeval *ts, void *arg),
+    void *(synch_wait)(const struct timeval *tv, void *arg),
+    void *(synch_print)(const char *buf, int len, void *arg),
+    void *arg, const struct timeval *cont)
 {
     char buf[BUFFER_SIZE];
     size_t b;
@@ -131,12 +131,12 @@ static void play_baudrate(FILE *f,
 }
 
 
-static void* record_baudrate_init(FILE *f, struct timeval *tm)
+static void* record_baudrate_init(FILE *f, const struct timeval *tm)
 {
     return 0;
 }
 
-static void record_baudrate(FILE *f, void* state, struct timeval *tm, char *buf, int len)
+static void record_baudrate(FILE *f, void* state, const struct timeval *tm, const char *buf, int len)
 {
     fwrite(buf, 1, len, f);
 }
@@ -151,10 +151,10 @@ static void record_baudrate_finish(FILE *f, void* state)
 /***********************/
 
 static void play_live(FILE *f,
-    void *(synch_init_wait)(struct timeval *ts, void *arg),
-    void *(synch_wait)(struct timeval *tv, void *arg),
-    void *(synch_print)(char *buf, int len, void *arg),
-    void *arg, struct timeval *cont)
+    void *(synch_init_wait)(const struct timeval *ts, void *arg),
+    void *(synch_wait)(const struct timeval *tv, void *arg),
+    void *(synch_print)(const char *buf, int len, void *arg),
+    void *arg, const struct timeval *cont)
 {
     struct timeval tv, tp, tm;
     char buf[BUFFER_SIZE];
@@ -181,7 +181,7 @@ static void play_live(FILE *f,
 }
 
 
-static void* record_live_init(FILE *f, struct timeval *tm)
+static void* record_live_init(FILE *f, const struct timeval *tm)
 {
     struct timeval *tv;
 
@@ -192,7 +192,7 @@ static void* record_live_init(FILE *f, struct timeval *tm)
     return tv;
 }
 
-static void record_live(FILE *f, void* state, struct timeval *tm, char *buf, int len)
+static void record_live(FILE *f, void* state, const struct timeval *tm, const char *buf, int len)
 {
     struct timeval tv, wall;
 
@@ -227,10 +227,10 @@ struct ttyrec_header
 
 
 static void play_ttyrec(FILE *f,
-    void *(synch_init_wait)(struct timeval *ts, void *arg),
-    void *(synch_wait)(struct timeval *tv, void *arg),
-    void *(synch_print)(char *buf, int len, void *arg),
-    void *arg, struct timeval *cont)
+    void *(synch_init_wait)(const struct timeval *ts, void *arg),
+    void *(synch_wait)(const struct timeval *tv, void *arg),
+    void *(synch_print)(const char *buf, int len, void *arg),
+    void *arg, const struct timeval *cont)
 {
     char buf[BUFFER_SIZE];
     size_t b,w;
@@ -300,12 +300,12 @@ the_end:;
 }
 
 
-static void* record_ttyrec_init(FILE *f, struct timeval *tm)
+static void* record_ttyrec_init(FILE *f, const struct timeval *tm)
 {
     return 0;
 }
 
-static void record_ttyrec(FILE *f, void* state, struct timeval *tm, char *buf, int len)
+static void record_ttyrec(FILE *f, void* state, const struct timeval *tm, const char *buf, int len)
 {
     struct ttyrec_header h;
 
@@ -326,10 +326,10 @@ static void record_ttyrec_finish(FILE *f, void* state)
 /***********************/
 
 static void play_nh_recorder(FILE *f,
-    void *(synch_init_wait)(struct timeval *ts, void *arg),
-    void *(synch_wait)(struct timeval *tv, void *arg),
-    void *(synch_print)(char *buf, int len, void *arg),
-    void *arg, struct timeval *cont)
+    void *(synch_init_wait)(const struct timeval *ts, void *arg),
+    void *(synch_wait)(const struct timeval *tv, void *arg),
+    void *(synch_print)(const char *buf, int len, void *arg),
+    void *arg, const struct timeval *cont)
 {
     char buf[BUFFER_SIZE];
     int b,i,i0;
@@ -369,7 +369,7 @@ static void play_nh_recorder(FILE *f,
     }
 }
 
-static void* record_nh_recorder_init(FILE *f, struct timeval *tm)
+static void* record_nh_recorder_init(FILE *f, const struct timeval *tm)
 {
     struct timeval *tv;
 
@@ -379,7 +379,7 @@ static void* record_nh_recorder_init(FILE *f, struct timeval *tm)
     return tv;
 }
 
-static void record_nh_recorder(FILE *f, void* state, struct timeval *tm, char *buf, int len)
+static void record_nh_recorder(FILE *f, void* state, const struct timeval *tm, const char *buf, int len)
 {
     int32_t i;
     i=(tm->tv_sec-((struct timeval*)state)->tv_sec)*100+
@@ -401,10 +401,10 @@ static void record_nh_recorder_finish(FILE *f, void* state)
 /***********************/
 
 static void play_auto(FILE *f,
-    void *(synch_init_wait)(struct timeval *ts, void *arg),
-    void *(synch_wait)(struct timeval *tv, void *arg),
-    void *(synch_print)(char *buf, int len, void *arg),
-    void *arg, struct timeval *cont)
+    void *(synch_init_wait)(const struct timeval *ts, void *arg),
+    void *(synch_wait)(const struct timeval *tv, void *arg),
+    void *(synch_print)(const char *buf, int len, void *arg),
+    void *arg, const struct timeval *cont)
 {
     struct ttyrec_header tth;
     int len, got;
@@ -450,12 +450,12 @@ static void play_auto(FILE *f,
 /* format: null */
 /****************/
 
-static void* record_null_init(FILE *f, struct timeval *tm)
+static void* record_null_init(FILE *f, const struct timeval *tm)
 {
     return 0;
 }
 
-static void record_null(FILE *f, void* state, struct timeval *tm, char *buf, int len)
+static void record_null(FILE *f, void* state, const struct timeval *tm, const char *buf, int len)
 {
 }
 

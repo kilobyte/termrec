@@ -11,7 +11,7 @@
 
 // disabled: #ifdef HAVE_FORK
 #if 0
-int filter(void func(int,int,char*), int fd, int wr, char *arg, char **error)
+int filter(void func(int,int,const char*), int fd, int wr, const char *arg, const char **error)
 {
     int p[2];
 
@@ -41,8 +41,8 @@ int filter(void func(int,int,char*), int fd, int wr, char *arg, char **error)
 struct filterdata
 {
     int fdin, fdout;
-    void (*func)(int,int,char*);
-    char *arg;
+    void (*func)(int,int,const char*);
+    const char *arg;
 };
 
 
@@ -53,8 +53,8 @@ static mutex_t nsm;
 static void filterthr(struct filterdata *args)
 {
     int fdin, fdout;
-    void (*func)(int,int,char*);
-    char *arg;
+    void (*func)(int,int,const char*);
+    const char *arg;
 
     fdin=args->fdin;
     fdout=args->fdout;
@@ -90,7 +90,7 @@ export void reap_streams()
 #endif
 
 
-int filter(void func(int,int,char*), int fd, int wr, char *arg, char **error)
+int filter(void func(int,int,const char*), int fd, int wr, const char *arg, const char **error)
 {
     int p[2];
     struct filterdata *fdata;
@@ -133,11 +133,11 @@ failpipe:
 #endif
 
 
-export int open_stream(int fd, char* url, int mode, char **error)
+export int open_stream(int fd, const char* url, int mode, const char **error)
 {
     int wr= !!(mode&SM_WRITE);
     compress_info *ci;
-    char *dummy;
+    const char *dummy;
 
     if (fd==-1)
     {

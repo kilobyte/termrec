@@ -31,14 +31,14 @@ typedef struct ttyrec
 #define SNAPSHOT_CHUNK 65536
 
 #define tr ((ttyrec)arg)
-static void synch_init_wait(struct timeval *ts, void *arg)
+static void synch_init_wait(const struct timeval *ts, void *arg)
 {
     tr->tev_head->t=*ts;
 }
 
 static const struct timeval maxd = {5,0};
 
-static void synch_wait(struct timeval *tv, void *arg)
+static void synch_wait(const struct timeval *tv, void *arg)
 {
     if (tv->tv_sec>=maxd.tv_sec || tv->tv_sec<0)
         tadd(tr->ndelay, maxd);
@@ -46,7 +46,7 @@ static void synch_wait(struct timeval *tv, void *arg)
         tadd(tr->ndelay, *tv);
 }
 
-static void synch_print(char *buf, int len, void *arg)
+static void synch_print(const char *buf, int len, void *arg)
 {
     struct ttyrec_frame *nf;
 
@@ -116,7 +116,7 @@ export void ttyrec_free(ttyrec tr)
 }
 
 
-export ttyrec ttyrec_load(int fd, char *format, char *filename, tty vt)
+export ttyrec ttyrec_load(int fd, const char *format, const char *filename, tty vt)
 {
     ttyrec tr;
 
@@ -131,7 +131,7 @@ export ttyrec ttyrec_load(int fd, char *format, char *filename, tty vt)
 }
 
 
-export struct ttyrec_frame* ttyrec_seek(ttyrec tr, struct timeval *t, tty *vt)
+export struct ttyrec_frame* ttyrec_seek(const ttyrec tr, const struct timeval *t, tty *vt)
 {
     struct ttyrec_frame *tfv, *tfs;
 
@@ -187,7 +187,7 @@ export struct ttyrec_frame* ttyrec_next_frame(ttyrec tr, struct ttyrec_frame *tf
 }
 
 
-export void ttyrec_add_frame(ttyrec tr, struct timeval *delay, char *data, int len)
+export void ttyrec_add_frame(ttyrec tr, const struct timeval *delay, const char *data, int len)
 {
     if (delay)
         synch_wait(delay, tr);
@@ -195,7 +195,8 @@ export void ttyrec_add_frame(ttyrec tr, struct timeval *delay, char *data, int l
 }
 
 
-export int ttyrec_save(ttyrec tr, int fd, char *format, char *filename, struct timeval *selstart, struct timeval *selend)
+export int ttyrec_save(ttyrec tr, int fd, const char *format, const char *filename,
+                       const struct timeval *selstart, const struct timeval *selend)
 {
     struct ttyrec_frame *fr;
     recorder rec;

@@ -8,12 +8,12 @@
 static struct timeval tt;
 static recorder rec;
 
-static void delay(struct timeval *tm, void *arg)
+static void delay(const struct timeval *tm, void *arg)
 {
     tadd(tt, *tm);
 }
 
-static void print(char *buf, int len, void *arg)
+static void print(const char *buf, int len, void *arg)
 {
     ttyrec_w_write(rec, &tt, buf, len);
 }

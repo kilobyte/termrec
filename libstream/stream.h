@@ -1,14 +1,14 @@
-export int open_stream(int fd, char* url, int mode, char **error);
-int open_file(char* url, int mode, char **error);
-int open_tcp(char* url, int mode, char **error);
-int open_telnet(char* url, int mode, char **error);
-int open_termcast(char* url, int mode, char **error);
-int match_suffix(char *txt, char *ext, int skip);
-int match_prefix(char *txt, char *ext);
-int filter(void func(int,int,char*), int fd, int wr, char *arg, char **error);
+export int open_stream(int fd, const char* url, int mode, const char **error);
+int open_file(const char* url, int mode, const char **error);
+int open_tcp(const char* url, int mode, const char **error);
+int open_telnet(const char* url, int mode, const char **error);
+int open_termcast(const char* url, int mode, const char **error);
+int match_suffix(const char *txt, const char *ext, int skip);
+int match_prefix(const char *txt, const char *ext);
+int filter(void func(int,int,const char*), int fd, int wr, const char *arg, const char **error);
 
-int connect_tcp(char *url, int port, char **rest, char **error);
-void telnet(int sock, int fd, char *arg);
+int connect_tcp(const char *url, int port, const char **rest, const char **error);
+void telnet(int sock, int fd, const char *arg);
 
 // bits: 1 = writing, 2 = growing
 #define SM_READ         0

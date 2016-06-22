@@ -21,7 +21,7 @@
             return 0;                                   \
     }
 
-static int match(char *rp, char *rest)
+static int match(const char *rp, const char *rest)
 {       // pattern is /\r\n\e\[\d+d ([a-z])\) $rest (\e\[[0-9;]*m)?\(/
     char res;
 
@@ -65,14 +65,14 @@ struct filterarg
 };
 
 
-static void termcast(int in, int out, char *arg)
+static void termcast(int in, int out, const char *arg)
 {
     char buf[BUFSIZ+64], *cp, ses;
     char *rp;   // potential \r
     int len, inbuf;
     int sock=((struct filterarg *)arg)->sock;
     char *rest=((struct filterarg *)arg)->rest;
-    free(arg);
+    free((char*)arg);
 
     inbuf=0;
     rp=buf;
@@ -133,10 +133,10 @@ end:
 }
 
 
-int open_termcast(char* url, int mode, char **error)
+int open_termcast(const char* url, int mode, const char **error)
 {
     int fd, fdmid;
-    char *rest;
+    const char *rest;
 
     if (mode&SM_WRITE)
     {
@@ -157,5 +157,5 @@ int open_termcast(char* url, int mode, char **error)
     struct filterarg *fa = malloc(sizeof(struct filterarg));
     fa->sock=fd;
     fa->rest=strdup(rest);
-    return filter(termcast, fdmid, !!(mode&SM_WRITE), (char*)fa, error);
+    return filter(termcast, fdmid, !!(mode&SM_WRITE), (const char*)fa, error);
 }

@@ -19,32 +19,38 @@ typedef struct
 #define SM_REPREAD      2
 #define SM_APPEND       3
 
-int             open_stream(int fd, char* url, int mode, char **error);
+int             open_stream(int fd, const char* url, int mode, char **error);
 
-char*           ttyrec_w_find_format(char *format, char *filename, char *fallback);
-recorder        ttyrec_w_open(int fd, char *format, char *filename, struct timeval *ts);
-int             ttyrec_w_write(recorder r, struct timeval *tm, char *data, int len);
+const char*     ttyrec_w_find_format(const char *format, const char *filename,
+                    const char *fallback);
+recorder        ttyrec_w_open(int fd, const char *format, const char *filename,
+                    const struct timeval *ts);
+int             ttyrec_w_write(recorder r, const struct timeval *tm,
+                    const char *data, int len);
 int             ttyrec_w_close(recorder r);
-char*           ttyrec_w_get_format_name(int i);
-char*           ttyrec_w_get_format_ext(char *format);
+const char*     ttyrec_w_get_format_name(int i);
+const char*     ttyrec_w_get_format_ext(const char *format);
 
-char*           ttyrec_r_find_format(char *format, char *filename, char *fallback);
-char*           ttyrec_r_get_format_name(int i);
-char*           ttyrec_r_get_format_ext(char *format);
-int             ttyrec_r_play(int fd, char *format, char *filename,
-                    void (*synch_init_wait)(struct timeval *ts, void *arg),
-                    void (*synch_wait)(struct timeval *delay, void *arg),
-                    void (*synch_print)(char *data, int len, void *arg),
+const char*     ttyrec_r_find_format(const char *format, const char *filename,
+                    const char *fallback);
+const char*     ttyrec_r_get_format_name(int i);
+const char*     ttyrec_r_get_format_ext(const char *format);
+int             ttyrec_r_play(int fd, const char *format, const char *filename,
+                    void (*synch_init_wait)(const struct timeval *ts, void *arg),
+                    void (*synch_wait)(const struct timeval *delay, void *arg),
+                    void (*synch_print)(const char *data, int len, void *arg),
                     void *arg);
 
 ttyrec          ttyrec_init(tty vt);
-ttyrec          ttyrec_load(int fd, char *format, char *filename, tty vt);
+ttyrec          ttyrec_load(int fd, const char *format, const char *filename, tty vt);
 void            ttyrec_free(ttyrec tr);
-ttyrec_frame    ttyrec_seek(ttyrec tr, struct timeval *t, tty *vt);
+ttyrec_frame    ttyrec_seek(ttyrec tr, const struct timeval *t, tty *vt);
 ttyrec_frame    ttyrec_next_frame(ttyrec tr, ttyrec_frame tfv);
-void            ttyrec_add_frame(ttyrec tr, struct timeval *delay, char *data, int len);
-int             ttyrec_save(ttyrec tr, int fd, char *format, char *filename,
-                    struct timeval *selstart, struct timeval *selend);
+void            ttyrec_add_frame(ttyrec tr, const struct timeval *delay,
+                    const char *data, int len);
+int             ttyrec_save(ttyrec tr, int fd, const char *format,
+                    const char *filename, const struct timeval *selstart,
+                    const struct timeval *selend);
 
 
 #define tadd(t, d)      do                                              \

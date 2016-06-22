@@ -108,10 +108,10 @@ static int scrdiff(screen *vt, screen *scr, char *buf)
 }
 
 void play_dosrecorder(FILE *f,
-    void *(synch_init_wait)(struct timeval *ts, void *arg),
-    void *(synch_wait)(struct timeval *tv, void *arg),
-    void *(synch_print)(char *buf, int len, void *arg),
-    void *arg, struct timeval *cont)
+    void *(synch_init_wait)(const struct timeval *ts, void *arg),
+    void *(synch_wait)(const struct timeval *tv, void *arg),
+    void *(synch_print)(const char *buf, int len, void *arg),
+    void *arg, const struct timeval *cont)
 {
     gzFile g;
     screen vt, scr, screens[MAXSCREENS];

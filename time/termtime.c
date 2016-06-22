@@ -7,7 +7,7 @@
 
 static struct timeval tt;
 
-static void delay(struct timeval *tm, void *arg)
+static void delay(const struct timeval *tm, void *arg)
 {
     tadd(tt, *tm);
 }

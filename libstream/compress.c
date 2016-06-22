@@ -36,7 +36,7 @@
 #define BUFFER_SIZE 32768
 
 #if (defined HAVE_LIBBZ2) || (defined SHIPPED_LIBBZ2)
-static void read_bz2(int f, int fd, char *arg)
+static void read_bz2(int f, int fd, const char *arg)
 {
     BZFILE* b;
     int     nBuf;
@@ -76,7 +76,7 @@ static void read_bz2(int f, int fd, char *arg)
     close(fd);
 }
 
-static void write_bz2(int f, int fd, char *arg)
+static void write_bz2(int f, int fd, const char *arg)
 {
     BZFILE* b;
     int     nBuf;
@@ -110,7 +110,7 @@ static void write_bz2(int f, int fd, char *arg)
 #endif
 
 #if (defined HAVE_LIBZ) || (SHIPPED_LIBZ)
-static void read_gz(int f, int fd, char *arg)
+static void read_gz(int f, int fd, const char *arg)
 {
     gzFile  g;
     int     nBuf;
@@ -142,7 +142,7 @@ static void read_gz(int f, int fd, char *arg)
     close(fd);
 }
 
-static void write_gz(int f, int fd, char *arg)
+static void write_gz(int f, int fd, const char *arg)
 {
     gzFile  g;
     int     nBuf;
@@ -170,7 +170,7 @@ static void write_gz(int f, int fd, char *arg)
 #endif
 
 #if (defined HAVE_LIBLZMA) || (defined SHIPPED_LIBLZMA)
-static void read_xz(int f, int fd, char *arg)
+static void read_xz(int f, int fd, const char *arg)
 {
     uint8_t inbuf[BUFFER_SIZE], outbuf[BUFFER_SIZE];
     lzma_stream xz = LZMA_STREAM_INIT;
@@ -213,7 +213,7 @@ xz_read_end:
     close(fd);
 }
 
-static void write_xz(int f, int fd, char *arg)
+static void write_xz(int f, int fd, const char *arg)
 {
     uint8_t inbuf[BUFFER_SIZE], outbuf[BUFFER_SIZE];
     lzma_stream xz = LZMA_STREAM_INIT;
@@ -283,7 +283,7 @@ compress_info decompressors[]={
 {0, 0, 0},
 };
 
-compress_info *comp_from_ext(char *name, compress_info *ci)
+compress_info *comp_from_ext(const char *name, compress_info *ci)
 {
     for (;ci->name;ci++)
         if (match_suffix(name, ci->ext, 0))

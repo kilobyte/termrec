@@ -46,7 +46,7 @@ int defsx, defsy;
 
 tty vt;
 int play_f;
-char *play_format, *play_filename;
+const char *play_format, *play_filename;
 HANDLE pth_sem;
 CRITICAL_SECTION vt_mutex;
 
@@ -688,7 +688,7 @@ void replay_speed(int x)
 void print_banner()
 {
     int i;
-    char *pn;
+    const char *pn;
 
     tty_printf(vt, "\e[?25l\e[36mTermplay v\e[1m"PACKAGE_VERSION"\e[0m\n");
     tty_printf(vt, "\e[33mTerminal size: \e[1m%d\e[21mx\e[1m%d\e[0m\n", vt->sx, vt->sy);
@@ -878,7 +878,7 @@ void export_file()
     char fn[MAXFILENAME],errmsg[MAXFILENAME+20+128];
     OPENFILENAME dlg;
     int record_f;
-    char *format;
+    const char *format;
     struct timeval sel1, sel2;
 
     memset(&dlg, 0, sizeof(dlg));

@@ -46,7 +46,7 @@
 #define IS      0
 #define SEND    1
 
-void telnet(int sock, int fd, char *arg)
+void telnet(int sock, int fd, const char *arg)
 {
     int state,will=0 /*lint food*/,sublen=0;
     ssize_t cnt;
@@ -163,10 +163,10 @@ void telnet(int sock, int fd, char *arg)
 }
 
 
-int open_telnet(char* url, int mode, char **error)
+int open_telnet(const char* url, int mode, const char **error)
 {
     int fd;
-    char *rest;
+    const char *rest;
 
     if (mode&SM_WRITE)
     {

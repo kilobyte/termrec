@@ -14,7 +14,7 @@ Link with I<-ltty>.
 
 =over
 
-=item B<int     open_stream(int >I<fd>B<, char* >I<url>B<, int >I<mode>B<, char **>I<error>B<);>
+=item B<int     open_stream(int >I<fd>B<, const char* >I<url>B<, int >I<mode>B<, const char **>I<error>B<);>
 
 This function opens a stream designated by the I<url>.  If the given url ends in ".gz", ".xz" or ".bz2"), the
 stream is assumed to be compressed and gets passed through the appropriate [un]packer.  If the I<fd> is not -1,
@@ -41,20 +41,20 @@ be filled in.
 
 =over
 
-=item B<char*   ttyrec_w_find_format(char *>I<format>B<, char *>I<filename>B<, char *>I<fallback>B<);>
+=item B<const char*   ttyrec_w_find_format(const char *>I<format>B<, const char *>I<filename>B<, const char *>I<fallback>B<);>
 
 This function searches for a format that would fit the I<filename> provided -- that is, abc.ttyrec.gz
 returns "ttyrec".  If no known extension is found, the function returns whatever you gave as
 I<fallback>.  You can force a I<format> yourself, in this case, it is only validated and if invalid, 0
 is returned regardless of the other two arguments.
 
-=item B<recorder        ttyrec_w_open(int >I<fd>B<, char *>I<format>B<, char *>I<filename>B<, struct timeval *>I<ts>B<);>
+=item B<recorder        ttyrec_w_open(int >I<fd>B<, const char *>I<format>B<, const char *>I<filename>B<, const struct timeval *>I<ts>B<);>
 
 A recorder is opened, writing to the file I<fd>; if it's not given (=-1), the function calls B<open_stream()>.
 Recording is done in the given I<format>, if not provided, the format is guessed based on the I<filename>.
 If you provide a timestamp I<ts>, it becomes date of the recording.
 
-=item B<int     ttyrec_w_write(recorder >I<r>B<, struct timeval *tm, char *>I<data>B<, int >I<len>B<);>
+=item B<int     ttyrec_w_write(recorder >I<r>B<, const struct timeval *tm, const char *>I<data>B<, int >I<len>B<);>
 
 A chunk of data of length I<len> is written to recorder I<r>, with timestamp I<tm>.
 Returns 1 if some sort of write error happened.
@@ -64,12 +64,12 @@ Returns 1 if some sort of write error happened.
 All pending data is flushed, recorder closed and its memory freed.
 Returns 1 if there's some kind of failure.
 
-=item B<char*   ttyrec_w_get_format_name(int >I<i>B<);>
+=item B<const char*   ttyrec_w_get_format_name(int >I<i>B<);>
 
 You can use this function to enumerate known write formats by calling it with I<i> being subsequent
 numbers starting at 0.  An invalid I<i> will return a null pointer.
 
-=item B<char*   ttyrec_w_get_format_ext(char *>I<format>B<);>
+=item B<const char*   ttyrec_w_get_format_ext(const char *>I<format>B<);>
 
 If the given write I<format> is associated with a file extension, it is returned.
 
@@ -79,19 +79,19 @@ If the given write I<format> is associated with a file extension, it is returned
 
 =over
 
-=item B<char*   ttyrec_r_find_format(char *>I<format>B<, char *>I<filename>B<, char *>I<fallback>B<);>
+=item B<const char*   ttyrec_r_find_format(const char *>I<format>B<, const char *>I<filename>B<, const char *>I<fallback>B<);>
 
 See the _w_ function, except that read formats are searched instead.
 
-=item B<char*   ttyrec_r_get_format_name(int >I<i>B<);>
+=item B<const char*   ttyrec_r_get_format_name(int >I<i>B<);>
 
 ditto
 
-=item B<char*   ttyrec_r_get_format_ext(char *>I<format>B<);>
+=item B<const char*   ttyrec_r_get_format_ext(const char *>I<format>B<);>
 
 ditto
 
-=item B<int     ttyrec_r_play(int >I<fd>B<, char *>I<format>B<, char *>I<filename>B<,    void (*>I<synch_init_wait>B<)(struct timeval *ts, void *>I<arg>B<),    void (*>I<synch_wait>B<)(struct timeval *>I<delay>B<, void *>I<arg>B<),    void (*>I<synch_print>B<)(char *>I<data>B<, int >I<len>B<, void *>I<arg>B<),    void *>I<arg>B<);>
+=item B<int     ttyrec_r_play(int >I<fd>B<, const char *>I<format>B<, const char *>I<filename>B<,    void (*>I<synch_init_wait>B<)(const struct timeval *ts, void *>I<arg>B<),    void (*>I<synch_wait>B<)(const struct timeval *>I<delay>B<, void *>I<arg>B<),    void (*>I<synch_print>B<)(const char *>I<data>B<, int >I<len>B<, void *>I<arg>B<),    void *>I<arg>B<);>
 
 This function decodes the file I<fd> (opening I<filename> if I<fd>=-1).  If its contents contain
 the date of the recording, you'll receive it through the callback I<synch_init_wait>.  Between
@@ -113,7 +113,7 @@ The function doesn't return until the end of input data.  Returns 1 on success, 
 An empty one is allocated.  If a I<vt> is provided, it becomes the screen that the ttyrec is
 internally played on; otherwise, a blank 80x25 one is allocated.  The I<vt> is consumed.
 
-=item B<ttyrec          ttyrec_load(int >I<fd>B<, char *>I<format>B<, char *>I<filename>B<, tty >I<vt>B<);>
+=item B<ttyrec          ttyrec_load(int >I<fd>B<, const char *>I<format>B<, const char *>I<filename>B<, tty >I<vt>B<);>
 
 This function will load a ttyrec from the file designated with I<fd>.  If it's not open yet
 (I<fd>=-1), it will be opened with B<open_stream>.  The ttyrec is played on the I<vt> you provide
@@ -137,7 +137,7 @@ typedef struct
 
 =over
 
-=item B<ttyrec_frame    ttyrec_seek(ttyrec >I<tr>B<, struct timeval *>I<t>B<, tty *>I<vt>B<);>
+=item B<ttyrec_frame    ttyrec_seek(ttyrec >I<tr>B<, const struct timeval *>I<t>B<, tty *>I<vt>B<);>
 
 Finds the frame that should be shown at time I<*t>, or the first frame if I<t> is null.
 If I<vt> is not-null, it will receive a terminal containing the screen at that frame.
@@ -146,11 +146,11 @@ If I<vt> is not-null, it will receive a terminal containing the screen at that f
 
 Returns the next frame after frame I<tfv>, or null if I<tfv> was the last.
 
-=item B<void            ttyrec_add_frame(ttyrec >I<tr>B<, struct timeval *>I<delay>B<, char *>I<data>B<, int >I<len>B<);>
+=item B<void            ttyrec_add_frame(ttyrec >I<tr>B<, const struct timeval *>I<delay>B<, const char *>I<data>B<, int >I<len>B<);>
 
 Creates a new frame and appends it to ttyrec I<tr>.
 
-=item B<int             ttyrec_save(ttyrec >I<tr>B<, int >I<fd>B<, char *>I<format>B<, char *>I<filename>B<, struct timeval *>I<selstart>B<, struct timeval *>I<selend>B<);>
+=item B<int             ttyrec_save(ttyrec >I<tr>B<, int >I<fd>B<, const char *>I<format>B<, const char *>I<filename>B<, const struct timeval *>I<selstart>B<, const struct timeval *>I<selend>B<);>
 
 Exports the ttyrec to a new file.  If I<selstart> and/or I<selend> are given, they designate
 the part that should be exported -- if not, the whole is.

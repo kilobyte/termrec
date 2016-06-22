@@ -202,7 +202,7 @@ static void set_charset(tty vt, int g, char x)
             vt->l_clear(vt, x, y, l);           \
     }
 
-export void tty_write(tty vt, char *buf, int len)
+export void tty_write(tty vt, const char *buf, int len)
 {
     int i;
     ucs c;

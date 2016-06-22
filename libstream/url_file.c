@@ -11,7 +11,7 @@
 #include "compat.h"
 
 
-int open_file(char* url, int mode, char **error)
+int open_file(const char* url, int mode, const char **error)
 {
     int fmode, fd;
 

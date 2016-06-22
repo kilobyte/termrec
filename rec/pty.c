@@ -209,7 +209,7 @@ void pty_makeraw(struct termios *ta)
     ta->c_cc[VTIME]=0;
 }
 
-int run(char *command, int sx, int sy)
+int run(const char *command, int sx, int sy)
 {
     int fd;
 
