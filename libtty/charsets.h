@@ -1,8 +1,8 @@
 extern unsigned short charset_vt100[128];
 extern unsigned short charset_cp437[256];
 
-// tf8, the "tf" in "utf8"
-#define tf8(vb, uv)     do                      \
+// TF8, the "tf" in "utf8"
+#define TF8(vb, uv)     do                      \
 {                                               \
     if ((uv)<0x80)                              \
     {                                           \

@@ -49,7 +49,7 @@ static inline void wrchar(attrchar *ch, int *oattr, char **b)
 {
     // Unicode is 32-bit, charset_cp437[] only 16-bit as all its entries fit
     // into the range.  Thus, hush the compiler warning.
-    tf8(bp, charset_cp437[(unsigned char)ch->c]);
+    TF8(bp, charset_cp437[(unsigned char)ch->c]);
 }
 #pragma GCC diagnostic pop
 #undef bp
