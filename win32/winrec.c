@@ -604,7 +604,9 @@ void spawn_process()
         exit(1);
     }
     printf("Trying to spawn [%s]\n", command);
-    if (!CreateProcess(0, command,
+    // CAVEAT: if this ever uses CreateProcessW, that function does modify its
+    // "command" argument.  CreateProcessA does not.
+    if (!CreateProcess(0, (char*)command,
           0, 0, 0,
           CREATE_DEFAULT_ERROR_MODE,
           0, 0, &si, &pi))
