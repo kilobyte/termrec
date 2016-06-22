@@ -43,33 +43,36 @@ static void read_bz2(int f, int fd, char *arg)
     char    buf[BUFFER_SIZE];
     int     bzerror;
 
-    b = BZ2_bzReadOpen ( &bzerror, fdopen(f,"rb"), 0, 0, NULL, 0 );
-    if (bzerror != BZ_OK) {
-       BZ2_bzReadClose ( &bzerror, b );
-       // error
-       ERRORMSG(_("Invalid/corrupt .bz2 file.\n"));
-       close(fd);
-       return;
+    b = BZ2_bzReadOpen(&bzerror, fdopen(f,"rb"), 0, 0, NULL, 0);
+    if (bzerror != BZ_OK)
+    {
+        BZ2_bzReadClose(&bzerror, b);
+        // error
+        ERRORMSG(_("Invalid/corrupt .bz2 file.\n"));
+        close(fd);
+        return;
     }
 
     bzerror = BZ_OK;
-    while (bzerror == BZ_OK) {
-       nBuf = BZ2_bzRead ( &bzerror, b, buf, BUFFER_SIZE);
-       if (write(fd, buf, nBuf)!=nBuf)
-       {
-           BZ2_bzReadClose ( &bzerror, b );
-           close(fd);
-           return;
-       }
+    while (bzerror == BZ_OK)
+    {
+        nBuf = BZ2_bzRead(&bzerror, b, buf, BUFFER_SIZE);
+        if (write(fd, buf, nBuf)!=nBuf)
+        {
+            BZ2_bzReadClose(&bzerror, b);
+            close(fd);
+            return;
+        }
     }
-    if (bzerror != BZ_STREAM_END) {
-       BZ2_bzReadClose ( &bzerror, b );
-       // error
-       ERRORMSG("\033[0m");
-       ERRORMSG(_("bzip2: Error during decompression.\n"));
-    } else {
-       BZ2_bzReadClose ( &bzerror, b );
+    if (bzerror != BZ_STREAM_END)
+    {
+        BZ2_bzReadClose(&bzerror, b);
+        // error
+        ERRORMSG("\033[0m");
+        ERRORMSG(_("bzip2: Error during decompression.\n"));
     }
+    else
+        BZ2_bzReadClose(&bzerror, b);
     close(fd);
 }
 
@@ -80,26 +83,28 @@ static void write_bz2(int f, int fd, char *arg)
     char    buf[BUFFER_SIZE];
     int     bzerror;
 
-    b = BZ2_bzWriteOpen ( &bzerror, fdopen(f,"wb"), 9, 0, 0 );
-    if (bzerror != BZ_OK) {
-       BZ2_bzWriteClose ( &bzerror, b, 0,0,0 );
-       // error
-       // the writer will get smitten with sigpipe
-       close(fd);
-       return;
+    b = BZ2_bzWriteOpen(&bzerror, fdopen(f,"wb"), 9, 0, 0);
+    if (bzerror != BZ_OK)
+    {
+        BZ2_bzWriteClose(&bzerror, b, 0,0,0);
+        // error
+        // the writer will get smitten with sigpipe
+        close(fd);
+        return;
     }
 
     bzerror = BZ_OK;
-    while ((nBuf=read(fd, buf, BUFFER_SIZE))>0) {
-       BZ2_bzWrite ( &bzerror, b, buf, nBuf);
-       if (bzerror!=BZ_OK)
-       {
-           BZ2_bzWriteClose( &bzerror, b, 0,0,0 );
-           close(fd);
-           return;
-       }
+    while ((nBuf=read(fd, buf, BUFFER_SIZE))>0)
+    {
+        BZ2_bzWrite(&bzerror, b, buf, nBuf);
+        if (bzerror!=BZ_OK)
+        {
+            BZ2_bzWriteClose(&bzerror, b, 0,0,0);
+            close(fd);
+            return;
+        }
     }
-    BZ2_bzWriteClose( &bzerror, b, 0,0,0 );
+    BZ2_bzWriteClose(&bzerror, b, 0,0,0);
     close(fd);
 }
 #endif
