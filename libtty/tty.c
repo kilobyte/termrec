@@ -539,6 +539,9 @@ export void tty_write(tty vt, const char *buf, int len)
                     case 7:
                         vt->attr|=VT100_ATTR_INVERSE;
                         break;
+                    case 9:
+                        vt->attr|=VT100_ATTR_STRIKE;
+                        break;
                     case 21:
                         vt->attr&=~(VT100_ATTR_BOLD|VT100_ATTR_DIM);
                         break;
@@ -556,6 +559,9 @@ export void tty_write(tty vt, const char *buf, int len)
                         break;
                     case 27:
                         vt->attr&=~VT100_ATTR_INVERSE;
+                        break;
+                    case 29:
+                        vt->attr&=~VT100_ATTR_STRIKE;
                         break;
                     case 30: case 31: case 32: case 33:
                     case 34: case 35: case 36: case 37:

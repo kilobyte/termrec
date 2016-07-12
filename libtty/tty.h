@@ -82,6 +82,7 @@ typedef struct tty
 #define VT100_ATTR_UNDERLINE    0x080000
 #define VT100_ATTR_BLINK        0x100000
 #define VT100_ATTR_INVERSE      0x200000
+#define VT100_ATTR_STRIKE       0x400000
 
 tty     tty_init(int sx, int sy, int resizable);
 int     tty_resize(tty vt, int nsx, int nsy);

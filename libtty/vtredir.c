@@ -42,6 +42,8 @@ static inline void setattr(tty vt, int attr)
             fprintf(DATA->f, ";5");
         if (attr&VT100_ATTR_INVERSE)
             fprintf(DATA->f, ";7");
+        if (attr&VT100_ATTR_STRIKE)
+            fprintf(DATA->f, ";9");
         if ((attr&0xff)!=0x10)
             if ((attr&0xff)<8)
                 fprintf(DATA->f, ";3%u", attr&0xff);
