@@ -10,7 +10,7 @@ typedef struct
     int attr;
 } attrchar;
 
-#define VT100_MAXTOK 10
+#define VT100_MAXTOK 16
 
 enum
 {
