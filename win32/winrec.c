@@ -1,9 +1,9 @@
 /*
-Termrec uses "MSAA" ("Microsoft Active Accessability", I wonder what clown
-can come up with such a name), it's present on WinXP and some regional
-(Japanese, ...) versions of Win2K and Win98.  If that API is not there,
-termrec will fall back to polling the screen 50 times per second, possibly
-losing some of fast-scrolled text.  Even MSAA is not atomic, too.
+Termrec uses "MSAA" ("Microsoft Active Accessability"), it's present on
+WinXP and some regional (Japanese, ...) versions of Win2K and Win98.  If
+that API is not there, termrec will fall back to polling the screen 50 times
+per second, possibly losing some of fast-scrolled text.  Even MSAA is not
+atomic, too.
 
 Due to the unholy mess of code pages (on Polish version, there are 3
 non-compatible pages and Unicode), termrec will use UTF-8 where available.
@@ -87,13 +87,13 @@ static inline void vtrec_utf8(unsigned short uv)
         *vb++ = ( uv        & 0x3f) | 0x80;
         return;
     }
-#ifdef GATES_FIXED_HIS_CONSOLE
+#ifdef FULL_UNICODE
     if (uv < 0x10000) {
 #endif
         *vb++ = ( uv >> 12)         | 0xe0;
         *vb++ = ((uv >>  6) & 0x3f) | 0x80;
         *vb++ = ( uv        & 0x3f) | 0x80;
-#ifdef GATES_FIXED_HIS_CONSOLE
+#ifdef FULL_UNICODE
         return;
     }
     if (uv < 0x200000) {

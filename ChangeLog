@@ -36,5 +36,4 @@
   file to replay was specified on the command line.
 * Done proxyrec/unix -- it's untested on anything but Debian/unstable/i386,
   though.
-* Made some preliminary code for termrec/unix.  It's still buggy like if it
-  was done by Microsoft, though (ok, well, perhaps I'm exaggerating).
+* Made some preliminary code for termrec/unix.  It's still buggy.
