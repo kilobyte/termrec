@@ -3,10 +3,8 @@
 #include "draw.h"
 
 
-/*
-The tables below are -1-based -- the indented values are those of the
-"default" colour.
-*/
+// The tables below are -1-based -- the indented values are those of the
+// "default" colour.
 static int fpal[2][9]=
 {
     {

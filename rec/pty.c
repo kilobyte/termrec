@@ -32,9 +32,7 @@ extern char **environ;
 # if !(defined(HAVE__GETPTY) || defined(HAVE_GRANTPT) \
     && (defined(HAVE_GETPT) || defined(HAVE_DEV_PTMX) \
     || defined(HAVE_POSIX_OPENPT)))
-/*
- * if no PTYRANGE[01] is in the config file, we pick a default
- */
+// if no PTYRANGE[01] is in the config file, we pick a default
 #  ifndef PTYRANGE0
 #   define PTYRANGE0 "qpr"
 #  endif

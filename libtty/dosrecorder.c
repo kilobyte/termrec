@@ -68,8 +68,8 @@ static inline int cnt_spaces(attrchar *ch, int a, int max)
    (max 14 bytes), plus cursor movements, one per line plus one per >=10 symbols
    skipped.  Rounding up to 64KB just to be safe.
 */
-#define MINJUMP 10 /* when to jump instead of overwriting same text */
-#define MINCL 20 /* when to prefer clears over writing spaces */
+#define MINJUMP 10 // when to jump instead of overwriting same text
+#define MINCL 20 // when to prefer clears over writing spaces
 static int scrdiff(screen *vt, screen *scr, char *buf)
 {
     char *bp=buf;
