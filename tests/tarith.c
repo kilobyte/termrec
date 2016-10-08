@@ -22,7 +22,7 @@ static void gen()
     conv(bx, &b);
 }
 
-static void cmp(long long cx, char *opname)
+static void cmp(long long cx, const char *opname)
 {
     conv(cx, &c);
     if (a.tv_sec!=c.tv_sec || labs(a.tv_usec-c.tv_usec)>1) // round-off error

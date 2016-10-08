@@ -7,7 +7,7 @@ ttyrec tr;
 
 #define BUFFER_SIZE 64
 
-void sub(int t1, int t2, char *exp)
+static void sub(int t1, int t2, const char *exp)
 {
     char buf[BUFFER_SIZE], *bptr;
     ttyrec_frame fr;
