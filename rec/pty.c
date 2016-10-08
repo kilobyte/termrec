@@ -224,7 +224,8 @@ int run(const char *command, int sx, int sy)
         return -1;
     case 0:
         {
-            char *argv[4], *cmd;
+            const char *argv[4];
+            char *cmd;
 
             if (asprintf(&cmd, "exec %s", command) == -1)
                 abort();

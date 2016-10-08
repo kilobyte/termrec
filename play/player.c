@@ -157,7 +157,7 @@ static void adv_frame()
 
 static struct bind
 {
-    char *keycode;
+    const char *keycode;
     void(*func)(int);
     int arg;
 } binds[]=

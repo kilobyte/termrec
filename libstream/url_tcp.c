@@ -132,13 +132,15 @@ int connect_tcp(const char *url, int port, const char **rest, const char **error
     int fd;
 
     if ((cp=strchr(url, '/')))
+    {
         snprintf(host, sizeof(host), "%.*s", (int)(cp-url), url);
+        *rest=cp;
+    }
     else
     {
         snprintf(host, sizeof(host), "%s", url);
-        cp="";
+        *rest="";
     }
-    *rest=cp;
     if ((*error=resolve_host(host, port, &ai)))
         return -1;
     if ((fd=connect_out(ai))==-1)
