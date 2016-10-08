@@ -233,7 +233,7 @@ int run(const char *command, int sx, int sy)
             argv[1]="-c";
             argv[2]=cmd;
             argv[3]=0;
-            execve("/bin/sh",argv,environ);
+            execve("/bin/sh",(char*const*)argv,environ);
             fprintf(stderr,"#ERROR: Couldn't exec `%s'\n",command);
             exit(127);
         }
