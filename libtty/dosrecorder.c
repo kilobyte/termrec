@@ -45,7 +45,7 @@ static inline void setattr(attrchar *ch, int *oattr, char **b)
 #ifdef __clang__
 # pragma GCC diagnostic ignored "-Wtautological-constant-out-of-range-compare"
 #endif
-static inline void wrchar(attrchar *ch, int *oattr, char **b)
+static inline void wrchar(attrchar *ch, char **b)
 {
     // Unicode is 32-bit, charset_cp437[] only 16-bit as all its entries fit
     // into the range.  Thus, hush the compiler warning.
@@ -89,14 +89,14 @@ static int scrdiff(screen *vt, screen *scr, char *buf)
                     while (cx<x)
                     {
                         setattr(&(*scr)[y][cx], &attr, &bp);
-                        wrchar(&(*scr)[y][cx], &attr, &bp);
+                        wrchar(&(*scr)[y][cx], &bp);
                         cx++;
                     }
                     cx++;
                 }
                 setattr(&(*scr)[y][x], &attr, &bp);
                 if (cx>80-MINCL || (sp=cnt_spaces(&(*scr)[y][x], attr, 80-cx))<MINCL)
-                    wrchar(&(*scr)[y][x], &attr, &bp);
+                    wrchar(&(*scr)[y][x], &bp);
                 else
                 {
                     bp+=sprintf(bp, "\e[%dX", sp);
