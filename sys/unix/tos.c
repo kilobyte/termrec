@@ -8,7 +8,7 @@
 
 static struct termios old_tattr;
 
-void kbd_raw()
+void kbd_raw(void)
 {
     struct termios tattr;
 
@@ -33,7 +33,7 @@ void kbd_raw()
     tcsetattr(0,TCSANOW,&tattr);
 }
 
-void kbd_restore()
+void kbd_restore(void)
 {
     tcdrain(0);
     tcsetattr(0,TCSADRAIN,&old_tattr);

@@ -193,7 +193,7 @@ static void workthread(struct workstate *ws)
 }
 
 
-static int connect_out()
+static int connect_out(void)
 {
     struct addrinfo *addr;
     int sock;
@@ -282,7 +282,7 @@ static void connthread(void *arg)
 }
 
 
-static void resolve_out()
+static void resolve_out(void)
 {
     int err;
     struct addrinfo hints;
@@ -308,7 +308,7 @@ static void resolve_out()
 
 #if 0
 // postponed until listening on non-localhost gets added
-static int listen_lo()
+static int listen_lo(void)
 {
     int sock;
     int opt, err;
@@ -338,7 +338,7 @@ static int listen_lo()
     return sock;
 }
 #else
-static int listen_lo()
+static int listen_lo(void)
 {
     int sock;
     struct sockaddr_in sin;
@@ -362,7 +362,7 @@ static int listen_lo()
 
 
 // free the hostname from IPv6-style trappings: [::1] -> ::1, extract :rport
-static void get_host_rport()
+static void get_host_rport(void)
 {
     long i;
     char *cp;

@@ -14,7 +14,7 @@ static void conv(long long x, struct timeval *t)
     t->tv_usec=x-t->tv_sec*1000000;
 }
 
-static void gen()
+static void gen(void)
 {
     ax=rand()%10000000-2000000;
     conv(ax, &a);
@@ -29,7 +29,7 @@ static void cmp(long long cx, const char *opname)
         die("Mismatch in %s\n", opname);
 }
 
-int main()
+int main(void)
 {
     int i;
 

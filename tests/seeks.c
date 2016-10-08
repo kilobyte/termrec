@@ -33,7 +33,7 @@ static void sub(int t1, int t2, const char *exp)
         die(" `-- mismatch!\n");
 }
 
-int main()
+int main(void)
 {
     struct timeval tv;
     int i;

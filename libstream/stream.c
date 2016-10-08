@@ -70,7 +70,7 @@ static void filterthr(struct filterdata *args)
 }
 
 
-static void finish_up()
+static void finish_up(void)
 {
     mutex_lock(nsm);
     while (nstreams)

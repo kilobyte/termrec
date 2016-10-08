@@ -45,7 +45,7 @@ static void sigpass(int s)
     kill(ptym, s);
 }
 
-static void tty_restore();
+static void tty_restore(void);
 static void sigpipe(int s)
 {
     tty_restore();
@@ -53,7 +53,7 @@ static void sigpipe(int s)
     exit(0);
 }
 
-static void setsignals()
+static void setsignals(void)
 {
     struct sigaction act;
 
@@ -78,7 +78,7 @@ static void setsignals()
         die("sigaction SIGPIPE");
 }
 
-static void tty_get_size()
+static void tty_get_size(void)
 {
     struct winsize ts;
 
@@ -92,7 +92,7 @@ static void tty_get_size()
     sy=ts.ws_row;
 }
 
-static void record_size()
+static void record_size(void)
 {
     struct timeval tv;
     char buf[20], *bp;
@@ -110,7 +110,7 @@ static void record_size()
     ttyrec_w_write(rec, &tv, buf, bp-buf);
 }
 
-static void tty_raw()
+static void tty_raw(void)
 {
     struct termios rta;
 
@@ -122,7 +122,7 @@ static void tty_raw()
     tcsetattr(0, TCSADRAIN, &rta);
 }
 
-static void tty_restore()
+static void tty_restore(void)
 {
     tcsetattr(0, TCSADRAIN, &ta);
 }

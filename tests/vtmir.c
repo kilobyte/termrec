@@ -38,7 +38,7 @@ void dump(tty vt)
 }
 
 #define BUF2 42
-int main()
+int main(void)
 {
     thread_t cop;
     int p[2];

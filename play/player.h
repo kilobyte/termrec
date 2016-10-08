@@ -7,4 +7,4 @@ int waiting, loaded;
 mutex_t waitm;
 cond_t waitc;
 
-void replay();
+void replay(void);

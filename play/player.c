@@ -61,7 +61,7 @@ static int player(void *arg)
 static thread_t playth;
 static int play_state;
 
-static void replay_start()
+static void replay_start(void)
 {
     if (play_state)
         return;
@@ -74,7 +74,7 @@ static void replay_start()
 }
 
 
-static void replay_stop()
+static void replay_stop(void)
 {
     if (!play_state)
         return;
@@ -128,7 +128,7 @@ static void adjust_speed(int dir)
 }
 
 
-static void replay_toggle()
+static void replay_toggle(int dummy)
 {
     if (play_state)
         replay_stop();
@@ -137,13 +137,13 @@ static void replay_toggle()
 }
 
 
-static void replay_rewind()
+static void replay_rewind(int dummy)
 {
     replay_stop();
     tc.tv_sec=tc.tv_usec=0;
 }
 
-static void adv_frame()
+static void adv_frame(int dummy)
 {
     ttyrec_frame nf;
 
@@ -203,7 +203,7 @@ static char keycode[10];
             goto end;           \
         *kptr++=ch;             \
         switch (ch)
-void replay()
+void replay(void)
 {
     char *kptr;
     int ch;
