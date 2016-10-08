@@ -10,7 +10,7 @@ ACLOCAL_AMFLAGS = -I m4
 
 CLEANFILES =
 
-AM_CFLAGS = @WALL@ -I${srcdir}/sys -I${srcdir}/libtty -I${srcdir}/common -Wno-parentheses
+AM_CFLAGS = -I${srcdir}/sys -I${srcdir}/libtty -I${srcdir}/common -Wno-parentheses
 include sys/Makefile.am
 include libstream/Makefile.am
 include libtty/Makefile.am

@@ -21,7 +21,6 @@ AC_LIBTOOL_WIN32_DLL
 AM_PROG_LIBTOOL
 AC_CHECK_PROG(POD2MAN, pod2man, yes, no)
 AM_CONDITIONAL(POD, test x$ac_cv_prog_POD2MAN = xyes)
-AC_WALL
 AC_VISIBILITY
 
 # Use a modern C dialect.
@@ -81,6 +80,9 @@ AC_SUBST([LIBZ])
 AC_CHECK_LIB([lzma], [lzma_code], [AC_HAVE_LIB([lzma], [LZMA])], [
   AC_SHIPPED_LIB(LIBLZMA, lzma.dll, lzma.h, [lzma_code(0,0)], [win32/])])
 AC_SUBST([LIBLZMA])
+
+# Enable warnings.
+AC_C_TRY_FLAG([-Wall])
 
 # Initialize the test suite.
 AC_CONFIG_TESTDIR(tests)

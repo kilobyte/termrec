@@ -1,19 +1,3 @@
-dnl Compiler (and not headers/libs/etc)-specific stuff.
-
-dnl Is -Wall supported?
-AC_DEFUN([AC_WALL], [
-AC_MSG_CHECKING([if -Wall works])
-if $CC -Wall -c /dev/null /dev/null >/dev/null 2>/dev/null
-  then
-    WALL="-Wall"
-    AC_MSG_RESULT([yes])
-  else
-    WALL=""
-    AC_MSG_RESULT([no])
-fi
-AC_SUBST([WALL])
-])
-
 dnl can we block unwanted symbols?
 AC_DEFUN([AC_VISIBILITY], [
 AC_MSG_CHECKING([for GCC visibility attr])
