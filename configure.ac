@@ -83,6 +83,9 @@ AC_SUBST([LIBLZMA])
 
 # Enable warnings.
 AC_C_TRY_FLAG([-Wall])
+AC_C_TRY_FLAG([-Wwrite-strings])
+AC_C_TRY_FLAG([-Wstrict-prototypes])
+AC_C_TRY_FLAG([-Wshadow])
 
 # Initialize the test suite.
 AC_CONFIG_TESTDIR(tests)
