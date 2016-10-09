@@ -2,6 +2,7 @@
 #include <wchar.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "tty.h"
 
 void tl_char(tty vt, int x, int y, ucs ch, int attr)
@@ -66,8 +67,6 @@ void dump(tty vt)
     printf("`-===[ cursor at %d,%d ]\n", vt->cx, vt->cy);
 }
 
-int crap=0;
-
 #define BUFFER_SIZE 65536
 
 int main(int argc, char **argv)
@@ -75,6 +74,7 @@ int main(int argc, char **argv)
     tty vt;
     char buf[BUFFER_SIZE];
     int len;
+    bool dump_flag=false;
 
     vt = tty_init(20, 5, 0);
 
@@ -96,13 +96,13 @@ int main(int argc, char **argv)
             vt->l_free=tl_free;
             break;
         case 'd':
-            crap=1;
+            dump_flag=true;
         }
 run:
     while ((len=read(0, buf, BUFFER_SIZE))>0)
         tty_write(vt, buf, len);
 
-    if (crap)
+    if (dump_flag)
         dump(vt);
 
     tty_free(vt);
