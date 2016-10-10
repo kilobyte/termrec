@@ -12,6 +12,7 @@
 #include "compat.h"
 #include "ttyrec.h"
 #include "gettext.h"
+#include "common.h"
 
 
 #if (defined HAVE_LIBBZ2) || (defined SHIPPED_LIBBZ2)
@@ -52,7 +53,7 @@ static void nameinc(char *add)
 }
 
 
-int open_out(char **file_name, char *format_ext, int append)
+int open_out(char **file_name, const char *format_ext, int append)
 {
     int fd;
     char add[10],date[24];

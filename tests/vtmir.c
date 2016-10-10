@@ -8,10 +8,10 @@
 #include <unistd.h>
 
 
-tty vt1, vt2;
+static tty vt1, vt2;
 
 #define BUFFER_SIZE 128
-void copier(void *args)
+static void copier(void *args)
 {
     int fd=(intptr_t)args;
     char buf[BUFFER_SIZE];
@@ -21,7 +21,7 @@ void copier(void *args)
         tty_write(vt2, buf, len);
 }
 
-void dump(tty vt)
+static void dump(tty vt)
 {
     int x,y,c;
 

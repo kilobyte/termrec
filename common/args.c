@@ -3,7 +3,8 @@
 #include <stdlib.h>
 #include "sys/error.h"
 #include "gettext.h"
-#include <ttyrec.h>
+#include "ttyrec.h"
+#include "common.h"
 
 extern char *optarg;
 

@@ -7,6 +7,7 @@
 # include <sys/ioctl.h>
 #endif
 #include "export.h"
+#include "ttysize.h"
 
 int get_tty_size(int fd, int *x, int *y)
 {

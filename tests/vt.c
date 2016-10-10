@@ -5,27 +5,27 @@
 #include <stdbool.h>
 #include "tty.h"
 
-void tl_char(tty vt, int x, int y, ucs ch, int attr)
+static void tl_char(tty vt, int x, int y, ucs ch, int attr)
 {
     printf("== char U+%04X attr=%X at %d,%d\n", ch, attr, x, y);
 }
 
-void tl_cursor(tty vt, int x, int y)
+static void tl_cursor(tty vt, int x, int y)
 {
     printf("== cursor to %d,%d\n", x, y);
 }
 
-void tl_clear(tty vt, int x, int y, int len)
+static void tl_clear(tty vt, int x, int y, int len)
 {
     printf("== clear from %d,%d len %d\n", x, y, len);
 }
 
-void tl_scroll(tty vt, int nl)
+static void tl_scroll(tty vt, int nl)
 {
     printf("== scroll by %d lines\n", nl);
 }
 
-void tl_flag(tty vt, int f, int v)
+static void tl_flag(tty vt, int f, int v)
 {
     printf("== flag %d (%s) set to %d\n", f,
         (v==VT100_FLAG_CURSOR)?"cursor visibility":
@@ -33,17 +33,17 @@ void tl_flag(tty vt, int f, int v)
         "unknown", v);
 }
 
-void tl_resize(tty vt, int sx, int sy)
+static void tl_resize(tty vt, int sx, int sy)
 {
     printf("== resize to %dx%d\n", sx, sy);
 }
 
-void tl_free(tty vt)
+static void tl_free(tty vt)
 {
     printf("== free\n");
 }
 
-void dump(tty vt)
+static void dump(tty vt)
 {
     int x,y,attr;
 
