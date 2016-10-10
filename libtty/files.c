@@ -17,12 +17,12 @@
 /* writing ttyrec files */
 /************************/
 
-typedef struct
+typedef struct recorder
 {
     recorder_info *format;
     void *state;
     FILE *f;
-} recorder;
+} *recorder;
 
 
 static int find_w_format(const char *format, const char *filename, const char *fallback)
@@ -68,10 +68,10 @@ export const char* ttyrec_w_find_format(const char *format, const char *filename
 }
 
 
-export recorder* ttyrec_w_open(int fd, const char *format, const char *filename, const struct timeval *tm)
+export recorder ttyrec_w_open(int fd, const char *format, const char *filename, const struct timeval *tm)
 {
     int nf;
-    recorder *r;
+    recorder r;
     struct timeval t0={0,0};
 
     nf=find_w_format(format, filename, "ansi");
@@ -86,7 +86,7 @@ export recorder* ttyrec_w_open(int fd, const char *format, const char *filename,
     if (fd==-1)
         return 0;
 
-    r=malloc(sizeof(recorder));
+    r=malloc(sizeof(struct recorder));
     if (!r)
     {
         close(fd);
@@ -101,7 +101,7 @@ export recorder* ttyrec_w_open(int fd, const char *format, const char *filename,
 }
 
 
-export int ttyrec_w_write(recorder *r, const struct timeval *tm, const char *buf, int len)
+export int ttyrec_w_write(recorder r, const struct timeval *tm, const char *buf, int len)
 {
     assert(r);
     assert(r->f);
@@ -110,7 +110,7 @@ export int ttyrec_w_write(recorder *r, const struct timeval *tm, const char *buf
 }
 
 
-export int ttyrec_w_close(recorder *r)
+export int ttyrec_w_close(recorder r)
 {
     assert(r);
     assert(r->f);
