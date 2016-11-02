@@ -144,7 +144,7 @@ int main(int argc, char **argv)
 {
     int fd;
     thread_t loadth;
-    char *error;
+    const char *error;
     int sx, sy;
 
     setlocale(LC_CTYPE, "");

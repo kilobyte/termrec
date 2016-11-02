@@ -7,6 +7,9 @@
 #include "export.h"
 #include "stream.h"
 #include "gettext.h"
+VISIBILITY_ENABLE
+#include "ttyrec.h"
+VISIBILITY_DISABLE
 
 
 #define EAT_COLOUR \

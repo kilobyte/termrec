@@ -8,6 +8,9 @@
 #include "error.h"
 #include "export.h"
 #include "stream.h"
+VISIBILITY_ENABLE
+#include "ttyrec.h"
+VISIBILITY_DISABLE
 #include "compat.h"
 
 

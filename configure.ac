@@ -86,6 +86,7 @@ AC_C_TRY_FLAG([-Wall])
 AC_C_TRY_FLAG([-Wwrite-strings])
 AC_C_TRY_FLAG([-Wstrict-prototypes])
 AC_C_TRY_FLAG([-Wshadow])
+AC_C_TRY_FLAG([-Wmissing-prototypes])
 
 # Initialize the test suite.
 AC_CONFIG_TESTDIR(tests)

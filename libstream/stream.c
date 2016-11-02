@@ -7,6 +7,9 @@
 #include "export.h"
 #include "compress.h"
 #include "stream.h"
+VISIBILITY_ENABLE
+#include "ttyrec.h"
+VISIBILITY_DISABLE
 
 
 // disabled: #ifdef HAVE_FORK

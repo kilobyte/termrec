@@ -4,8 +4,8 @@
 #include <tty.h>
 
 #ifndef _TTYREC_H_NO_TYPES
-typedef struct {} *recorder;
-typedef struct {} *ttyrec;
+typedef struct TTYRecRecorder *recorder;
+typedef struct TTYRec *ttyrec;
 typedef struct
 {
     struct timeval t;
@@ -19,7 +19,7 @@ typedef struct
 #define SM_REPREAD      2
 #define SM_APPEND       3
 
-int             open_stream(int fd, const char* url, int mode, char **error);
+int             open_stream(int fd, const char* url, int mode, const char **error);
 
 const char*     ttyrec_w_find_format(const char *format, const char *filename,
                     const char *fallback);

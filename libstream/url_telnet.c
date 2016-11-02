@@ -15,7 +15,9 @@
 #include "stream.h"
 #include "gettext.h"
 #include "compat.h"
-
+VISIBILITY_ENABLE
+#include "ttyrec.h"
+VISIBILITY_DISABLE
 
 
 #define EOR 239     // End of Record

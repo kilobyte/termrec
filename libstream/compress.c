@@ -27,6 +27,9 @@
 #endif
 #include "export.h"
 #include "compress.h"
+VISIBILITY_ENABLE
+#include "ttyrec.h"
+VISIBILITY_DISABLE
 #include "stream.h"
 #include "error.h"
 #include "gettext.h"

@@ -12,18 +12,20 @@
 #include "formats.h"
 #include "libstream/compress.h"
 #include "libstream/stream.h"
+VISIBILITY_ENABLE
+#include "ttyrec.h"
+VISIBILITY_DISABLE
 
-/************************/
-/* writing ttyrec files */
-/************************/
-
-typedef struct recorder
+typedef struct TTYRecRecorder
 {
     recorder_info *format;
     void *state;
     FILE *f;
 } *recorder;
 
+/************************/
+/* writing ttyrec files */
+/************************/
 
 static int find_w_format(const char *format, const char *filename, const char *fallback)
 {
@@ -86,7 +88,7 @@ export recorder ttyrec_w_open(int fd, const char *format, const char *filename, 
     if (fd==-1)
         return 0;
 
-    r=malloc(sizeof(struct recorder));
+    r=malloc(sizeof(struct TTYRecRecorder));
     if (!r)
     {
         close(fd);

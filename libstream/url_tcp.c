@@ -18,6 +18,9 @@
 #include "stream.h"
 #include "compat.h"
 #include "gettext.h"
+VISIBILITY_ENABLE
+#include "ttyrec.h"
+VISIBILITY_DISABLE
 
 // The "host" arg will be modified!
 // "port" can be overridden with :
