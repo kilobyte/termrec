@@ -9,9 +9,9 @@ To create one, implement:
 + player:
 
 void play_xxx(FILE *f,
-    void *(synch_init_wait)(const struct timeval *ts, void *arg),
-    void *(synch_wait)(const struct timeval *tv, void *arg),
-    void *(synch_print)(const char *buf, int len, void *arg),
+    void (*synch_init_wait)(const struct timeval *ts, void *arg),
+    void (*synch_wait)(const struct timeval *tv, void *arg),
+    void (*synch_print)(const char *buf, int len, void *arg),
     void *arg, const struct timeval *cont);
 You are guaranteed to be running in a thread-equivalent on your own.
     *f
@@ -111,9 +111,9 @@ Will be called when the recording ends.
 /********************/
 
 static void play_baudrate(FILE *f,
-    void *(synch_init_wait)(const struct timeval *ts, void *arg),
-    void *(synch_wait)(const struct timeval *tv, void *arg),
-    void *(synch_print)(const char *buf, int len, void *arg),
+    void (*synch_init_wait)(const struct timeval *ts, void *arg),
+    void (*synch_wait)(const struct timeval *tv, void *arg),
+    void (*synch_print)(const char *buf, int len, void *arg),
     void *arg, const struct timeval *cont)
 {
     char buf[BUFFER_SIZE];
@@ -151,9 +151,9 @@ static void record_baudrate_finish(FILE *f, void* state)
 /***********************/
 
 static void play_live(FILE *f,
-    void *(synch_init_wait)(const struct timeval *ts, void *arg),
-    void *(synch_wait)(const struct timeval *tv, void *arg),
-    void *(synch_print)(const char *buf, int len, void *arg),
+    void (*synch_init_wait)(const struct timeval *ts, void *arg),
+    void (*synch_wait)(const struct timeval *tv, void *arg),
+    void (*synch_print)(const char *buf, int len, void *arg),
     void *arg, const struct timeval *cont)
 {
     struct timeval tv, tp, tm;
@@ -227,9 +227,9 @@ struct ttyrec_header
 
 
 static void play_ttyrec(FILE *f,
-    void *(synch_init_wait)(const struct timeval *ts, void *arg),
-    void *(synch_wait)(const struct timeval *tv, void *arg),
-    void *(synch_print)(const char *buf, int len, void *arg),
+    void (*synch_init_wait)(const struct timeval *ts, void *arg),
+    void (*synch_wait)(const struct timeval *tv, void *arg),
+    void (*synch_print)(const char *buf, int len, void *arg),
     void *arg, const struct timeval *cont)
 {
     char buf[BUFFER_SIZE];
@@ -326,9 +326,9 @@ static void record_ttyrec_finish(FILE *f, void* state)
 /***********************/
 
 static void play_nh_recorder(FILE *f,
-    void *(synch_init_wait)(const struct timeval *ts, void *arg),
-    void *(synch_wait)(const struct timeval *tv, void *arg),
-    void *(synch_print)(const char *buf, int len, void *arg),
+    void (*synch_init_wait)(const struct timeval *ts, void *arg),
+    void (*synch_wait)(const struct timeval *tv, void *arg),
+    void (*synch_print)(const char *buf, int len, void *arg),
     void *arg, const struct timeval *cont)
 {
     char buf[BUFFER_SIZE];
@@ -401,9 +401,9 @@ static void record_nh_recorder_finish(FILE *f, void* state)
 /***********************/
 
 static void play_auto(FILE *f,
-    void *(synch_init_wait)(const struct timeval *ts, void *arg),
-    void *(synch_wait)(const struct timeval *tv, void *arg),
-    void *(synch_print)(const char *buf, int len, void *arg),
+    void (*synch_init_wait)(const struct timeval *ts, void *arg),
+    void (*synch_wait)(const struct timeval *tv, void *arg),
+    void (*synch_print)(const char *buf, int len, void *arg),
     void *arg, const struct timeval *cont)
 {
     struct ttyrec_header tth;

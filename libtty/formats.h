@@ -11,9 +11,9 @@
 #endif
 
 typedef void play_func(FILE *f,
-    void *(synch_init_wait)(const struct timeval *ts, void *arg),
-    void *(synch_wait)(const struct timeval *tv, void *arg),
-    void *(synch_print)(const char *buf, int len, void *arg),
+    void (*synch_init_wait)(const struct timeval *ts, void *arg),
+    void (*synch_wait)(const struct timeval *tv, void *arg),
+    void (*synch_print)(const char *buf, int len, void *arg),
     void *arg, const struct timeval *cont);
 
 typedef void *(record_func_init)(FILE *f, const struct timeval *tm);
@@ -42,7 +42,7 @@ extern player_info play[];
 extern int rec_n, play_n;
 
 void play_dosrecorder(FILE *f,
-    void *(synch_init_wait)(const struct timeval *ts, void *arg),
-    void *(synch_wait)(const struct timeval *tv, void *arg),
-    void *(synch_print)(const char *buf, int len, void *arg),
+    void (*synch_init_wait)(const struct timeval *ts, void *arg),
+    void (*synch_wait)(const struct timeval *tv, void *arg),
+    void (*synch_print)(const char *buf, int len, void *arg),
     void *arg, const struct timeval *cont);

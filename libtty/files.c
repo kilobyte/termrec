@@ -205,9 +205,9 @@ export const char* ttyrec_r_get_format_ext(const char *format)
 static void dummyfunc(void) {}
 
 export int ttyrec_r_play(int fd, const char *format, const char *filename,
-    void *(synch_init_wait)(const struct timeval *ts, void *arg),
-    void *(synch_wait)(const struct timeval *tv, void *arg),
-    void *(synch_print)(const char *buf, int len, void *arg),
+    void (*synch_init_wait)(const struct timeval *ts, void *arg),
+    void (*synch_wait)(const struct timeval *tv, void *arg),
+    void (*synch_print)(const char *buf, int len, void *arg),
     void *arg)
 {
     int nf;
