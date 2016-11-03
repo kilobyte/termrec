@@ -50,7 +50,7 @@ char vtrec_buf[0x10000], *vb;
 
 
 
-void vtrec_commit()
+static void vtrec_commit(void)
 {
     struct timeval tv;
 
@@ -124,7 +124,7 @@ static inline void vtrec_utf8(unsigned short uv)
 }
 
 
-void vtrec_init()
+static void vtrec_init(void)
 {
     vtrec_cursor=1;
     vtrec_cx=vtrec_wx=0;
@@ -138,7 +138,7 @@ void vtrec_init()
 static char VT_COLORS[]="04261537";
 
 
-void vtrec_realize_attr()
+static void vtrec_realize_attr(void)
 {
     vtrec_printf("\e[0;3%c;4%c%s%sm",
         VT_COLORS[vtrec_attr&7],
@@ -162,7 +162,7 @@ static inline void vtrec_outchar(CHAR_INFO c)
     vtrec_cx++;
 }
 
-void vtrec_char(int x, int y, CHAR_INFO c)
+static void vtrec_char(int x, int y, CHAR_INFO c)
 {
 #ifdef EVDEBUG
     if (x<0 || x>=vtrec_cols || y<0 || y>=vtrec_rows)
@@ -201,7 +201,7 @@ void vtrec_char(int x, int y, CHAR_INFO c)
 }
 
 
-void vtrec_realize_cursor()
+static void vtrec_realize_cursor(void)
 {
     if (!vtrec_cursor)  // cursor hidden -- its position is irrelevant
         return;
@@ -213,7 +213,7 @@ void vtrec_realize_cursor()
 }
 
 
-void vtrec_dump(int full)
+static void vtrec_dump(int full)
 {
     CONSOLE_SCREEN_BUFFER_INFO cbi;
     SCREEN scr;
@@ -298,7 +298,7 @@ dump_ok:
 
 // For any non-base-ASCII chars, the 16 bit value given is neither the local
 // win codepage value nor Unicode.  Ghrmblah.
-void vtrec_dump_char(int wx, int wy, DWORD ch)
+static void vtrec_dump_char(int wx, int wy, DWORD ch)
 {
     CHAR_INFO c;
     SMALL_RECT reg;
@@ -326,7 +326,7 @@ void vtrec_dump_char(int wx, int wy, DWORD ch)
 }
 
 
-void vtrec_scroll(int d)
+static void vtrec_scroll(int d)
 {
     CONSOLE_SCREEN_BUFFER_INFO cbi;
     CHAR_INFO *cp;
@@ -390,7 +390,7 @@ static char *evnames[]={
 #endif
 
 
-VOID CALLBACK WinEventProc(
+static VOID CALLBACK WinEventProc(
   HWINEVENTHOOK hWinEventHook,
   DWORD event,
   HWND hwnd,
@@ -475,9 +475,9 @@ VOID CALLBACK WinEventProc(
 
 
 // Work around in Windows' (but not Cygwin's) bug in atexit.
-extern void reap_streams();
+extern void reap_streams(void);
 
-void finish_up()
+static void finish_up(void)
 {
     vtrec_printf("\e[?7h\e[?4h");
     vtrec_commit();
@@ -487,7 +487,7 @@ void finish_up()
 }
 
 
-VOID CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
+static VOID CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
     if (vtrec_reent)
         return;
@@ -497,7 +497,7 @@ VOID CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 }
 
 
-BOOL WINAPI CtrlHandler(DWORD dwCtrlType)
+static BOOL WINAPI CtrlHandler(DWORD dwCtrlType)
 {
     switch (dwCtrlType)
     {
@@ -516,7 +516,7 @@ BOOL WINAPI CtrlHandler(DWORD dwCtrlType)
 }
 
 
-int check_console()
+static int check_console(void)
 {
     CONSOLE_SCREEN_BUFFER_INFO cbi;
 
@@ -534,7 +534,7 @@ int check_console()
 }
 
 
-int create_console()
+static int create_console(void)
 {
     HANDLE fd;
     SECURITY_ATTRIBUTES sec;
@@ -564,7 +564,7 @@ int create_console()
 }
 
 
-void set_event_hook()
+static void set_event_hook(void)
 {
     typedef HWINEVENTHOOK (WINAPI* SWEH)(UINT,UINT,HMODULE,WINEVENTPROC,DWORD,DWORD,UINT);
     HMODULE dll;
@@ -586,7 +586,7 @@ void set_event_hook()
 }
 
 
-void spawn_process()
+static void spawn_process(void)
 {
     STARTUPINFO si;
     PROCESS_INFORMATION pi;

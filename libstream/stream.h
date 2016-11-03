@@ -8,3 +8,6 @@ int filter(void func(int,int,const char*), int fd, int wr, const char *arg, cons
 
 int connect_tcp(const char *url, int port, const char **rest, const char **error);
 void telnet(int sock, int fd, const char *arg);
+#ifdef IS_WIN32
+void reap_streams(void);
+#endif

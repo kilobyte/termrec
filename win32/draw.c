@@ -54,12 +54,12 @@ static int bpal[9]={
     0xAAAAAA,
 };
 
-HFONT norm_font, und_font;
-HBRUSH bg_brush;
+static HFONT norm_font, und_font;
+static HBRUSH bg_brush;
 int chx, chy;
 
 
-void draw_line(HDC dc, int x, int y, wchar_t *txt, int cnt, int attr)
+static void draw_line(HDC dc, int x, int y, wchar_t *txt, int cnt, int attr)
 {
     union {color p;int v;} fg,bg,t;
 
@@ -204,7 +204,7 @@ void draw_init(LOGFONT *df)
     }
 }
 
-void draw_free()
+void draw_free(void)
 {
     DeleteObject(norm_font);
     DeleteObject(und_font);
