@@ -199,17 +199,6 @@ static void set_button_state(int id, int onoff)
     SendMessage(wndTB, TB_SETBUTTONINFO, (WPARAM)id, (LPARAM)&bi);
 }
 
-static int get_button_state(int id)
-{
-    TBBUTTONINFO bi;
-
-    bi.cbSize=sizeof(TBBUTTONINFO);
-    bi.dwMask=TBIF_COMMAND|TBIF_STATE;
-    bi.idCommand=id;
-    SendMessage(wndTB, TB_GETBUTTONINFO, (WPARAM)id, (LPARAM)&bi);
-    return !!(bi.fsState&TBSTATE_CHECKED);
-}
-
 
 static void create_button(TBBUTTON *tb, int id, const char *caption)
 {
