@@ -18,6 +18,5 @@
 extern int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsize *wp);
 #endif
 
-extern void pty_resize(int fd, int sx, int sy);
 extern int run(const char *command, int sx, int sy);
 extern void pty_makeraw(struct termios *ta);

@@ -183,16 +183,6 @@ ok:
 }
 #endif
 
-void pty_resize(int fd, int sx, int sy)
-{
-    struct winsize ws;
-    ws.ws_row=sy;
-    ws.ws_col=sx;
-    ws.ws_xpixel=0;
-    ws.ws_ypixel=0;
-    ioctl(fd,TIOCSWINSZ,&ws);
-}
-
 void pty_makeraw(struct termios *ta)
 {
     memset(ta, 0, sizeof(*ta));
