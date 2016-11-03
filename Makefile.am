@@ -4,7 +4,8 @@ else
 SUBDIRS = . tests
 endif
 
-EXTRA_DIST= BUGS autogen.sh gettext.h export.h win32/termrec.iss
+EXTRA_DIST= BUGS autogen.sh gettext.h export.h win32/termrec.iss \
+	VERSION get_version
 DISTCLEANFILES = _stdint.h
 ACLOCAL_AMFLAGS = -I m4
 
@@ -25,3 +26,7 @@ include time/Makefile.am
 include cat/Makefile.am
 endif
 include doc/Makefile.am
+
+VERSION: FORCE
+	[ ! -d .git ] || $(srcdir)/get_version >VERSION
+FORCE:
