@@ -718,7 +718,7 @@ static void paint(HWND hwnd)
 static void do_replay(void)
 {
     HDC dc;
-    struct timeval delay;
+    struct timeval delay = {};
     LARGE_INTEGER del;
 
 again:
