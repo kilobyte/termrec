@@ -54,9 +54,10 @@ static int bpal[9]={
     0xAAAAAA,
 };
 
-static HFONT norm_font, und_font;
+static HFONT fonts[2][2]; /* underline, strikethrough */
 static HBRUSH bg_brush;
 int chx, chy;
+#define ATTR_ALT_FONT (VT100_ATTR_UNDERLINE|VT100_ATTR_STRIKE)
 
 
 static void draw_line(HDC dc, int x, int y, wchar_t *txt, int cnt, int attr)
@@ -86,13 +87,13 @@ static void draw_line(HDC dc, int x, int y, wchar_t *txt, int cnt, int attr)
         fg=bg;
         bg=t;
     }
-    if (attr&VT100_ATTR_UNDERLINE)
-        SelectObject(dc, und_font);
+    if (attr&ATTR_ALT_FONT)
+        SelectObject(dc, fonts[!!(attr&VT100_ATTR_UNDERLINE)][!!(attr&VT100_ATTR_STRIKE)]);
     SetTextColor(dc, fg.v);
     SetBkColor(dc, bg.v);
     TextOutW(dc, x, y, txt, cnt);
-    if (attr&VT100_ATTR_UNDERLINE)
-        SelectObject(dc, norm_font);
+    if (attr&ATTR_ALT_FONT)
+        SelectObject(dc, fonts[0][0]);
 }
 
 
@@ -106,7 +107,7 @@ void draw_vt(HDC dc, int px, int py, tty vt)
     RECT r;
     HFONT oldfont;
 
-    oldfont=SelectObject(dc, norm_font);
+    oldfont=SelectObject(dc, fonts[0][0]);
     ch=vt->scr;
     cnt=0;
     for (y=0;y<vt->sy;y++)
@@ -180,14 +181,19 @@ void draw_init(LOGFONT *df)
     lf.lfPitchAndFamily=FIXED_PITCH;
     lf.lfQuality=ANTIALIASED_QUALITY;
     lf.lfOutPrecision=OUT_TT_ONLY_PRECIS;
-    norm_font=CreateFontIndirect(&lf);
-    oldfont=SelectObject(dc, norm_font);
+    fonts[0][0]=CreateFontIndirect(&lf);
+    oldfont=SelectObject(dc, fonts[0][0]);
     GetTextExtentPoint(dc, "W", 1, &sf);
     chx=sf.cx;
     chy=sf.cy;
     SelectObject(dc, oldfont);
     lf.lfUnderline=1;
-    und_font=CreateFontIndirect(&lf);
+    fonts[1][0]=CreateFontIndirect(&lf);
+    lf.lfStrikeOut=1;
+    lf.lfUnderline=0;
+    fonts[0][1]=CreateFontIndirect(&lf);
+    lf.lfUnderline=1;
+    fonts[1][1]=CreateFontIndirect(&lf);
 
     ReleaseDC(0, dc);
 
@@ -206,8 +212,10 @@ void draw_init(LOGFONT *df)
 
 void draw_free(void)
 {
-    DeleteObject(norm_font);
-    DeleteObject(und_font);
+    DeleteObject(fonts[0][0]);
+    DeleteObject(fonts[1][0]);
+    DeleteObject(fonts[0][1]);
+    DeleteObject(fonts[1][1]);
     DeleteObject(bg_brush);
 }
 
