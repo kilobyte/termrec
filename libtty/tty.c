@@ -11,6 +11,12 @@
 #include "export.h"
 #include "compat.h"
 
+#if defined __GNUC__ && (__GNUC__ >= 7)
+ #define FALLTHRU __attribute__((fallthrough))
+#else
+ #define FALLTHRU
+#endif
+
 #define SX vt->sx
 #define SY vt->sy
 #define CX vt->cx
@@ -238,6 +244,7 @@ export void tty_write(tty vt, const char *buf, int len)
             continue;
         case 10: // LF (newline)
             CX=0;
+            FALLTHRU;
         case 11: // VT (vertical tab)
         newline:
             CY++;
@@ -635,6 +642,7 @@ export void tty_write(tty vt, const char *buf, int len)
 
             case 'F':   // ESC[F -> move cursor up and home, no scrolling
                 CX=0;
+                FALLTHRU;
             case 'A':   // ESC[A -> move cursor up, no scrolling
                 i=vt->tok[0];
                 if (i<1)
@@ -649,6 +657,7 @@ export void tty_write(tty vt, const char *buf, int len)
 
             case 'E':   // ESC[E -> move cursor down and home, no scrolling
                 CX=0;
+                FALLTHRU;
             case 'B':   // ESC[B -> move cursor down, no scrolling
                 i=vt->tok[0];
                 if (i<1)
