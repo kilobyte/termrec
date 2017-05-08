@@ -1,5 +1,3 @@
-#undef RV       // reverse video
-
 #define MAX_LINE 132
 
 typedef struct { unsigned char r,g,b,a; } color;
