@@ -575,16 +575,21 @@ export void tty_write(tty vt, const char *buf, int len)
                         vt->attr=(vt->attr&~0xff)|(vt->tok[i]-30);
                         break;
                     case 38:
-                        // Other subcommands, none of which we support:
-                        // * 2: RGB
-                        // * 3: CMY
-                        // * 4: CMYK
-                        if (vt->tok[++i]!=5)
+                        switch (vt->tok[++i])
+                        {
+                        case 5:
+                            if (vt->tok[++i]==16)
+                                vt->attr&=~0xff; // colour 16 is same as 0
+                            else
+                                vt->attr=vt->attr&~0xff|vt->tok[i];
                             break;
-                        if (vt->tok[++i]==16)
-                            vt->attr&=~0xff; // colour 16 is same as 0
-                        else
-                            vt->attr=vt->attr&~0xff|vt->tok[i];
+                        case 2:
+                        case 3:
+                            i+=3;
+                            break;
+                        case 4:
+                            i+=4;
+                        }
                         break;
                     case 39:
                         vt->attr=vt->attr&~0xff|0x10;
@@ -594,12 +599,21 @@ export void tty_write(tty vt, const char *buf, int len)
                         vt->attr=(vt->attr&~0xff00)|(vt->tok[i]-40)<<8;
                         break;
                     case 48:
-                        if (vt->tok[++i]!=5)
+                        switch (vt->tok[++i])
+                        {
+                        case 5:
+                            if (vt->tok[++i]==16)
+                                vt->attr&=~0xff00; // colour 16 is same as 0
+                            else
+                                vt->attr=vt->attr&~0xff00|vt->tok[i]<<8;
                             break;
-                        if (vt->tok[++i]==16)
-                            vt->attr&=~0xff00; // colour 16 is same as 0
-                        else
-                            vt->attr=vt->attr&~0xff00|vt->tok[i]<<8;
+                        case 2:
+                        case 3:
+                            i+=3;
+                            break;
+                        case 4:
+                            i+=4;
+                        }
                         break;
                     case 49:
                         vt->attr=vt->attr&~0xff00|0x1000;
