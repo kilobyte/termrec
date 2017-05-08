@@ -575,9 +575,13 @@ export void tty_write(tty vt, const char *buf, int len)
                         vt->attr=(vt->attr&~0xff)|(vt->tok[i]-30);
                         break;
                     case 38:
+                        if (i>=VT100_MAXTOK-1)
+                            break;
                         switch (vt->tok[++i])
                         {
                         case 5:
+                            if (i>=VT100_MAXTOK-1)
+                                break;
                             if (vt->tok[++i]==16)
                                 vt->attr&=~0xff; // colour 16 is same as 0
                             else
@@ -599,9 +603,13 @@ export void tty_write(tty vt, const char *buf, int len)
                         vt->attr=(vt->attr&~0xff00)|(vt->tok[i]-40)<<8;
                         break;
                     case 48:
+                        if (i>=VT100_MAXTOK-1)
+                            break;
                         switch (vt->tok[++i])
                         {
                         case 5:
+                            if (i>=VT100_MAXTOK-1)
+                                break;
                             if (vt->tok[++i]==16)
                                 vt->attr&=~0xff00; // colour 16 is same as 0
                             else
