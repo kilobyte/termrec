@@ -74,12 +74,12 @@ static void draw_line(HDC dc, int x, int y, wchar_t *txt, int cnt, int attr)
     }
     if (attr&VT100_ATTR_BLINK)
     {
-        bg.p.r=(((unsigned int)bg.p.r)*3+0x80)/4;
-        bg.p.g=(((unsigned int)bg.p.g)*3+0x80)/4;
-        bg.p.b=(((unsigned int)bg.p.b)*3+0x80)/4;
-        fg.p.r=(((unsigned int)fg.p.r)*3+0x80)/4;
-        fg.p.g=(((unsigned int)fg.p.g)*3+0x80)/4;
-        fg.p.b=(((unsigned int)fg.p.b)*3+0x80)/4;
+        bg.p.r=(((unsigned int)bg.p.r)+0x80)/2;
+        bg.p.g=(((unsigned int)bg.p.g)+0x80)/2;
+        bg.p.b=(((unsigned int)bg.p.b)+0x80)/2;
+        fg.p.r=(((unsigned int)fg.p.r)+0x80)/2;
+        fg.p.g=(((unsigned int)fg.p.g)+0x80)/2;
+        fg.p.b=(((unsigned int)fg.p.b)+0x80)/2;
     }
     if (attr&VT100_ATTR_INVERSE)
     {
