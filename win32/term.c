@@ -1069,8 +1069,13 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         case WM_KEYDOWN:
             switch (wParam)
             {
-            case VK_ADD:
             case 'F':
+                if (GetKeyState(VK_CONTROL)&0x8000)
+                {
+                    choose_font();
+                    break;
+                }
+            case VK_ADD:
                 adjust_speed(+1);
                 break;
             case VK_SUBTRACT:
