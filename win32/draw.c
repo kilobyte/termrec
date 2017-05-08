@@ -83,7 +83,7 @@ void draw_vt(HDC dc, int px, int py, tty vt)
 {
     int x,y,x0;
     int attr;
-    wchar_t linebuf[MAX_LINE*2];
+    wchar_t linebuf[512*2]; // same as the max in tty.c
     int cnt;
     attrchar *ch;
     RECT r;
