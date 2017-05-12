@@ -55,9 +55,10 @@ static int find_w_format(const char *format, const char *filename, const char *f
                 return nf;
     }
     // is the default valid?
-    for (nf=0; rec[nf].name; nf++)
-        if (!strcasecmp(fallback, rec[nf].name))
-            return nf;
+    if (fallback)
+        for (nf=0; rec[nf].name; nf++)
+            if (!strcasecmp(fallback, rec[nf].name))
+                return nf;
     return -1;
 }
 
@@ -172,9 +173,10 @@ static int find_r_format(const char *format, const char *filename, const char *f
                 return nf;
     }
     // is the default valid?
-    for (nf=0; play[nf].name; nf++)
-        if (!strcasecmp(fallback, play[nf].name))
-            return nf;
+    if (fallback)
+        for (nf=0; play[nf].name; nf++)
+            if (!strcasecmp(fallback, play[nf].name))
+                return nf;
     return -1;
 }
 
