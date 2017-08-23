@@ -1,58 +1,8 @@
 #include <windows.h>
+#include <stdbool.h>
 #include "tty.h"
 #include "draw.h"
 
-
-// The tables below are -1-based -- the indented values are those of the
-// "default" colour.
-static int fpal[2][9]=
-{
-    {
-          0xAAAAAA,
-        0x000000,
-        0x0000AA,
-        0x00AA00,
-        0x00AAAA,
-        0xAA0000,
-        0xAA00AA,
-        0xAAAA00,
-        0xAAAAAA,
-    },
-    {
-#ifdef RV
-          0x000000,
-#else
-          0xFFFFFF,
-#endif
-        0x555555,
-        0x5555FF,
-        0x55FF55,
-        0x55FFFF,
-        0xFF5555,
-        0xFF55FF,
-        0xFFFF55,
-        0xFFFFFF,
-    }
-};
-static int bpal[9]={
-#ifndef TL
-# ifdef RV
-      0x0fFFFFFF,
-# else
-      0x40000000,
-# endif
-#else
-      0xff000000,
-#endif
-    0x000000,
-    0x0000AA,
-    0x00AA00,
-    0x00AAAA,
-    0xAA0000,
-    0xAA00AA,
-    0xAAAA00,
-    0xAAAAAA,
-};
 
 static HFONT fonts[2][2]; /* underline, strikethrough */
 static HBRUSH bg_brush;
@@ -60,12 +10,44 @@ int chx, chy;
 #define ATTR_ALT_FONT (VT100_ATTR_UNDERLINE|VT100_ATTR_STRIKE)
 
 
+// win32 has a big endian byte order here!
+static int col256_to_rgb(int i, bool bold)
+{
+    // Standard colours.
+    if (i < 16)
+    {
+        int c = (i&1 ? 0x0000aa : 0x000000)
+              | (i&2 ? 0x00aa00 : 0x000000)
+              | (i&4 ? 0xaa0000 : 0x000000);
+        return (i >= 8 || bold) ? c + 0x555555 : c;
+    }
+    // 6x6x6 colour cube.
+    else if (i < 232)
+    {
+        i -= 16;
+        return (i / 36 * 85 / 2)
+             | (i / 6 % 6 * 85 / 2) << 8
+             | (i % 6 * 85 / 2) << 16;
+    }
+    // Grayscale ramp.
+    else // i < 256
+        return (i * 10 - 2312) * 0x010101;
+}
+
+
 static void draw_line(HDC dc, int x, int y, wchar_t *txt, int cnt, int attr)
 {
     union {color p;int v;} fg,bg,t;
+    unsigned char c;
 
-    fg.v=fpal[!!(attr&VT100_ATTR_BOLD)][(signed char)(attr)+1];
-    bg.v=bpal[(signed char)(attr>>8)+1];
+    c = attr;
+    if (c == 0x10)
+        c = 7;
+    fg.v=col256_to_rgb(c, attr&VT100_ATTR_BOLD);
+    c = attr>>8;
+    if (c == 0x10)
+        c = 0;
+    bg.v=col256_to_rgb(c, false);
     if (attr&VT100_ATTR_DIM)
     {
         fg.p.r/=2;
@@ -74,12 +56,12 @@ static void draw_line(HDC dc, int x, int y, wchar_t *txt, int cnt, int attr)
     }
     if (attr&VT100_ATTR_BLINK)
     {
-        bg.p.r=(((unsigned int)bg.p.r)*3+0x80)/4;
-        bg.p.g=(((unsigned int)bg.p.g)*3+0x80)/4;
-        bg.p.b=(((unsigned int)bg.p.b)*3+0x80)/4;
-        fg.p.r=(((unsigned int)fg.p.r)*3+0x80)/4;
-        fg.p.g=(((unsigned int)fg.p.g)*3+0x80)/4;
-        fg.p.b=(((unsigned int)fg.p.b)*3+0x80)/4;
+        bg.p.r=(((unsigned int)bg.p.r)+0x80)/2;
+        bg.p.g=(((unsigned int)bg.p.g)+0x80)/2;
+        bg.p.b=(((unsigned int)bg.p.b)+0x80)/2;
+        fg.p.r=(((unsigned int)fg.p.r)+0x80)/2;
+        fg.p.g=(((unsigned int)fg.p.g)+0x80)/2;
+        fg.p.b=(((unsigned int)fg.p.b)+0x80)/2;
     }
     if (attr&VT100_ATTR_INVERSE)
     {
@@ -101,7 +83,7 @@ void draw_vt(HDC dc, int px, int py, tty vt)
 {
     int x,y,x0;
     int attr;
-    wchar_t linebuf[MAX_LINE*2];
+    wchar_t linebuf[512*2]; // same as the max in tty.c
     int cnt;
     attrchar *ch;
     RECT r;
@@ -197,17 +179,7 @@ void draw_init(LOGFONT *df)
 
     ReleaseDC(0, dc);
 
-    switch (bpal[0]&0xffffff)
-    {
-    case 0x000000:
-        bg_brush=GetStockObject(BLACK_BRUSH);
-        break;
-    case 0xFFFFFF:
-        bg_brush=GetStockObject(WHITE_BRUSH);
-        break;
-    default:
-        bg_brush=CreateSolidBrush(bpal[0]&0xffffff);
-    }
+    bg_brush=GetStockObject(BLACK_BRUSH);
 }
 
 void draw_free(void)

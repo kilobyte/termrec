@@ -14,3 +14,6 @@
 * tty: not all control sequences are supported.  It'd be nice to have a
   good subset of http://invisible-island.net/xterm/ctlseqs/ctlseqs.html
   implemented.
+
+* win32/play: font selection being hidden in the window's sysmenu is
+  unobvious, and can't be accessed under Wine at all.
