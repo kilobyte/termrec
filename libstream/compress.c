@@ -34,7 +34,7 @@ VISIBILITY_DISABLE
 #include "error.h"
 #include "gettext.h"
 
-#define ERRORMSG(x) {if (write(fd,(x),strlen(x))) {};}
+#define ERRORMSG(x) do if (write(fd,(x),strlen(x))) {} while(0)
 
 #define BUFFER_SIZE 32768
 
