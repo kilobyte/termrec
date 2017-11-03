@@ -45,7 +45,7 @@ static int find_w_format(const char *format, const char *filename, const char *f
         compress_info *ci;
         int skip;
 
-        ci=comp_from_ext(filename, decompressors);
+        ci=comp_from_ext(filename, compressors);
         if (ci)
             skip=strlen(ci->ext);
         else
@@ -163,7 +163,7 @@ static int find_r_format(const char *format, const char *filename, const char *f
         compress_info *ci;
         int skip;
 
-        ci=comp_from_ext(filename, compressors);
+        ci=comp_from_ext(filename, decompressors);
         if (ci)
             skip=strlen(ci->ext);
         else
