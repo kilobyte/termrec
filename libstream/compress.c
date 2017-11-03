@@ -269,6 +269,49 @@ xz_write_end:
 #endif
 
 #if (defined HAVE_LIBZSTD) || (defined SHIPPED_LIBZSTD)
+static void read_zstd(int f, int fd, const char *arg)
+{
+    ZSTD_inBuffer  zin;
+    ZSTD_outBuffer zout;
+    size_t const inbufsz  = ZSTD_DStreamInSize();
+    zin.src = malloc(inbufsz);
+    zout.size = ZSTD_DStreamOutSize();
+    zout.dst = malloc(zout.size);
+
+    if (!zin.src || !zout.dst)
+        goto zstd_r_no_stream;
+
+    ZSTD_DStream* const stream = ZSTD_createDStream();
+    if (!stream)
+        goto zstd_r_no_stream;
+    if (ZSTD_isError(ZSTD_initDStream(stream)))
+        goto zstd_r_error;
+
+    size_t s;
+    while ((s = read(f, (void*)zin.src, inbufsz)) > 0)
+    {
+        zin.size = s;
+        zin.pos = 0;
+        while (zin.pos < zin.size)
+        {
+            zout.pos = 0;
+            size_t w = ZSTD_decompressStream(stream, &zout, &zin);
+            if (ZSTD_isError(w))
+                goto zstd_r_error;
+            if (write(fd, zout.dst, zout.pos) != zout.pos)
+                goto zstd_r_error;
+        }
+    }
+
+zstd_r_error:
+    ZSTD_freeDStream(stream);
+zstd_r_no_stream:
+    free((void*)zin.src);
+    free(zout.dst);
+    close(f);
+    close(fd);
+}
+
 static void write_zstd(int f, int fd, const char *arg)
 {
     ZSTD_inBuffer  zin;
@@ -343,6 +386,9 @@ compress_info decompressors[]={
 #endif
 #if (defined HAVE_LIBLZMA) || (defined SHIPPED_LIBLZMA)
 {"xz", ".xz",  read_xz},
+#endif
+#if (defined HAVE_LIBZSTD) || (defined SHIPPED_LIBZSTD)
+{"zstd", ".zst",  read_zstd},
 #endif
 {0, 0, 0},
 };
