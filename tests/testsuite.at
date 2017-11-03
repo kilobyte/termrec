@@ -30,6 +30,10 @@ AT_SETUP([loading and saving ttyrecs to memory (.xz)])
 AT_SKIP_IF([! grep -q "^#define \\(HAVE_LZMA_H\\|SHIPPED_LIBLZMA\\) 1" $abs_top_builddir/config.h])
 AT_CHECK([rec test.ttyrec.xz && loadsave test.ttyrec.xz out.ttyrec.xz && cmp test.ttyrec.xz out.ttyrec.xz])
 AT_CLEANUP
+AT_SETUP([loading and saving ttyrecs to memory (.zst)])
+AT_SKIP_IF([! grep -q "^#define \\(HAVE_ZSTD_H\\|SHIPPED_LIBZSTD\\) 1" $abs_top_builddir/config.h])
+AT_CHECK([rec test.ttyrec.zst && loadsave test.ttyrec.zst out.ttyrec.zst && cmp test.ttyrec.zst out.ttyrec.zst])
+AT_CLEANUP
 
 AT_SETUP([vt100 sequences])
 for x in "$top_srcdir/tests/vt.in/"*
