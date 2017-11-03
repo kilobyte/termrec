@@ -44,6 +44,8 @@ void get_rec_parms(int argc, char **argv)
     comp_ext=".gz";
 #elif (defined HAVE_LIBLZMA) || (defined SHIPPED_LIBLZMA)
     comp_ext=".xz";
+#elif (defined HAVE_LIBZSTD) || (defined SHIPPED_LIBZSTD)
+    comp_ext=".zst";
 #else
     comp_ext="";
 #endif

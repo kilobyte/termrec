@@ -37,7 +37,7 @@ AX_CREATE_STDINT_H
 AC_HEADER_TIME
 AC_CHECK_HEADERS([fcntl.h stdlib.h string.h strings.h sys/ioctl.h termios.h \
         unistd.h bzlib.h zlib.h sys/time.h sys/select.h langinfo.h \
-        netinet/in.h lzma.h pty.h libutil.h])
+        netinet/in.h lzma.h pty.h libutil.h zstd.h])
 AC_CHECK_HEADERS([arpa/inet.h netdb.h sys/socket.h])
 AC_CHECK_HEADERS([winsock2.h])
 AC_DECL_OR_ZERO([O_BINARY], [fcntl.h])
@@ -80,6 +80,9 @@ AC_SUBST([LIBZ])
 AC_CHECK_LIB([lzma], [lzma_code], [AC_HAVE_LIB([lzma], [LZMA])], [
   AC_SHIPPED_LIB(LIBLZMA, lzma.dll, lzma.h, [lzma_code(0,0)], [win32/])])
 AC_SUBST([LIBLZMA])
+AC_CHECK_LIB([zstd], [ZSTD_compress], [AC_HAVE_LIB([zstd], [ZSTD])], [
+  AC_SHIPPED_LIB(LIBZSTD, zstd.dll, zstd.h, [ZSTD_compress(0,0,0,0,0)], [win32/])])
+AC_SUBST([LIBZSTD])
 
 # Enable warnings.
 AC_C_TRY_FLAG([-Wall])

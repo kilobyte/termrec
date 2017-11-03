@@ -7,9 +7,9 @@ Unix
 ====
 
 On an Unix system, do:
-    + apt-get install libz-dev libbz2-dev liblzma-dev
-       Or equivalent.  If you skip this step, the .gz/.bz2/.xz support won't
-       get compiled in.
+    + apt-get install libz-dev libbz2-dev liblzma-dev libzstd-dev
+       Or equivalent.  If you skip this step, the .gz/.bz2/.xz/.zst support
+       won't get compiled in.
     + ./configure
     + make
 
@@ -60,3 +60,7 @@ If you're putting them together by hand, put the files into win32/lib/ :
     + lzma/*.h
     + liblzma.a
     + liblzma.dll
+* zstd:
+    + zstd.h
+    + libzstd.dll.a
+    + libzstd.dll
