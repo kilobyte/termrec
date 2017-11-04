@@ -689,7 +689,7 @@ static void print_banner(void)
 #if (defined HAVE_LIBBZ2) || (defined SHIPPED_LIBBZ2)
     tty_printf(vt, "* bzip2\n");
 #endif
-#if (defined HAVE_LIBBLZMA) || (defined SHIPPED_LIBLZMA)
+#if (defined HAVE_LIBLZMA) || (defined SHIPPED_LIBLZMA)
     tty_printf(vt, "* xz\n");
 #endif
     tty_printf(vt, "Replay plugins:\n");
