@@ -11,12 +11,12 @@ static void sub(int t1, int t2, const char *exp)
 {
     char buf[BUFFER_SIZE], *bptr;
     ttyrec_frame fr;
-    struct timeval tv;
+    struct timespec tv;
 
     printf("Exp: [%s]\n", exp);
 
     tv.tv_sec=t1;
-    tv.tv_usec=0;
+    tv.tv_nsec=0;
     fr=ttyrec_seek(tr, (t1!=-1)?&tv:0, 0);
     bptr=buf;
     while (fr && (t2==-1 || fr->t.tv_sec<=t2))
@@ -35,7 +35,7 @@ static void sub(int t1, int t2, const char *exp)
 
 int main(void)
 {
-    struct timeval tv;
+    struct timespec tv;
     int i;
     char word[2]="x";
 
@@ -43,7 +43,7 @@ int main(void)
     if (!tr)
         die("ttyrec_init() failed");
     tv.tv_sec=1;
-    tv.tv_usec=0;
+    tv.tv_nsec=0;
 
     for (i=1;i<=10;i++)
     {

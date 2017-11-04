@@ -2,6 +2,7 @@
 #define _COMPAT_H
 
 #include "config.h"
+#include <time.h>
 
 #ifdef WIN32
 # include "win32/net.h"
@@ -13,19 +14,14 @@
 int asprintf(char **sptr, const char *fmt, ...);
 int vasprintf(char **sptr, const char *fmt, va_list ap);
 #endif
-#ifndef HAVE_GETTIMEOFDAY
-void gettimeofday(struct timeval *tv, void * dummy);
+#ifndef HAVE_CLOCK_GETTIME
+int clock_gettime(int dummy, struct timespec *tv);
 #endif
-#ifndef HAVE_USLEEP
-void usleep(unsigned int usec);
+#ifndef HAVE_NANOSLEEP
+int nanosleep(const struct timespec *req, struct timespec *rem);
 #endif
 #ifndef HAVE_PIPE
 int pipe(int pipefd[2]);
-#endif
-#ifndef HAVE_SELECT
-// for now, select() _only_ as microsecond sleep()
-# define select(d1,d2,d3,d4,timeout) uselect(timeout)
-int uselect(struct timeval *timeout);
 #endif
 
 #endif

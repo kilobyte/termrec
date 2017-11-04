@@ -105,14 +105,14 @@ static void loader_end(void *arg)
     mutex_unlock(waitm);
 }
 
-static struct timeval lt;
+static struct timespec lt;
 
-static void loader_init_wait(const struct timeval *ts, void *arg)
+static void loader_init_wait(const struct timespec *ts, void *arg)
 {
 //    lt=*ts;
 }
 
-static void loader_wait(const struct timeval *delay, void *arg)
+static void loader_wait(const struct timespec *delay, void *arg)
 {
     tadd(lt, *delay);
 }
@@ -120,7 +120,7 @@ static void loader_wait(const struct timeval *delay, void *arg)
 static void loader_print(const char *data, int len, void *arg)
 {
     ttyrec_add_frame(tr, &lt, data, len);
-    lt.tv_sec=lt.tv_usec=0;
+    lt.tv_sec=lt.tv_nsec=0;
     mutex_lock(waitm);
     if (waiting)
     {

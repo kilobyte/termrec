@@ -4,13 +4,14 @@
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
+#include <errno.h>
 #include "error.h"
 #include "gettext.h"
 #include "sys/threads.h"
 #include "play/player.h"
 
 static ttyrec_frame fr;
-static struct timeval t0, tc;
+static struct timespec t0, tc;
 
 
 static void waitm_unlock(void *arg)
@@ -21,7 +22,7 @@ static void waitm_unlock(void *arg)
 static int player(void *arg)
 {
     ttyrec_frame nf;
-    struct timeval tt, wall;
+    struct timespec tt, wall;
 
     do
     {
@@ -30,10 +31,13 @@ static int player(void *arg)
             tt=nf->t;
             tdiv1000(tt, speed);
             tadd(tt, t0);
-            gettimeofday(&wall, 0);
+            clock_gettime(CLOCK_REALTIME, &wall);
             tsub(tt, wall);
-            if (tt.tv_sec>0 || tt.tv_usec>0)
-                select(0, 0, 0, 0, &tt);
+            if (tt.tv_sec>0 || tt.tv_nsec>0)
+            {
+                while (nanosleep(&tt, &tt)==-1 && errno==EINTR)
+                    ;
+            }
             else if (tt.tv_sec<-1) // if not a minimal skip, slow down the clock
                 tsub(t0, tt);      // (tt is negative)
             pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
@@ -66,7 +70,7 @@ static void replay_start(void)
     if (play_state)
         return;
     play_state=1;
-    gettimeofday(&t0, 0);
+    clock_gettime(CLOCK_REALTIME, &t0);
     tdiv1000(tc, speed);
     tsub(t0, tc);
     if (thread_create_joinable(&playth, player, 0))
@@ -78,7 +82,7 @@ static void replay_stop(void)
 {
     if (!play_state)
         return;
-    gettimeofday(&tc, 0);       // calc where we stopped
+    clock_gettime(CLOCK_REALTIME, &tc);       // calc where we stopped
     tsub(tc, t0);
     tmul1000(tc, speed);
     play_state=0;
@@ -96,7 +100,7 @@ static void adjust_pos(int diff)
     replay_stop();
     tc.tv_sec+=diff;
     if (tc.tv_sec<0)
-        tc.tv_sec=tc.tv_usec=0;
+        tc.tv_sec=tc.tv_nsec=0;
     fr=ttyrec_seek(tr, &tc, &term);
     vtvt_attach(term, stdout, 1);
     if (old_state)
@@ -140,7 +144,7 @@ static void replay_toggle(int dummy)
 static void replay_rewind(int dummy)
 {
     replay_stop();
-    tc.tv_sec=tc.tv_usec=0;
+    tc.tv_sec=tc.tv_nsec=0;
 }
 
 static void adv_frame(int dummy)
@@ -210,7 +214,7 @@ void replay(void)
     struct bind *bp;
 
     play_state=0;
-    tc.tv_sec=tc.tv_usec=0;
+    tc.tv_sec=tc.tv_nsec=0;
     fr=ttyrec_seek(tr, 0, &term);
     vtvt_attach(term, stdout, 1);
     replay_start();

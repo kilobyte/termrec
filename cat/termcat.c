@@ -5,10 +5,10 @@
 #include "sys/error.h"
 #include "gettext.h"
 
-static struct timeval tt;
+static struct timespec tt;
 static recorder rec;
 
-static void delay(const struct timeval *tm, void *arg)
+static void delay(const struct timespec *tm, void *arg)
 {
     tadd(tt, *tm);
 }
@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 
     if (argc<3)
         die("%s termcat <%s> ... <dest>\n", _("Usage:"), _("filename"));
-    tt.tv_sec=tt.tv_usec=0;
+    tt.tv_sec=tt.tv_nsec=0;
     if (!(rec=ttyrec_w_open(-1, 0, argv[argc-1], 0)))
         die("Failed to open destination file");
     for (i=1;i<argc-1;i++)

@@ -71,11 +71,11 @@ export const char* ttyrec_w_find_format(const char *format, const char *filename
 }
 
 
-export recorder ttyrec_w_open(int fd, const char *format, const char *filename, const struct timeval *tm)
+export recorder ttyrec_w_open(int fd, const char *format, const char *filename, const struct timespec *tm)
 {
     int nf;
     recorder r;
-    struct timeval t0={0,0};
+    struct timespec t0={0,0};
 
     nf=find_w_format(format, filename, "ansi");
     if (nf==-1)
@@ -104,7 +104,7 @@ export recorder ttyrec_w_open(int fd, const char *format, const char *filename, 
 }
 
 
-export int ttyrec_w_write(recorder r, const struct timeval *tm, const char *buf, int len)
+export int ttyrec_w_write(recorder r, const struct timespec *tm, const char *buf, int len)
 {
     assert(r);
     assert(r->f);
@@ -209,8 +209,8 @@ export const char* ttyrec_r_get_format_ext(const char *format)
 static void dummyfunc(void) {}
 
 export int ttyrec_r_play(int fd, const char *format, const char *filename,
-    void (*synch_init_wait)(const struct timeval *ts, void *arg),
-    void (*synch_wait)(const struct timeval *tv, void *arg),
+    void (*synch_init_wait)(const struct timespec *ts, void *arg),
+    void (*synch_wait)(const struct timespec *tv, void *arg),
     void (*synch_print)(const char *buf, int len, void *arg),
     void *arg)
 {

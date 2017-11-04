@@ -108,10 +108,10 @@ static int scrdiff(screen *vt, screen *scr, char *buf)
 }
 
 void play_dosrecorder(FILE *f,
-    void (*synch_init_wait)(const struct timeval *ts, void *arg),
-    void (*synch_wait)(const struct timeval *tv, void *arg),
+    void (*synch_init_wait)(const struct timespec *ts, void *arg),
+    void (*synch_wait)(const struct timespec *tv, void *arg),
     void (*synch_print)(const char *buf, int len, void *arg),
-    void *arg, const struct timeval *cont)
+    void *arg, const struct timespec *cont)
 {
     gzFile g;
     screen vt, scr, screens[MAXSCREENS];
@@ -138,7 +138,7 @@ void play_dosrecorder(FILE *f,
     } fh;
 #pragma pack(pop)
     char buf[BUFFER_SIZE], *bp;
-    struct timeval tv;
+    struct timespec tv;
 
     if (!(g=gzdopen(dup(fileno(f)), "rb")))
     {
@@ -186,7 +186,7 @@ void play_dosrecorder(FILE *f,
         bp+=scrdiff(&vt, &scr, bp);
 
         tv.tv_sec=fh.delay/1000;
-        tv.tv_usec=(fh.delay-tv.tv_sec*1000)*1000;
+        tv.tv_nsec=(fh.delay-tv.tv_sec*1000)*1000000;
         synch_wait(&tv, arg);
         synch_print(buf, bp-buf, arg);
 

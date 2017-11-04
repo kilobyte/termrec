@@ -52,11 +52,11 @@ char vtrec_buf[0x10000], *vb;
 
 static void vtrec_commit(void)
 {
-    struct timeval tv;
+    struct timespec tv;
 
     if (vb==vtrec_buf)
         return;
-    gettimeofday(&tv, 0);
+    clock_gettime(CLOCK_REALTIME, &tv);
     ttyrec_w_write(rec, &tv, vtrec_buf, vb-vtrec_buf);
     vb=vtrec_buf;
 }
@@ -622,7 +622,7 @@ static void spawn_process(void)
 
 int main(int argc, char **argv)
 {
-    struct timeval tv;
+    struct timespec tv;
     int record_f;
 
 #ifdef EVDEBUG
@@ -649,7 +649,7 @@ int main(int argc, char **argv)
     timer=(UINT_PTR)(-1);
     vtrec_reent=0;
     vtrec_dirty=0;
-    gettimeofday(&tv, 0);
+    clock_gettime(CLOCK_REALTIME, &tv);
     rec=ttyrec_w_open(record_f, format, record_name, &tv);
     vtrec_dump(1);
     SetConsoleCtrlHandler(CtrlHandler,1);

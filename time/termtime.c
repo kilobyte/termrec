@@ -5,9 +5,9 @@
 #include "sys/error.h"
 #include "gettext.h"
 
-static struct timeval tt;
+static struct timespec tt;
 
-static void delay(const struct timeval *tm, void *arg)
+static void delay(const struct timespec *tm, void *arg)
 {
     tadd(tt, *tm);
 }
@@ -21,10 +21,10 @@ int main(int argc, char **argv)
         die("%s termtime <%s> ...\n", _("Usage:"), _("filename"));
     for (i=1;i<argc;i++)
     {
-        tt.tv_sec=tt.tv_usec=0;
+        tt.tv_sec=tt.tv_nsec=0;
         if (ttyrec_r_play(-1, 0, argv[i], 0, delay, 0, 0))
         {
-            printf("%7ld.%06ld\t%s\n", (long)tt.tv_sec, (long)tt.tv_usec, argv[i]);
+            printf("%7ld.%06ld\t%s\n", (long)tt.tv_sec, (long)tt.tv_nsec/1000, argv[i]);
             any=1;
         }
         else

@@ -82,7 +82,7 @@ static void workthread(struct workstate *ws)
     int state,will=0 /*lint food*/,who;
     ssize_t cnt;
     unsigned char buf[BUFFER_SIZE],out[BUFFER_SIZE],*bp,*op;
-    struct timeval tv;
+    struct timespec tv;
 
     mutex_lock(ws->mutex);
     who=ws->who++;
@@ -182,7 +182,7 @@ static void workthread(struct workstate *ws)
         if (!ws->echoing[who])
         {
     no_traffic_analysis:
-            gettimeofday(&tv, 0);
+            clock_gettime(CLOCK_REALTIME, &tv);
             mutex_lock(ws->mutex);
             ttyrec_w_write(ws->rec, &tv, (char*)out, op-out);
             mutex_unlock(ws->mutex);
@@ -230,7 +230,7 @@ static void connthread(void *arg)
 {
     thread_t th;
     char *filename;
-    struct timeval tv;
+    struct timespec tv;
     struct workstate ws;
     int fd;
     int sock=(intptr_t)arg;
@@ -249,7 +249,7 @@ static void connthread(void *arg)
         printf(_("Ok.\n")); // managed to connect out
     filename=record_name;
     fd=open_out(&filename, format_ext, append);
-    gettimeofday(&tv, 0);
+    clock_gettime(CLOCK_REALTIME, &tv);
     if (fd==-1 || !(ws.rec=ttyrec_w_open(fd, format, filename, &tv)))
     {
         fprintf(stderr, _("Can't create file: %s\n"), filename);

@@ -34,13 +34,13 @@ LOGFONT df;
 
 ttyrec ttr;
 ttyrec_frame tev_cur;
-struct timeval t0, // adjusted wall time at t=0
-               tr; // current point of replay
+struct timespec t0, // adjusted wall time at t=0
+                tr; // current point of replay
 int tev_curlp;  // amount of data already played from the current block
 int speed;
 fpos_t lastp;
 int play_state; // 0: not loaded, 1: paused, 2: playing, 3: waiting for input
-struct timeval t0,tdate,tmax,selstart,selend;
+struct timespec t0,tdate,tmax,selstart,selend;
 int progmax,progdiv,progval;
 int defsx, defsy;
 
@@ -377,7 +377,7 @@ static void set_prog_max(void)
 
 static void set_prog(void)
 {
-    int t=tr.tv_sec*(1000000/progdiv)+tr.tv_usec/progdiv;
+    int t=tr.tv_sec*(1000000000/progdiv)+tr.tv_nsec/progdiv;
 
     if (t!=progval)
     {
@@ -391,7 +391,7 @@ static void get_pos(void)
 {
     if (play_state==2)
     {
-        gettimeofday(&tr, 0);
+        clock_gettime(CLOCK_REALTIME, &tr);
         tsub(tr, t0);
         tmul1000(tr, speed);
     }
@@ -400,8 +400,8 @@ static void get_pos(void)
 
 static void set_prog_sel(void)
 {
-    int t1=selstart.tv_sec*(1000000/progdiv)+selstart.tv_usec/progdiv;
-    int t2=selend.tv_sec*(1000000/progdiv)+selend.tv_usec/progdiv;
+    int t1=selstart.tv_sec*(1000000000/progdiv)+selstart.tv_nsec/progdiv;
+    int t2=selend.tv_sec*(1000000000/progdiv)+selend.tv_nsec/progdiv;
 
     SendMessage(wndProg, TBM_SETSEL, 1, (LPARAM)MAKELONG(t1,t2));
     SendMessage(wndTB, TB_ENABLEBUTTON, BUT_EXPORT, tcmp(selstart, selend)<0);
@@ -445,7 +445,7 @@ static void replay_pause(void)
     case 1:
         break;
     case 2:
-        gettimeofday(&tr, 0);
+        clock_gettime(CLOCK_REALTIME, &tr);
         tsub(tr, t0);
         tmul1000(tr, speed);
     case 3:
@@ -456,14 +456,14 @@ static void replay_pause(void)
 
 static void replay_resume(void)
 {
-    struct timeval t;
+    struct timespec t;
 
     switch (play_state)
     {
     case 0:
     default:
     case 1:
-        gettimeofday(&t0, 0);
+        clock_gettime(CLOCK_REALTIME, &t0);
         t=tr;
         tdiv1000(t, speed);
         tsub(t0, t);
@@ -476,9 +476,9 @@ static void replay_resume(void)
 }
 
 
-static int replay_play(struct timeval *delay)
+static int replay_play(struct timespec *delay)
 { // structures touched: tev, vt
-    struct timeval tr1;
+    struct timespec tr1;
     ttyrec_frame fn;
 
     switch (play_state)
@@ -488,7 +488,7 @@ static int replay_play(struct timeval *delay)
     case 1:
         return 0;
     case 2:
-        gettimeofday(&tr, 0);
+        clock_gettime(CLOCK_REALTIME, &tr);
         tsub(tr, t0);
         tmul1000(tr, speed);
         tr1=tr;
@@ -523,14 +523,14 @@ static int replay_play(struct timeval *delay)
 // find the frame containing time "tr", update "t0"
 static void replay_seek(void)
 {
-    struct timeval t;
+    struct timespec t;
 
     t=tr;
     tadd(t, tdate);
     tev_cur=ttyrec_seek(ttr, &t, &vt);
     tev_curlp=0;
 
-    gettimeofday(&t0, 0);
+    clock_gettime(CLOCK_REALTIME, &t0);
     tdiv1000(tr, speed);
     tsub(t0, tr);
 }
@@ -540,7 +540,7 @@ static void replay_start(void)
 {
     tty tev_vt;
     ttyrec_frame tev_tail;
-    struct timeval doomsday;
+    struct timespec doomsday;
 
     ttyrec_free(ttr);
     tev_vt=tty_init(defsx, defsy, 1);
@@ -550,11 +550,11 @@ static void replay_start(void)
         "\e[36;1m"PACKAGE_VERSION"\e[0;36m");
     tty_printf(tev_vt, "\e[0m");
 
-    tr.tv_sec=tr.tv_usec=0;
+    tr.tv_sec=tr.tv_nsec=0;
     tev_done=0;
-    tmax.tv_sec=tmax.tv_usec=0;
+    tmax.tv_sec=tmax.tv_nsec=0;
     progmax=0;
-    progdiv=1000000;
+    progdiv=1000000000;
     progval=-1;
     // TODO: re-enable threading
 #ifdef THREADED
@@ -568,18 +568,18 @@ static void replay_start(void)
     tdate=tev_cur->t;
     replay_seek();
     doomsday.tv_sec=1ULL<<(sizeof(doomsday.tv_sec)*8-1)-1;
-    doomsday.tv_usec=0;
+    doomsday.tv_nsec=0;
     tev_tail=ttyrec_seek(ttr, &doomsday, 0);
     tmax=tev_tail->t;
     tsub(tmax, tdate);
     if (tmax.tv_sec<100)
-        progdiv=10000;
+        progdiv=10000000;
     else
-        progdiv=1000000;
+        progdiv=1000000000;
     selstart.tv_sec=0;
-    selstart.tv_usec=0;
+    selstart.tv_nsec=0;
     selend=tmax;
-    progmax=tmax.tv_sec*(1000000/progdiv)+tmax.tv_usec/progdiv;
+    progmax=tmax.tv_sec*(1000000000/progdiv)+tmax.tv_nsec/progdiv;
     set_prog_max();
     set_prog();
 #endif
@@ -721,7 +721,7 @@ static void paint(HWND hwnd)
 static void do_replay(void)
 {
     HDC dc;
-    struct timeval delay = {};
+    struct timespec delay = {};
     LARGE_INTEGER del;
 
 again:
@@ -745,11 +745,11 @@ again:
         return;
     }
     del.QuadPart=delay.tv_sec;
-    del.QuadPart*=1000000;
-    del.QuadPart+=delay.tv_usec;
+    del.QuadPart*=10000000;
+    del.QuadPart+=delay.tv_nsec*10;
     if (del.QuadPart<=0)
         goto again;
-    del.QuadPart*=-10;
+    del.QuadPart*=-1;
     SetWaitableTimer(timer, &del, 0, 0, 0, 0);
     set_buttons(0);
 }
@@ -806,8 +806,8 @@ static void prog_scrolled(void)
 
     v=pos;
     v*=progdiv;
-    tr.tv_sec=v/1000000;
-    tr.tv_usec=v%1000000;
+    tr.tv_sec=v/1000000000;
+    tr.tv_nsec=v%1000000000;
     replay_seek();
     play_state=oldstate;
     redraw_term();
@@ -824,7 +824,7 @@ static void adjust_pos(int d)
     replay_pause();
     tr.tv_sec+=d;
     if (tr.tv_sec<0)
-        tr.tv_sec=tr.tv_usec=0;
+        tr.tv_sec=tr.tv_nsec=0;
     if (tcmp(tr, tmax)==1)
         tr=tmax;
     replay_seek();
@@ -871,7 +871,7 @@ static void export_file(void)
     OPENFILENAME dlg;
     int record_f;
     const char *format;
-    struct timeval sel1, sel2;
+    struct timespec sel1, sel2;
 
     memset(&dlg, 0, sizeof(dlg));
     dlg.lStructSize=sizeof(dlg);
@@ -1005,7 +1005,7 @@ LRESULT APIENTRY MainWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 EnterCriticalSection(&vt_mutex);
                 replay_pause();
                 tr.tv_sec=0;
-                tr.tv_usec=0;
+                tr.tv_nsec=0;
                 set_prog();
                 replay_seek();
                 LeaveCriticalSection(&vt_mutex);

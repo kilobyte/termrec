@@ -57,9 +57,10 @@ AX_PTHREAD
 
 # Checks for library functions.
 AC_SEARCH_LIBS(forkpty, util)
+AC_SEARCH_LIBS(clock_gettime, rt)
 AC_CHECK_FUNCS([getpt ptsname snprintf vsnprintf _getpty grantpt forkpty asprintf \
-         gettimeofday usleep ctime_r getopt_long getaddrinfo fork pipe select \
-         uselect posix_openpt])
+         clock_gettime nanosleep ctime_r getopt_long getaddrinfo fork pipe select \
+         posix_openpt])
 AM_CONDITIONAL(HAVE_FORK, test x$ac_cv_func_fork = xyes)
 
 # Checks for Winblows.

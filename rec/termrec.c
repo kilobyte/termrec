@@ -11,6 +11,7 @@
 #  include <strings.h>
 # endif
 #endif
+#include <time.h>
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -94,7 +95,7 @@ static void tty_get_size(void)
 
 static void record_size(void)
 {
-    struct timeval tv;
+    struct timespec tv;
     char buf[20], *bp;
 
     if (raw)
@@ -106,7 +107,7 @@ static void record_size(void)
         bp+=sprintf(bp, "\e[8;%d;%dt", sy, sx);
     if (buf==bp)
         return;
-    gettimeofday(&tv, 0);
+    clock_gettime(CLOCK_REALTIME, &tv);
     ttyrec_w_write(rec, &tv, buf, bp-buf);
 }
 
@@ -134,7 +135,7 @@ int main(int argc, char **argv)
     fd_set rfds;
     char buf[BS];
     int r;
-    struct timeval tv;
+    struct timespec tv;
 
     setlocale(LC_CTYPE, "");
     get_rec_parms(argc, argv);
@@ -158,7 +159,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    gettimeofday(&tv, 0);
+    clock_gettime(CLOCK_REALTIME, &tv);
 
     rec=ttyrec_w_open(record_f, format, record_name, &tv);
     need_utf=!strcmp(nl_langinfo(CODESET), "UTF-8");
@@ -205,7 +206,7 @@ int main(int argc, char **argv)
             r=read(ptym, buf, BS);
             if (r<=0)
                 break;
-            gettimeofday(&tv, 0);
+            clock_gettime(CLOCK_REALTIME, &tv);
             ttyrec_w_write(rec, &tv, buf, r);
             if (write(1, buf, r) != r)
                 break;

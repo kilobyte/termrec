@@ -9,7 +9,7 @@ typedef struct {} *recorder;
 
 struct ttyrec_frame
 {
-    struct timeval t;
+    struct timespec t;
     int len;
     char *data;
     tty snapshot;
@@ -22,7 +22,7 @@ typedef struct ttyrec
     struct ttyrec_frame *tev_head, *tev_tail;
     tty tev_vt;
     int nchunk;
-    struct timeval ndelay;
+    struct timespec ndelay;
 } *ttyrec;
 #define _TTYREC_H_NO_TYPES
 #include "ttyrec.h"
@@ -31,14 +31,14 @@ typedef struct ttyrec
 #define SNAPSHOT_CHUNK 65536
 
 #define tr ((ttyrec)arg)
-static void synch_init_wait(const struct timeval *ts, void *arg)
+static void synch_init_wait(const struct timespec *ts, void *arg)
 {
     tr->tev_head->t=*ts;
 }
 
-static const struct timeval maxd = {5,0};
+static const struct timespec maxd = {5,0};
 
-static void synch_wait(const struct timeval *tv, void *arg)
+static void synch_wait(const struct timespec *tv, void *arg)
 {
     if (tv->tv_sec>=maxd.tv_sec || tv->tv_sec<0)
         tadd(tr->ndelay, maxd);
@@ -61,7 +61,7 @@ static void synch_print(const char *buf, int len, void *arg)
     memcpy(nf->data, buf, len);
     nf->t=tr->tev_tail->t;
     tadd(nf->t, tr->ndelay);
-    tr->ndelay.tv_sec=tr->ndelay.tv_usec=0;
+    tr->ndelay.tv_sec=tr->ndelay.tv_nsec=0;
     nf->snapshot=0;
     nf->next=0;
     tr->tev_tail->next=nf;
@@ -131,7 +131,7 @@ export ttyrec ttyrec_load(int fd, const char *format, const char *filename, tty 
 }
 
 
-export struct ttyrec_frame* ttyrec_seek(const ttyrec tr, const struct timeval *t, tty *vt)
+export struct ttyrec_frame* ttyrec_seek(const ttyrec tr, const struct timespec *t, tty *vt)
 {
     struct ttyrec_frame *tfv, *tfs;
 
@@ -187,7 +187,7 @@ export struct ttyrec_frame* ttyrec_next_frame(ttyrec tr, struct ttyrec_frame *tf
 }
 
 
-export void ttyrec_add_frame(ttyrec tr, const struct timeval *delay, const char *data, int len)
+export void ttyrec_add_frame(ttyrec tr, const struct timespec *delay, const char *data, int len)
 {
     if (delay)
         synch_wait(delay, tr);
@@ -196,7 +196,7 @@ export void ttyrec_add_frame(ttyrec tr, const struct timeval *delay, const char 
 
 
 export int ttyrec_save(ttyrec tr, int fd, const char *format, const char *filename,
-                       const struct timeval *selstart, const struct timeval *selend)
+                       const struct timespec *selstart, const struct timespec *selend)
 {
     struct ttyrec_frame *fr;
     recorder rec;
