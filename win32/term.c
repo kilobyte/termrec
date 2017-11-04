@@ -632,18 +632,18 @@ static void open_file(void)
     dlg.lStructSize=sizeof(dlg);
     dlg.hwndOwner=wndMain;
     dlg.lpstrFilter="all known formats\000"
-                        "*.ttyrec;*.ttyrec.gz;*.ttyrec.bz2;*.ttyrec.xz;"
-                        "*.nh;*.nh.gz;*.nh.bz2;*.nh.xz;"
+                        "*.ttyrec;*.ttyrec.gz;*.ttyrec.bz2;*.ttyrec.xz;*.ttyrec.zst;"
+                        "*.nh;*.nh.gz;*.nh.bz2;*.nh.xz;*.nh.zst;"
                         "*.dm2;"
-                        "*.txt;*.txt.gz;*.txt.bz2;*.txt.xz\000"
-                    "ttyrec videos (*.ttyrec, *.ttyrec.[gz|bz2|xz])\000"
-                        "*.ttyrec;*.ttyrec.gz;*.ttyrec.bz2;*.ttyrec.xz\000"
-                    "nh-recorder videos (*.nh, *.nh.[gz|bz2|xz])\000"
-                        "*.nh;*.nh.gz;*.nh.bz2;*.nh.xz\000"
+                        "*.txt;*.txt.gz;*.txt.bz2;*.txt.xz;*.txt.zst\000"
+                    "ttyrec videos (*.ttyrec, *.ttyrec.[gz|bz2|xz|zst])\000"
+                        "*.ttyrec;*.ttyrec.gz;*.ttyrec.bz2;*.ttyrec.xz;*.ttyrec.zst\000"
+                    "nh-recorder videos (*.nh, *.nh.[gz|bz2|xz|zst])\000"
+                        "*.nh;*.nh.gz;*.nh.bz2;*.nh.xz;*.nh.zst\000"
                     "DosRecorder videos (*.dm2)\000"
                         "*.dm2\000"
-                    "ANSI logs (*.txt, *.txt.[gz|bz2|xz])\000"
-                        "*.txt;*.txt.gz;*.txt.bz2;*.txt.xz\000"
+                    "ANSI logs (*.txt, *.txt.[gz|bz2|xz|zst])\000"
+                        "*.txt;*.txt.gz;*.txt.bz2;*.txt.xz;*.txt.zst\000"
                     "all files\000*\000"
                     "\000\000";
     dlg.nFilterIndex=1;
@@ -877,10 +877,10 @@ static void export_file(void)
     dlg.lStructSize=sizeof(dlg);
     dlg.hwndOwner=wndMain;
     dlg.lpstrFilter=
-                    "ttyrec videos (*.ttyrec, *.ttyrec.[gz|bz2|xz])\000*.ttyrec;*.ttyrec.gz;*.ttyrec.bz2;*.ttyrec.xz\000"
-                    "nh-recorder videos (*.nh, *.nh.[gz|bz2|xz])\000*.nh;*.nh.gz;*.nh.bz2;*.nh.xz\000"
-                    "RealLogs videos (*.rl, *.rl.[gz|bz2|xz])\000*.rl;*.rl.gz;*.rl.bz2;*.rl.xz\000"
-                    "ANSI logs (*.txt, *.txt.[gz|bz2|xz])\000*.txt;*.txt.gz;*.txt.bz2;*.txt.xz\000"
+                    "ttyrec videos (*.ttyrec, *.ttyrec.[gz|bz2|xz|zst])\000*.ttyrec;*.ttyrec.gz;*.ttyrec.bz2;*.ttyrec.xz;*.ttyrec.zst\000"
+                    "nh-recorder videos (*.nh, *.nh.[gz|bz2|xz|zst])\000*.nh;*.nh.gz;*.nh.bz2;*.nh.xz;*.nh.zst\000"
+                    "RealLogs videos (*.rl, *.rl.[gz|bz2|xz|zst])\000*.rl;*.rl.gz;*.rl.bz2;*.rl.xz;*.rl.zst\000"
+                    "ANSI logs (*.txt, *.txt.[gz|bz2|xz|zst])\000*.txt;*.txt.gz;*.txt.bz2;*.txt.xz;*.txt.zst\000"
                     "all files\000*\000"
                     "\000\000";
     dlg.nFilterIndex=1;
