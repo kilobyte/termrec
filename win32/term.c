@@ -692,6 +692,9 @@ static void print_banner(void)
 #if (defined HAVE_LIBLZMA) || (defined SHIPPED_LIBLZMA)
     tty_printf(vt, "* xz\n");
 #endif
+#if (defined HAVE_LIBZSTD) || (defined SHIPPED_LIBZSTD)
+    tty_printf(vt, "* zstd\n");
+#endif
     tty_printf(vt, "Replay plugins:\n");
     for (i=0;(pn=ttyrec_r_get_format_name(i));i++)
         if (strcmp(pn, "live"))
