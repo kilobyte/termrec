@@ -869,7 +869,7 @@ export void tty_write(tty vt, const char *buf, int len)
                 vt->state=ESnormal;
                 switch (vt->tok[0])
                 {
-                case 8:     // ESC8;<h>;<w>t -> resize
+                case 8:     // ESC[8;<h>;<w>t -> resize
                     if (!vt->allow_resize)
                         break;
                     while (vt->ntok<2)
