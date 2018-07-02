@@ -1,0 +1,11 @@
+language: c
+dist: bionic
+addons:
+  apt:
+    packages:
+    - libz-dev
+    - libbz2-dev
+    - liblzma-dev
+    - libzstd-dev
+script: ./autogen.sh && ./configure && make check
+after_failure: cat tests/testsuite.log
