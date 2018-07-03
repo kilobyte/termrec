@@ -298,7 +298,7 @@ static void read_zstd(int f, int fd, const char *arg)
             size_t w = ZSTD_decompressStream(stream, &zout, &zin);
             if (ZSTD_isError(w))
                 goto zstd_r_error;
-            if (write(fd, zout.dst, zout.pos) != zout.pos)
+            if (write(fd, zout.dst, zout.pos) != (ssize_t)zout.pos)
                 goto zstd_r_error;
         }
     }
@@ -341,7 +341,7 @@ static void write_zstd(int f, int fd, const char *arg)
             size_t w = ZSTD_compressStream(stream, &zout, &zin);
             if (ZSTD_isError(w))
                 goto zstd_w_error;
-            if (write(f, zout.dst, zout.pos) != zout.pos)
+            if (write(f, zout.dst, zout.pos) != (ssize_t)zout.pos)
                 goto zstd_w_error;
         }
     }
