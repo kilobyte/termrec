@@ -13,6 +13,7 @@ configure.lineno
 DEADJOE
 depcomp
 .deps
+.dirstamp
 *.exe
 *.exe.stackdump
 install-sh
@@ -24,6 +25,7 @@ libtool
 ltmain.sh
 m4/libtool.m4
 m4/lt*.m4
+ar-lib
 *.nh
 *.nh.bz2
 proxyrec
