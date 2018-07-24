@@ -322,68 +322,66 @@ export void tty_write(tty vt, const char *buf, int len)
 #define tc (vt->utf_char)
 #define cnt (vt->utf_count)
         case ESnormal:
-            if (!vt->cp437)
-                if (ic>0x7f)
-                    if (cnt>0 && (ic&0xc0)==0x80)
-                    {
-                        tc=(tc<<6) | (ic&0x3f);
-                        if (!--cnt)
-                            c=tc;
-                        else
-                            continue;
+            if (vt->cp437)
+                c=charset_cp437[ic];
+            else if (ic<0x80)
+                cnt=0, c=ic;
+            else if (cnt>0 && (ic&0xc0)==0x80)
+            {
+                tc=(tc<<6) | (ic&0x3f);
+                if (!--cnt)
+                    c=tc;
+                else
+                    continue;
 
-                        // Win32 TextOut (rightfully) chokes on these illegal
-                        // chars, so we'd better mark them as invalid.
-                        if (c<0xA0)
-                            c=0xFFFD;
-                        if (c==0xFFEF)  // BOM
-                            continue;
+                // Win32 TextOut (rightfully) chokes on these illegal
+                // chars, so we'd better mark them as invalid.
+                if (c<0xA0)
+                    c=0xFFFD;
+                if (c==0xFFEF)  // BOM
+                    continue;
 
-                        /* The following code deals with malformed UTF-16
-                         * surrogates encoded in UTF-8 text.  While the
-                         * standard explicitely forbids this, some (usually
-                         * Windows) programs generate them, and thus we'll
-                         * better support such encapsulation anyway.
-                         * We don't go out of our way to detect unpaired
-                         * surrogates, though.
-                         */
-                        if (c>=0xD800 && c<=0xDFFF)     // UTF-16 surrogates
-                        {
-                            if (c<0xDC00)       // lead surrogate
-                            {
-                                vt->utf_surrogate=c;
-                                continue;
-                            }
-                            else                // trailing surrogate
-                            {
-                                c=(vt->utf_surrogate<<10)+c+
-                                    (0x10000 - (0xD800 << 10) - 0xDC00);
-                                vt->utf_surrogate=0;
-                                if (c<0x10000)  // malformed pair
-                                    continue;
-                            }
-                        }
-                    }
-                    else
+                /* The following code deals with malformed UTF-16
+                 * surrogates encoded in UTF-8 text.  While the
+                 * standard explicitely forbids this, some (usually
+                 * Windows) programs generate them, and thus we'll
+                 * better support such encapsulation anyway.
+                 * We don't go out of our way to detect unpaired
+                 * surrogates, though.
+                 */
+                if (c>=0xD800 && c<=0xDFFF)     // UTF-16 surrogates
+                {
+                    if (c<0xDC00)       // lead surrogate
                     {
-                        if ((ic&0xe0)==0xc0)
-                            cnt=1, tc=ic&0x1f;
-                        else if ((ic&0xf0)==0xe0)
-                            cnt=2, tc=ic&0x0f;
-                        else if ((ic&0xf8)==0xf0)
-                            cnt=3, tc=ic&0x07;
-                        else if ((ic&0xfc)==0xf8)
-                            cnt=4, tc=ic&0x03;
-                        else if ((ic&0xfe)==0xfc)
-                            cnt=5, tc=ic&0x01;
-                        else
-                            cnt=0;
+                        vt->utf_surrogate=c;
                         continue;
                     }
-                else
-                    cnt=0, c=ic;
+                    else                // trailing surrogate
+                    {
+                        c=(vt->utf_surrogate<<10)+c+
+                            (0x10000 - (0xD800 << 10) - 0xDC00);
+                        vt->utf_surrogate=0;
+                        if (c<0x10000)  // malformed pair
+                            continue;
+                    }
+                }
+            }
             else
-                c=charset_cp437[ic];
+            {
+                if ((ic&0xe0)==0xc0)
+                    cnt=1, tc=ic&0x1f;
+                else if ((ic&0xf0)==0xe0)
+                    cnt=2, tc=ic&0x0f;
+                else if ((ic&0xf8)==0xf0)
+                    cnt=3, tc=ic&0x07;
+                else if ((ic&0xfc)==0xf8)
+                    cnt=4, tc=ic&0x03;
+                else if ((ic&0xfe)==0xfc)
+                    cnt=5, tc=ic&0x01;
+                else
+                    cnt=0;
+                continue;
+            }
             if (c<32)
                 break;
             if (c<128 && vt->G&(1<<vt->curG))
