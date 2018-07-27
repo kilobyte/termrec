@@ -334,9 +334,7 @@ export void tty_write(tty vt, const char *buf, int len)
                 else
                     continue;
 
-                // Win32 TextOut (rightfully) chokes on these illegal
-                // chars, so we'd better mark them as invalid.
-                if (c<0xA0)
+                if (c<0xA0) // underlong or C1 controls
                     c=0xFFFD;
                 if (c==0xFFEF)  // BOM
                     continue;
