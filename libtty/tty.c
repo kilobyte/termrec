@@ -363,6 +363,11 @@ export void tty_write(tty vt, const char *buf, int len)
                             continue;
                     }
                 }
+
+                if (c>0x10FFFF) // outside Unicode
+                    c=0xFFFD;
+                else if ((c&0xFFFF)>=0xFFFE || c>=0xFDD0 && c<0xFDF0)
+                    c=0xFFFD; // non-characters
             }
             else
             {
