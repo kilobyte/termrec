@@ -349,19 +349,19 @@ export void tty_write(tty vt, const char *buf, int len)
                  */
                 if (c>=0xD800 && c<=0xDFFF)     // UTF-16 surrogates
                 {
-                    if (c<0xDC00)       // lead surrogate
+                    if (c<0xDC00)                   // lead surrogate
                     {
                         vt->utf_surrogate=c;
                         continue;
                     }
-                    else                // trailing surrogate
+                    else if (vt->utf_surrogate)     // trailing surrogate
                     {
                         c=(vt->utf_surrogate<<10)+c+
                             (0x10000 - (0xD800 << 10) - 0xDC00);
                         vt->utf_surrogate=0;
-                        if (c<0x10000)  // malformed pair
-                            continue;
                     }
+                    else
+                        c=0xFFFD;                   // unpaired trailing
                 }
 
                 if (c>0x10FFFF) // outside Unicode
