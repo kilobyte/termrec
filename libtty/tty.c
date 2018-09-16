@@ -25,6 +25,12 @@
 enum { ESnormal, ESesc, ESgetpars, ESsquare, ESques, ESsetG0, ESsetG1,
        ESpercent, ESosc };
 
+static void tty_clear_comb(attrchar *ac)
+{
+    // Must have been initialized before.
+    ac->comb=0;
+}
+
 export tty tty_init(int sx, int sy, int resizable)
 {
     tty vt;
@@ -58,6 +64,7 @@ export int tty_resize(tty vt, int nsx, int nsy)
         for (x=0;x<nsx;x++)
         {
             nscr[y*nsx+x].ch=' ';
+            nscr[y*nsx+x].comb=0;
             nscr[y*nsx+x].attr=vt->attr;
         }
     if (vt->scr)
@@ -118,11 +125,15 @@ static void tty_clear_region(tty vt, int st, int l)
     assert(l>=0);
     assert(st+l<=SX*SY);
     blank.ch=' ';
+    blank.comb=0;
     blank.attr=vt->attr;
 
     c=vt->scr+st;
     while (l--)
+    {
+        tty_clear_comb(c);
         *c++=blank;
+    }
 }
 
 export void tty_reset(tty vt)
@@ -239,6 +250,7 @@ export void tty_write(tty vt, const char *buf, int len)
                 {
                     vt->scr[CY*SX+CX].attr=vt->attr;
                     vt->scr[CY*SX+CX].ch=' ';
+                    tty_clear_comb(&vt->scr[CY*SX+CX]);
                     CX++;
                     if (vt->l_char)
                         vt->l_char(vt, CX-1, CY, ' ', vt->attr);
@@ -408,6 +420,7 @@ export void tty_write(tty vt, const char *buf, int len)
             }
             vt->scr[CY*SX+CX].ch=c;
             vt->scr[CY*SX+CX].attr=vt->attr;
+            tty_clear_comb(&vt->scr[CY*SX+CX]);
             CX++;
             if (vt->l_char)
                 vt->l_char(vt, CX-1, CY, c, vt->attr);

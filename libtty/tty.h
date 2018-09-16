@@ -1,13 +1,23 @@
 #ifndef _VT100_H
 #define _VT100_H
 #include <stdio.h>
+#include <stdint.h>
 
-typedef unsigned int ucs;
+typedef uint32_t ucs;
 
 typedef struct
 {
     ucs ch;
-    int attr;
+    uint32_t comb;
+    union
+    {
+        uint64_t attr;
+        struct
+        {
+            uint32_t fgattr;
+            uint32_t bgattr;
+        };
+    };
 } attrchar;
 
 #define VT100_MAXTOK 16
