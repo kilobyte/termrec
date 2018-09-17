@@ -17,6 +17,10 @@
  #define FALLTHRU
 #endif
 
+#ifndef VT100_DEBUG
+ #define debuglog(...) {}
+#endif
+
 #define SX vt->sx
 #define SY vt->sy
 #define CX vt->cx
@@ -54,9 +58,7 @@ export int tty_resize(tty vt, int nsx, int nsy)
 
     if (nsx==SX && nsy==SY)
         return 0;
-#ifdef VT100_DEBUG
     debuglog("Resize from %dx%d to %dx%d\n", SX, SY, nsx, nsy);
-#endif
     nscr=malloc(nsx*nsy*sizeof(attrchar));
     if (!nscr)
         return 0;
@@ -177,9 +179,7 @@ static void tty_scroll(tty vt, int nl)
 
 static void set_charset(tty vt, int g, char x)
 {
-#ifdef VT100_DEBUG
     debuglog("Changing charset G%d to %c.\n", g, x);
-#endif
     switch (x)
     {
         case '0':
@@ -191,9 +191,7 @@ static void set_charset(tty vt, int g, char x)
             vt->G&=~(1<<g);
             break;
         default:
-#ifdef VT100_DEBUG
         debuglog("Unknown charset: %c\n", x);
-#endif
             return;
     }
 }
@@ -900,10 +898,8 @@ export void tty_write(tty vt, const char *buf, int len)
                     if (vt->l_resize)
                         vt->l_resize(vt, vt->tok[2], vt->tok[1]);
                     break;
-#ifdef VT100_DEBUG
                 default:
                     debuglog("Unknown extended window manipulation: %d\n", vt->tok[0]);
-#endif
                 }
                 break;
 
@@ -936,10 +932,8 @@ export void tty_write(tty vt, const char *buf, int len)
                     case 25:
                         FLAG(opt_cursor, VT100_FLAG_CURSOR, 1);
                         break;
-#ifdef VT100_DEBUG
                     default:
                         debuglog("Unknown option: ?%u\n", vt->tok[i]);
-#endif
                     }
                 vt->state=ESnormal;
                 break;
@@ -954,10 +948,8 @@ export void tty_write(tty vt, const char *buf, int len)
                     case 25:
                         FLAG(opt_cursor, VT100_FLAG_CURSOR, 0);
                         break;
-#ifdef VT100_DEBUG
                     default:
                         debuglog("Unknown option: ?%u\n", vt->tok[i]);
-#endif
                     }
                 vt->state=ESnormal;
                 break;
@@ -982,16 +974,12 @@ export void tty_write(tty vt, const char *buf, int len)
             {
             case '@':   // ESC % @ -> disable UTF-8
                 vt->cp437=1;
-#ifdef VT100_DEBUG
                 debuglog("Disabling UTF-8.\n");
-#endif
                 break;
             case '8':   // ESC % 8, ESC % G -> enable UTF-8
             case 'G':
                 vt->cp437=0;
-#ifdef VT100_DEBUG
                 debuglog("Enabling UTF-8.\n");
-#endif
                 break;
             default:
                 goto error;
