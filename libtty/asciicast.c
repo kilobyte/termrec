@@ -256,7 +256,7 @@ skip_field:
 
 body:
     synch_init_wait(&tv, arg);
-    synch_print(buf, sprintf(buf, "\e[8;%d;%dt", sy, sx), arg);
+    synch_print(buf, sprintf(buf, "\e%%G\e[8;%d;%dt", sy, sx), arg);
 
     while (1)
     {
