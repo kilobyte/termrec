@@ -257,6 +257,7 @@ skip_field:
 body:
     synch_init_wait(&tv, arg);
     synch_print(buf, sprintf(buf, "\e%%G\e[8;%d;%dt", sy, sx), arg);
+    uint64_t old_delay = 0;
 
     while (1)
     {
@@ -273,6 +274,11 @@ body:
             FAIL("Malformed asciicast: expected duration.\n");
 
         int64_t delay = eat_float(f);
+        if (version == 2)
+        {
+            delay -= old_delay;
+            old_delay += delay;
+        }
         tv.tv_sec =  delay/1000000;
         tv.tv_usec = delay%1000000;
         synch_wait(&tv, arg);
