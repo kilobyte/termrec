@@ -275,6 +275,7 @@ body:
         int64_t delay = eat_float(f);
         tv.tv_sec =  delay/1000000;
         tv.tv_usec = delay%1000000;
+        synch_wait(&tv, arg);
 
         EAT();
         if (c != ',')
@@ -295,7 +296,6 @@ body:
         if (c !='"')
             FAIL("Malformed asciicast: expected even-data string.\n");
         synch_print(buf, eat_string(f, buf) - buf, arg);
-        synch_wait(&tv, arg);
 
         EAT();
         if (c !=']')
