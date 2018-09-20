@@ -46,3 +46,8 @@ void play_dosrecorder(FILE *f,
     void (*synch_wait)(const struct timeval *tv, void *arg),
     void (*synch_print)(const char *buf, int len, void *arg),
     void *arg, const struct timeval *cont);
+void play_asciicast(FILE *f,
+    void (*synch_init_wait)(const struct timeval *ts, void *arg),
+    void (*synch_wait)(const struct timeval *tv, void *arg),
+    void (*synch_print)(const char *buf, int len, void *arg),
+    void *arg, const struct timeval *cont);

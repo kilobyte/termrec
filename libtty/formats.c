@@ -480,6 +480,7 @@ player_info play[]={
 #if (defined HAVE_LIBZ) || (SHIPPED_LIBZ)
 {"dosrecorder",".dm2",play_dosrecorder},
 #endif
+{"asciicast",".cast",play_asciicast},
 {"live",0,play_live},
 {"auto",0,play_auto},
 {0, 0, 0},
