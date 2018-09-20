@@ -51,3 +51,6 @@ void play_asciicast(FILE *f,
     void (*synch_wait)(const struct timeval *tv, void *arg),
     void (*synch_print)(const char *buf, int len, void *arg),
     void *arg, const struct timeval *cont);
+void* record_asciicast_init(FILE *f, const struct timeval *tm);
+void record_asciicast(FILE *f, void* state, const struct timeval *tm, const char *buf, int len);
+void record_asciicast_finish(FILE *f, void* state);

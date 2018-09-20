@@ -1,11 +1,17 @@
 #include "config.h"
 #include "_stdint.h"
 #include <stdbool.h>
+#include <stdlib.h>
 #include <string.h>
 #include "gettext.h"
+#include "tty.h"
 #include "formats.h"
 #include "export.h"
 
+
+/*******************/
+/***** reading *****/
+/*******************/
 
 // Blasting many pages in a single frame is borderline legitimate, but let's
 // have a sanity limit -- data that was actually recorded into separate
@@ -307,4 +313,64 @@ body:
         if (c !=']')
             FAIL("Malformed asciicast: event not terminated.\n");
     }
+}
+
+/*******************/
+/***** writing *****/
+/*******************/
+
+struct ac_state
+{
+    bool head_done;
+    time_t start;
+};
+
+void* record_asciicast_init(FILE *f, const struct timeval *tm)
+{
+    struct ac_state *as = malloc(sizeof(struct ac_state));
+    as->head_done = false;
+    if (tm)
+        as->start = tm->tv_sec;
+    else
+        as->start = 0;
+
+    return as;
+}
+
+void record_asciicast(FILE *f, void* state, const struct timeval *tm, const char *buf, int len)
+{
+    struct ac_state *as = state;
+    if (!as->head_done)
+    {
+        // need to play first frame to fetch screen size
+        tty vt = tty_init(80, 25, 1);
+        tty_write(vt, buf, len);
+        fprintf(f, "{\"version\":2, \"width\":%d, \"height\":%d", vt->sx, vt->sy);
+        if (as->start)
+            fprintf(f, ", timestamp=%ld", as->start);
+        fprintf(f, "}\n");
+        tty_free(vt);
+        as->head_done = true;
+    }
+
+    fprintf(f, "[%f, \"o\", \"", tm->tv_sec+tm->tv_usec*0.000001d);
+    while (len-->0)
+    {
+        if (((unsigned char)*buf)<' ')
+            if (*buf=='\r')
+                fputs("\\r", f);
+            else if (*buf=='\n')
+                fputs("\\n", f);
+            else
+                fprintf(f, "\\u%04x", *buf);
+        else
+            fputc(*buf, f);
+        buf++;
+    }
+    fprintf(f, "\"]\n");
+}
+
+void record_asciicast_finish(FILE *f, void* state)
+{
+    free(state);
 }
