@@ -10,6 +10,11 @@ static void tl_char(tty vt, int x, int y, ucs ch, int attr)
     printf("== char U+%04X attr=%X at %d,%d\n", ch, attr, x, y);
 }
 
+static void tl_comb(tty vt, int x, int y, ucs ch, int attr)
+{
+    printf("== comb U+%04X attr=%X at %d,%d\n", ch, attr, x, y);
+}
+
 static void tl_cursor(tty vt, int x, int y)
 {
     printf("== cursor to %d,%d\n", x, y);
@@ -66,6 +71,18 @@ static void dump(tty vt)
                 printf("%c", SCR.ch);
             else
                 printf("[%04X]", SCR.ch);
+            if (SCR.comb)
+            {
+                int ci=SCR.comb;
+                char pref='<';
+                while (ci)
+                {
+                    printf("%c%04X", pref, vt->combs[ci].ch);
+                    pref=' ';
+                    ci=vt->combs[ci].next;
+                }
+                printf(">");
+            }
         }
         printf("\n");
     }
@@ -93,6 +110,7 @@ int main(int argc, char **argv)
             exit(1);
         case 'e':
             vt->l_char=tl_char;
+            vt->l_comb=tl_comb;
             vt->l_cursor=tl_cursor;
             vt->l_clear=tl_clear;
             vt->l_scroll=tl_scroll;

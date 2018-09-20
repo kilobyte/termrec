@@ -10,6 +10,7 @@
 #include <assert.h>
 #include "export.h"
 #include "compat.h"
+#include "wcwidth.h"
 
 #if defined __GNUC__ && (__GNUC__ >= 7)
  #define FALLTHRU __attribute__((fallthrough))
@@ -25,14 +26,64 @@
 #define SY vt->sy
 #define CX vt->cx
 #define CY vt->cy
+#define FREECOMB vt->combs[0].next
+#define NCOMBS   vt->combs[0].ch
 
 enum { ESnormal, ESesc, ESgetpars, ESsquare, ESques, ESsetG0, ESsetG1,
        ESpercent, ESosc };
 
-static void tty_clear_comb(attrchar *ac)
+static void tty_clear_comb(tty vt, attrchar *ac)
 {
     // Must have been initialized before.
+    if (!ac->comb)
+        return;
+
+    uint32_t i=ac->comb;
     ac->comb=0;
+
+    while (i)
+    {
+        assert(i < NCOMBS);
+        uint32_t j = vt->combs[i].next;
+        vt->combs[i].next = FREECOMB;
+        FREECOMB = i;
+        i=j;
+    }
+}
+
+static void tty_add_comb(tty vt, attrchar *ac, ucs ch)
+{
+    if (!vt->combs || FREECOMB >= NCOMBS)
+    {
+        uint32_t oldn = vt->combs? NCOMBS : 0;
+        uint32_t newn = oldn? oldn*2 : 32;
+        debuglog("Reallocating combs from %u to %u\n", oldn, newn);
+        combc *newcombs = realloc(vt->combs, newn*sizeof(combc));
+        if (!newcombs)
+            return;
+        for (uint32_t i=oldn; i<newn; i++)
+            newcombs[i].next=i+1;
+        vt->combs=newcombs;
+        NCOMBS=newn;
+    }
+
+    int clen=0;
+    uint32_t *cc=&ac->comb;
+    while (*cc)
+    {
+        assert(*cc<NCOMBS);
+        if (++clen>=4)
+            return; // ignore if too many marks in one cell
+        cc=&vt->combs[*cc].next;
+    }
+
+    uint32_t new=*cc=FREECOMB;
+    FREECOMB=vt->combs[new].next;
+    vt->combs[new].next=0;
+    vt->combs[new].ch=ch;
+
+    if (vt->l_comb)
+        vt->l_comb(vt, (ac-vt->scr)%SX, (ac-vt->scr)/SX, ch, ac->attr);
 }
 
 export tty tty_init(int sx, int sy, int resizable)
@@ -100,6 +151,7 @@ export void tty_free(tty vt)
     if (vt->l_free)
         vt->l_free(vt);
     free(vt->scr);
+    free(vt->combs);
     free(vt);
 }
 
@@ -108,15 +160,23 @@ export tty tty_copy(tty vt)
     tty nvt=malloc(sizeof(struct tty));
     if (!nvt)
         return 0;
-
     memcpy(nvt, vt, sizeof(struct tty));
     if (!(nvt->scr=malloc(SX*SY*sizeof(attrchar))))
-    {
-        free(nvt);
-        return 0;
-    }
+        goto drop_nvt;
     memcpy(nvt->scr, vt->scr, SX*SY*sizeof(attrchar));
+    if (vt->combs)
+    {
+        if (!(nvt->combs=malloc(NCOMBS*sizeof(combc))))
+            goto drop_scr;
+        memcpy(nvt->combs, vt->combs, NCOMBS*sizeof(combc));
+    }
     return nvt;
+
+drop_scr:
+    free(nvt->scr);
+drop_nvt:
+    free(nvt);
+    return 0;
 }
 
 static void tty_clear_region(tty vt, int st, int l)
@@ -133,7 +193,7 @@ static void tty_clear_region(tty vt, int st, int l)
     c=vt->scr+st;
     while (l--)
     {
-        tty_clear_comb(c);
+        tty_clear_comb(vt, c);
         *c++=blank;
     }
 }
@@ -217,6 +277,45 @@ static void set_charset(tty vt, int g, char x)
             vt->l_clear(vt, x, y, l);           \
     }
 
+static inline void tty_write_char(tty vt, ucs c)
+{
+    int w=mk_wcwidth(c);
+
+    if (w<0)
+        return;
+
+    if (!w)
+    {
+        if (!CX)
+            return; // combining are illegal at left edge of the screen
+        return tty_add_comb(vt, &vt->scr[CY*SX+CX-1], c);
+    }
+
+    if (c<128 && vt->G&(1<<vt->curG))
+        c=charset_vt100[c];
+    if (CX>=SX)
+    {
+        if (vt->opt_auto_wrap)
+        {
+            CX=0;
+            CY++;
+            if (CY>=vt->s2)
+            {
+                CY=vt->s2-1;
+                SCROLL(1);
+            }
+        }
+        else
+            CX=SX-1;
+    }
+    vt->scr[CY*SX+CX].ch=c;
+    vt->scr[CY*SX+CX].attr=vt->attr;
+    tty_clear_comb(vt, &vt->scr[CY*SX+CX]);
+    CX++;
+    if (vt->l_char)
+        vt->l_char(vt, CX-1, CY, c, vt->attr);
+}
+
 export void tty_write(tty vt, const char *buf, int len)
 {
     int i;
@@ -248,7 +347,7 @@ export void tty_write(tty vt, const char *buf, int len)
                 {
                     vt->scr[CY*SX+CX].attr=vt->attr;
                     vt->scr[CY*SX+CX].ch=' ';
-                    tty_clear_comb(&vt->scr[CY*SX+CX]);
+                    tty_clear_comb(vt, &vt->scr[CY*SX+CX]);
                     CX++;
                     if (vt->l_char)
                         vt->l_char(vt, CX-1, CY, ' ', vt->attr);
@@ -397,31 +496,7 @@ export void tty_write(tty vt, const char *buf, int len)
                     cnt=0;
                 continue;
             }
-            if (c<32)
-                break;
-            if (c<128 && vt->G&(1<<vt->curG))
-                c=charset_vt100[c];
-            if (CX>=SX)
-            {
-                if (vt->opt_auto_wrap)
-                {
-                    CX=0;
-                    CY++;
-                    if (CY>=vt->s2)
-                    {
-                        CY=vt->s2-1;
-                        SCROLL(1);
-                    }
-                }
-                else
-                    CX=SX-1;
-            }
-            vt->scr[CY*SX+CX].ch=c;
-            vt->scr[CY*SX+CX].attr=vt->attr;
-            tty_clear_comb(&vt->scr[CY*SX+CX]);
-            CX++;
-            if (vt->l_char)
-                vt->l_char(vt, CX-1, CY, c, vt->attr);
+            tty_write_char(vt, c);
             break;
 #undef ic
 #undef tc

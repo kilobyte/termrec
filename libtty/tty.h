@@ -19,6 +19,11 @@ typedef struct
         };
     };
 } attrchar;
+typedef struct
+{
+    ucs ch;
+    uint32_t next;
+} combc;
 
 #define VT100_MAXTOK 16
 
@@ -35,6 +40,7 @@ typedef struct tty
     int sx,sy;             // screen size
     int cx,cy;             // cursor position
     attrchar *scr;         // screen buffer
+    combc *combs;          // combining character chains
     int attr;              // current attribute
     /*=[ internal vt state ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
     int s1,s2;             // scrolling region
@@ -63,6 +69,8 @@ typedef struct tty
         // any private data
     void (*l_char)(struct tty *vt, int x, int y, ucs ch, int attr);
         // after a character has been written to the screen
+    void (*l_comb)(struct tty *vt, int x, int y, ucs ch, int attr);
+        // after a combining character has been added
     void (*l_cursor)(struct tty *vt, int x, int y);
         // after the cursor has moved
     void (*l_clear)(struct tty *vt, int x, int y, int len);

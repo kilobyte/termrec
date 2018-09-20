@@ -108,6 +108,18 @@ static void vtvt_char(tty vt, int x, int y, ucs ch, int attr)
     CX++;
 }
 
+static void vtvt_comb(tty vt, int x, int y, ucs ch, int attr)
+{
+    if (x>=SX || y>SY)
+        return;
+    if (x+1!=CX || y!=CY) // cursor should be _after_ the glyph
+        vtvt_cursor(vt, x+1, y);
+    setattr(vt, attr);
+    if (fprintf(DATA->f, "%lc", ch)<0)
+        clearerr(DATA->f);
+        // No fallback, just ignore.
+}
+
 export void vtvt_dump(tty vt)
 {
     int x,y;
@@ -208,6 +220,7 @@ export void vtvt_attach(tty vt, FILE *f, int dump)
     get_tty_size(fileno(f), &SX, &SY);
 
     vt->l_char=vtvt_char;
+    vt->l_comb=vtvt_comb;
     vt->l_cursor=vtvt_cursor;
     vt->l_clear=vtvt_clear;
     vt->l_scroll=vtvt_scroll;

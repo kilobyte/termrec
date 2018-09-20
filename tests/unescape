@@ -1,5 +1,6 @@
 #!/usr/bin/env perl
 use warnings;
+use Encode qw(encode_utf8);
 
 while(<>)
 {
@@ -10,5 +11,7 @@ while(<>)
     s/\\e/\e/g;
     s/\\a/\a/g;
     s/\\\\/\\/g;
+    s/\\u([0-9a-fA-F]{4})/encode_utf8(sprintf('%c',hex($1)))/ge;
+    s/\\U([0-9a-fA-F]{6})/encode_utf8(sprintf('%c',hex($1)))/ge;
     print;
 }
