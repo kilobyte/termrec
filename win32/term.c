@@ -882,7 +882,6 @@ static void export_file(void)
     dlg.lpstrFilter=
                     "ttyrec videos (*.ttyrec, *.ttyrec.[gz|bz2|xz|zst])\000*.ttyrec;*.ttyrec.gz;*.ttyrec.bz2;*.ttyrec.xz;*.ttyrec.zst\000"
                     "nh-recorder videos (*.nh, *.nh.[gz|bz2|xz|zst])\000*.nh;*.nh.gz;*.nh.bz2;*.nh.xz;*.nh.zst\000"
-                    "RealLogs videos (*.rl, *.rl.[gz|bz2|xz|zst])\000*.rl;*.rl.gz;*.rl.bz2;*.rl.xz;*.rl.zst\000"
                     "ANSI logs (*.txt, *.txt.[gz|bz2|xz|zst])\000*.txt;*.txt.gz;*.txt.bz2;*.txt.xz;*.txt.zst\000"
                     "all files\000*\000"
                     "\000\000";
