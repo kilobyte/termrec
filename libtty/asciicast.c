@@ -46,34 +46,42 @@ static int64_t eat_int(FILE *f)
 // *1000000
 static int64_t eat_float(FILE *f)
 {
+    int c;
     int64_t x=0;
-    while (1)
+    c=getc(f);
+    while (c>='0' && c<='9')
+        x=x*10+c-'0', c=getc(f);
+    x*=1000000;
+
+    if (c=='.')
     {
-        int c=getc(f);
-        if (c>='0' && c<='9')
-            x=x*10+c-'0';
-        else if (c=='.')
-        {
-            int y=1000000;
-            x*=y;
-            while (1)
-            {
-                c=getc(f);
-                if (c>='0' && c<='9')
-                    x+= (c-'0')*(y/=10);
-                else
-                {
-                    ungetc(c, f);
-                    return x;
-                }
-            }
-        }
-        else
-        {
-            ungetc(c, f);
-            return x*1000000;
-        }
+        int y=1000000;
+        c=getc(f);
+        while (c>='0' && c<='9')
+            x+= (c-'0')*(y/=10), c=getc(f);
     }
+
+    if (c=='e' || c=='E')
+    {
+        bool minus=false;
+        c=getc(f);
+        if (c=='+')
+            c=getc(f);
+        else if (c=='-')
+            c=getc(f), minus=true;
+        int e=0;
+        while (c>='0' && c<='9')
+            e=e*10+c-'0', c=getc(f);
+        if (minus)
+            while (e-->0)
+                x/=10;
+        else
+            while (e-->0)
+                x*=10;
+    }
+
+    ungetc(c, f);
+    return x;
 }
 
 #define OUT(x) do if (--spc) *buf++=(x); else goto end; while (0)
