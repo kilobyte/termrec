@@ -38,6 +38,10 @@ Compatible with B<ttyrec> by Satoru Takabayashi.
 
 Compatible with B<nh-recorder> by Helge Dennhardt.
 
+=item asciicast
+
+Compatible with B<asciinema> by Marcin Kulik; format v2.
+
 =back
 
 =item B<-e> I<command>, B<--exec>

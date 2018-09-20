@@ -94,6 +94,10 @@ Compatible with B<nh-recorder> by Helge Dennhardt.
 
 Compatible with B<DosRecorder>.
 
+=item asciicast
+
+Compatible with B<asciinema> by Marcin Kulik, formats v1 and v2.
+
 =item live
 
 The data is assumed to be played at the same timing as it arrives.  This is useful
