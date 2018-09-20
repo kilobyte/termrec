@@ -69,3 +69,13 @@ for x in "$top_srcdir/tests/vt.in/"*
     fi
   done
 AT_CLEANUP
+
+AT_SETUP([replayed onto vt])
+for x in "$top_srcdir/tests/rec.in/"*
+  do
+    if echo "$x"|grep -vq '/[[a-zA-Z0-9_.-]]*$'; then continue; fi
+    y="$(echo "$x"|sed 's/rec\.in/rec.out/;s:\.[[^.]]*$::')"
+    cat "$y" >expout
+    AT_CHECK([termcat "$x" -|vt -d],,[expout])
+  done
+AT_CLEANUP

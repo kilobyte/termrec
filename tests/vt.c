@@ -76,7 +76,7 @@ int main(int argc, char **argv)
     int len;
     bool dump_flag=false;
 
-    vt = tty_init(20, 5, 0);
+    vt = tty_init(20, 5, 1);
 
     while (1)
         switch (getopt(argc, argv, "ed"))
