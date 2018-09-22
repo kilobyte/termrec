@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdarg.h>
 #include <wchar.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -69,13 +70,17 @@ static void dump(tty vt)
     int x,y,attr;
 
     if (vt->title)
-        printf(".-===[%s]\n", vt->title);
+        x=vt->sx-printf("+===[%s]", vt->title);
     else
-        printf(".-=====\n");
+        x=vt->sx-printf("+");
+    while (x-->=0)
+        putchar('=');
+    printf("+\n");
+
     attr=0x1010;
     for (y=0; y<vt->sy; y++)
     {
-        printf("| ");
+        printf("|");
         for (x=0; x<vt->sx; x++)
         {
 #define SCR vt->scr[x+y*vt->sx]
@@ -100,9 +105,13 @@ static void dump(tty vt)
                 printf(">");
             }
         }
-        printf("\n");
+        printf("|\n");
     }
-    printf("`-===[ cursor at %d,%d ]\n", vt->cx, vt->cy);
+
+    x=vt->sx-printf("+-[ cursor at %d,%d ]", vt->cx, vt->cy);
+    while (x-->=0)
+        putchar('-');
+    printf("+\n");
 }
 
 #define SX vt->sx
