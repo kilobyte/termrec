@@ -6,6 +6,10 @@
 #include <getopt.h>
 #include <stdlib.h>
 #include <locale.h>
+#if HAVE_TERMIOS_H
+# include <termios.h>
+# include <unistd.h>
+#endif
 #include "_stdint.h"
 #include "gettext.h"
 #include "common.h"
@@ -137,6 +141,40 @@ static int loader(void *arg)
                   loader_init_wait, loader_wait, loader_print, 0);
     pthread_cleanup_pop(1);
     return 1;
+}
+
+
+static struct termios old_tattr;
+
+static void kbd_raw(void)
+{
+    struct termios tattr;
+
+    if (!isatty(0))
+        return;
+
+    tcgetattr(0,&old_tattr);
+    tattr=old_tattr;
+    // cfmakeraw(&tattr);
+    tattr.c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP
+                       |INLCR|IGNCR|ICRNL|IXON);
+    tattr.c_oflag &= ~OPOST;
+    tattr.c_lflag &= ~(ECHO|ECHONL|ICANON|ISIG|IEXTEN);
+    tattr.c_cflag &= ~(CSIZE|PARENB);
+    tattr.c_cflag |= CS8;
+
+#ifndef IGNORE_INT
+    tattr.c_lflag|=ISIG;        // allow C-c, C-\ and C-z
+#endif
+    tattr.c_cc[VMIN]=1;
+    tattr.c_cc[VTIME]=0;
+    tcsetattr(0,TCSANOW,&tattr);
+}
+
+static void kbd_restore(void)
+{
+    tcdrain(0);
+    tcsetattr(0,TCSADRAIN,&old_tattr);
 }
 
 
