@@ -205,6 +205,10 @@ skip_field:
                     bracket_level++;
                     goto expect_field;
                 }
+                else if (c=='n' && (c=getc(f))=='u'
+                                && (c=getc(f))=='l'
+                                && (c=getc(f))=='l')
+                {}
                 else
                     FAIL("Not an asciicast: junk within header.\n");
             }
