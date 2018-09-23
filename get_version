@@ -6,5 +6,5 @@ test -n "$v" || v=UNKNOWN
 
 [ ! -d .git ] || { git diff-index --quiet HEAD -- || v="$v-dirty"; }
 
-[ "$1" != "-n" ] || n=-n
-echo $n "${v##v}"
+[ "$1" = "-n" ] || n='\n'
+printf '%s'"$n" "${v##v}"
