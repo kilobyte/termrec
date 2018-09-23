@@ -21,7 +21,7 @@ Certain non-file streams can be played as well, such as:
 
 =item telnet:// (e.g. telnet://towel.blinkenlights.nl)
 
-=item termcast:// (e.g. termcast://termcast.org/FooTV)
+=item termcast:// (e.g. termcast://termcast.org/SplatTV)
 
 =item anything directly downloadable via CURL (https://, etc)
 
