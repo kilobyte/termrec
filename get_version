@@ -1,9 +1,8 @@
 #!/bin/sh
-set -e
 
 v=`git describe 2>/dev/null`
-test -n "$v" || v=`cat VERSION`
-test -n "$v"
+test -n "$v" || v=`cat VERSION 2>/dev/null`
+test -n "$v" || v=UNKNOWN
 
 [ ! -d .git ] || { git diff-index --quiet HEAD -- || v="$v-dirty"; }
 
