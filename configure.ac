@@ -61,6 +61,8 @@ AC_CHECK_FUNCS([getpt ptsname snprintf vsnprintf _getpty grantpt forkpty asprint
          gettimeofday usleep ctime_r getopt_long getaddrinfo fork pipe select \
          uselect posix_openpt])
 AM_CONDITIONAL(HAVE_FORK, test x$ac_cv_func_fork = xyes)
+PKG_CHECK_MODULES([CURL], [libcurl], , [:])
+AC_CHECK_HEADERS([curl/curl.h])
 
 # Checks for Winblows.
 AC_CHECK_WIN32

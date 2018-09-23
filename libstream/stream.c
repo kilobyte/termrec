@@ -158,6 +158,8 @@ export int open_stream(int fd, const char* url, int mode, const char **error)
             fd=open_telnet(url+9, mode, error);
         else if (match_prefix(url, "termcast://"))
             fd=open_termcast(url+11, mode, error);
+        else if (strstr(url, "://"))
+            fd=open_curl(url, mode, error);
         else
             fd=open_file(url, mode, error);
     }

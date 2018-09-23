@@ -1,3 +1,4 @@
+int open_curl(const char* url, int mode, const char **error);
 int open_file(const char* url, int mode, const char **error);
 int open_tcp(const char* url, int mode, const char **error);
 int open_telnet(const char* url, int mode, const char **error);
