@@ -1,4 +1,6 @@
 #include "config.h"
+#ifdef HAVE_CURL_CURL_H
+
 #include <unistd.h>
 #include <curl/curl.h>
 #include "export.h"
@@ -71,3 +73,4 @@ int open_curl(const char* url, int mode, const char **error)
     else
         return filter(curl_r, -1, 0, url, error);
 }
+#endif
