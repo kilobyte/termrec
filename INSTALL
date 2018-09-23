@@ -7,9 +7,10 @@ Unix
 ====
 
 On an Unix system, do:
-    + apt-get install libz-dev libbz2-dev liblzma-dev libzstd-dev
+    + apt-get install libz-dev libbz2-dev liblzma-dev libzstd-dev libcurl4-gnutls-dev
        Or equivalent.  If you skip this step, the .gz/.bz2/.xz/.zst support
-       won't get compiled in.
+       won't get compiled in.  Without libcurl, http/https/gopher/... URLs won't
+       be available.
     + ./configure
     + make
 
