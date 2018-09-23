@@ -16,6 +16,9 @@ If I<outfile> ends in B<.gz>, B<.xz> or B<.bz2>, the data will be appropriately 
 
 If no I<outfile> is given, B<termrec> will produce a name like 2008-11-27.13-02-42.ttyrec.bz2
 
+You can write directly to some remote URLs, such as
+B<tcp://>I<host>B<:>I<port> but that's usually of little use.
+
 =head2 Options:
 
 =over

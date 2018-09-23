@@ -23,6 +23,8 @@ Certain non-file streams can be played as well, such as:
 
 =item termcast:// (e.g. termcast://termcast.org/FooTV)
 
+=item anything directly downloadable via CURL (https://, etc)
+
 =back
 
 
