@@ -7,6 +7,7 @@
 #include "sys/ttysize.h"
 #include "export.h"
 #include "charsets.h"
+#include "wcwidth.h"
 
 struct vtvt_data
 {
@@ -83,7 +84,7 @@ static void build_vt100graph(void)
             vt100graph[charset_vt100[i]]=i;
 }
 
-static void vtvt_char(tty vt, int x, int y, ucs ch, int attr)
+static void vtvt_char(tty vt, int x, int y, ucs ch, int attr, int width)
 {
     if (x>=SX || y>SY)
         return;
@@ -93,7 +94,9 @@ static void vtvt_char(tty vt, int x, int y, ucs ch, int attr)
     if (fprintf(DATA->f, "%lc", ch)<0)
     {
         clearerr(DATA->f); // required on BSD
-        if (vt->cp437)
+        if (width==2)
+            fprintf(DATA->f, "??"); // nothing is wide in cp437
+        else if (vt->cp437)
         {
             if (!vt100graph)
                 build_vt100graph();
@@ -130,7 +133,8 @@ export void vtvt_dump(tty vt)
     {
         for (x=0; x<vt->sx; x++)
         {
-            vtvt_char(vt, x, y, ch->ch, ch->attr);
+            if (ch->ch != VT100_CJK_RIGHT)
+                vtvt_char(vt, x, y, ch->ch, ch->attr, mk_wcwidth(ch->ch));
             ch++;
         }
     }

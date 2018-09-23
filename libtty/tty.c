@@ -283,8 +283,7 @@ static inline void tty_write_char(tty vt, ucs c)
 
     if (w<0)
         return;
-
-    if (!w)
+    else if (!w)
     {
         if (!CX)
             return; // combining are illegal at left edge of the screen
@@ -293,7 +292,7 @@ static inline void tty_write_char(tty vt, ucs c)
 
     if (c<128 && vt->G&(1<<vt->curG))
         c=charset_vt100[c];
-    if (CX>=SX)
+    if (CX+w>SX)
     {
         if (vt->opt_auto_wrap)
         {
@@ -306,14 +305,41 @@ static inline void tty_write_char(tty vt, ucs c)
             }
         }
         else
-            CX=SX-1;
+            CX=SX-w;
     }
+
+    // check for damage to existent CJK characters
+    if (vt->scr[CY*SX+CX].attr & VT100_ATTR_CJK)
+    {
+        if (vt->scr[CY*SX+CX].ch == VT100_CJK_RIGHT && CX) // right half
+        {
+            vt->scr[CY*SX+CX-1].ch=' ';
+            vt->scr[CY*SX+CX-1].attr&=~VT100_ATTR_CJK;
+            tty_clear_comb(vt, &vt->scr[CY*SX+CX-1]);
+            if (vt->l_char)
+                vt->l_char(vt, CX-1, CY, c, vt->scr[CY*SX+CX-1].attr, 1);
+        }
+        else if (w==1 && mk_wcwidth(vt->scr[CY*SX+CX].ch) == 2) // left half
+        {
+            vt->scr[CY*SX+CX+1].ch=' ';
+            vt->scr[CY*SX+CX+1].attr&=~VT100_ATTR_CJK;
+            tty_clear_comb(vt, &vt->scr[CY*SX+CX+1]);
+            // no notification
+        }
+    }
+
     vt->scr[CY*SX+CX].ch=c;
-    vt->scr[CY*SX+CX].attr=vt->attr;
+    vt->scr[CY*SX+CX].attr=vt->attr | (w==2?VT100_ATTR_CJK:0);
     tty_clear_comb(vt, &vt->scr[CY*SX+CX]);
-    CX++;
+    if (w==2)
+    {
+        vt->scr[CY*SX+CX+1].ch=VT100_CJK_RIGHT;
+        vt->scr[CY*SX+CX+1].attr=vt->attr|VT100_ATTR_CJK;
+        tty_clear_comb(vt, &vt->scr[CY*SX+CX+1]);
+    }
+    CX+=w;
     if (vt->l_char)
-        vt->l_char(vt, CX-1, CY, c, vt->attr);
+        vt->l_char(vt, CX-1, CY, c, vt->attr, w);
 }
 
 export void tty_write(tty vt, const char *buf, int len)
@@ -350,7 +376,7 @@ export void tty_write(tty vt, const char *buf, int len)
                     tty_clear_comb(vt, &vt->scr[CY*SX+CX]);
                     CX++;
                     if (vt->l_char)
-                        vt->l_char(vt, CX-1, CY, ' ', vt->attr);
+                        vt->l_char(vt, CX-1, CY, ' ', vt->attr, 1);
                 } while (CX<SX && CX&7);
             continue;
         case 10: // LF (newline)
@@ -874,7 +900,8 @@ export void tty_write(tty vt, const char *buf, int len)
                 if (vt->l_char)
                     for (int j=CX;j<SX;j++)
                         vt->l_char(vt, j, CY, vt->scr[CY*SX+j].ch,
-                                              vt->scr[CY*SX+j].attr);
+                                              vt->scr[CY*SX+j].attr,
+                                              mk_wcwidth(vt->scr[CY*SX+j].ch));
                 vt->state=ESnormal;
                 break;
 
@@ -892,7 +919,8 @@ export void tty_write(tty vt, const char *buf, int len)
                     if (vt->l_char)
                     {
                         vt->l_char(vt, j-i, CY, vt->scr[CY*SX+j].ch,
-                                                vt->scr[CY*SX+j].attr);
+                                                vt->scr[CY*SX+j].attr,
+                                                mk_wcwidth(vt->scr[CY*SX+j].ch));
                     }
                 }
                 CLEAR(SX-i, CY, i);

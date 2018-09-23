@@ -88,9 +88,10 @@ callback fields are:
 
 it's a place to put your private data in
 
-=item B<void (*l_char)(tty >I<vt>B<, int >I<x>B<, int >I<y>B<, ucs >I<ch>B<, int >I<attr>B<);>
+=item B<void (*l_char)(tty >I<vt>B<, int >I<x>B<, int >I<y>B<, ucs >I<ch>B<, int >I<attr>B<, int >I<width>B<);>
 
-after a character has been written to the screen; the cursor advances by that character
+after a character has been written to the screen; the cursor advances by
+I<width> which might be 1 (regular) or 2 (CJK "fullwidth")
 
 =item B<void (*l_cursor)(tty >I<vt>B<, int >I<x>B<, int >I<y>B<);>
 

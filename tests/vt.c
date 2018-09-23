@@ -5,9 +5,14 @@
 #include <stdbool.h>
 #include "tty.h"
 
-static void tl_char(tty vt, int x, int y, ucs ch, int attr)
+static void tl_char(tty vt, int x, int y, ucs ch, int attr, int width)
 {
-    printf("== char U+%04X attr=%X at %d,%d\n", ch, attr, x, y);
+    if (width == 1)
+        printf("== char U+%04X attr=%X at %d,%d\n", ch, attr, x, y);
+    else if (width == 2)
+        printf("== char U+%04X attr=%X at %d,%d, CJK\n", ch, attr, x, y);
+    else
+        printf("== char U+%04X attr=%X at %d,%d, bad width %d!\n", ch, attr, x, y, width);
 }
 
 static void tl_comb(tty vt, int x, int y, ucs ch, int attr)

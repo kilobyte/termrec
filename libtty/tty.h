@@ -34,6 +34,8 @@ enum
     VT100_FLAG_AUTO_WRAP,       // auto wrap at right margin
 };
 
+#define VT100_CJK_RIGHT 0xffffffff /* ch value of right-half of a CJK char */
+
 typedef struct tty
 {
     /*=[ basic data ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
@@ -67,7 +69,7 @@ typedef struct tty
     /*=[ listeners ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
     void *l_data;
         // any private data
-    void (*l_char)(struct tty *vt, int x, int y, ucs ch, int attr);
+    void (*l_char)(struct tty *vt, int x, int y, ucs ch, int attr, int width);
         // after a character has been written to the screen
     void (*l_comb)(struct tty *vt, int x, int y, ucs ch, int attr);
         // after a combining character has been added
@@ -103,6 +105,7 @@ typedef struct tty
 #define VT100_ATTR_BLINK        0x100000
 #define VT100_ATTR_INVERSE      0x200000
 #define VT100_ATTR_STRIKE       0x400000
+#define VT100_ATTR_CJK          0x800000
 
 tty     tty_init(int sx, int sy, int resizable);
 int     tty_resize(tty vt, int nsx, int nsy);
