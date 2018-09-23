@@ -54,6 +54,18 @@ static void curl_w(int in, int out, const char *arg)
 
 int open_curl(const char* url, int mode, const char **error)
 {
+    if (mode == SM_REPREAD)
+    {
+        *error = "Watching CURL URLs is not (yet?) supported.";
+        return -1;
+    }
+    else if (mode == SM_APPEND)
+    {
+        // There's CURLOPT_APPEND but it says it's for FTP only, FTP is dead.
+        *error = "Appending via CURL is not (yet?) supported.";
+        return -1;
+    }
+
     if (mode&SM_WRITE)
         return filter(curl_w, -1, 1, url, error);
     else
