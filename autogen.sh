@@ -1,7 +1,10 @@
 #!/bin/sh
 set -e
 
-libtoolize --automake
+if which glibtoolize >/dev/null
+  then glibtoolize --automake
+  else libtoolize --automake
+fi
 aclocal
 autoheader
 automake --add-missing
