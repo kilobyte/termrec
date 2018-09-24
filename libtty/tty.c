@@ -393,16 +393,17 @@ export void tty_write(tty vt, const char *buf, int len)
             L_CURSOR;
             continue;
         case 9: // tab
-            if (CX<SX)
-                do
-                {
-                    vt->scr[CY*SX+CX].attr=vt->attr;
-                    vt->scr[CY*SX+CX].ch=' ';
-                    tty_clear_comb(vt, &vt->scr[CY*SX+CX]);
-                    CX++;
-                    if (vt->l_char)
-                        vt->l_char(vt, CX-1, CY, ' ', vt->attr, 1);
-                } while (CX<SX && CX&7);
+            if (CX>=SX)
+                continue;
+            do
+            {
+                vt->scr[CY*SX+CX].attr=vt->attr;
+                vt->scr[CY*SX+CX].ch=' ';
+                tty_clear_comb(vt, &vt->scr[CY*SX+CX]);
+                CX++;
+                if (vt->l_char)
+                    vt->l_char(vt, CX-1, CY, ' ', vt->attr, 1);
+            } while (CX<SX && CX&7);
             continue;
         case 10: // LF (newline)
             CX=0;
