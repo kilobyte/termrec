@@ -11,9 +11,8 @@ libtty_la_SOURCES = $(LIBSTREAM) \
 	libtty/vtredir.c \
 	libtty/asciicast.c \
 	libtty/dosrecorder.c
-libtty_la_LIBADD = libcompat.la libttyutils.la @LIBBZ2@ @LIBZ@ @LIBLZMA@ @LIBZSTD@ @CURL_LIBS@
+libtty_la_LIBADD = libcompat.la libttyutils.la @LIBBZ2@ @LIBZ@ @LIBLZMA@ @LIBZSTD@
 libtty_la_LDFLAGS = -no-undefined
-libtty_la_CFLAGS = $(AM_CFLAGS) @CURL_CFLAGS@
 
 #disabled: if !HAVE_FORK
 libtty_la_LIBADD += @PTHREAD_LIBS@

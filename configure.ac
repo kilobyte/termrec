@@ -61,7 +61,7 @@ AC_CHECK_FUNCS([getpt ptsname snprintf vsnprintf _getpty grantpt forkpty asprint
          gettimeofday usleep ctime_r getopt_long getaddrinfo fork pipe select \
          uselect posix_openpt])
 AM_CONDITIONAL(HAVE_FORK, test x$ac_cv_func_fork = xyes)
-PKG_CHECK_MODULES([CURL], [libcurl], , [AC_MSG_WARN([
+AC_SEARCH_LIBS(curl_easy_init, curl, , [AC_MSG_WARN([
 CURL is not available: support for http/etc URLs will be disabled.
 ])])
 AC_CHECK_HEADERS([curl/curl.h])
