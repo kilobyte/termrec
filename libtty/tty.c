@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <assert.h>
 #include "export.h"
@@ -256,6 +257,44 @@ static void set_charset(tty vt, int g, char x)
     }
 }
 
+static void cjk_damage_left(tty vt, int x, bool notify)
+{
+    assert(x>=0);
+    assert(x<SX);
+    attrchar *ca = &vt->scr[CY*SX+x];
+    if (!(ca->attr & VT100_ATTR_CJK))
+        return;
+    if (ca->ch != VT100_CJK_RIGHT)
+        return;
+    if (!x)
+        return; // shouldn't happen
+
+    --ca; --x;
+    ca->ch=' ';
+    ca->attr&=~VT100_ATTR_CJK;
+    tty_clear_comb(vt, ca);
+    if (notify && vt->l_char)
+        vt->l_char(vt, x, CY, ' ', ca->attr, 1);
+}
+
+static void cjk_damage_right(tty vt, int x, bool notify)
+{
+    assert(x>=0);
+    assert(x<SX);
+    attrchar *ca = &vt->scr[CY*SX+x];
+    if (!(ca->attr & VT100_ATTR_CJK))
+        return;
+    if (mk_wcwidth(ca->ch) != 2 || x>=SX)
+        return; // shouldn't happen
+
+    ++ca; ++x;
+    ca->ch=' ';
+    ca->attr&=~VT100_ATTR_CJK;
+    tty_clear_comb(vt, ca);
+    if (notify && vt->l_char)
+        vt->l_char(vt, x, CY, ' ', ca->attr, 1);
+}
+
 
 #define L_CURSOR {if (vt->l_cursor) vt->l_cursor(vt, CX, CY);}
 #define FLAG(opt,f,v) \
@@ -309,24 +348,10 @@ static inline void tty_write_char(tty vt, ucs c)
     }
 
     // check for damage to existent CJK characters
-    if (vt->scr[CY*SX+CX].attr & VT100_ATTR_CJK)
-    {
-        if (vt->scr[CY*SX+CX].ch == VT100_CJK_RIGHT && CX) // right half
-        {
-            vt->scr[CY*SX+CX-1].ch=' ';
-            vt->scr[CY*SX+CX-1].attr&=~VT100_ATTR_CJK;
-            tty_clear_comb(vt, &vt->scr[CY*SX+CX-1]);
-            if (vt->l_char)
-                vt->l_char(vt, CX-1, CY, c, vt->scr[CY*SX+CX-1].attr, 1);
-        }
-        else if (w==1 && mk_wcwidth(vt->scr[CY*SX+CX].ch) == 2) // left half
-        {
-            vt->scr[CY*SX+CX+1].ch=' ';
-            vt->scr[CY*SX+CX+1].attr&=~VT100_ATTR_CJK;
-            tty_clear_comb(vt, &vt->scr[CY*SX+CX+1]);
-            // no notification
-        }
-    }
+    // * overwriting half-aligned trailing half
+    cjk_damage_left(vt, CX, true);
+    // * overwriting 2-width with 1-width, or half-aligned with 2-width
+    cjk_damage_right(vt, CX+w-1, false);
 
     vt->scr[CY*SX+CX].ch=c;
     vt->scr[CY*SX+CX].attr=vt->attr | (w==2?VT100_ATTR_CJK:0);

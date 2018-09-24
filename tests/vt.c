@@ -74,6 +74,8 @@ static void dump(tty vt)
                 printf("{%X}", attr=SCR.attr);
             if (SCR.ch>=' ' && SCR.ch<127)
                 printf("%c", SCR.ch);
+            else if (SCR.ch == VT100_CJK_RIGHT)
+                printf("[CJK]");
             else
                 printf("[%04X]", SCR.ch);
             if (SCR.comb)
