@@ -96,6 +96,7 @@ AC_C_TRY_FLAG([-Wshadow])
 AC_C_TRY_FLAG([-Wmissing-prototypes])
 AC_C_TRY_FLAG([-Wno-unused-parameter])
 AC_C_TRY_FLAG([-Wno-bitwise-op-parentheses])
+AC_C_TRY_FLAG([-Wno-logical-op-parentheses])
 
 # Initialize the test suite.
 AC_CONFIG_TESTDIR(tests)
