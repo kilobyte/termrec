@@ -3,6 +3,12 @@ matrix:
   include:
     - os: linux
       dist: bionic
+      env:
+        global:
+        - secure: "XJQnvg843RzfdrkSDkcL9gDjbMdy6IHz9T3HDI9shCNAjgRZDijZRRsoPbJowqns2Dgkoznxl33AHj0iLBbEGP6f9uvTr/p6j9tUrk7Vu6pFDLzAcSlmD2Y2JWXQ1JO8EdsISteqtUJMEOasFE1nUPT/r7sd3DbCRiXw/9jTVxSsPp1kuvvvAAnKZBbyBIh6HRiqzCEbtI5YXv9wCGD4v0NFcBKVxsTUqFo5KqDFVYPyUnfSrcwiJ7MDFtE09GXYhmBW6d1R19iIdFAHXtlNVDvlv3/xtVU3+MIV9zG3tVlL0uG9Ejw5za1BmdwpV4FuNOoRF+XCmsczIMNsA/u7m80hZTuP+sc8qiYmG7huRtjaGuvBEIys//mXPGSCELaFeqgbpLY1JNvudkI0vJOcF1U06aXLLNfq8sseE1Dls+bfG4W9GX+ImGCW1QOZOhfPMAkMPeqS6IO0bGp2ly+6cqipdLGW+rZH4ZMXA2RsWwchbetMW7A8414GYzVl9bE3kWqlQQBJhtA+c5BWHIxE56r6PXtx55Zgl+gToQfF1FjB2EPoFSKQ71vTWMXtfU+FoeoPmMCwg/fhC2pjabC/82zZZehyku8KWtTTf4yJNuA8NgU/Mdid+04vFZcC9v8LgHbGWRgm4ki9TpM+K26eMifzKjtxV+bTIT2XAwqlYqM="
+      before_install:
+      - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+
       addons:
         apt:
           packages:
@@ -11,6 +17,15 @@ matrix:
           - liblzma-dev
           - libzstd-dev
           - libcurl4-gnutls-dev
+        coverity_scan:
+          project:
+            name: "kilobyte/termrec"
+            description: "tty recorder/player"
+          notification_email: kilobyte@angband.pl
+          build_command_prepend: "./autogen.sh && ./configure"
+          build_command: "make check"
+          branch_pattern: coverity_scan
+
     - os: osx
       before_install:
         brew update && brew install libtool
