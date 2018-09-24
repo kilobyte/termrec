@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "tty.h"
+#include "wcwidth.h"
 
 static void tl_char(tty vt, int x, int y, ucs ch, int attr, int width)
 {
@@ -96,6 +97,95 @@ static void dump(tty vt)
     printf("`-===[ cursor at %d,%d ]\n", vt->cx, vt->cy);
 }
 
+#define SX vt->sx
+#define SY vt->sy
+#define CX vt->cx
+#define CY vt->cy
+#define FREECOMB vt->combs[0].next
+#define NCOMBS   vt->combs[0].ch
+
+static const char* validate(tty vt)
+{
+    if (SX<2 || SY<1)
+        return "screen too small";
+    if (CX<0 || CX>SX || CY<0 || CY>=SY)
+        return "cursor out of bounds";
+
+    int SS=SX*SY;
+    if (!vt->combs)
+    {
+        for (int i=0;i<SS;i++)
+            if (vt->scr[i].comb)
+                return "combining when there should be none";
+    }
+    else
+    {
+        uint8_t *tc=calloc(SS, 1);
+        if (!tc)
+            return "OUT OF MEMORY";
+        tc[0]=1;
+        // check used chains
+        for (int i=0;i<SS;i++)
+            for (uint32_t j=vt->scr[i].comb; j; j=vt->combs[j].next)
+            {
+                if (j>=NCOMBS)
+                    return free(tc), "combining out of table";
+                if (tc[j])
+                    return free(tc), "combining chain loop";
+                tc[j]=1;
+            }
+        // check free space
+        for (uint32_t j=FREECOMB; j<NCOMBS; j=vt->combs[j].next)
+        {
+            if (tc[j])
+                return free(tc), "free combining used or looped";
+            tc[j]=1;
+        }
+        for (int32_t j=0; j<NCOMBS; j++)
+            if (!tc)
+                return free(tc), "combining slot neither used nor free";
+        free(tc);
+    }
+
+    for (int y=0;y<SY;y++)
+        for (int x=0;x<SX;x++)
+        {
+            attrchar *ac = &vt->scr[y*SX+x];
+            switch (mk_wcwidth(ac->ch))
+            {
+            case 0:
+                if (ac->ch)
+                    return "width 0 character as primary";
+                break;
+            case 1:
+                if (ac->ch == VT100_CJK_RIGHT)
+                {
+                    if (!(ac->attr & VT100_ATTR_CJK))
+                        return "right half but attr says not CJK";
+                    if (x<=0)
+                        return "right half at left edge of screen";
+                    if (!(ac[-1].attr & VT100_ATTR_CJK))
+                        return "right half but prev attr not CJK";
+                }
+                else if (ac->attr & VT100_ATTR_CJK)
+                    return "width 1 but attr says CJK";
+                break;
+            case 2:
+                if (!(ac->attr & VT100_ATTR_CJK))
+                    return "width 2 but attr says not CJK";
+                if (x+1>=SX)
+                    return "width 2 at right edge of screen";
+                if (ac[1].ch != VT100_CJK_RIGHT)
+                    return "width 2 but no right half";
+                break;
+            default:
+                return "control character on screen";
+            }
+        }
+
+    return 0;
+}
+
 #define BUFFER_SIZE 65536
 
 int main(int argc, char **argv)
@@ -131,7 +221,12 @@ int main(int argc, char **argv)
         }
 run:
     while ((len=read(0, buf, BUFFER_SIZE))>0)
+    {
         tty_write(vt, buf, len);
+        const char *inv=validate(vt);
+        if (inv)
+            printf("!!! tty invalid: %s !!!\n", inv);
+    }
 
     if (dump_flag)
         dump(vt);

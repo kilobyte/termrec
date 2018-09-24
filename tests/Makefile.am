@@ -3,6 +3,7 @@ AM_CFLAGS = -I$(top_srcdir) -I$(top_srcdir)/libtty/
 LDADD = -L.. -ltty ../libutils.la
 vtmir_LDFLAGS = @PTHREAD_CFLAGS@
 vtmir_LDADD = $(LDADD) @PTHREAD_LIBS@
+vt_LDADD = $(LDADD) ../libtty/wcwidth.o
 
 EXTRA_DIST = $(TESTSUITE_AT) testsuite.at testsuite package.m4 unescape
 DISTCLEANFILES       = atconfig $(check_SCRIPTS)
