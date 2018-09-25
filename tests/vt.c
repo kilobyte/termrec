@@ -38,6 +38,11 @@ static void tl_resize(tty vt, int sx, int sy)
     printf("== resize to %dx%d\n", sx, sy);
 }
 
+static void tl_bell(tty vt)
+{
+    printf("== bell\n");
+}
+
 static void tl_free(tty vt)
 {
     printf("== free\n");
@@ -93,6 +98,7 @@ int main(int argc, char **argv)
             vt->l_scroll=tl_scroll;
             vt->l_flag=tl_flag;
             vt->l_resize=tl_resize;
+            vt->l_bell=tl_bell;
             vt->l_free=tl_free;
             break;
         case 'd':

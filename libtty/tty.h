@@ -72,6 +72,8 @@ typedef struct tty
         // after the terminal has been resized
     void (*l_flush)(struct tty *vt);
         // when a write chunk ends
+    void (*l_bell)(struct tty *vt);
+        // when an \a is received
     void (*l_free)(struct tty *vt);
         // before the terminal is destroyed
 } *tty;

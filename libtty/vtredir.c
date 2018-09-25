@@ -182,6 +182,11 @@ static void vtvt_flush(tty vt)
     fflush(DATA->f);
 }
 
+static void vtvt_bell(tty vt)
+{
+    putc('\a', DATA->f);
+}
+
 static void vtvt_free(tty vt)
 {
     free(vt->l_data);
@@ -209,6 +214,7 @@ export void vtvt_attach(tty vt, FILE *f, int dump)
     vt->l_flag=vtvt_flag;
     vt->l_resize=vtvt_resized;
     vt->l_flush=vtvt_flush;
+    vt->l_bell=vtvt_bell;
     vt->l_free=vtvt_free;
 
     if (dump)

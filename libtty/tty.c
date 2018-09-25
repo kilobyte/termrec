@@ -225,6 +225,8 @@ export void tty_write(tty vt, const char *buf, int len)
         case 7: // BEL -> beep; also terminates OSC
             if (vt->state == ESosc)
                 vt->state = ESnormal;
+            else if (vt->l_bell)
+                vt->l_bell(vt);
             continue;
         case 8: // backspace
             if (CX)

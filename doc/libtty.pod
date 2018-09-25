@@ -136,6 +136,10 @@ after the terminal has been resized
 
 when a write chunk ends
 
+=item B<void (*l_bell)(tty >I<vt>B<);>
+
+upon a beep
+
 =item B<void (*l_free)(tty >I<vt>B<);>
 
 before the terminal is destroyed
