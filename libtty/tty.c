@@ -23,6 +23,8 @@
  #define debuglog(...) {}
 #endif
 
+#define CJK_DAMAGED ' '
+
 #define SX vt->sx
 #define SY vt->sy
 #define CX vt->cx
@@ -259,8 +261,8 @@ static void set_charset(tty vt, int g, char x)
 
 static void cjk_damage_left(tty vt, int x, bool notify)
 {
-    assert(x>=0);
-    assert(x<SX);
+    if (x<=0)
+        return;
     attrchar *ca = &vt->scr[CY*SX+x];
     if (!(ca->attr & VT100_ATTR_CJK))
         return;
@@ -270,29 +272,29 @@ static void cjk_damage_left(tty vt, int x, bool notify)
         return; // shouldn't happen
 
     --ca; --x;
-    ca->ch=' ';
+    ca->ch=CJK_DAMAGED;
     ca->attr&=~VT100_ATTR_CJK;
     tty_clear_comb(vt, ca);
     if (notify && vt->l_char)
-        vt->l_char(vt, x, CY, ' ', ca->attr, 1);
+        vt->l_char(vt, x, CY, CJK_DAMAGED, ca->attr, 1);
 }
 
 static void cjk_damage_right(tty vt, int x, bool notify)
 {
-    assert(x>=0);
-    assert(x<SX);
+    if (x+1>=SX)
+        return;
     attrchar *ca = &vt->scr[CY*SX+x];
     if (!(ca->attr & VT100_ATTR_CJK))
         return;
-    if (mk_wcwidth(ca->ch) != 2 || x>=SX)
+    if (mk_wcwidth(ca->ch) != 2)
         return; // shouldn't happen
 
     ++ca; ++x;
-    ca->ch=' ';
+    ca->ch=CJK_DAMAGED;
     ca->attr&=~VT100_ATTR_CJK;
     tty_clear_comb(vt, ca);
     if (notify && vt->l_char)
-        vt->l_char(vt, x, CY, ' ', ca->attr, 1);
+        vt->l_char(vt, x, CY, CJK_DAMAGED, ca->attr, 1);
 }
 
 
@@ -395,6 +397,9 @@ export void tty_write(tty vt, const char *buf, int len)
         case 9: // tab
             if (CX>=SX)
                 continue;
+            cjk_damage_left(vt, CX, true);
+            if ((CX|7) < SX)
+                cjk_damage_right(vt, CX|7, false);
             do
             {
                 vt->scr[CY*SX+CX].attr=vt->attr;
@@ -854,9 +859,11 @@ export void tty_write(tty vt, const char *buf, int len)
                 switch (vt->tok[0])
                 {
                 case 0: // from cursor
+                    cjk_damage_left(vt, CX, true);
                     CLEAR(CX, CY, SX*SY-(CY*SX+CX));
                     break;
                 case 1: // to cursor
+                    cjk_damage_right(vt, CX-1, true);
                     CLEAR(0, 0, CY*SX+CX);
                     break;
                 case 2: // whole screen
@@ -869,9 +876,11 @@ export void tty_write(tty vt, const char *buf, int len)
                 switch (vt->tok[0])
                 {
                 case 0: // from cursor
+                    cjk_damage_left(vt, CX, true);
                     CLEAR(CX, CY, SX-CX);
                     break;
                 case 1: // to cursor
+                    cjk_damage_right(vt, CX-1, true);
                     CLEAR(0, CY, CX);
                     break;
                 case 2: // whole line
@@ -920,6 +929,14 @@ export void tty_write(tty vt, const char *buf, int len)
                     i=SX-CX;
                 if (i<=0)
                     break;
+                cjk_damage_left(vt, CX, true);
+                if (vt->scr[CY*SX+CX].ch==VT100_CJK_RIGHT)
+                {
+                    vt->scr[CY*SX+CX].ch=CJK_DAMAGED;
+                    vt->scr[CY*SX+CX].attr&=~VT100_ATTR_CJK;
+                    tty_clear_comb(vt, &vt->scr[CY*SX+CX]);
+                }
+                cjk_damage_left(vt, SX-1, true); // pushed off screen
                 for (int j=SX-CX-i-1;j>=0;j--)
                     vt->scr[CY*SX+CX+j+i]=vt->scr[CY*SX+CX+j];
                 tty_clear_region(vt, CY*SX+CX, i);
@@ -939,6 +956,8 @@ export void tty_write(tty vt, const char *buf, int len)
                     i=SX-CX;
                 if (i<=0)
                     break;
+                cjk_damage_left(vt, CX, true);
+                cjk_damage_right(vt, CX+i-1, true);
                 for (int j=CX+i;j<SX;j++)
                 {
                     vt->scr[CY*SX+j-i]=vt->scr[CY*SX+j];
@@ -959,6 +978,8 @@ export void tty_write(tty vt, const char *buf, int len)
                     i=1;
                 if (i+CX>SX)
                     i=SX-CX;
+                cjk_damage_left(vt, CX, true);
+                cjk_damage_right(vt, CX+i-1, true);
                 CLEAR(CX, CY, i);
                 vt->state=ESnormal;
                 break;
