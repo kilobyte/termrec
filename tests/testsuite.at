@@ -79,3 +79,7 @@ for x in "$top_srcdir/tests/rec.in/"*
     AT_CHECK([termcat "$x" -|vt -d],,[expout])
   done
 AT_CLEANUP
+
+#AT_SETUP([fuzzing vt])
+#AT_CHECK([vtgen|dd bs=1048576 count=1 2>/dev/null|vt],,[])
+#AT_CLEANUP

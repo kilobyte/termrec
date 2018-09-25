@@ -1,4 +1,4 @@
-check_PROGRAMS = seeks tarith loadsave rec vt vtmir
+check_PROGRAMS = seeks tarith loadsave rec vt vtmir vtgen
 AM_CFLAGS = -I$(top_srcdir) -I$(top_srcdir)/libtty/
 LDADD = -L.. -ltty ../libutils.la
 vtmir_LDFLAGS = @PTHREAD_CFLAGS@
