@@ -833,7 +833,7 @@ export void tty_write(tty vt, const char *buf, int len)
                 if (CY+i<SY)
                     CY+=i;
                 else
-                    CY=SY;
+                    CY=SY-1;
                 L_CURSOR;
                 vt->state=ESnormal;
                 break;
