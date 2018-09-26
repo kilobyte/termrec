@@ -225,7 +225,10 @@ run:
         tty_write(vt, buf, len);
         const char *inv=validate(vt);
         if (inv)
+        {
             printf("!!! tty invalid: %s !!!\n", inv);
+            break;
+        }
     }
 
     if (dump_flag)
