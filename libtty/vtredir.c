@@ -27,36 +27,36 @@ struct vtvt_data
 
 static inline void setattr(tty vt, int attr)
 {
-    if (DATA->attr!=attr)
-    {
-        DATA->attr=attr;
-        fprintf(DATA->f, "\e[0");
-        if (attr&VT100_ATTR_BOLD)
-            fprintf(DATA->f, ";1");
-        if (attr&VT100_ATTR_DIM)
-            fprintf(DATA->f, ";2");
-        if (attr&VT100_ATTR_ITALIC)
-            fprintf(DATA->f, ";3");
-        if (attr&VT100_ATTR_UNDERLINE)
-            fprintf(DATA->f, ";4");
-        if (attr&VT100_ATTR_BLINK)
-            fprintf(DATA->f, ";5");
-        if (attr&VT100_ATTR_INVERSE)
-            fprintf(DATA->f, ";7");
-        if (attr&VT100_ATTR_STRIKE)
-            fprintf(DATA->f, ";9");
-        if ((attr&0xff)!=0x10)
-            if ((attr&0xff)<8)
-                fprintf(DATA->f, ";3%u", attr&0xff);
-            else
-                fprintf(DATA->f, ";38;5;%u", attr&0xff);
-        if ((attr&0xff00)!=0x1000)
-            if ((attr&0xff00)<0x800)
-                fprintf(DATA->f, ";4%u", (attr&0xff00)>>8);
-            else
-                fprintf(DATA->f, ";48;5;%u", (attr&0xff00)>>8);
-        fprintf(DATA->f, "m");
-    }
+    if (DATA->attr==attr)
+        return;
+
+    DATA->attr=attr;
+    fprintf(DATA->f, "\e[0");
+    if (attr&VT100_ATTR_BOLD)
+        fprintf(DATA->f, ";1");
+    if (attr&VT100_ATTR_DIM)
+        fprintf(DATA->f, ";2");
+    if (attr&VT100_ATTR_ITALIC)
+        fprintf(DATA->f, ";3");
+    if (attr&VT100_ATTR_UNDERLINE)
+        fprintf(DATA->f, ";4");
+    if (attr&VT100_ATTR_BLINK)
+        fprintf(DATA->f, ";5");
+    if (attr&VT100_ATTR_INVERSE)
+        fprintf(DATA->f, ";7");
+    if (attr&VT100_ATTR_STRIKE)
+        fprintf(DATA->f, ";9");
+    if ((attr&0xff)!=0x10)
+        if ((attr&0xff)<8)
+            fprintf(DATA->f, ";3%u", attr&0xff);
+        else
+            fprintf(DATA->f, ";38;5;%u", attr&0xff);
+    if ((attr&0xff00)!=0x1000)
+        if ((attr&0xff00)<0x800)
+            fprintf(DATA->f, ";4%u", (attr&0xff00)>>8);
+        else
+            fprintf(DATA->f, ";48;5;%u", (attr&0xff00)>>8);
+    fprintf(DATA->f, "m");
 }
 
 static void vtvt_cursor(tty vt, int x, int y)
