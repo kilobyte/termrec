@@ -120,13 +120,14 @@ static const char* validate(tty vt)
     }
     else
     {
-        uint8_t *tc=calloc(SS, 1);
+        uint8_t *tc=calloc(NCOMBS, 1);
+        uint32_t j;
         if (!tc)
             return "OUT OF MEMORY";
         tc[0]=1;
         // check used chains
         for (int i=0;i<SS;i++)
-            for (uint32_t j=vt->scr[i].comb; j; j=vt->combs[j].next)
+            for (j=vt->scr[i].comb; j; j=vt->combs[j].next)
             {
                 if (j>=NCOMBS)
                     return free(tc), "combining out of table";
@@ -135,14 +136,16 @@ static const char* validate(tty vt)
                 tc[j]=1;
             }
         // check free space
-        for (uint32_t j=FREECOMB; j<NCOMBS; j=vt->combs[j].next)
+        for (j=FREECOMB; j<NCOMBS; j=vt->combs[j].next)
         {
             if (tc[j])
                 return free(tc), "free combining used or looped";
             tc[j]=1;
         }
-        for (int32_t j=0; j<NCOMBS; j++)
-            if (!tc)
+        if (j!=NCOMBS)
+            return free(tc), "bad termination of free combining chain";
+        for (j=0; j<NCOMBS; j++)
+            if (!tc[j])
                 return free(tc), "combining slot neither used nor free";
         free(tc);
     }
