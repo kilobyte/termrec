@@ -35,7 +35,7 @@
 enum { ESnormal, ESesc, ESgetpars, ESsquare, ESques, ESsetG0, ESsetG1,
        ESpercent, ESosc };
 
-static void tty_clear_comb(tty vt, attrchar *ac)
+static void tty_kill_comb(tty vt, attrchar *ac)
 {
     // Must have been initialized before.
     if (!ac->comb)
@@ -182,7 +182,7 @@ drop_nvt:
     return 0;
 }
 
-static void tty_clear_region(tty vt, int st, int l)
+static void tty_clear_region(tty vt, int st, int l, bool killcomb)
 {
     attrchar *c, blank;
 
@@ -196,14 +196,28 @@ static void tty_clear_region(tty vt, int st, int l)
     c=vt->scr+st;
     while (l--)
     {
-        tty_clear_comb(vt, c);
+        if (killcomb)
+            tty_kill_comb(vt, c);
         *c++=blank;
     }
 }
 
+static void tty_kill_comb_region(tty vt, int st, int l)
+{
+    attrchar *c;
+
+    assert(st>=0);
+    assert(l>=0);
+    assert(st+l<=SX*SY);
+
+    c=vt->scr+st;
+    while (l--)
+        tty_kill_comb(vt, c++);
+}
+
 export void tty_reset(tty vt)
 {
-    tty_clear_region(vt, 0, SX*SY);
+    tty_clear_region(vt, 0, SX*SY, true);
     CX=CY=vt->save_cx=vt->save_cy=0;
     vt->s1=0;
     vt->s2=SY;
@@ -224,18 +238,20 @@ static void tty_scroll(tty vt, int nl)
     assert(vt->s1<vt->s2);
     if ((s=vt->s2-vt->s1-abs(nl))<=0)
     {
-        tty_clear_region(vt, vt->s1*SX, (vt->s2-vt->s1)*SX);
+        tty_clear_region(vt, vt->s1*SX, (vt->s2-vt->s1)*SX, true);
         return;
     }
     if (nl<0)
     {
+        tty_kill_comb_region(vt, (vt->s2+nl)*SX, -nl*SX);
         memmove(vt->scr+(vt->s1-nl)*SX, vt->scr+vt->s1*SX, s*SX*sizeof(attrchar));
-        tty_clear_region(vt, vt->s1*SX, -nl*SX);
+        tty_clear_region(vt, vt->s1*SX, -nl*SX, false);
     }
     else
     {
+        tty_kill_comb_region(vt, vt->s1*SX, nl*SX);
         memmove(vt->scr+vt->s1*SX, vt->scr+(vt->s1+nl)*SX, s*SX*sizeof(attrchar));
-        tty_clear_region(vt, (vt->s2-nl)*SX, nl*SX);
+        tty_clear_region(vt, (vt->s2-nl)*SX, nl*SX, false);
     }
 }
 
@@ -274,7 +290,7 @@ static void cjk_damage_left(tty vt, int x, bool notify)
     --ca; --x;
     ca->ch=CJK_DAMAGED;
     ca->attr&=~VT100_ATTR_CJK;
-    tty_clear_comb(vt, ca);
+    tty_kill_comb(vt, ca);
     if (notify && vt->l_char)
         vt->l_char(vt, x, CY, CJK_DAMAGED, ca->attr, 1);
 }
@@ -292,7 +308,7 @@ static void cjk_damage_right(tty vt, int x, bool notify)
     ++ca; ++x;
     ca->ch=CJK_DAMAGED;
     ca->attr&=~VT100_ATTR_CJK;
-    tty_clear_comb(vt, ca);
+    tty_kill_comb(vt, ca);
     if (notify && vt->l_char)
         vt->l_char(vt, x, CY, CJK_DAMAGED, ca->attr, 1);
 }
@@ -313,7 +329,7 @@ static void cjk_damage_right(tty vt, int x, bool notify)
     }
 #define CLEAR(x,y,l) \
     {                                           \
-        tty_clear_region(vt, y*SX+x, l);        \
+        tty_clear_region(vt, y*SX+x, l, true);  \
         if (vt->l_clear)                        \
             vt->l_clear(vt, x, y, l);           \
     }
@@ -357,12 +373,12 @@ static inline void tty_write_char(tty vt, ucs c)
 
     vt->scr[CY*SX+CX].ch=c;
     vt->scr[CY*SX+CX].attr=vt->attr | (w==2?VT100_ATTR_CJK:0);
-    tty_clear_comb(vt, &vt->scr[CY*SX+CX]);
+    tty_kill_comb(vt, &vt->scr[CY*SX+CX]);
     if (w==2)
     {
         vt->scr[CY*SX+CX+1].ch=VT100_CJK_RIGHT;
         vt->scr[CY*SX+CX+1].attr=vt->attr|VT100_ATTR_CJK;
-        tty_clear_comb(vt, &vt->scr[CY*SX+CX+1]);
+        tty_kill_comb(vt, &vt->scr[CY*SX+CX+1]);
     }
     CX+=w;
     if (vt->l_char)
@@ -377,7 +393,6 @@ export void tty_write(tty vt, const char *buf, int len)
     buf--;
     while (len--)
     {
-
         switch (*++buf)
         {
         case 0:
@@ -404,7 +419,7 @@ export void tty_write(tty vt, const char *buf, int len)
             {
                 vt->scr[CY*SX+CX].attr=vt->attr;
                 vt->scr[CY*SX+CX].ch=' ';
-                tty_clear_comb(vt, &vt->scr[CY*SX+CX]);
+                tty_kill_comb(vt, &vt->scr[CY*SX+CX]);
                 CX++;
                 if (vt->l_char)
                     vt->l_char(vt, CX-1, CY, ' ', vt->attr, 1);
@@ -934,12 +949,13 @@ export void tty_write(tty vt, const char *buf, int len)
                 {
                     vt->scr[CY*SX+CX].ch=CJK_DAMAGED;
                     vt->scr[CY*SX+CX].attr&=~VT100_ATTR_CJK;
-                    tty_clear_comb(vt, &vt->scr[CY*SX+CX]);
+                    tty_kill_comb(vt, &vt->scr[CY*SX+CX]);
                 }
-                cjk_damage_left(vt, SX-1, true); // pushed off screen
+                cjk_damage_left(vt, SX-i, true); // pushed off screen
+                tty_kill_comb_region(vt, CY*SX+SX-i, i);
                 for (int j=SX-CX-i-1;j>=0;j--)
                     vt->scr[CY*SX+CX+j+i]=vt->scr[CY*SX+CX+j];
-                tty_clear_region(vt, CY*SX+CX, i);
+                tty_clear_region(vt, CY*SX+CX, i, false);
                 if (vt->l_char)
                     for (int j=CX;j<SX;j++)
                         vt->l_char(vt, j, CY, vt->scr[CY*SX+j].ch,
@@ -958,6 +974,7 @@ export void tty_write(tty vt, const char *buf, int len)
                     break;
                 cjk_damage_left(vt, CX, true);
                 cjk_damage_right(vt, CX+i-1, true);
+                tty_kill_comb_region(vt, CY*SX+CX, i);
                 for (int j=CX+i;j<SX;j++)
                 {
                     vt->scr[CY*SX+j-i]=vt->scr[CY*SX+j];
@@ -968,7 +985,7 @@ export void tty_write(tty vt, const char *buf, int len)
                                                 mk_wcwidth(vt->scr[CY*SX+j].ch));
                     }
                 }
-                CLEAR(SX-i, CY, i);
+                tty_clear_region(vt, CY*SX+SX-i, i, false);
                 vt->state=ESnormal;
                 break;
 
