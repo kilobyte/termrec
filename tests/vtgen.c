@@ -23,7 +23,7 @@ static const char *misc[]=
     "\e(0", "\e)0", "\e(B", "\e)B", "\x0e", "\x0f",
 };
 
-int main()
+int main(void)
 {
     while (1)
     {
