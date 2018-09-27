@@ -44,7 +44,7 @@ Does a B<printf> into the terminal.
 =item B<tty    tty_copy(tty >I<vt>B<);>
 
 Allocates a new vt100 terminal, making it an exact copy of an existing one,
-including its internal state.
+including its internal state.  Attached event callbacks are not copied.
 
 =back
 
