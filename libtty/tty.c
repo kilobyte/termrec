@@ -156,6 +156,7 @@ export void tty_free(tty vt)
         vt->l_free(vt);
     free(vt->scr);
     free(vt->combs);
+    free(vt->title);
     free(vt->oscbuf);
     free(vt);
 }
@@ -175,6 +176,7 @@ export tty tty_copy(tty vt)
             goto drop_scr;
         memcpy(nvt->combs, vt->combs, NCOMBS*sizeof(combc));
     }
+    nvt->title=vt->title? strdup(vt->title) : 0;
     if (vt->oscbuf)
         if ((nvt->oscbuf=malloc(MAXOSC)))
             memcpy(nvt->oscbuf, vt->oscbuf, vt->osclen);
@@ -266,6 +268,11 @@ static void osc(tty vt)
         return;
     if (vt->oscbuf)
         vt->oscbuf[vt->osclen]=0;
+    if (vt->tok[0]==0)
+    {
+        free(vt->title);
+        vt->title=vt->oscbuf? strdup(vt->oscbuf) : 0;
+    }
     // Other terminals don't distinguish between lack of the string (\e]0\e\\)
     // and an empty string (\e]0;\e\\) thus let's do the same.
     if (vt->l_osc)

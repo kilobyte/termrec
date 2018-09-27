@@ -44,6 +44,7 @@ typedef struct tty
     attrchar *scr;         // screen buffer
     combc *combs;          // combining character chains
     int attr;              // current attribute
+    char *title;           // window title
     /*=[ internal vt state ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
     int s1,s2;             // scrolling region
     int save_cx,save_cy;   // saved cursor position

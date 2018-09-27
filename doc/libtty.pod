@@ -64,6 +64,8 @@ You'll most likely be interested in the following fields of the structure:
 
 =item     int I<attr>;              // current attribute
 
+=item     char *I<title>;           // window title
+
 =back
 
 I<scr> is an array of character/attribute pairs, more exactly, each element is a struct C<{ ucs ch; int attr; }>.
