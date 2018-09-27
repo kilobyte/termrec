@@ -119,8 +119,7 @@ static void vtvt_comb(tty vt, int x, int y, ucs ch, int attr)
         vtvt_cursor(vt, x+1, y);
     setattr(vt, attr);
     if (fprintf(DATA->f, "%lc", ch)<0)
-        clearerr(DATA->f);
-        // No fallback, just ignore.
+        clearerr(DATA->f); // No fallback, just ignore.
 }
 
 export void vtvt_dump(tty vt)
