@@ -388,7 +388,7 @@ void record_asciicast(FILE *f, void* state, const struct timeval *tm, const char
             return;
     }
 
-    fprintf(f, "[%f, \"o\", \"", tm->tv_sec+tm->tv_usec*0.000001);
+    fprintf(f, "[%f, \"o\", \"", tm->tv_sec-as->start+tm->tv_usec*0.000001);
     while (len-->0)
     {
         if (((unsigned char)*buf)<' ')
