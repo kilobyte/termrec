@@ -346,6 +346,27 @@ void* record_asciicast_init(FILE *f, const struct timeval *tm)
     return as;
 }
 
+#define WANT(x) if (!len-- || *b++!=(x)) return 0
+static int skip_utf_term_size(const char *b, int len)
+{
+    const char *buf0 = b;
+    WANT('\e');
+    WANT('%');
+    WANT('G');
+    WANT('\e');
+    WANT('[');
+    WANT('8');
+    WANT(';');
+    while (len && *b>='0' && *b<='9')
+        len--, b++;
+    WANT(';');
+    while (len && *b>='0' && *b<='9')
+        len--, b++;
+    WANT('t');
+    return b-buf0;
+}
+#undef WANT
+
 void record_asciicast(FILE *f, void* state, const struct timeval *tm, const char *buf, int len)
 {
     struct ac_state *as = state;
@@ -360,6 +381,11 @@ void record_asciicast(FILE *f, void* state, const struct timeval *tm, const char
         fprintf(f, "}\n");
         tty_free(vt);
         as->head_done = true;
+
+        int skip = skip_utf_term_size(buf, len);
+        buf+=skip;
+        if (!(len-=skip))
+            return;
     }
 
     fprintf(f, "[%f, \"o\", \"", tm->tv_sec+tm->tv_usec*0.000001);
