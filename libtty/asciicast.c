@@ -351,7 +351,7 @@ void record_asciicast(FILE *f, void* state, const struct timeval *tm, const char
         tty_write(vt, buf, len);
         fprintf(f, "{\"version\":2, \"width\":%d, \"height\":%d", vt->sx, vt->sy);
         if (as->start)
-            fprintf(f, ", timestamp=%ld", as->start);
+            fprintf(f, ", \"timestamp\":%ld", as->start);
         fprintf(f, "}\n");
         tty_free(vt);
         as->head_done = true;
