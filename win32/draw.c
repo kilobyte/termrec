@@ -102,7 +102,7 @@ void draw_vt(HDC dc, int px, int py, tty vt)
 
         while (1)
         {
-            if (x>=vt->sx || attr!=ch->attr)
+            if (x>=vt->sx || attr!=ch->attr || ch->ch==VT100_CJK_RIGHT)
             {
                 draw_line(dc, x0*chx, y*chy, linebuf, cnt, attr);
                 cnt=0;
@@ -111,7 +111,9 @@ void draw_vt(HDC dc, int px, int py, tty vt)
                     break;
                 attr=ch->attr;
             }
-            if (ch->ch>0xffff)  // UTF-16 surrogates
+            if (ch->ch==VT100_CJK_RIGHT)
+                x0=x+1;
+            else if (ch->ch>0xffff)  // UTF-16 surrogates
             {
                 linebuf[cnt++]=0xD800-(0x10000>>10)+(ch->ch>>10);
                 linebuf[cnt++]=0xDC00+(ch->ch&0x3FF);
