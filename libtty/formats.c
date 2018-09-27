@@ -187,7 +187,8 @@ static void* record_live_init(FILE *f, const struct timeval *tm)
 
     tv=malloc(sizeof(struct timeval));
     gettimeofday(tv, 0);
-    tsub(*tv, *tm);
+    if (tm)
+        tsub(*tv, *tm);
 
     return tv;
 }
@@ -374,7 +375,10 @@ static void* record_nh_recorder_init(FILE *f, const struct timeval *tm)
     struct timeval *tv;
 
     tv=malloc(sizeof(struct timeval));
-    *tv=*tm;
+    if (tm)
+        *tv=*tm;
+    else
+        tv->tv_sec=tv->tv_usec=0;
     fwrite("\0\0\0\0\0", 1, 5, f);
     return tv;
 }

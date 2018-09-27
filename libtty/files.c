@@ -75,7 +75,6 @@ export recorder ttyrec_w_open(int fd, const char *format, const char *filename, 
 {
     int nf;
     recorder r;
-    struct timeval t0={0,0};
 
     nf=find_w_format(format, filename, "ansi");
     if (nf==-1)
@@ -99,7 +98,7 @@ export recorder ttyrec_w_open(int fd, const char *format, const char *filename, 
     r->format=&rec[nf];
     r->f=fdopen(fd, "wb");
     assert(r->f);
-    r->state=(r->format)->init(r->f, tm?tm:&t0);
+    r->state=(r->format)->init(r->f, tm);
     return r;
 }
 
