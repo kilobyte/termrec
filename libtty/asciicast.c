@@ -189,7 +189,7 @@ expect_field:
         case '"':
             eat_string(f, buf);
             if (!eat_colon(f))
-                FAIL("Not an asciicast: bad header.\n");
+                FAIL("Not an asciicast: no colon after field name.\n");
             if (bracket_level)
             {
 skip_field:
