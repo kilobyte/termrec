@@ -410,18 +410,17 @@ static void set_prog_sel(void)
 
 static void draw_size(void)
 {
-    RECT r;
+    if (vt->sx==tsx && vt->sy==tsy)
+        return;
 
-    if (vt->sx!=tsx || vt->sy!=tsy)
-    {
-        r.left=0;
-        r.top=0;
-        r.right=(tsx=vt->sx)*chx+TERMBORDER;
-        r.bottom=(tsy=vt->sy)*chy+TERMBORDER;
-        AdjustWindowRect(&r, GetWindowLong(termwnd, GWL_STYLE), 0);
-        SetWindowPos(termwnd, 0, 0, 0, r.right, r.bottom, SWP_NOACTIVATE|
-            SWP_NOCOPYBITS|SWP_NOMOVE|SWP_NOOWNERZORDER|SWP_NOZORDER);
-    }
+    RECT r;
+    r.left=0;
+    r.top=0;
+    r.right=(tsx=vt->sx)*chx+TERMBORDER;
+    r.bottom=(tsy=vt->sy)*chy+TERMBORDER;
+    AdjustWindowRect(&r, GetWindowLong(termwnd, GWL_STYLE), 0);
+    SetWindowPos(termwnd, 0, 0, 0, r.right, r.bottom, SWP_NOACTIVATE|
+        SWP_NOCOPYBITS|SWP_NOMOVE|SWP_NOOWNERZORDER|SWP_NOZORDER);
 }
 
 
