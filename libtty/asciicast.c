@@ -250,6 +250,11 @@ skip_field:
                 ungetc(c, f);
                 goto expect_field;
             }
+            if (c == '[' && bracket_level == -1)
+            {
+                ungetc(c, f);
+                goto body;
+            }
             if (c != ',')
                 FAIL("Not an asciicast: junk after a JSON field.\n");
             break;
