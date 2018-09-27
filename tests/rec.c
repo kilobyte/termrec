@@ -15,12 +15,10 @@ int main(int argc, char **argv)
     tv.tv_usec=10;
     if (!(r=ttyrec_w_open(-1, 0, argv[1], &tv)))
         die("Can't write the ttyrec to %s\n", argv[1]);
-    tv.tv_sec=1;
-    tv.tv_usec=0;
-    ttyrec_w_write(r, &tv, "Abc", 3);
-    ttyrec_w_write(r, &tv, "D", 1);
-    ttyrec_w_write(r, &tv, "Ef", 2);
-    ttyrec_w_write(r, &tv, "G", 1);
-    ttyrec_w_write(r, &tv, "Hij\n", 4);
+    ttyrec_w_write(r, &tv, "Abc", 3);    tv.tv_sec++;
+    ttyrec_w_write(r, &tv, "D", 1);      tv.tv_sec++;
+    ttyrec_w_write(r, &tv, "Ef", 2);     tv.tv_sec++;
+    ttyrec_w_write(r, &tv, "G", 1);      tv.tv_sec++;
+    ttyrec_w_write(r, &tv, "Hij\n", 4);  tv.tv_sec++;
     return !ttyrec_w_close(r);
 }
