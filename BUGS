@@ -17,3 +17,9 @@
 
 * win32/play: font selection being hidden in the window's sysmenu is
   unobvious, and can't be accessed under Wine at all.
+
+* win32/play: no glyph-borrowing limits displayable characters to the
+  selected font only
+
+* win32/play: no combining characters; pointless to even think about
+  them without using some modern text display functions...
