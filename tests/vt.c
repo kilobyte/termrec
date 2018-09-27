@@ -68,7 +68,10 @@ static void dump(tty vt)
 {
     int x,y,attr;
 
-    printf(".-===[ %dx%d ]\n", vt->sx, vt->sy);
+    if (vt->title)
+        printf(".-===[ %s ]\n", vt->title);
+    else
+        printf(".-=====\n");
     attr=0x1010;
     for (y=0; y<vt->sy; y++)
     {
