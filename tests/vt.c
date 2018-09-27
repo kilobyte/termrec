@@ -69,7 +69,7 @@ static void dump(tty vt)
     int x,y,attr;
 
     if (vt->title)
-        printf(".-===[ %s ]\n", vt->title);
+        printf(".-===[%s]\n", vt->title);
     else
         printf(".-=====\n");
     attr=0x1010;
