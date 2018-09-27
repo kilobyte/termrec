@@ -407,7 +407,7 @@ static inline void tty_write_char(tty vt, ucs c)
     }
     CX+=w;
     if (vt->l_char)
-        vt->l_char(vt, CX-1, CY, c, vt->attr, w);
+        vt->l_char(vt, CX-w, CY, c, vt->attr, w);
 }
 
 export void tty_write(tty vt, const char *buf, int len)
