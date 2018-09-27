@@ -44,6 +44,11 @@ static void tl_flag(tty vt, int f, int v)
         "unknown", v);
 }
 
+static void tl_osc(tty vt, int cmd, const char *str)
+{
+    printf("== osc %d: \"%s\"\n", cmd, str);
+}
+
 static void tl_resize(tty vt, int sx, int sy)
 {
     printf("== resize to %dx%d\n", sx, sy);
@@ -215,6 +220,7 @@ int main(int argc, char **argv)
             vt->l_clear=tl_clear;
             vt->l_scroll=tl_scroll;
             vt->l_flag=tl_flag;
+            vt->l_osc=tl_osc;
             vt->l_resize=tl_resize;
             vt->l_bell=tl_bell;
             vt->l_free=tl_free;

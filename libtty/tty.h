@@ -60,6 +60,8 @@ typedef struct tty
     int ntok;
     int tok[VT100_MAXTOK];
     int state;
+    char *oscbuf;
+    int osclen;            // length of current osc command
     // flags
     int cp437 :1;               // non-UTF-8
     int allow_resize :1;        // is input allowed to resize?
@@ -88,6 +90,8 @@ typedef struct tty
         // The cursor is already moved.
     void (*l_flag)(struct tty *vt, int f, int v);
         // when a flag changes to v
+    void (*l_osc)(struct tty *vt, int cmd, const char *str);
+        // string command (window title, etc)
     void (*l_resize)(struct tty *vt, int sx, int sy);
         // after the terminal has been resized
     void (*l_flush)(struct tty *vt);

@@ -188,6 +188,13 @@ static void vtvt_flag(tty vt, int f, int v)
     // TODO: invisible cursor
 }
 
+static void vtvt_osc(tty vt, int cmd, const char *str)
+{
+    // don't passthrough unknown commands
+    if (cmd==0) // set window title
+        fprintf(DATA->f, "\e]0;%s\e\\", str);
+}
+
 static void vtvt_resized(tty vt, int sx, int sy)
 {
     fprintf(DATA->f, "\e[8;%u;%ut", sy, sx);
@@ -229,6 +236,7 @@ export void vtvt_attach(tty vt, FILE *f, int dump)
     vt->l_clear=vtvt_clear;
     vt->l_scroll=vtvt_scroll;
     vt->l_flag=vtvt_flag;
+    vt->l_osc=vtvt_osc;
     vt->l_resize=vtvt_resized;
     vt->l_flush=vtvt_flush;
     vt->l_bell=vtvt_bell;

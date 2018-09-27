@@ -24,6 +24,7 @@
 #endif
 
 #define CJK_DAMAGED ' '
+#define MAXOSC 4096
 
 #define SX vt->sx
 #define SY vt->sy
@@ -33,7 +34,7 @@
 #define NCOMBS   vt->combs[0].ch
 
 enum { ESnormal, ESesc, ESgetpars, ESsquare, ESques, ESsetG0, ESsetG1,
-       ESpercent, ESosc };
+       ESpercent, ESosc, ESoscstr };
 
 static void tty_kill_comb(tty vt, attrchar *ac)
 {
@@ -155,6 +156,7 @@ export void tty_free(tty vt)
         vt->l_free(vt);
     free(vt->scr);
     free(vt->combs);
+    free(vt->oscbuf);
     free(vt);
 }
 
@@ -173,6 +175,9 @@ export tty tty_copy(tty vt)
             goto drop_scr;
         memcpy(nvt->combs, vt->combs, NCOMBS*sizeof(combc));
     }
+    if (vt->oscbuf)
+        if ((nvt->oscbuf=malloc(MAXOSC)))
+            memcpy(nvt->oscbuf, vt->oscbuf, vt->osclen);
     return nvt;
 
 drop_scr:
@@ -255,6 +260,19 @@ static void tty_scroll(tty vt, int nl)
     }
 }
 
+static void osc(tty vt)
+{
+    if (vt->tok[0] == -1)
+        return;
+    if (vt->oscbuf)
+        vt->oscbuf[vt->osclen]=0;
+    // Other terminals don't distinguish between lack of the string (\e]0\e\\)
+    // and an empty string (\e]0;\e\\) thus let's do the same.
+    if (vt->l_osc)
+        vt->l_osc(vt, vt->tok[0], vt->oscbuf? vt->oscbuf : "");
+    if (vt->oscbuf)
+        free(vt->oscbuf), vt->oscbuf=0;
+}
 
 static void set_charset(tty vt, int g, char x)
 {
@@ -399,8 +417,8 @@ export void tty_write(tty vt, const char *buf, int len)
         case 5: // ENQ -> ask for terminal's name
             continue;
         case 7: // BEL -> beep; also terminates OSC
-            if (vt->state == ESosc)
-                vt->state = ESnormal;
+            if (vt->state == ESosc || vt->state == ESoscstr)
+                osc(vt), vt->state = ESnormal;
             else if (vt->l_bell)
                 vt->l_bell(vt);
             continue;
@@ -463,6 +481,8 @@ export void tty_write(tty vt, const char *buf, int len)
             vt->state=ESnormal;
             continue;
         case 27: // ESC
+            if (vt->state==ESosc || vt->state==ESoscstr)
+                osc(vt);
             vt->state=ESesc;
             continue;
         case 127:
@@ -585,6 +605,7 @@ export void tty_write(tty vt, const char *buf, int len)
 
             case ']':
                 vt->state=ESosc;
+                vt->tok[0]=0;
                 break;
 
             case '(':
@@ -1155,6 +1176,23 @@ export void tty_write(tty vt, const char *buf, int len)
             break;
 
         case ESosc:
+            if (*buf>='0' && *buf<='9')
+                vt->tok[0]=vt->tok[0]*10+*buf-'0';
+            else if (*buf==';')
+            {
+                vt->oscbuf=malloc(MAXOSC);
+                vt->osclen=0;
+                vt->state=ESoscstr;
+            }
+            else
+            {
+                vt->tok[0]=-1; // mark as invalid
+                vt->state=ESoscstr;
+            }
+            break;
+        case ESoscstr:
+            if (vt->oscbuf && vt->osclen<MAXOSC-1)
+                vt->oscbuf[vt->osclen++]=*buf;
             break;
 
         default:

@@ -129,6 +129,11 @@ application keypad mode (more detailed codes for keypad arrow keys)
 
 =back
 
+=item B<void (*l_osc)(tty >I<vt>B<, int >I<cmd>B<, const char *>I<str>B<);>
+
+when a string command has been issued; most commands alter a color palette,
+but the most interesting one is B<0>: "set window title"
+
 =item B<void (*l_resize)(tty >I<vt>B<, int >I<sx>B<, int >I<sy>B<);>
 
 after the terminal has been resized
