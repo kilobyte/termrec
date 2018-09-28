@@ -326,6 +326,13 @@ static void record_ttyrec_finish(FILE *f, void* state)
 /* format: nh_recorder */
 /***********************/
 
+static uint32_t get_u32(const void *mem)
+{
+    typedef struct __attribute__((__packed__)) { uint32_t v; } u32_unal;
+    uint32_t bad_endian = ((u32_unal*)mem)->v;
+    return little_endian(bad_endian);
+}
+
 static void play_nh_recorder(FILE *f,
     void (*synch_init_wait)(const struct timeval *ts, void *arg),
     void (*synch_wait)(const struct timeval *tv, void *arg),
@@ -357,7 +364,7 @@ static void play_nh_recorder(FILE *f,
                 else
                 {
                     tp=t;
-                    t=little_endian(*(uint32_t*)(buf+i+1));
+                    t=get_u32(buf+i+1);
                     i0=i+5;
                     i+=4;
                     tv.tv_sec=(t-tp)/100;
