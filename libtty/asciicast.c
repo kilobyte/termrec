@@ -332,19 +332,23 @@ body:
 struct ac_state
 {
     bool head_done;
-    time_t start;
+    bool need_comma;
+    char version;
     char putf[4];
+    struct timeval ts;
 };
 
 void* record_asciicast_init(FILE *f, const struct timeval *tm)
 {
     struct ac_state *as = malloc(sizeof(struct ac_state));
     as->head_done = false;
+    as->need_comma = false;
     if (tm)
-        as->start = tm->tv_sec;
+        as->ts = *tm;
     else
-        as->start = 0;
+        as->ts.tv_sec=as->ts.tv_usec = 0;
     as->putf[0] = 0;
+    as->version = 2;
 
     return as;
 }
@@ -396,10 +400,14 @@ void record_asciicast(FILE *f, void* state, const struct timeval *tm, const char
         // need to play first frame to fetch screen size
         tty vt = tty_init(80, 25, 1);
         tty_write(vt, buf, len);
-        fprintf(f, "{\"version\":2, \"width\":%d, \"height\":%d", vt->sx, vt->sy);
-        if (as->start)
-            fprintf(f, ", \"timestamp\":%ld", as->start);
-        fprintf(f, "}\n");
+        fprintf(f, "{\"version\":%d, \"width\":%d, \"height\":%d",
+            as->version, vt->sx, vt->sy);
+        if (as->ts.tv_sec)
+            fprintf(f, ", \"timestamp\":%ld", as->ts.tv_sec);
+        if (as->version == 1)
+            fprintf(f, ", \"stdout\":[\n");
+        else
+            fprintf(f, "}\n");
         tty_free(vt);
         as->head_done = true;
 
@@ -429,7 +437,22 @@ void record_asciicast(FILE *f, void* state, const struct timeval *tm, const char
     if (!len)
         return;
 
-    fprintf(f, "[%f, \"o\", \"", tm->tv_sec-as->start+tm->tv_usec*0.000001);
+    if (as->version == 1)
+    {
+        if (as->need_comma)
+            fprintf(f, ",\n");
+        else
+            as->need_comma = true;
+        struct timeval ts = *tm;
+        if (as->ts.tv_sec || as->ts.tv_usec)
+            tsub(ts, as->ts);
+        else
+            ts.tv_sec = ts.tv_usec = 0;
+        as->ts = *tm;
+        fprintf(f, "[%f, \"", ts.tv_sec+ts.tv_usec*0.000001);
+    }
+    else
+        fprintf(f, "[%f, \"o\", \"", tm->tv_sec-as->ts.tv_sec+tm->tv_usec*0.000001);
     while (len-->0)
     {
         if (((unsigned char)*buf)<' ')
@@ -445,88 +468,23 @@ void record_asciicast(FILE *f, void* state, const struct timeval *tm, const char
             fputc(*buf, f);
         buf++;
     }
-    fprintf(f, "\"]\n");
+    fprintf(f, as->version==1? "\"]" : "\"]\n");
     if (buf2)
         free(buf2);
 }
 
 void record_asciicast_finish(FILE *f, void* state)
 {
+    struct ac_state *as = state;
+    if (as->version == 1)
+        fprintf(f, "\n]}\n");
     free(state);
 }
 
-// v1
-struct ac1_state
-{
-    bool head_done;
-    bool need_comma;
-    struct timeval ts;
-};
 
 void* record_asciicast_v1_init(FILE *f, const struct timeval *tm)
 {
-    struct ac1_state *as = malloc(sizeof(struct ac1_state));
-    as->head_done = false;
-    as->need_comma = false;
-    if (tm)
-        as->ts = *tm;
-    else
-        as->ts.tv_sec=as->ts.tv_usec = 0;
-
+    struct ac_state *as = record_asciicast_init(f, tm);
+    as->version=1;
     return as;
-}
-
-void record_asciicast_v1(FILE *f, void* state, const struct timeval *tm, const char *buf, int len)
-{
-    struct ac1_state *as = state;
-    if (!as->head_done)
-    {
-        // need to play first frame to fetch screen size
-        tty vt = tty_init(80, 25, 1);
-        tty_write(vt, buf, len);
-        fprintf(f, "{\"version\":1, \"width\":%d, \"height\":%d, \"stdout\":[\n",
-            vt->sx, vt->sy);
-        tty_free(vt);
-        as->head_done = true;
-
-        int skip = skip_utf_term_size(buf, len);
-        buf+=skip;
-        if (!(len-=skip))
-            return;
-    }
-
-    if (as->need_comma)
-        fprintf(f, ",\n");
-    else
-        as->need_comma = true;
-
-    struct timeval ts = *tm;
-    if (as->ts.tv_sec || as->ts.tv_usec)
-        tsub(ts, as->ts);
-    else
-        ts.tv_sec = ts.tv_usec = 0;
-    as->ts = *tm;
-    fprintf(f, "[%f, \"", ts.tv_sec+ts.tv_usec*0.000001);
-    while (len-->0)
-    {
-        if (((unsigned char)*buf)<' ')
-            if (*buf=='\r')
-                fputs("\\r", f);
-            else if (*buf=='\n')
-                fputs("\\n", f);
-            else
-                fprintf(f, "\\u%04x", *buf);
-        else if (*buf=='"')
-            fputs("\\\"", f);
-        else
-            fputc(*buf, f);
-        buf++;
-    }
-    fprintf(f, "\"]");
-}
-
-void record_asciicast_v1_finish(FILE *f, void* state)
-{
-    fprintf(f, "\n]}\n");
-    free(state);
 }

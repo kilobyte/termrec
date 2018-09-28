@@ -481,7 +481,7 @@ recorder_info rec[]={
 {"ttyrec",".ttyrec",record_ttyrec_init,record_ttyrec,record_ttyrec_finish},
 {"nh_recorder",".nh",record_nh_recorder_init,record_nh_recorder,record_nh_recorder_finish},
 {"asciicast",".cast",record_asciicast_init,record_asciicast,record_asciicast_finish},
-{"asciicast-v1",".cast-v1",record_asciicast_v1_init,record_asciicast_v1,record_asciicast_v1_finish},
+{"asciicast-v1",".cast-v1",record_asciicast_v1_init,record_asciicast,record_asciicast_finish},
 {"live", 0, record_live_init, record_live, record_live_finish},
 {"null",0,record_null_init,record_null,record_null_finish},
 {0, 0, 0, 0, 0},
