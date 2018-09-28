@@ -333,6 +333,7 @@ struct ac_state
 {
     bool head_done;
     time_t start;
+    char putf[4];
 };
 
 void* record_asciicast_init(FILE *f, const struct timeval *tm)
@@ -343,6 +344,7 @@ void* record_asciicast_init(FILE *f, const struct timeval *tm)
         as->start = tm->tv_sec;
     else
         as->start = 0;
+    as->putf[0] = 0;
 
     return as;
 }
@@ -368,6 +370,24 @@ static int skip_utf_term_size(const char *b, int len)
 }
 #undef WANT
 
+static int skip_partial_utf(const char *b, int len)
+{
+    int part=0;
+    while (part<4 && part<len && ((unsigned char)b[len-part-1])>=0x80
+                              && ((unsigned char)b[len-part-1])<0xc0)
+        part++;
+    if (part>=len)
+        return 0;
+    char c = b[len-++part];
+    if ((c&0xe0)==0xc0 && part<2)
+        return part;
+    if ((c&0xf0)==0xe0 && part<3)
+        return part;
+    if ((c&0xf8)==0xf0 && part<4)
+        return part;
+    return 0;
+}
+
 void record_asciicast(FILE *f, void* state, const struct timeval *tm, const char *buf, int len)
 {
     struct ac_state *as = state;
@@ -389,6 +409,26 @@ void record_asciicast(FILE *f, void* state, const struct timeval *tm, const char
             return;
     }
 
+    char *buf2 = 0;
+    int skip = strlen(as->putf);
+    if (skip)
+        if (buf2 = malloc(skip + len))
+        {
+            memcpy(buf2, as->putf, skip);
+            memcpy(buf2+skip, buf, len);
+            buf = buf2;
+            len+=skip;
+        }
+        else
+            return;
+    skip = skip_partial_utf(buf, len);
+    len-=skip;
+    memcpy(as->putf, buf+len, skip);
+    as->putf[skip]=0;
+
+    if (!len)
+        return;
+
     fprintf(f, "[%f, \"o\", \"", tm->tv_sec-as->start+tm->tv_usec*0.000001);
     while (len-->0)
     {
@@ -406,6 +446,8 @@ void record_asciicast(FILE *f, void* state, const struct timeval *tm, const char
         buf++;
     }
     fprintf(f, "\"]\n");
+    if (buf2)
+        free(buf2);
 }
 
 void record_asciicast_finish(FILE *f, void* state)
