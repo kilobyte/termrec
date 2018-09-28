@@ -412,6 +412,32 @@ static void record_nh_recorder_finish(FILE *f, void* state)
 /* pseudo-format: auto */
 /***********************/
 
+#define WANT(x) if (!len--) return 1; if (*buf++!=(x)) return 0;
+#define SPACE while (1) { if (!len--) return 1; \
+    if (*buf!=' '&&*buf!='\t'&&*buf!='\n'&&*buf!='\r') break; \
+    buf++; }
+static int is_asciicast(const char *buf)
+{
+    int len=12;
+    WANT('{')
+    SPACE
+    WANT('"')
+    WANT('v')
+    WANT('e')
+    WANT('r')
+    WANT('s')
+    WANT('i')
+    WANT('o')
+    WANT('n')
+    WANT('"')
+    SPACE
+    WANT(':')
+    SPACE
+    return (!len || *buf=='1' || *buf=='2');
+}
+#undef WANT
+#undef SPACE
+
 static void play_auto(FILE *f,
     void (*synch_init_wait)(const struct timeval *ts, void *arg),
     void (*synch_wait)(const struct timeval *tv, void *arg),
@@ -447,6 +473,13 @@ static void play_auto(FILE *f,
             got-=len;
         }
         play_ttyrec(f, 0, synch_wait, synch_print, arg, &tv);
+        return;
+    }
+
+    if (is_asciicast((const char*)&tth))
+    {
+        do_play_asciicast(fileno(f), (const char*)&tth, 12,
+                          synch_init_wait, synch_wait, synch_print, arg, &tv);
         return;
     }
 
