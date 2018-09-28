@@ -17,6 +17,9 @@ AT_CLEANUP
 AT_SETUP([loading and saving ttyrecs to/from memory])
 AT_CHECK([rec test.ttyrec && loadsave test.ttyrec out.ttyrec && cmp test.ttyrec out.ttyrec])
 AT_CLEANUP
+AT_SETUP([loading and saving asciicasts to/from memory])
+AT_CHECK([rec test.cast && loadsave test.cast out.cast && cmp test.cast out.cast])
+AT_CLEANUP
 
 AT_SETUP([loading and saving ttyrecs to memory (.gz)])
 AT_SKIP_IF([! grep -q "^#define \\(HAVE_ZLIB_H\\|SHIPPED_LIBZ\\) 1" $abs_top_builddir/config.h])
