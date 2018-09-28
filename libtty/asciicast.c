@@ -412,7 +412,7 @@ void record_asciicast(FILE *f, void* state, const struct timeval *tm, const char
     char *buf2 = 0;
     int skip = strlen(as->putf);
     if (skip)
-        if (buf2 = malloc(skip + len))
+        if ((buf2 = malloc(skip + len)))
         {
             memcpy(buf2, as->putf, skip);
             memcpy(buf2+skip, buf, len);
