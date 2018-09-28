@@ -214,11 +214,12 @@ int main(int argc, char **argv)
     char buf[BUFFER_SIZE];
     int len;
     bool dump_flag=false;
+    bool abort_flag=false;
 
     vt = tty_init(20, 5, 1);
 
     while (1)
-        switch (getopt(argc, argv, "ed"))
+        switch (getopt(argc, argv, "eda"))
         {
         case -1:
             goto run;
@@ -239,6 +240,9 @@ int main(int argc, char **argv)
             break;
         case 'd':
             dump_flag=true;
+            break;
+        case 'a':
+            abort_flag=true;
         }
 run:
     while ((len=read(0, buf, BUFFER_SIZE))>0)
@@ -248,6 +252,8 @@ run:
         if (inv)
         {
             printf("!!! tty invalid: %s !!!\n", inv);
+            if (abort_flag)
+                abort();
             break;
         }
     }
