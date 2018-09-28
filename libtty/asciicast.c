@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "gettext.h"
 #include "tty.h"
 #include "ttyrec.h"
@@ -21,9 +22,54 @@
 // 1M is way too high but userspace stack is aplenty.
 #define BUFFER_SIZE 1048576
 
+// Reimplement stdio's FILE with only getc() and ungetc() methods -- all this
+// needed only because multiple ungetcs don't work, especially not if the file
+// had been read() before.
+#define NIH_FILE_BUFFER 4096
+#define NIH_NO_UNGET -2
+struct nih_file
+{
+    int fd;
+    int unget;
+    int pos;
+    int len;
+    char buf[NIH_FILE_BUFFER];
+};
+typedef struct nih_file NIH_FILE;
+
+static int nih_getc(NIH_FILE *f)
+{
+    if (f->unget != NIH_NO_UNGET)
+    {
+        int c = f->unget;
+        f->unget = NIH_NO_UNGET;
+        return c;
+    }
+
+    if (f->pos>=f->len)
+    {
+        f->len = read(f->fd, f->buf, NIH_FILE_BUFFER);
+        if (f->len<=0)
+            return EOF;
+        f->pos = 0;
+    }
+
+    return (unsigned char)f->buf[f->pos++];
+}
+
+static void nih_ungetc(int c, NIH_FILE *f)
+{
+    f->unget = c;
+}
+
+#undef getc
+#undef ungetc
+#define getc(f) nih_getc(f)
+#define ungetc(c,f) nih_ungetc(c,f)
+
 #define EAT(x) do c=getc(f); while (c==' ' || c=='\t' || c=='\r' || c=='\n' x)
 
-static bool eat_colon(FILE *f)
+static bool eat_colon(NIH_FILE *f)
 {
     int c;
     EAT();
@@ -34,7 +80,7 @@ static bool eat_colon(FILE *f)
     return true;
 }
 
-static int64_t eat_int(FILE *f)
+static int64_t eat_int(NIH_FILE *f)
 {
     int64_t x=0;
     while (1)
@@ -51,7 +97,7 @@ static int64_t eat_int(FILE *f)
 }
 
 // *1000000
-static int64_t eat_float(FILE *f)
+static int64_t eat_float(NIH_FILE *f)
 {
     int c;
     int64_t x=0;
@@ -91,8 +137,21 @@ static int64_t eat_float(FILE *f)
     return x;
 }
 
+static int eat_hexdigit(NIH_FILE *f)
+{
+    int c=getc(f);
+    if (c>='0' && c<='9')
+        return c-'0';
+    if (c>='a' && c<='f')
+        return c+10-'a';
+    if (c>='A' && c<='F')
+        return c+10-'A';
+    ungetc(c, f);
+    return -1;
+}
+
 #define OUT(x) do if (--spc) *buf++=(x); else goto end; while (0)
-static char* eat_string(FILE *f, char *buf)
+static char* eat_string(NIH_FILE *f, char *buf)
 {
     int spc=BUFFER_SIZE;
     uint16_t surrogate=0;
@@ -117,7 +176,12 @@ static char* eat_string(FILE *f, char *buf)
         case 't':
             OUT('\t'); break;
         case 'u':
-            if (fscanf(f, "%4x", &c) == 1)
+            c = eat_hexdigit(f)<<12
+              | eat_hexdigit(f)<<8
+              | eat_hexdigit(f)<<4
+              | eat_hexdigit(f);
+
+            if (c >= 0)
             {
                 if (c < 0x80)
                     OUT(c);
@@ -159,12 +223,22 @@ end:
 }
 
 #define FAIL(x) do {const char* t=(x);return synch_print(t, strlen(t), arg);} while (0)
-void play_asciicast(FILE *f,
+void do_play_asciicast(int fd, const char *obuf, int olen,
     void (*synch_init_wait)(const struct timeval *ts, void *arg),
     void (*synch_wait)(const struct timeval *tv, void *arg),
     void (*synch_print)(const char *buf, int len, void *arg),
     void *arg, const struct timeval *cont)
 {
+    NIH_FILE nih_f, *f=&nih_f;
+    nih_f.fd=fd;
+    nih_f.unget=NIH_NO_UNGET;
+    nih_f.pos=nih_f.len=0;
+    if (obuf)
+    {
+        memcpy(nih_f.buf, obuf, olen);
+        nih_f.len = olen;
+    }
+
     char buf[BUFFER_SIZE];
     int bracket_level = 0;
     int version = -1;
@@ -323,6 +397,16 @@ body:
         if (c !=']')
             FAIL("Malformed asciicast: event not terminated.\n");
     }
+}
+
+void play_asciicast(FILE *f,
+    void (*synch_init_wait)(const struct timeval *ts, void *arg),
+    void (*synch_wait)(const struct timeval *tv, void *arg),
+    void (*synch_print)(const char *buf, int len, void *arg),
+    void *arg, const struct timeval *cont)
+{
+    do_play_asciicast(fileno(f), 0, 0,
+                      synch_init_wait, synch_wait, synch_print, arg, cont);
 }
 
 /*******************/

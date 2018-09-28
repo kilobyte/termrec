@@ -57,3 +57,9 @@ void record_asciicast_finish(FILE *f, void* state);
 void* record_asciicast_v1_init(FILE *f, const struct timeval *tm);
 void record_asciicast_v1(FILE *f, void* state, const struct timeval *tm, const char *buf, int len);
 void record_asciicast_v1_finish(FILE *f, void* state);
+
+void do_play_asciicast(int fd, const char *obuf, int olen,
+    void (*synch_init_wait)(const struct timeval *ts, void *arg),
+    void (*synch_wait)(const struct timeval *tv, void *arg),
+    void (*synch_print)(const char *buf, int len, void *arg),
+    void *arg, const struct timeval *cont);
