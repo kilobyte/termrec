@@ -358,7 +358,8 @@ static void play_nh_recorder(FILE *f,
                 {
                     tp=t;
                     t=little_endian(*(uint32_t*)(buf+i+1));
-                    i0=i+=4;
+                    i0=i+5;
+                    i+=4;
                     tv.tv_sec=(t-tp)/100;
                     tv.tv_usec=(t-tp)%100*10000;
                     synch_wait(&tv, arg);
