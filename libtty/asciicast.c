@@ -5,6 +5,7 @@
 #include <string.h>
 #include "gettext.h"
 #include "tty.h"
+#include "ttyrec.h"
 #include "formats.h"
 #include "export.h"
 
@@ -407,5 +408,79 @@ void record_asciicast(FILE *f, void* state, const struct timeval *tm, const char
 
 void record_asciicast_finish(FILE *f, void* state)
 {
+    free(state);
+}
+
+// v1
+struct ac1_state
+{
+    bool head_done;
+    bool need_comma;
+    struct timeval ts;
+};
+
+void* record_asciicast_v1_init(FILE *f, const struct timeval *tm)
+{
+    struct ac1_state *as = malloc(sizeof(struct ac1_state));
+    as->head_done = false;
+    as->need_comma = false;
+    if (tm)
+        as->ts = *tm;
+    else
+        as->ts.tv_sec=as->ts.tv_usec = 0;
+
+    return as;
+}
+
+void record_asciicast_v1(FILE *f, void* state, const struct timeval *tm, const char *buf, int len)
+{
+    struct ac1_state *as = state;
+    if (!as->head_done)
+    {
+        // need to play first frame to fetch screen size
+        tty vt = tty_init(80, 25, 1);
+        tty_write(vt, buf, len);
+        fprintf(f, "{\"version\":1, \"width\":%d, \"height\":%d, \"stdout\":[\n",
+            vt->sx, vt->sy);
+        tty_free(vt);
+        as->head_done = true;
+
+        int skip = skip_utf_term_size(buf, len);
+        buf+=skip;
+        if (!(len-=skip))
+            return;
+    }
+
+    if (as->need_comma)
+        fprintf(f, ",\n");
+    else
+        as->need_comma = true;
+
+    struct timeval ts = *tm;
+    if (as->ts.tv_sec || as->ts.tv_usec)
+        tsub(ts, as->ts);
+    else
+        ts.tv_sec = ts.tv_usec = 0;
+    as->ts = *tm;
+    fprintf(f, "[%f, \"", ts.tv_sec+ts.tv_usec*0.000001);
+    while (len-->0)
+    {
+        if (((unsigned char)*buf)<' ')
+            if (*buf=='\r')
+                fputs("\\r", f);
+            else if (*buf=='\n')
+                fputs("\\n", f);
+            else
+                fprintf(f, "\\u%04x", *buf);
+        else
+            fputc(*buf, f);
+        buf++;
+    }
+    fprintf(f, "\"]");
+}
+
+void record_asciicast_v1_finish(FILE *f, void* state)
+{
+    fprintf(f, "\n]}\n");
     free(state);
 }
