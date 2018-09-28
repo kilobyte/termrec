@@ -399,6 +399,8 @@ void record_asciicast(FILE *f, void* state, const struct timeval *tm, const char
                 fputs("\\n", f);
             else
                 fprintf(f, "\\u%04x", *buf);
+        else if (*buf=='"')
+            fputs("\\\"", f);
         else
             fputc(*buf, f);
         buf++;
@@ -472,6 +474,8 @@ void record_asciicast_v1(FILE *f, void* state, const struct timeval *tm, const c
                 fputs("\\n", f);
             else
                 fprintf(f, "\\u%04x", *buf);
+        else if (*buf=='"')
+            fputs("\\\"", f);
         else
             fputc(*buf, f);
         buf++;
