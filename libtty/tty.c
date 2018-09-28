@@ -264,7 +264,7 @@ static void tty_scroll(tty vt, int nl)
 
 static void osc(tty vt)
 {
-    if (vt->tok[0] == -1)
+    if (vt->tok[0] == 0xffffffff)
         return;
     if (vt->oscbuf)
         vt->oscbuf[vt->osclen]=0;

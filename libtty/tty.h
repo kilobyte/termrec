@@ -59,7 +59,7 @@ typedef struct tty
     int utf_count;
     // parser state
     int ntok;
-    int tok[VT100_MAXTOK];
+    uint32_t tok[VT100_MAXTOK];
     int state;
     char *oscbuf;
     int osclen;            // length of current osc command
