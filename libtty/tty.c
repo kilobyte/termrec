@@ -856,7 +856,7 @@ export void tty_write(tty vt, const char *buf, int len)
                 i=vt->tok[0];
                 if (i<1)
                     i=1;
-                if (CX+i<SX)
+                if (i<SX-CX)
                     CX+=i;
                 else
                     CX=SX;
@@ -886,7 +886,7 @@ export void tty_write(tty vt, const char *buf, int len)
                 i=vt->tok[0];
                 if (i<1)
                     i=1;
-                if (CY+i<SY)
+                if (i<SY-CY)
                     CY+=i;
                 else
                     CY=SY-1;
@@ -981,7 +981,7 @@ export void tty_write(tty vt, const char *buf, int len)
                 i=vt->tok[0];
                 if (i<=0)
                     i=1;
-                if (i+CX>SX)
+                if (i>SX-CX)
                     i=SX-CX;
                 if (i<=0)
                     break;
@@ -1009,7 +1009,7 @@ export void tty_write(tty vt, const char *buf, int len)
                 i=vt->tok[0];
                 if (i<=0)
                     i=1;
-                if (i+CX>SX)
+                if (i>SX-CX)
                     i=SX-CX;
                 if (i<=0)
                     break;
@@ -1034,7 +1034,7 @@ export void tty_write(tty vt, const char *buf, int len)
                 i=vt->tok[0];
                 if (i<=0)
                     i=1;
-                if (i+CX>SX)
+                if (i>SX-CX)
                     i=SX-CX;
                 cjk_damage_left(vt, CX, true);
                 cjk_damage_right(vt, CX+i-1, true);
