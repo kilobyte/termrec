@@ -317,6 +317,8 @@ static void cjk_damage_left(tty vt, int x, bool notify)
 {
     if (x<=0)
         return;
+    assert(CY<SY);
+    assert(x<SX);
     attrchar *ca = &vt->scr[CY*SX+x];
     if (!(ca->attr & VT100_ATTR_CJK))
         return;
@@ -915,11 +917,13 @@ export void tty_write(tty vt, const char *buf, int len)
                 switch (vt->tok[0])
                 {
                 case 0: // from cursor
-                    cjk_damage_left(vt, CX, true);
+                    if (CX<SX)
+                        cjk_damage_left(vt, CX, true);
                     CLEAR(CX, CY, SX*SY-(CY*SX+CX));
                     break;
                 case 1: // to cursor
-                    cjk_damage_right(vt, CX-1, true);
+                    if (CX>0)
+                        cjk_damage_right(vt, CX-1, true);
                     CLEAR(0, 0, CY*SX+CX);
                     break;
                 case 2: // whole screen
@@ -932,10 +936,14 @@ export void tty_write(tty vt, const char *buf, int len)
                 switch (vt->tok[0])
                 {
                 case 0: // from cursor
+                    if (CX>=SX)
+                        break;
                     cjk_damage_left(vt, CX, true);
                     CLEAR(CX, CY, SX-CX);
                     break;
                 case 1: // to cursor
+                    if (CX<=0)
+                        break;
                     cjk_damage_right(vt, CX-1, true);
                     CLEAR(0, CY, CX);
                     break;
@@ -1036,6 +1044,8 @@ export void tty_write(tty vt, const char *buf, int len)
                     i=1;
                 if (i>SX-CX)
                     i=SX-CX;
+                if (!i)
+                    break;
                 cjk_damage_left(vt, CX, true);
                 cjk_damage_right(vt, CX+i-1, true);
                 CLEAR(CX, CY, i);
