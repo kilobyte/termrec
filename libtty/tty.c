@@ -126,6 +126,12 @@ export int tty_resize(tty vt, int nsx, int nsy)
         }
     if (vt->scr)
     {
+        for (y=nsy;y<SY;y++)
+            for (x=0;x<SX;x++)
+                tty_kill_comb(vt, &vt->scr[y*SX+x]);
+        for (y=0;y<SY;y++)
+            for (x=nsx;x<SX;x++)
+                tty_kill_comb(vt, &vt->scr[y*SX+x]);
         for (y=0;y<SY && y<nsy;y++)
             for (x=0;x<SX && x<nsx;x++)
                 nscr[y*nsx+x]=vt->scr[y*SX+x];
