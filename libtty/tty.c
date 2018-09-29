@@ -132,6 +132,13 @@ export int tty_resize(tty vt, int nsx, int nsy)
         for (y=0;y<SY;y++)
             for (x=nsx;x<SX;x++)
                 tty_kill_comb(vt, &vt->scr[y*SX+x]);
+        if (nsx<SX)
+            for (y=0;y<SY;y++)
+                if (vt->scr[y*SX+nsx].ch==VT100_CJK_RIGHT)
+                {
+                    vt->scr[y*SX+nsx-1].ch=' ';
+                    vt->scr[y*SX+nsx-1].attr&=~VT100_ATTR_CJK;
+                }
         for (y=0;y<SY && y<nsy;y++)
             for (x=0;x<SX && x<nsx;x++)
                 nscr[y*nsx+x]=vt->scr[y*SX+x];
