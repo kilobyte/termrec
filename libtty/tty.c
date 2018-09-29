@@ -1089,6 +1089,8 @@ export void tty_write(tty vt, const char *buf, int len)
                         vt->tok[1]=SY;
                     if (vt->tok[2]<=0)
                         vt->tok[2]=SX;
+                    if (vt->tok[1]<1 || vt->tok[2]<2) // CJK needs 2 cells
+                        break;
                     tty_resize(vt, vt->tok[2], vt->tok[1]);
                     if (vt->l_resize)
                         vt->l_resize(vt, vt->tok[2], vt->tok[1]);
