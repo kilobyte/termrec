@@ -1,7 +1,6 @@
 [Files]
 Source: lib/bzip2.dll; DestDir: {app}
 Source: ../.libs/libtty-0.dll; DestDir: {app}; Flags: ignoreversion
-Source: ../.libs/proxyrec.exe; DestDir: {app}; Flags: ignoreversion
 Source: ../.libs/termplay.exe; DestDir: {app}; Flags: ignoreversion
 Source: ../.libs/termrec.exe; DestDir: {app}; Flags: ignoreversion
 Source: lib/zlib1.dll; DestDir: {app}
@@ -29,5 +28,4 @@ Root: HKCR; SubKey: .dm2; ValueType: string; ValueData: ttyrec; Flags: uninsdele
 [Icons]
 Name: {group}\ttyrec player; Filename: {app}\termplay.exe; WorkingDir: {userdocs}; IconIndex: 0
 Name: {group}\ttyrec recorder; Filename: {app}\termrec.exe; WorkingDir: {userdocs}
-Name: {group}\Network recorder proxy; Filename: {app}\proxyrec.exe; WorkingDir: {userdocs}
 Name: {group}\{cm:UninstallProgram, termrec}; Filename: {uninstallexe}

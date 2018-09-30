@@ -80,4 +80,4 @@ if not set.  On Windows, COMSPEC is used instead.
 
 =head1 SEE ALSO
 
-L<termplay(1)>, L<proxyrec(1)>, L<termtime(1)>, L<termcat(1)>.
+L<termplay(1)>, L<termtime(1)>, L<termcat(1)>.

@@ -7,7 +7,6 @@ The library consists of two parts:
 The utilities are:
 	* termrec
 	* termplay
-	* proxyrec
 	* termtime
 	* termcat
 

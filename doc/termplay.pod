@@ -127,4 +127,4 @@ Shows a short explanation of parameters.
 
 =head1 SEE ALSO
 
-L<termrec(1)>, L<proxyrec(1)>, L<termcat(1)>, L<termtime(1)>.
+L<termrec(1)>, L<termcat(1)>, L<termtime(1)>.
