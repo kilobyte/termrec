@@ -3,5 +3,5 @@ files
 *.debhelper
 *.substvars
 libtty-dev
-libtty0
+libtty1
 tmp
