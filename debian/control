@@ -15,8 +15,8 @@ Description: terminal videos/scripts recorder and player
  This package contains "termrec", a program which can record a terminal
  session and "termplay" to play it back.  They can handle both line-based
  programs and full-screen things that use curses or curses-like methods.
- Unlike "ttyrec", termrec can scroll back, use .gz/.bz2 files or files
- in several other tty recorder formats.
+ Unlike "ttyrec" or "asciinema", termrec can go back, use .gz/.bz2/.xz/.zst
+ transparently, and read/write/convert several formats.
 
 Package: libtty-dev
 Section: libdevel
@@ -25,12 +25,12 @@ Depends: libtty1 (= ${binary:Version}), ${misc:Depends}
 Description: terminal/ttyrec library -- development
  libtty is a library for handling terminal output.  It is kind of "reverse
  curses" -- it is on the receiving end of tty data, accepting vt100 codes
- and managing a virtual terminal.  Programs which need this functionality
- include "screen"-likes, terminal emulators, things like "expect" that work
- with full-screen rather than line-based apps.
+ and managing a virtual terminal.  It lacks input handling thus is unfit
+ for a real terminal emulator, but includes functions for storing a history
+ of frames to handle a "video" recording.
  .
- A second part of the library provides ways to read/write/edit ttyrec
- recordings, including formats similar to ttyrec.
+ A second part of the library provides ways to read/write/edit ttyrec/-like
+ files, including transparent compression or streaming them from network.
  .
  This package contains the library headers.
 
@@ -42,11 +42,11 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, ${misc:Pre-Depends}
 Description: terminal/ttyrec library -- runtime
  libtty is a library for handling terminal output.  It is kind of "reverse
  curses" -- it is on the receiving end of tty data, accepting vt100 codes
- and managing a virtual terminal.  Programs which need this functionality
- include "screen"-likes, terminal emulators, things like "expect" that work
- with full-screen rather than line-based apps.
+ and managing a virtual terminal.  It lacks input handling thus is unfit
+ for a real terminal emulator, but includes functions for storing a history
+ of frames to handle a "video" recording.
  .
- A second part of the library provides ways to read/write/edit ttyrec
- recordings, including formats similar to ttyrec.
+ A second part of the library provides ways to read/write/edit ttyrec/-like
+ files, including transparent compression or streaming them from network.
  .
  This package contains the binary library.
