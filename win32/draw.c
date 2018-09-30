@@ -11,45 +11,29 @@ int chx, chy;
 
 
 // win32 has a big endian byte order here!
-static int col256_to_rgb(int i, bool bold)
+static int rgb_bgr(int c)
 {
-    // Standard colours.
-    if (i < 16)
-    {
-        if (i == 3)
-            return 0x0055aa; // CGA/VGA brown
-        int c = (i&1 ? 0x0000aa : 0x000000)
-              | (i&2 ? 0x00aa00 : 0x000000)
-              | (i&4 ? 0xaa0000 : 0x000000);
-        return (i >= 8 || bold) ? c + 0x555555 : c;
-    }
-    // 6x6x6 colour cube.
-    else if (i < 232)
-    {
-        i -= 16;
-        return (i / 36 * 85 / 2)
-             | (i / 6 % 6 * 85 / 2) << 8
-             | (i % 6 * 85 / 2) << 16;
-    }
-    // Grayscale ramp.
-    else // i < 256
-        return (i * 10 - 2312) * 0x010101;
+    union {color p;int v;} x;
+    x.v = c;
+    unsigned char t=x.p.r;
+    x.p.r=x.p.b;
+    x.p.b=t;
+    x.p.a=0;
+    return x.v;
 }
 
 
-static void draw_line(HDC dc, int x, int y, wchar_t *txt, int cnt, int attr)
+static void draw_line(HDC dc, int x, int y, wchar_t *txt, int cnt, uint64_t attr)
 {
     union {color p;int v;} fg,bg,t;
-    unsigned char c;
 
-    c = attr;
-    if (c == 0x10)
-        c = 7;
-    fg.v=col256_to_rgb(c, attr&VT100_ATTR_BOLD);
-    c = attr>>8;
-    if (c == 0x10)
-        c = 0;
-    bg.v=col256_to_rgb(c, false);
+    if (attr&VT100_ATTR_COLOR_TYPE == VT100_COLOR_16<<24 && attr&VT100_ATTR_BOLD)
+        attr|=8; // bold = bright
+    if (attr&VT100_ATTR_COLOR_TYPE)
+        fg.v=rgb_bgr(tty_color_convert(attr,     VT100_COLOR_RGB));
+    else
+        fg.v=attr&VT100_ATTR_BOLD? 0xFFFFFF : 0xAAAAAA;
+    bg.v=rgb_bgr(tty_color_convert(attr>>32, VT100_COLOR_RGB));
     if (attr&VT100_ATTR_DIM)
     {
         fg.p.r/=2;
@@ -84,7 +68,7 @@ static void draw_line(HDC dc, int x, int y, wchar_t *txt, int cnt, int attr)
 void draw_vt(HDC dc, int px, int py, tty vt)
 {
     int x,y,x0;
-    int attr;
+    uint64_t attr;
     wchar_t linebuf[512*2]; // same as the max in tty.c
     int cnt;
     attrchar *ch;
