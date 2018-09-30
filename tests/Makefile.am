@@ -10,7 +10,7 @@ DISTCLEANFILES       = atconfig $(check_SCRIPTS)
 MAINTAINERCLEANFILES = Makefile.in $(TESTSUITE) package.m4
 
 dist-hook:
-	for x in vt.in vt.out rec.in rec.out; do mkdir -p $(distdir)/$$x; \
+	for x in vt.in vt.out rec.in rec.out misc.out; do mkdir -p $(distdir)/$$x; \
 	  cp -p $(srcdir)/$$x/* $(distdir)/$$x; done
 
 ## ------------ ##
