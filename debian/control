@@ -3,7 +3,7 @@ Priority: optional
 Maintainer: Adam Borowski <kilobyte@angband.pl>
 Build-Depends: debhelper (>= 11~), dh-autoreconf, libbz2-dev, zlib1g-dev,
   liblzma-dev
-Standards-Version: 3.9.5
+Standards-Version: 4.2.1
 Homepage: http://angband.pl/termrec.html
 
 Package: termrec
