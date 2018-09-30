@@ -1,2 +1,3 @@
-version=3
-http://sf.net/termrec/termrec-(.*)\.tar\.gz
+version=2
+opts=filenamemangle=s/.+\/v(\d\S*)\.tar\.gz/termrec-$1\.tar\.gz/ \
+  https://github.com/kilobyte/termrec/tags .*/v(\d\S*)\.tar\.gz
