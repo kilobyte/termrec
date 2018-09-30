@@ -10,9 +10,10 @@ B<termrec> [B<-f> I<format>] [B<-e> I<command>] [I<outfile>]
 
 B<Termrec> is a tty recorder; it can record the output of any text mode program
 which you can then replay with B<termplay>, B<ttyplay>, B<ipbt>, B<ttyplayer>,
-B<nh-recorder> or similar.
+B<nh-recorder>, B<asciinema> or similar.
 
-If I<outfile> ends in B<.gz>, B<.xz> or B<.bz2>, the data will be appropriately compressed.
+If I<outfile> ends in B<.gz>, B<.xz>, B<.bz2> or B<.zst>, the data will be
+appropriately compressed.
 
 If no I<outfile> is given, B<termrec> will produce a name like 2008-11-27.13-02-42.ttyrec.bz2
 
@@ -44,6 +45,10 @@ Compatible with B<nh-recorder> by Helge Dennhardt.
 =item asciicast
 
 Compatible with B<asciinema> by Marcin Kulik; format v2.
+
+=item asciicast-v1
+
+Likewise, format v1.
 
 =back
 

@@ -110,8 +110,8 @@ your face, beware!
 =item auto (default)
 
 This pseudo-format will make B<termplay> try to guess the format, currently only
-between B<ttyrec> and B<live>.  Caveats about B<live> blasting the whole file
-right away apply!
+between B<ttyrec>, B<asciicast> and B<live>.  Caveats about B<live> blasting the
+whole file right away apply!
 
 =back
 

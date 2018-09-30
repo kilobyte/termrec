@@ -16,9 +16,11 @@ Link with I<-ltty>.
 
 =item B<int     open_stream(int >I<fd>B<, const char* >I<url>B<, int >I<mode>B<, const char **>I<error>B<);>
 
-This function opens a stream designated by the I<url>.  If the given url ends in ".gz", ".xz" or ".bz2"), the
-stream is assumed to be compressed and gets passed through the appropriate [un]packer.  If the I<fd> is not -1,
-it is the descriptor you already opened; if it is -1, the file is opened.  The I<mode> can be:
+This function opens a stream designated by the I<url>.  If the given url
+ends in ".gz", ".xz", ".bz2" or ".zst"), the stream is assumed to be
+compressed and gets passed through the appropriate [un]packer.  If the I<fd>
+is not -1, it is the descriptor you already opened; if it is -1, the file is
+opened.  The I<mode> can be:
 
 =over
 
