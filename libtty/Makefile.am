@@ -15,7 +15,7 @@ libtty_la_SOURCES = $(LIBSTREAM) \
 	libtty/asciicast.c \
 	libtty/dosrecorder.c
 libtty_la_LIBADD = libcompat.la libttyutils.la @LIBBZ2@ @LIBZ@ @LIBLZMA@ @LIBZSTD@
-libtty_la_LDFLAGS = -no-undefined
+libtty_la_LDFLAGS = -no-undefined -version-info 1
 
 #disabled: if !HAVE_FORK
 libtty_la_LIBADD += @PTHREAD_LIBS@
