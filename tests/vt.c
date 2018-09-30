@@ -7,19 +7,67 @@
 #include "tty.h"
 #include "wcwidth.h"
 
-static void tl_char(tty vt, int x, int y, ucs ch, int attr, int width)
+static const char* color_names[16]=
 {
-    if (width == 1)
-        printf("== char U+%04X attr=%X at %d,%d\n", ch, attr, x, y);
-    else if (width == 2)
-        printf("== char U+%04X attr=%X at %d,%d, CJK\n", ch, attr, x, y);
-    else
-        printf("== char U+%04X attr=%X at %d,%d, bad width %d!\n", ch, attr, x, y, width);
+    "black", "red", "green", "brown", "blue", "magenta", "cyan", "lt.gray",
+    "dk.gray", "lt.red", "lime", "yellow", "lt.blue", "pink", "aqua", "white",
+};
+
+static int describe_color(char *b, uint32_t c)
+{
+    switch (c&VT100_ATTR_COLOR_TYPE)
+    {
+    case 1<<24:
+        return sprintf(b, "%s", color_names[c&0xf]);
+    case 2<<24:
+        return sprintf(b, "C%u", c&0xff);
+    case 3<<24:
+        return sprintf(b, "#%06x", c&0xffffff);
+    default:
+        return sprintf(b, "bad_color:%x", c&VT100_ATTR_COLOR_MASK);
+    }
 }
 
-static void tl_comb(tty vt, int x, int y, ucs ch, int attr)
+static const char* describe_attr(uint64_t attr)
 {
-    printf("== comb U+%04X attr=%X at %d,%d\n", ch, attr, x, y);
+    static char buf[128];
+    char *b = buf;
+
+    *buf=0;
+#define A(f, name) if (attr&VT100_ATTR_##f) b+=sprintf(b, " " name);
+    A(BOLD,      "bold");
+    A(DIM,       "dim");
+    A(ITALIC,    "italic");
+    A(UNDERLINE, "underline");
+    A(BLINK,     "blink");
+    A(INVERSE,   "inverse");
+    A(STRIKE,    "strike");
+    A(CJK,       "cjk");
+#undef A
+    if (attr & VT100_ATTR_COLOR_MASK)
+        b+=sprintf(b, " fg="), b+=describe_color(b, attr);
+    if (attr>>32 & VT100_ATTR_COLOR_MASK)
+        b+=sprintf(b, " bg="), b+=describe_color(b, attr>>32);
+#define INVALID_ATTRS 0x7000000080000000
+    if (attr & INVALID_ATTRS)
+        b+=sprintf(b, "bad_attr:%lx", attr & INVALID_ATTRS);
+
+    return *buf? buf+1 : buf;
+}
+
+static void tl_char(tty vt, int x, int y, ucs ch, uint64_t attr, int width)
+{
+    if (width == 1)
+        printf("== char U+%04X attr=%s at %d,%d\n", ch, describe_attr(attr), x, y);
+    else if (width == 2)
+        printf("== char U+%04X attr=%s at %d,%d, CJK\n", ch, describe_attr(attr), x, y);
+    else
+        printf("== char U+%04X attr=%s at %d,%d, bad width %d!\n", ch, describe_attr(attr), x, y, width);
+}
+
+static void tl_comb(tty vt, int x, int y, ucs ch, uint64_t attr)
+{
+    printf("== comb U+%04X attr=%s at %d,%d\n", ch, describe_attr(attr), x, y);
 }
 
 static void tl_cursor(tty vt, int x, int y)
@@ -67,7 +115,8 @@ static void tl_free(tty vt)
 
 static void dump(tty vt)
 {
-    int x,y,attr;
+    int x,y;
+    uint64_t attr;
 
     if (vt->title)
         x=vt->sx-printf("+===[%s]", vt->title);
@@ -77,7 +126,7 @@ static void dump(tty vt)
         putchar('=');
     printf("+\n");
 
-    attr=0x1010;
+    attr=0;
     for (y=0; y<vt->sy; y++)
     {
         printf("|");
@@ -85,7 +134,7 @@ static void dump(tty vt)
         {
 #define SCR vt->scr[x+y*vt->sx]
             if (SCR.attr!=attr)
-                printf("{%X}", attr=SCR.attr);
+                printf("{%s}", describe_attr(attr=SCR.attr));
             if (SCR.ch>=' ' && SCR.ch<127)
                 printf("%c", SCR.ch);
             else if (SCR.ch == VT100_CJK_RIGHT)

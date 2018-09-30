@@ -9,16 +9,9 @@ typedef struct
 {
     ucs ch;
     uint32_t comb;
-    union
-    {
-        uint64_t attr;
-        struct
-        {
-            uint32_t fgattr;
-            uint32_t bgattr;
-        };
-    };
+    uint64_t attr;
 } attrchar;
+
 typedef struct
 {
     ucs ch;
@@ -44,6 +37,15 @@ enum
 #define VT100_COLOR_256 2
 #define VT100_COLOR_RGB 3
 
+#define VT100_ATTR_BOLD         0x04000000
+#define VT100_ATTR_DIM          0x08000000
+#define VT100_ATTR_ITALIC       0x10000000
+#define VT100_ATTR_UNDERLINE    0x20000000
+#define VT100_ATTR_STRIKE       0x40000000
+#define VT100_ATTR_INVERSE      0x0400000000000000
+#define VT100_ATTR_BLINK        0x0800000000000000
+#define VT100_ATTR_CJK          0x8000000000000000
+
 typedef struct tty
 {
     /*=[ basic data ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
@@ -51,12 +53,12 @@ typedef struct tty
     int cx,cy;             // cursor position
     attrchar *scr;         // screen buffer
     combc *combs;          // combining character chains
-    int attr;              // current attribute
+    uint64_t attr;         // current attribute
     char *title;           // window title
     /*=[ internal vt state ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
     int s1,s2;             // scrolling region
     int save_cx,save_cy;   // saved cursor position
-    int save_attr;         // saved attribute
+    uint64_t save_attr;    // saved attribute
     unsigned int G:2;      // bitfield: do G0 and G1 use vt100 graphics?
     unsigned int curG:1;   // current G charset
     unsigned int save_G:2; // saved G, curG
@@ -80,9 +82,9 @@ typedef struct tty
     /*=[ listeners ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
     void *l_data;
         // any private data
-    void (*l_char)(struct tty *vt, int x, int y, ucs ch, int attr, int width);
+    void (*l_char)(struct tty *vt, int x, int y, ucs ch, uint64_t attr, int width);
         // after a character has been written to the screen
-    void (*l_comb)(struct tty *vt, int x, int y, ucs ch, int attr);
+    void (*l_comb)(struct tty *vt, int x, int y, ucs ch, uint64_t attr);
         // after a combining character has been added
     void (*l_cursor)(struct tty *vt, int x, int y);
         // after the cursor has moved
@@ -110,15 +112,6 @@ typedef struct tty
     void (*l_free)(struct tty *vt);
         // before the terminal is destroyed
 } *tty;
-
-#define VT100_ATTR_BOLD         0x010000
-#define VT100_ATTR_DIM          0x020000
-#define VT100_ATTR_ITALIC       0x040000
-#define VT100_ATTR_UNDERLINE    0x080000
-#define VT100_ATTR_BLINK        0x100000
-#define VT100_ATTR_INVERSE      0x200000
-#define VT100_ATTR_STRIKE       0x400000
-#define VT100_ATTR_CJK          0x800000
 
 tty     tty_init(int sx, int sy, int resizable);
 int     tty_resize(tty vt, int nsx, int nsy);

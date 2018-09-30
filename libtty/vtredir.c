@@ -14,7 +14,7 @@ struct vtvt_data
     FILE *f;
     int sx,sy;
 
-    int attr;
+    uint64_t attr;
     int cx,cy;
 };
 
@@ -24,8 +24,25 @@ struct vtvt_data
 #define CX      DATA->cx
 #define CY      DATA->cy
 
+static void print_color(FILE *f, uint32_t c, int bg)
+{
+    switch (c&VT100_ATTR_COLOR_TYPE)
+    {
+    case 1<<24:
+        if (c&8)
+            fprintf(f, ";%d%u", 9+bg, c&7);
+        else
+            fprintf(f, ";%d%u", 3+bg, c&7);
+        break;
+    case 2<<24:
+        fprintf(f, ";%d8;5;%u", 3+bg, c&0xff);
+        break;
+    case 3<<24:
+        fprintf(f, ";%d8;2;%u;%u;%u", 3+bg, (c>>16)&0xff, (c>>8)&0xff, c&0xff);
+    }
+}
 
-static inline void setattr(tty vt, int attr)
+static void setattr(tty vt, uint64_t attr)
 {
     if (DATA->attr==attr)
         return;
@@ -46,16 +63,8 @@ static inline void setattr(tty vt, int attr)
         fprintf(DATA->f, ";7");
     if (attr&VT100_ATTR_STRIKE)
         fprintf(DATA->f, ";9");
-    if ((attr&0xff)!=0x10)
-        if ((attr&0xff)<8)
-            fprintf(DATA->f, ";3%u", attr&0xff);
-        else
-            fprintf(DATA->f, ";38;5;%u", attr&0xff);
-    if ((attr&0xff00)!=0x1000)
-        if ((attr&0xff00)<0x800)
-            fprintf(DATA->f, ";4%u", (attr&0xff00)>>8);
-        else
-            fprintf(DATA->f, ";48;5;%u", (attr&0xff00)>>8);
+    print_color(DATA->f, attr, 0);
+    print_color(DATA->f, attr>>32, 1);
     fprintf(DATA->f, "m");
 }
 
@@ -84,7 +93,7 @@ static void build_vt100graph(void)
             vt100graph[charset_vt100[i]]=i;
 }
 
-static void vtvt_char(tty vt, int x, int y, ucs ch, int attr, int width)
+static void vtvt_char(tty vt, int x, int y, ucs ch, uint64_t attr, int width)
 {
     if (x>=SX || y>SY)
         return;
@@ -111,7 +120,7 @@ static void vtvt_char(tty vt, int x, int y, ucs ch, int attr, int width)
     CX++;
 }
 
-static void vtvt_comb(tty vt, int x, int y, ucs ch, int attr)
+static void vtvt_comb(tty vt, int x, int y, ucs ch, uint64_t attr)
 {
     if (x>=SX || y>SY)
         return;
@@ -177,7 +186,7 @@ static void vtvt_scroll(tty vt, int nl)
     else if (nl<0)
         fprintf(DATA->f, "\e[0m\e[%d;%dr\e[%d;1f\e[%dL\e[r", vt->s1+1, vt->s2, vt->s1+1, -nl);
     CX=CY=-1;
-    DATA->attr=0x1010;
+    DATA->attr=0;
 
 //  vtvt_dump(vt);
 }

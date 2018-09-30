@@ -33,6 +33,16 @@
 #define FREECOMB vt->combs[0].next
 #define NCOMBS   vt->combs[0].ch
 
+typedef struct
+{
+    uint32_t fg;
+    uint32_t bg;
+} fb_fields;
+#define FGF ((fb_fields*)&vt->attr)->fg
+#define BGF ((fb_fields*)&vt->attr)->bg
+#define FG(t,x) FGF=FGF&~VT100_ATTR_COLOR_MASK|VT100_COLOR_##t<<24|(x)
+#define BG(t,x) BGF=BGF&~VT100_ATTR_COLOR_MASK|VT100_COLOR_##t<<24|(x)
+
 enum { ESnormal, ESesc, ESgetpars, ESsquare, ESques, ESsetG0, ESsetG1,
        ESpercent, ESosc, ESoscstr };
 
@@ -241,7 +251,7 @@ export void tty_reset(tty vt)
     CX=CY=vt->save_cx=vt->save_cy=0;
     vt->s1=0;
     vt->s2=SY;
-    vt->attr=0x1010;
+    vt->attr=0;
     vt->state=ESnormal;
     vt->opt_auto_wrap=1;
     vt->opt_cursor=1;
@@ -728,7 +738,7 @@ export void tty_write(tty vt, const char *buf, int len)
                     switch (vt->tok[i])
                     {
                     case 0:
-                        vt->attr=0x1010;
+                        vt->attr=0;
                         break;
                     case 1:
                         vt->attr|=VT100_ATTR_BOLD;
@@ -776,7 +786,7 @@ export void tty_write(tty vt, const char *buf, int len)
                         break;
                     case 30: case 31: case 32: case 33:
                     case 34: case 35: case 36: case 37:
-                        vt->attr=(vt->attr&~0xff)|(vt->tok[i]-30);
+                        FG(16, vt->tok[i]-30);
                         break;
                     case 38:
                         if (i>=VT100_MAXTOK-1)
@@ -786,10 +796,7 @@ export void tty_write(tty vt, const char *buf, int len)
                         case 5:
                             if (i>=VT100_MAXTOK-1)
                                 break;
-                            if (vt->tok[++i]==16)
-                                vt->attr&=~0xff; // colour 16 is same as 0
-                            else
-                                vt->attr=vt->attr&~0xff|vt->tok[i];
+                            FG(256, vt->tok[++i]);
                             break;
                         case 2:
                         case 3:
@@ -800,11 +807,11 @@ export void tty_write(tty vt, const char *buf, int len)
                         }
                         break;
                     case 39:
-                        vt->attr=vt->attr&~0xff|0x10;
+                        FG(OFF, 0);
                         break;
                     case 40: case 41: case 42: case 43:
                     case 44: case 45: case 46: case 47:
-                        vt->attr=(vt->attr&~0xff00)|(vt->tok[i]-40)<<8;
+                        BG(16, vt->tok[i]-40);
                         break;
                     case 48:
                         if (i>=VT100_MAXTOK-1)
@@ -814,10 +821,7 @@ export void tty_write(tty vt, const char *buf, int len)
                         case 5:
                             if (i>=VT100_MAXTOK-1)
                                 break;
-                            if (vt->tok[++i]==16)
-                                vt->attr&=~0xff00; // colour 16 is same as 0
-                            else
-                                vt->attr=vt->attr&~0xff00|vt->tok[i]<<8;
+                            BG(256, vt->tok[++i]);
                             break;
                         case 2:
                         case 3:
@@ -828,15 +832,15 @@ export void tty_write(tty vt, const char *buf, int len)
                         }
                         break;
                     case 49:
-                        vt->attr=vt->attr&~0xff00|0x1000;
+                        BG(OFF, 0);
                         break;
                     case 90: case 91: case 92: case 93:
                     case 94: case 95: case 96: case 97:
-                        vt->attr=(vt->attr&~0xff)|(vt->tok[i]-90+8);
+                        FG(256, 8|(vt->tok[i]-90));
                         break;
                     case 100: case 101: case 102: case 103:
                     case 104: case 105: case 106: case 107:
-                        vt->attr=(vt->attr&~0xff00)|(vt->tok[i]-100+8)<<8;
+                        BG(256, 8|(vt->tok[i]-100));
                         break;
                     }
                 vt->state=ESnormal;
