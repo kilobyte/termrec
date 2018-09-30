@@ -63,22 +63,22 @@ typedef struct tty
     unsigned int curG:1;   // current G charset
     unsigned int save_G:2; // saved G, curG
     unsigned int save_curG:1;
+    // flags
+    int cp437 :1;          // non-UTF-8
+    int allow_resize :1;   // is input allowed to resize?
+    int opt_auto_wrap :1;  // ?7: auto wrap at right margin
+    int opt_cursor :1;     // ?25: show/hide cursor
+    int opt_kpad :1;       // keypad: application/numeric
     // UTF-8 state
     ucs utf_char;
     ucs utf_surrogate;
     int utf_count;
     // parser state
+    int state;
     int ntok;
     uint32_t tok[VT100_MAXTOK];
-    int state;
     char *oscbuf;
     int osclen;            // length of current osc command
-    // flags
-    int cp437 :1;               // non-UTF-8
-    int allow_resize :1;        // is input allowed to resize?
-    int opt_auto_wrap :1;       // ?7: auto wrap at right margin
-    int opt_cursor :1;          // ?25: show/hide cursor
-    int opt_kpad :1;            // keypad: application/numeric
     /*=[ listeners ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
     void *l_data;
         // any private data
