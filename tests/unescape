@@ -1,8 +1,18 @@
-#!/usr/bin/perl -wp
+#!/usr/bin/env perl
+use warnings;
+use Encode qw(encode_utf8);
 
-chomp;
-s/\\b/\b/g;
-s/\\n/\n/g;
-s/\\e/\e/g;
-s/\\a/\a/g;
-s/\\\\/\\/g;
+while(<>)
+{
+    chomp;
+    s/^#.*//;
+    s/\\b/\b/g;
+    s/\\n/\n/g;
+    s/\\e/\e/g;
+    s/\\a/\a/g;
+    s/\\t/\t/g;
+    s/\\u([0-9a-fA-F]{4})/encode_utf8(sprintf('%c',hex($1)))/ge;
+    s/\\U([0-9a-fA-F]{6})/encode_utf8(sprintf('%c',hex($1)))/ge;
+    s/\\\\/\\/g;
+    print;
+}

@@ -1,4 +1,4 @@
-char *command, *format, *format_ext;
+const char *command, *format, *format_ext;
 int lport,rport;
 char *record_name;
 int raw;

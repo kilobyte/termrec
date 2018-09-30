@@ -1,5 +1,8 @@
+#include "config.h"
+#include "compat.h"
 #include <windows.h>
 #include <io.h>
+#include <sys/time.h>
 
 #ifndef HAVE_GETTIMEOFDAY
 void gettimeofday(struct timeval *tv, void * dummy)
@@ -33,11 +36,12 @@ int pipe(int p[2])
 }
 #endif
 
-#ifndef HAVE_USLEEP
-void uselect(struct timeval *timeout)
+#ifndef HAVE_USELECT
+int uselect(struct timeval *timeout)
 {
     if (!timeout || timeout->tv_sec<0)
-        return;
+        return 0;
     Sleep(timeout->tv_sec*1000+timeout->tv_usec/1000);
+    return 0;
 }
 #endif

@@ -18,11 +18,14 @@
 #include "stream.h"
 #include "compat.h"
 #include "gettext.h"
+VISIBILITY_ENABLE
+#include "ttyrec.h"
+VISIBILITY_DISABLE
 
 // The "host" arg will be modified!
 // "port" can be overridden with :
 // Returns: error message, 0 on success.
-static char *resolve_host(char *host, int port, struct addrinfo **ai)
+static const char *resolve_host(char *host, int port, struct addrinfo **ai)
 {
     long i;
     char *cp;
@@ -72,7 +75,7 @@ static char *resolve_host(char *host, int port, struct addrinfo **ai)
         if (err==EAI_NONAME)
             return _("No such host");
         else
-            return (char*)gai_strerror(err);
+            return gai_strerror(err);
     }
     return 0;
 }
@@ -90,24 +93,19 @@ static int connect_out(struct addrinfo *ai)
 
     intr:
         if ((connect(sock, addr->ai_addr, addr->ai_addrlen)))
-        {
-            switch(errno)
-            {
-            case EINTR:
+            if (errno == EINTR)
                 goto intr;
-            default:
+            else
                 continue;
-            }
-        }
         return sock;
     }
-    return -1;	// errno will be valid here
+    return -1;  // errno will be valid here
 }
 
 
 #if IS_WIN32
 // workaround socket!=file brain damage
-static void sock2file(int sock, int file, char *arg)
+static void sock2file(int sock, int file, const char *arg)
 {
     char buf[BUFSIZ];
     int len;
@@ -116,33 +114,36 @@ static void sock2file(int sock, int file, char *arg)
     {
         while ((len=read(file, buf, BUFSIZ))>0)
             if (send(sock, buf, len, 0)!=len)
-                return;
+                break;
     }
     else
     {
         while ((len=recv(sock, buf, BUFSIZ, 0))>0)
             if (write(file, buf, len)!=len)
-                return;
+                break;
     }
     closesocket(sock);
+    close(file);
 }
 #endif
 
 
-int connect_tcp(char *url, int port, char **rest, char **error)
+int connect_tcp(const char *url, int port, const char **rest, const char **error)
 {
     char host[128], *cp;
     struct addrinfo *ai;
     int fd;
 
     if ((cp=strchr(url, '/')))
-        snprintf(host, 128, "%.*s", (int)(cp-url), url);
+    {
+        snprintf(host, sizeof(host), "%.*s", (int)(cp-url), url);
+        *rest=cp;
+    }
     else
     {
-        snprintf(host, 128, "%s", url);
-        cp="";
+        snprintf(host, sizeof(host), "%s", url);
+        *rest="";
     }
-    *rest=cp;
     if ((*error=resolve_host(host, port, &ai)))
         return -1;
     if ((fd=connect_out(ai))==-1)
@@ -153,22 +154,23 @@ int connect_tcp(char *url, int port, char **rest, char **error)
 }
 
 
-int open_tcp(char* url, int mode, char **error)
+int open_tcp(const char* url, int mode, const char **error)
 {
     int fd;
-    char *rest;
+    const char *rest;
 
-    fd=connect_tcp(url, 0, &rest, error);
+    if ((fd=connect_tcp(url, 0, &rest, error))==-1)
+        return -1;
     // we may write the rest of the URL to the socket here ...
 
     // no bidi streams
-    if (mode&M_WRITE)
+    if (mode&SM_WRITE)
         shutdown(fd, SHUT_RD);
     else
         shutdown(fd, SHUT_WR);
 
 #ifdef IS_WIN32
-    fd=filter(sock2file, fd, !!(mode&M_WRITE), (mode&M_WRITE)?"":0, error);
+    fd=filter(sock2file, fd, !!(mode&SM_WRITE), (mode&SM_WRITE)?"":0, error);
 #endif
     return fd;
 }

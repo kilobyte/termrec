@@ -1,4 +1,5 @@
 AT_INIT
+AT_COLOR_TESTS
 
 AT_SETUP([seeks])
 AT_CHECK([seeks],,[ignore])
@@ -16,22 +17,42 @@ AT_CLEANUP
 AT_SETUP([loading and saving ttyrecs to/from memory])
 AT_CHECK([rec test.ttyrec && loadsave test.ttyrec out.ttyrec && cmp test.ttyrec out.ttyrec])
 AT_CLEANUP
+AT_SETUP([loading and saving asciicasts to/from memory])
+AT_CHECK([rec test.cast && loadsave test.cast out.cast && cmp test.cast out.cast])
+AT_CLEANUP
+AT_SETUP([loading and saving v1 asciicasts to/from memory])
+AT_CHECK([rec test.cast-v1 && loadsave test.cast-v1 out.cast-v1 && cmp test.cast-v1 out.cast-v1])
+AT_CLEANUP
 
 AT_SETUP([loading and saving ttyrecs to memory (.gz)])
+AT_SKIP_IF([! grep -q "^#define \\(HAVE_ZLIB_H\\|SHIPPED_LIBZ\\) 1" $abs_top_builddir/config.h])
 AT_CHECK([rec test.ttyrec.gz && loadsave test.ttyrec.gz out.ttyrec.gz && cmp test.ttyrec.gz out.ttyrec.gz])
 AT_CLEANUP
 AT_SETUP([loading and saving ttyrecs to memory (.bz2)])
+AT_SKIP_IF([! grep -q "^#define \\(HAVE_BZLIB_H\\|SHIPPED_LIBBZ2\\) 1" $abs_top_builddir/config.h])
 AT_CHECK([rec test.ttyrec.bz2 && loadsave test.ttyrec.bz2 out.ttyrec.bz2 && cmp test.ttyrec.bz2 out.ttyrec.bz2])
 AT_CLEANUP
 AT_SETUP([loading and saving ttyrecs to memory (.xz)])
+AT_SKIP_IF([! grep -q "^#define \\(HAVE_LZMA_H\\|SHIPPED_LIBLZMA\\) 1" $abs_top_builddir/config.h])
 AT_CHECK([rec test.ttyrec.xz && loadsave test.ttyrec.xz out.ttyrec.xz && cmp test.ttyrec.xz out.ttyrec.xz])
+AT_CLEANUP
+AT_SETUP([loading and saving ttyrecs to memory (.zst)])
+AT_SKIP_IF([! grep -q "^#define \\(HAVE_ZSTD_H\\|SHIPPED_LIBZSTD\\) 1" $abs_top_builddir/config.h])
+AT_CHECK([rec test.ttyrec.zst && loadsave test.ttyrec.zst out.ttyrec.zst && cmp test.ttyrec.zst out.ttyrec.zst])
+AT_CLEANUP
+
+AT_SETUP([split UTF-8 for asciicast])
+cp "$top_srcdir/tests/misc.out/splitutf.cast" expout
+AT_CHECK([termcat ]"$top_srcdir/tests/rec.in/splitutf.nh"[ out.cast && cat out.cast],,[expout])
 AT_CLEANUP
 
 AT_SETUP([vt100 sequences])
 for x in "$top_srcdir/tests/vt.in/"*
   do
+    if echo "$x"|grep -vq '/[[a-zA-Z0-9_-]]*$'; then continue; fi
     unescape <"$x" >stdin
-    cat "${x/vt.in/vt.out}" >expout
+    y="$(echo "$x"|sed 's/vt\.in/vt.out/')"
+    cat "$y" >expout
     AT_CHECK([vt -d <stdin],,[expout])
   done
 AT_CLEANUP
@@ -46,15 +67,30 @@ AT_CLEANUP
 AT_SETUP([vt-on-vt])
 for x in "$top_srcdir/tests/vt.in/"*
   do
+    if echo "$x"|grep -vq '/[[a-zA-Z0-9_-]]*$'; then continue; fi
     [if LC_ALL=C grep -q '[^[:cntrl:] -~]' "$x"]
       then
-	echo "Skipping $x"
-	dnl # skip Unicode tests, LC_ALL=C breaks that and there is nothing not
-	dnl # already tested by the "vt100 sequences" series of tests
+        echo "Skipping $x"
+        dnl # skip Unicode tests, LC_ALL=C breaks that and there is nothing not
+        dnl # already tested by the "vt100 sequences" series of tests
       else
-	echo "Checking $x"
-	unescape <"$x" >stdin
-	AT_CHECK([vtmir <stdin])
+        echo "Checking $x"
+        unescape <"$x" >stdin
+        AT_CHECK([vtmir <stdin])
     fi
   done
+AT_CLEANUP
+
+AT_SETUP([replayed onto vt])
+for x in "$top_srcdir/tests/rec.in/"*
+  do
+    if echo "$x"|grep -vq '/[[a-zA-Z0-9_.-]]*$'; then continue; fi
+    y="$(echo "$x"|sed 's/rec\.in/rec.out/;s:\.[[^.]]*$::')"
+    cat "$y" >expout
+    AT_CHECK([termcat "$x" -|vt -d],,[expout])
+  done
+AT_CLEANUP
+
+AT_SETUP([fuzzing vt])
+AT_CHECK([vtgen|dd bs=1048576 count=1 2>/dev/null|vt],,[])
 AT_CLEANUP

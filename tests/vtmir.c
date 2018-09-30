@@ -1,26 +1,27 @@
 #include "config.h"
-#include <vt100.h>
+#include <tty.h>
 #include <stdio.h>
-#include "sys/threads.h"
 #include "sys/compat.h"
+#include "sys/threads.h"
 #include "sys/error.h"
 #include "_stdint.h"
+#include <unistd.h>
 
 
-vt100 vt1, vt2;
+static tty vt1, vt2;
 
 #define BUFFER_SIZE 128
-void copier(void *args)
+static void copier(void *args)
 {
     int fd=(intptr_t)args;
     char buf[BUFFER_SIZE];
     int len;
 
     while ((len=read(fd, buf, BUFFER_SIZE))>0)
-        vt100_write(vt2, buf, len);
+        tty_write(vt2, buf, len);
 }
 
-void dump(vt100 vt)
+static void dump(tty vt)
 {
     int x,y,c;
 
@@ -37,7 +38,7 @@ void dump(vt100 vt)
 }
 
 #define BUF2 42
-int main()
+int main(void)
 {
     thread_t cop;
     int p[2];
@@ -45,8 +46,8 @@ int main()
     char buf[BUF2];
     int len, i;
 
-    vt1=vt100_init(20, 5, 0, 0);
-    vt2=vt100_init(20, 5, 0, 0);
+    vt1=tty_init(20, 5, 0);
+    vt2=tty_init(20, 5, 0);
     if (pipe(p))
         die("pipe()");
     if (thread_create_joinable(&cop, copier, (void*)(intptr_t)p[0]))
@@ -55,7 +56,7 @@ int main()
     vtvt_attach(vt1, f, 0);
 
     while ((len=read(0, buf, BUF2))>0)
-        vt100_write(vt1, buf, len);
+        tty_write(vt1, buf, len);
     fclose(f);
     thread_join(cop);
 

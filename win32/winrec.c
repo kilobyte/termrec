@@ -1,9 +1,9 @@
 /*
-Termrec uses "MSAA" ("Microsoft Active Accessability", I wonder what clown
-can come up with such a name), it's present on WinXP and some regional
-(Japanese, ...) versions of Win2K and Win98.  If that API is not there,
-termrec will fall back to polling the screen 50 times per second, possibly
-losing some of fast-scrolled text.  Even MSAA is not atomic, too.
+Termrec uses "MSAA" ("Microsoft Active Accessability"), it's present on
+WinXP and some regional (Japanese, ...) versions of Win2K and Win98.  If
+that API is not there, termrec will fall back to polling the screen 50 times
+per second, possibly losing some of fast-scrolled text.  Even MSAA is not
+atomic, too.
 
 Due to the unholy mess of code pages (on Polish version, there are 3
 non-compatible pages and Unicode), termrec will use UTF-8 where available.
@@ -28,6 +28,9 @@ for CP437, fit for NetHack.
 recorder rec;
 #ifdef EVDEBUG
 FILE *evlog;
+# define EVLOG(...) do {fprintf(evlog, __VA_ARGS__); fflush(evlog);} while(0)
+#else
+# define EVLOG(...)
 #endif
 
 HANDLE con,proch;
@@ -47,7 +50,7 @@ char vtrec_buf[0x10000], *vb;
 
 
 
-void vtrec_commit()
+static void vtrec_commit(void)
 {
     struct timeval tv;
 
@@ -72,7 +75,7 @@ void vtrec_printf(const char *fmt, ...)
 
 
 static inline void vtrec_utf8(unsigned short uv)
-{	// Larry Wall style.  The similarities in formatting are, uhm,
+{       // Larry Wall style.  The similarities in formatting are, uhm,
         // purely accidental.
     if (uv<0x80)
     {
@@ -80,48 +83,48 @@ static inline void vtrec_utf8(unsigned short uv)
         return;
     }
     if (uv < 0x800) {
-	*vb++ = ( uv >>  6)         | 0xc0;
-	*vb++ = ( uv        & 0x3f) | 0x80;
-	return;
+        *vb++ = ( uv >>  6)         | 0xc0;
+        *vb++ = ( uv        & 0x3f) | 0x80;
+        return;
     }
-#ifdef GATES_FIXED_HIS_CONSOLE
+#ifdef FULL_UNICODE
     if (uv < 0x10000) {
 #endif
-	*vb++ = ( uv >> 12)         | 0xe0;
-	*vb++ = ((uv >>  6) & 0x3f) | 0x80;
-	*vb++ = ( uv        & 0x3f) | 0x80;
-#ifdef GATES_FIXED_HIS_CONSOLE
-	return;
+        *vb++ = ( uv >> 12)         | 0xe0;
+        *vb++ = ((uv >>  6) & 0x3f) | 0x80;
+        *vb++ = ( uv        & 0x3f) | 0x80;
+#ifdef FULL_UNICODE
+        return;
     }
     if (uv < 0x200000) {
-	*vb++ = ( uv >> 18)         | 0xf0;
-	*vb++ = ((uv >> 12) & 0x3f) | 0x80;
-	*vb++ = ((uv >>  6) & 0x3f) | 0x80;
-	*vb++ = ( uv        & 0x3f) | 0x80;
-	return;
+        *vb++ = ( uv >> 18)         | 0xf0;
+        *vb++ = ((uv >> 12) & 0x3f) | 0x80;
+        *vb++ = ((uv >>  6) & 0x3f) | 0x80;
+        *vb++ = ( uv        & 0x3f) | 0x80;
+        return;
     }
     if (uv < 0x4000000) {
-	*vb++ = ( uv >> 24)         | 0xf8;
-	*vb++ = ((uv >> 18) & 0x3f) | 0x80;
-	*vb++ = ((uv >> 12) & 0x3f) | 0x80;
-	*vb++ = ((uv >>  6) & 0x3f) | 0x80;
-	*vb++ = ( uv        & 0x3f) | 0x80;
-	return;
+        *vb++ = ( uv >> 24)         | 0xf8;
+        *vb++ = ((uv >> 18) & 0x3f) | 0x80;
+        *vb++ = ((uv >> 12) & 0x3f) | 0x80;
+        *vb++ = ((uv >>  6) & 0x3f) | 0x80;
+        *vb++ = ( uv        & 0x3f) | 0x80;
+        return;
     }
     if (uv < 0x80000000) {
-	*vb++ = ( uv >> 30)         | 0xfc;
-	*vb++ = ((uv >> 24) & 0x3f) | 0x80;
-	*vb++ = ((uv >> 18) & 0x3f) | 0x80;
-	*vb++ = ((uv >> 12) & 0x3f) | 0x80;
-	*vb++ = ((uv >>  6) & 0x3f) | 0x80;
-	*vb++ = ( uv        & 0x3f) | 0x80;
-	return;
+        *vb++ = ( uv >> 30)         | 0xfc;
+        *vb++ = ((uv >> 24) & 0x3f) | 0x80;
+        *vb++ = ((uv >> 18) & 0x3f) | 0x80;
+        *vb++ = ((uv >> 12) & 0x3f) | 0x80;
+        *vb++ = ((uv >>  6) & 0x3f) | 0x80;
+        *vb++ = ( uv        & 0x3f) | 0x80;
+        return;
     }
 #endif
 }
 
 
-void vtrec_init()
+static void vtrec_init(void)
 {
     vtrec_cursor=1;
     vtrec_cx=vtrec_wx=0;
@@ -135,7 +138,7 @@ void vtrec_init()
 static char VT_COLORS[]="04261537";
 
 
-void vtrec_realize_attr()
+static void vtrec_realize_attr(void)
 {
     vtrec_printf("\e[0;3%c;4%c%s%sm",
         VT_COLORS[vtrec_attr&7],
@@ -159,16 +162,16 @@ static inline void vtrec_outchar(CHAR_INFO c)
     vtrec_cx++;
 }
 
-void vtrec_char(int x, int y, CHAR_INFO c)
+static void vtrec_char(int x, int y, CHAR_INFO c)
 {
 #ifdef EVDEBUG
     if (x<0 || x>=vtrec_cols || y<0 || y>=vtrec_rows)
-        fprintf(evlog, "Out of bounds: %d,%d\n", x, y);
+        EVLOG("Out of bounds: %d,%d\n", x, y);
 #endif
     if (x!=vtrec_cx || y!=vtrec_cy)
     {
         if (y==vtrec_cy && vtrec_cx<x && vtrec_cx+10>=x)
-        {	// On small skips, it's better to rewrite instead of jumping,
+        {       // On small skips, it's better to rewrite instead of jumping,
                 // especially considering that our algorithm produces a lot of
                 // such skips if the new text has a single matching letter in
                 // the same place as the old one.
@@ -198,9 +201,9 @@ void vtrec_char(int x, int y, CHAR_INFO c)
 }
 
 
-void vtrec_realize_cursor()
+static void vtrec_realize_cursor(void)
 {
-    if (!vtrec_cursor)	// cursor hidden -- its position is irrelevant
+    if (!vtrec_cursor)  // cursor hidden -- its position is irrelevant
         return;
     if (vtrec_cx==vtrec_wx && vtrec_wy==vtrec_cy)
         return;
@@ -210,7 +213,7 @@ void vtrec_realize_cursor()
 }
 
 
-void vtrec_dump(int full)
+static void vtrec_dump(int full)
 {
     CONSOLE_SCREEN_BUFFER_INFO cbi;
     SCREEN scr;
@@ -236,9 +239,7 @@ void vtrec_dump(int full)
         return;
     vtrec_wx=cbi.dwCursorPosition.X-vtrec_x1;
     vtrec_wy=cbi.dwCursorPosition.Y-vtrec_y1;
-#ifdef EVDEBUG
-    fprintf(evlog, "===dump%s===\n", full?" (full)":"");
-#endif
+    EVLOG("===dump%s===\n", full?" (full)":"");
     reg=cbi.srWindow;
     sz.X=vtrec_cols;
     sz.Y=vtrec_rows;
@@ -250,9 +251,7 @@ void vtrec_dump(int full)
             goto dump_ok;
         if (ReadConsoleOutputA(con, scr, sz, org, &reg))
         {
-#ifdef EVDEBUG
-            fprintf(evlog, "Disabling Unicode\n");
-#endif
+            EVLOG("Disabling Unicode\n");
             vtrec_printf("\e%%@");
             utf8=0;
             goto dump_ok;
@@ -261,9 +260,7 @@ void vtrec_dump(int full)
     else
         if (ReadConsoleOutputA(con, scr, sz, org, &reg))
             goto dump_ok;
-#ifdef EVDEBUG
-    fprintf(evlog, "DUMP FAILED!!\n");
-#endif
+    EVLOG("DUMP FAILED!!\n");
     return;
 dump_ok:
     // FIXME: the region could have changed between the calls, resulting in
@@ -301,7 +298,7 @@ dump_ok:
 
 // For any non-base-ASCII chars, the 16 bit value given is neither the local
 // win codepage value nor Unicode.  Ghrmblah.
-void vtrec_dump_char(int wx, int wy, DWORD ch)
+static void vtrec_dump_char(int wx, int wy, DWORD ch)
 {
     CHAR_INFO c;
     SMALL_RECT reg;
@@ -316,7 +313,7 @@ void vtrec_dump_char(int wx, int wy, DWORD ch)
     if ((LOWORD(ch)>=32 && LOWORD(ch)<127) ||
         !(utf8?ReadConsoleOutputW(con, &c, sz, org, &reg):
                ReadConsoleOutputA(con, &c, sz, org, &reg)))
-    {	    // last resort
+    {       // last resort
         c.Char.UnicodeChar=LOWORD(ch);
         c.Attributes=HIWORD(ch);
     }
@@ -329,7 +326,7 @@ void vtrec_dump_char(int wx, int wy, DWORD ch)
 }
 
 
-void vtrec_scroll(int d)
+static void vtrec_scroll(int d)
 {
     CONSOLE_SCREEN_BUFFER_INFO cbi;
     CHAR_INFO *cp;
@@ -393,7 +390,7 @@ static char *evnames[]={
 #endif
 
 
-VOID CALLBACK WinEventProc(
+static VOID CALLBACK WinEventProc(
   HWINEVENTHOOK hWinEventHook,
   DWORD event,
   HWND hwnd,
@@ -405,18 +402,18 @@ VOID CALLBACK WinEventProc(
 {
 #ifdef EVDEBUG
     if (event>0x4000 && event<=0x4007)
-    fprintf(evlog, "%s: %d(%d,%d), %d(%d,%d)\n",
-        evnames[event-0x4000],
-        (int)idObject,
-        (short int)LOWORD(idObject),
-        (short int)HIWORD(idObject),
-        (int)idChild,
-        (short int)LOWORD(idChild),
-        (short int)HIWORD(idChild));
+        EVLOG("%s: %d(%d,%d), %d(%d,%d)\n",
+            evnames[event-0x4000],
+            (int)idObject,
+            (short int)LOWORD(idObject),
+            (short int)HIWORD(idObject),
+            (int)idChild,
+            (short int)LOWORD(idChild),
+            (short int)HIWORD(idChild));
 #endif
-    if (timer)	// If events work, let's disable polling.
+    if (timer)  // If events work, let's disable polling.
     {
-        if (timer!=(UINT_PTR)(-1))	// magic cookie for Win95/98/ME
+        if (timer!=(UINT_PTR)(-1))      // magic cookie for Win95/98/ME
             KillTimer(0, timer);
         timer=0;
     }
@@ -433,7 +430,7 @@ VOID CALLBACK WinEventProc(
         vtrec_reent=0;
         return;
     }
-    switch(event)
+    switch (event)
     {
     case EVENT_CONSOLE_CARET:
         if (vtrec_cursor!=!!(idObject&CONSOLE_CARET_VISIBLE))
@@ -477,18 +474,20 @@ VOID CALLBACK WinEventProc(
 }
 
 
-void finish_up()
+// Work around in Windows' (but not Cygwin's) bug in atexit.
+extern void reap_streams(void);
+
+static void finish_up(void)
 {
-    vtrec_printf("\e[7?h\e[?4h");
+    vtrec_printf("\e[?7h\e[?4h");
     vtrec_commit();
     ttyrec_w_close(rec);
-#ifdef EVDEBUG
-    fprintf(evlog, "*** THE END ***\n");
-#endif
+    EVLOG("*** THE END ***\n");
+    reap_streams();
 }
 
 
-VOID CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
+static VOID CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 {
     if (vtrec_reent)
         return;
@@ -498,9 +497,9 @@ VOID CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime)
 }
 
 
-BOOL WINAPI CtrlHandler(DWORD dwCtrlType)
+static BOOL WINAPI CtrlHandler(DWORD dwCtrlType)
 {
-    switch(dwCtrlType)
+    switch (dwCtrlType)
     {
     case CTRL_C_EVENT:
     case CTRL_BREAK_EVENT:
@@ -517,7 +516,7 @@ BOOL WINAPI CtrlHandler(DWORD dwCtrlType)
 }
 
 
-int check_console()
+static int check_console(void)
 {
     CONSOLE_SCREEN_BUFFER_INFO cbi;
 
@@ -535,7 +534,7 @@ int check_console()
 }
 
 
-int create_console()
+static int create_console(void)
 {
     HANDLE fd;
     SECURITY_ATTRIBUTES sec;
@@ -565,7 +564,7 @@ int create_console()
 }
 
 
-void set_event_hook()
+static void set_event_hook(void)
 {
     typedef HWINEVENTHOOK (WINAPI* SWEH)(UINT,UINT,HMODULE,WINEVENTPROC,DWORD,DWORD,UINT);
     HMODULE dll;
@@ -587,7 +586,7 @@ void set_event_hook()
 }
 
 
-void spawn_process()
+static void spawn_process(void)
 {
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
@@ -605,7 +604,9 @@ void spawn_process()
         exit(1);
     }
     printf("Trying to spawn [%s]\n", command);
-    if (!CreateProcess(0, command,
+    // CAVEAT: if this ever uses CreateProcessW, that function does modify its
+    // "command" argument.  CreateProcessA does not.
+    if (!CreateProcess(0, (char*)command,
           0, 0, 0,
           CREATE_DEFAULT_ERROR_MODE,
           0, 0, &si, &pi))

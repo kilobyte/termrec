@@ -1,1 +1,2 @@
-\e(0opqrs\e(B.
+# Only in cp437 mode -- autotest forces LC_ALL=C, breaking Unicode vtredir.
+\e%@\e(0opqrs\e(B.

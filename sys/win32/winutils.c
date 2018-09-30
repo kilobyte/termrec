@@ -1,12 +1,15 @@
 #include <windows.h>
 #include <stdio.h>
+#include "error.h"
+#include "winutils.h"
 
 #define BUFFER_SIZE 1024
 
 void die(const char *txt, ...)
 {
     va_list ap;
-    char buf[BUFFER_SIZE], *errstr;
+    char buf[BUFFER_SIZE];
+    const char *errstr;
     int len;
     DWORD err=GetLastError();
 

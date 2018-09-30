@@ -1,0 +1,3 @@
+abcdefghijklmnopqrst\n
+01234567890123456789\n
+\e[2A\e[3C\e[2@

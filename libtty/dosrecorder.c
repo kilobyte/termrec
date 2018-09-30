@@ -40,13 +40,21 @@ static inline void setattr(attrchar *ch, int *oattr, char **b)
     }
 }
 
-static inline void wrchar(attrchar *ch, int *oattr, char **b)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
+#ifdef __clang__
+# pragma GCC diagnostic ignored "-Wtautological-constant-out-of-range-compare"
+#endif
+static inline void wrchar(attrchar *ch, char **b)
 {
-    tf8(bp, charset_cp437[(unsigned char)ch->c]);
+    // Unicode is 32-bit, charset_cp437[] only 16-bit as all its entries fit
+    // into the range.  Thus, hush the compiler warning.
+    TF8(bp, charset_cp437[(unsigned char)ch->c]);
 }
+#pragma GCC diagnostic pop
 #undef bp
 
-static inline int sp_string(attrchar *ch, int a, int max)
+static inline int cnt_spaces(attrchar *ch, int a, int max)
 {
     int i=0;
 
@@ -56,14 +64,13 @@ static inline int sp_string(attrchar *ch, int a, int max)
 }
 
 #define BUFFER_SIZE 65536
-/* Note: no checks if buf is big enough.  We won't produce more than 25*80 symbols,
-   each consisting of an UTF-8 char (max 3 bytes) and attrs, plus cursor movements,
-   one per line plus one per >=10 symbols skipped.
-   Thus, don't skimp on BUFFER_SIZE.  16k should be more than enough, but it's better
-   to waste memory than have a buf overflow.
+/* Max frame size is 34166: 25*80 cells of an UTF-8 char (max 3 bytes) and attrs
+   (max 14 bytes), plus cursor movements, one per line plus one per >=10 symbols
+   skipped.  Rounding up to 64KB just to be safe.
 */
-#define MINCL 20
-static int scrdiff(screen *tty, screen *scr, char *buf)
+#define MINJUMP 10 // when to jump instead of overwriting same text
+#define MINCL 20 // when to prefer clears over writing spaces
+static int scrdiff(screen *vt, screen *scr, char *buf)
 {
     char *bp=buf;
     int x,y;
@@ -73,23 +80,23 @@ static int scrdiff(screen *tty, screen *scr, char *buf)
 
     for (y=0; y<25; y++)
         for (x=0; x<80; x++)
-            if (tty[y][x]!=scr[y][x])
+            if (vt[y][x]!=scr[y][x])
             {
-                if (y!=cy || cx+10<x)
+                if (y!=cy || cx+MINJUMP<x)
                     bp+=sprintf(bp, "\e[%d;%df", (cy=y)+1, cx=x+1);
                 else
                 {
                     while (cx<x)
                     {
                         setattr(&(*scr)[y][cx], &attr, &bp);
-                        wrchar(&(*scr)[y][cx], &attr, &bp);
+                        wrchar(&(*scr)[y][cx], &bp);
                         cx++;
                     }
                     cx++;
                 }
                 setattr(&(*scr)[y][x], &attr, &bp);
-                if (cx>80-MINCL || (sp=sp_string(&(*scr)[y][x], attr, 80-cx))<MINCL)
-                    wrchar(&(*scr)[y][x], &attr, &bp);
+                if (cx>80-MINCL || (sp=cnt_spaces(&(*scr)[y][x], attr, 80-cx))<MINCL)
+                    wrchar(&(*scr)[y][x], &bp);
                 else
                 {
                     bp+=sprintf(bp, "\e[%dX", sp);
@@ -101,13 +108,13 @@ static int scrdiff(screen *tty, screen *scr, char *buf)
 }
 
 void play_dosrecorder(FILE *f,
-    void *(synch_init_wait)(struct timeval *ts, void *arg),
-    void *(synch_wait)(struct timeval *tv, void *arg),
-    void *(synch_print)(char *buf, int len, void *arg),
-    void *arg, struct timeval *cont)
+    void (*synch_init_wait)(const struct timeval *ts, void *arg),
+    void (*synch_wait)(const struct timeval *tv, void *arg),
+    void (*synch_print)(const char *buf, int len, void *arg),
+    void *arg, const struct timeval *cont)
 {
     gzFile g;
-    screen tty, scr, screens[MAXSCREENS];
+    screen vt, scr, screens[MAXSCREENS];
     int i, x, y, note;
 #pragma pack(push)
 #pragma pack(1)
@@ -138,26 +145,26 @@ void play_dosrecorder(FILE *f,
         synch_print(buf, snprintf(buf, BUFFER_SIZE, _("Not a DosRecorder recording!")), arg);
         return;
     }
-    memset(tty, 0, sizeof(screen));
+    memset(vt, 0, sizeof(screen));
     for (i=0; i<MAXSCREENS; i++)
         for (y=0; y<25; y++)
             for (x=0; x<80; x++)
                 screens[i][y][x].c=' ', screens[i][y][x].a=7;
 
-    bp=buf+sprintf(buf, "\ec\e%%G");
+    bp=buf+sprintf(buf, "\ec\e%%G\e[8;25;80t");
     while (gzread(g, &fh, sizeof(fh))==sizeof(fh))
     {
         note=fh.nchunks&0x8000;
         memcpy(&scr, &screens[fh.sscr], sizeof(screen));
         if ((fh.nchunks&=0x7fff)>25*80)
-            goto end;	// corrupted file -- too many chunks
+            goto end;   // corrupted file -- too many chunks
         if (gzread(g, chs, fh.nchunks*sizeof(struct ch))
                    !=(int)(fh.nchunks*sizeof(struct ch)))
             goto end;
         for (i=0; i<fh.nchunks; i++)
         {
             if (chs[i].pos>=25*80 || chs[i].len+chs[i].pos>25*80)
-                goto end;	// corrupted file
+                goto end;       // corrupted file
             gzread(g, &scr[0][0]+chs[i].pos, chs[i].len*sizeof(attrchar));
         }
         memcpy(&screens[fh.dscr], &scr, sizeof(screen));
@@ -176,7 +183,7 @@ void play_dosrecorder(FILE *f,
             *bp++=7;
         }
 
-        bp+=scrdiff(&tty, &scr, bp);
+        bp+=scrdiff(&vt, &scr, bp);
 
         tv.tv_sec=fh.delay/1000;
         tv.tv_usec=(fh.delay-tv.tv_sec*1000)*1000;

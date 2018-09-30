@@ -1,4 +1,4 @@
-MANPAGES = vt100.3 libtty.3 termrec.1 termplay.1 proxyrec.1 termtime.1 termcat.1
+MANPAGES = libtty.3 libttyrec.3 termrec.1 termplay.1 termtime.1 termcat.1
 dist_man_MANS = $(MANPAGES:%=doc/%)
 EXTRA_DIST += $(dist_man_MANS:%.1=%.pod) $(dist_man_MANS:%.3=%.pod)
 
@@ -12,15 +12,22 @@ if POD
 # likely a tarball with files with good timestamps.
 # Since leaving the git world goes through "make dist", let's update the
 # timestamps there -- oh lookie, it already depends on the built manpages.
+#
+# Use perl instead of touch -d @foo because OpenBSD.
 .pod.1:
 	$(QUIET_POD)d=`git log -1 --pretty="format:%ct" $<|cut -f 1 -d ' '`;\
-	if test -n "$$d";then touch $< -d "@$$d";fi;\
+	if test -n "$$d";then perl -e "utime undef,$$d,'$<'";fi;\
 	pod2man -c termrec -s 1 -n `basename "$@"|sed 's/\.[0-9]$$//'|tr a-z A-Z` -r "$(VERSION)" $< >$@
 
 .pod.3:
 	$(QUIET_POD)d=`git log -1 --pretty="format:%ct" $<|cut -f 1 -d ' '`;\
-	if test -n "$$d";then touch $< -d "@$$d";fi;\
+	if test -n "$$d";then perl -e "utime undef,$$d,'$<'";fi;\
 	pod2man -c termrec -s 3 -n `basename "$@"|sed 's/\.[0-9]$$//'|tr a-z A-Z` -r "$(VERSION)" $< >$@
 
 CLEANFILES += $(dist_man_MANS)
+else
+.pod.1:
+	@echo "No pod2man -> not building" $<
+.pod.3:
+	@echo "No pod2man -> not building" $<
 endif

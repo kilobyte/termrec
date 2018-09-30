@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <errno.h>
+#include "error.h"
 
 void die(const char *txt, ...)
 {

@@ -3,10 +3,11 @@
 #if HAVE_TERMIOS_H
 # include <termios.h>
 #endif
-#if GWINSZ_IN_SYS_IOCTL
+#ifdef HAVE_SYS_IOCTL_H
 # include <sys/ioctl.h>
 #endif
 #include "export.h"
+#include "ttysize.h"
 
 int get_tty_size(int fd, int *x, int *y)
 {
@@ -14,7 +15,7 @@ int get_tty_size(int fd, int *x, int *y)
 
     if (!isatty(fd))
         return 0;
-    if (ioctl(1,TIOCGWINSZ,&ts) && ts.ws_row>0 && ts.ws_col>0)
+    if (!ioctl(1,TIOCGWINSZ,&ts) && ts.ws_row>0 && ts.ws_col>0)
     {
         *x=ts.ws_col;
         *y=ts.ws_row;

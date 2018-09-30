@@ -14,7 +14,7 @@ static void conv(long long x, struct timeval *t)
     t->tv_usec=x-t->tv_sec*1000000;
 }
 
-static void gen()
+static void gen(void)
 {
     ax=rand()%10000000-2000000;
     conv(ax, &a);
@@ -22,14 +22,14 @@ static void gen()
     conv(bx, &b);
 }
 
-static void cmp(long long cx, char *opname)
+static void cmp(long long cx, const char *opname)
 {
     conv(cx, &c);
-    if (a.tv_sec!=c.tv_sec || abs(a.tv_usec-c.tv_usec)>1) // round-off error
+    if (a.tv_sec!=c.tv_sec || labs(a.tv_usec-c.tv_usec)>1) // round-off error
         die("Mismatch in %s\n", opname);
 }
 
-int main()
+int main(void)
 {
     int i;
 

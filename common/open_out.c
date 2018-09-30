@@ -12,6 +12,7 @@
 #include "compat.h"
 #include "ttyrec.h"
 #include "gettext.h"
+#include "common.h"
 
 
 #if (defined HAVE_LIBBZ2) || (defined SHIPPED_LIBBZ2)
@@ -44,20 +45,20 @@ static void nameinc(char *add)
         }
         if (*ai!='z')
         {
-            (*ai)++;	// increase the first non-'z'
+            (*ai)++;    // increase the first non-'z'
             return;
         }
-        *ai='a';	// ... replacing 'z's by 'a'
+        *ai='a';        // ... replacing 'z's by 'a'
     }
 }
 
 
-int open_out(char **file_name, char *format_ext, int append)
+int open_out(char **file_name, const char *format_ext, int append)
 {
     int fd;
     char add[10],date[24];
     time_t t;
-    char *error;
+    const char *error;
 
     if (!*file_name)
     {
@@ -69,7 +70,7 @@ int open_out(char **file_name, char *format_ext, int append)
             if (asprintf(file_name, "%s%s%s%s", date, add, format_ext, append?"":comp_ext) == -1)
                 abort();
             fd=open(*file_name, (append?O_APPEND:O_CREAT|O_EXCL)|O_WRONLY|O_BINARY, 0666);
-            // We do some autoconf magic to exclude O_BINARY when inappropiate.
+            // We do some autoconf magic to exclude O_BINARY when inappropriate.
             if (fd!=-1)
                 goto finish;
             if (errno!=EEXIST)
@@ -89,7 +90,7 @@ int open_out(char **file_name, char *format_ext, int append)
     if (!(fd=open(*file_name, (append?O_APPEND:O_CREAT|O_TRUNC)|O_WRONLY|O_BINARY, 0666)))
         die(_("Can't write to the record file (%s): %s\n"), *file_name, strerror(errno));
 finish:
-    if ((fd=open_stream(fd, *file_name, append?M_APPEND:M_WRITE, &error))==-1)
+    if ((fd=open_stream(fd, *file_name, append?SM_APPEND:SM_WRITE, &error))==-1)
         die("%s", error);
     return fd;
 }

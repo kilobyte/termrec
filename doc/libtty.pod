@@ -1,190 +1,192 @@
+=encoding utf8
 =head1 NAME
 
-libtty - a library for handling ttyrec files
+libtty - a library for handling vt100-like pseudo-terminals
 
 =head1 SYNOPSIS
 
-B<#include E<lt>ttyrec.hE<gt>>
+B<#include E<lt>tty.hE<gt>>
 
 Link with I<-ltty>.
 
 =head1 DESCRIPTION
 
-=head2 Helper stream function:
+=head2 Functions:
 
 =over
 
-=item B<int	open_stream(int >I<fd>B<, char* >I<url>B<, int >I<mode>B<, char **>I<error>B<);>
+=item B<tty    tty_init(int >I<sx>B<, int >I<sy>B<, int >I<resizable>B<);>
 
-This function opens a stream designated by the I<url>.  If the given url ends in ".gz", ".xz" or ".bz2"), the
-stream is assumed to be compressed and gets passed through the appropiate [un]packer.  If the I<fd> is not -1,
-it is the descriptor you already opened; if it is -1, the file is opened.  The I<mode> can be:
+Creates a new vt100 terminal, of size I<sx>E<times>I<sy>.  If you want user input to
+be allowed to change that size, set I<resizable> to non-zero.
+
+=item B<int    tty_resize(tty >I<vt>B<, int >I<nsx>B<, int >I<nsy>B<);>
+
+Resizes the I<vt> to I<nsx>E<times>I<nsy>.  This works even on terminals marked as
+non-resizable since that prevents only user input from resizing, not you.
+
+=item B<void   tty_reset(tty >I<vt>B<);>
+
+Clears the screen and attributes.
+
+=item B<void   tty_free(tty >I<vt>B<);>
+
+Deallocates the I<vt> and all its internal structures.
+
+=item B<void   tty_write(tty >I<vt>B<, const char *>I<buf>B<, int >I<len>B<);>
+
+Writes I<len> bytes into the terminal, parsing them as vt100 codes.
+
+=item B<void   tty_printf(tty >I<vt>B<, const char *>I<fmt>B<, >I<...>B<);>
+
+Does a B<printf> into the terminal.
+
+=item B<tty    tty_copy(tty >I<vt>B<);>
+
+Allocates a new vt100 terminal, making it an exact copy of an existing one,
+including its internal state.  Attached event callbacks are not copied.
+
+=item B<uint32_t tty_color_convert(uint32_t >I<c>B<, uint32_t >I<to>B<);>
+
+Converts color values between modes: VT100_COLOR_OFF, VT100_COLOR_16,
+VT100_COLOR_256, VT100_COLOR_RGB.
+
+=back
+
+=head2 Inside the terminal
+
+You'll most likely be interested in the following fields of the structure:
 
 =over
 
-=item M_READ
+=item tty {
 
-=item M_WRITE
+=item     int I<sx>,I<sy>;             // screen size
 
-=item M_REPREAD
+=item     int I<cx>,I<cy>;             // cursor position
 
-=item M_APPEND
+=item     attrchar *I<scr>;         // screen buffer
+
+=item     int I<attr>;              // current attribute
+
+=item     char *I<title>;           // window title
 
 =back
 
-On error, -1 is returned.  If you want the message, pass a non-null pointer I<error>, it will
-be filled in.
+I<scr> is an array of character/attribute pairs, more exactly, each element is a struct C<{ ucs ch; int attr; }>.
+The array is a flat one of I<vt>B<-E<gt>>I<sx>*I<vt>B<-E<gt>>I<sy> elements, arranged row by row.  A screen
+coordinate I<x>,I<y> is stored at I<x>+I<y>*I<vt>B<-E<gt>>I<sy>.
 
-=back
+For other fields, please RTFS the header itself: B<tty.h>
 
-=head2 Format encoders:
+
+=head2 TTY event callbacks
+
+Well, you have written some data to the terminal.  Now you probably want to put it
+somewhere.  What now?  The tty structure has a number of I<event hooks> that you
+can attach your functions to.
+
+These hooks are callbacks inside the B<tty> structure that you can set.  The
+callback fields are:
 
 =over
 
-=item B<char*	ttyrec_w_find_format(char *>I<format>B<, char *>I<filename>B<, char *>I<fallback>B<);>
+=item B<void *l_data;>
 
-This function searches for a format that would fit the I<filename> provided -- that is, abc.ttyrec.gz
-returns "ttyrec".  If no known extension is found, the function returns whatever you gave as
-I<fallback>.  You can force a I<format> yourself, in this case, it is only validated and if invalid, 0
-is returned regardless of the other two arguments.
+it's a place to put your private data in
 
-=item B<recorder	ttyrec_w_open(int >I<fd>B<, char *>I<format>B<, char *>I<filename>B<, struct timeval *>I<ts>B<);>
+=item B<void (*l_char)(tty >I<vt>B<, int >I<x>B<, int >I<y>B<, ucs >I<ch>B<, int >I<attr>B<, int >I<width>B<);>
 
-A recorder is opened, writing to the file I<fd>; if it's not given (=-1), the function calls B<open_stream()>.
-Recording is done in the given I<format>, if not provided, the format is guessed based on the I<filename>.
-If you provide a timestamp I<ts>, it becomes date of the recording.
+after a character has been written to the screen; the cursor advances by
+I<width> which might be 1 (regular) or 2 (CJK "fullwidth")
 
-=item B<int	ttyrec_w_write(recorder >I<r>B<, struct timeval *tm, char *>I<data>B<, int >I<len>B<);>
+=item B<void (*l_cursor)(tty >I<vt>B<, int >I<x>B<, int >I<y>B<);>
 
-A chunk of data of length I<len> is written to recorder I<r>, with timestamp I<tm>.
+after the cursor has moved
 
-=item B<int	ttyrec_w_close(recorder >I<r>B<);>
+=item B<void (*l_clear)(tty >I<vt>B<, int >I<x>B<, int >I<y>B<, int >I<len>B<);>
 
-All pending data is flushed, recorder closed and its memory freed.
+after a chunk of screen has been cleared
 
-=item B<char*	ttyrec_w_get_format_name(int >I<i>B<);>
+If an endpoint spills outside of the current line,
+it will go all the way to an end of screen.
 
-You can use this function to enumerate known write formats by calling it with I<i> being subsequent
-numbers starting at 0.  An invalid I<i> will return a null pointer.
+If the cursor moves, you'll get a separate I<l_cursor>, although
+it is already in place during the I<l_clear> call.
 
-=item B<char*	ttyrec_w_get_format_ext(char *>I<format>B<);>
+=item B<void (*l_scroll)(tty >I<vt>B<, int >I<nl>B<);>
 
-If the given write I<format> is associated with a file extension, it is returned.
+after the region s1<=y<s2 is scrolled nl lines (nl<0 -> backwards, nl>0 -> forward).
 
-=back
+There's no separare I<l_cursor> event, I<cx> and I<cy> are already updated.
 
-=head2 Format decoders:
+=item B<void (*l_flag)(tty >I<vt>B<, int >I<f>B<, int >I<v>B<);>
 
-=over
-
-=item B<char*	ttyrec_r_find_format(char *>I<format>B<, char *>I<filename>B<, char *>I<fallback>B<);>
-
-See the _w_ function, except that read formats are searched instead.
-
-=item B<char*	ttyrec_r_get_format_name(int >I<i>B<);>
-
-ditto
-
-=item B<char*	ttyrec_r_get_format_ext(char *>I<format>B<);>
-
-ditto
-
-=item B<int	ttyrec_r_play(int >I<fd>B<, char *>I<format>B<, char *>I<filename>B<,    void (*>I<synch_init_wait>B<)(struct timeval *ts, void *>I<arg>B<),    void (*>I<synch_wait>B<)(struct timeval *>I<delay>B<, void *>I<arg>B<),    void (*>I<synch_print>B<)(char *>I<data>B<, int >I<len>B<, void *>I<arg>B<),    void *>I<arg>B<);>
-
-This function decodes the file I<fd> (opening I<filename> if I<fd>=-1).  If its contents contain
-the date of the recording, you'll receive it through the callback I<synch_init_wait>.  Between
-frames, the delay is passed through I<synch_wait>.  The actual frame data goes through
-I<synch_print>.  Note that in some formats, two or more consecutive delays or two consecutive
-frames can happen one after another.  If you provide an arbitrary I<arg>, it will be passed to
-all callbacks.
-
-The function doesn't return until the end of input data.  Returns 1 on success, 0 on failure.
-
-=back
-
-=head2 The following functions deal with in-memory ttyrecs:
+when a flag changes to I<v>.  Flags that are likely to be of interest to you are:
 
 =over
 
-=item B<ttyrec		ttyrec_init(vt100 >I<vt>B<);>
+=item * B<VT100_FLAG_CURSOR>
 
-An empty one is allocated.  If a I<vt> is provided, it becomes the screen that the ttyrec is
-internally played on; otherwise, a blank 80x25 one is allocated.  The I<vt> is consumed.
+cursor visibility
 
-=item B<ttyrec		ttyrec_load(int >I<fd>B<, char *>I<format>B<, char *>I<filename>B<, vt100 >I<vt>B<);>
+=item * B<VT100_FLAG_KPAD>
 
-This function will load a ttyrec from the file designated with I<fd>.  If it's not open yet
-(I<fd>=-1), it will be opened with B<open_stream>.  The ttyrec is played on the I<vt> you provide
--- or on a new 80x25 one.
-
-=item B<void		ttyrec_free(ttyrec >I<tr>B<);>
-
-Destroys the in-memory ttyrec, freeing its memory.
+application keypad mode (more detailed codes for keypad arrow keys)
 
 =back
 
-You can read the ttyrec's data while it's being read; all functions are thread-safe
-with regard to reading.  The frames are stored in structures like this:
+=item B<void (*l_osc)(tty >I<vt>B<, int >I<cmd>B<, const char *>I<str>B<);>
 
-typedef struct
-{
-    struct timeval t;
-    int len;
-    char *data;
-} *ttyrec_frame;
+when a string command has been issued; most commands alter a color palette,
+but the most interesting one is B<0>: "set window title"
+
+=item B<void (*l_resize)(tty >I<vt>B<, int >I<sx>B<, int >I<sy>B<);>
+
+after the terminal has been resized
+
+=item B<void (*l_flush)(tty >I<vt>B<);>
+
+when a write chunk ends
+
+=item B<void (*l_bell)(tty >I<vt>B<);>
+
+upon a beep
+
+=item B<void (*l_free)(tty >I<vt>B<);>
+
+before the terminal is destroyed
+
+=back
+
+
+=head2 Vt-on-vt redirection
+
+For the case when you want the output go to a real terminal, there are:
 
 =over
 
-=item B<ttyrec_frame	ttyrec_seek(ttyrec >I<tr>B<, struct timeval *>I<t>B<, vt100 *>I<vt>B<);>
+=item B<void   vtvt_attach(tty >I<vt>B<, FILE *>I<f>B<, int >I<dump>B<);>
 
-Finds the frame that should be shown at time I<*t>, or the first frame if I<t> is null.
-If I<vt> is not-null, it will receive a terminal containing the screen at that frame.
+Attaches the FILE stream I<f> to terminal I<vt>.  Usually, I<f> will be B<stdout>.
+Whenever the contents of I<vt> changes, appropriate data will be written to the stream
+as well.  If I<dump> is non-zero, the current state will be drawn, otherwise, only
+subsequent changes will be shown.
 
-=item B<ttyrec_frame	ttyrec_next_frame(ttyrec >I<tr>B<, ttyrec_frame >I<tfv>B<);>
+The redirection will last until the terminal is destroyed by B<tty_free()>.
 
-Returns the next frame after frame I<tfv>, or null if I<tfv> was the last.
+=item B<void   vtvt_resize(tty >I<vt>B<, int >I<sx>B<, int >I<sy>B<);>
 
-=item B<void		ttyrec_add_frame(ttyrec >I<tr>B<, struct timeval *>I<delay>B<, char *>I<data>B<, int >I<len>B<);>
+Tells libtty that the B<real> terminal has been resized (for resizing the virtual one,
+please use B<tty_resize()>).
 
-Creates a new frame and appends it to ttyrec I<tr>.
+=item B<void   vtvt_dump(tty >I<vt>B<);>
 
-=item B<int		ttyrec_save(ttyrec >I<tr>B<, int >I<fd>B<, char *>I<format>B<, char *>I<filename>B<, struct timeval *>I<selstart>B<, struct timeval *>I<selend>B<);>
-
-Exports the ttyrec to a new file.  If I<selstart> and/or I<selend> are given, they designate
-the part that should be exported -- if not, the whole is.
-
-=back
-
-=head2 B<struct timeval> arithmetics:
-
-A handful of macros for operating on timeval values:
-
-=over
-
-=item B<tadd(t, d)>
-
-t+=d;
-
-=item B<tsub(t, d)>
-
-t-=d;
-
-=item B<tmul1000(t, m)>
-
-t*=m/1000;
-
-=item B<tdiv1000(t, m)>
-
-t/=m/1000;
-
-=item B<tcmp(t1, t2)>
-
-If t1E<lt>t2, -1.  If t1E<gt>t2, +1.  0 otherwise.
+Forces a full-screen redraw of the current contents of I<vt>.
 
 =back
+
 
 =head1 SEE ALSO
 
-L<vt100(3)>
-
-=cut
+L<libttyrec(3)>

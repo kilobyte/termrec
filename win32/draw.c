@@ -1,72 +1,39 @@
 #include <windows.h>
-#include "vt100.h"
+#include <stdbool.h>
+#include "tty.h"
 #include "draw.h"
 
 
-/*
-The tables below are -1-based -- the indented values are those of the
-"default" colour.
-*/
-static int fpal[2][9]=
-{
-    {
-          0xAAAAAA,
-        0x000000,
-        0x0000AA,
-        0x00AA00,
-        0x00AAAA,
-        0xAA0000,
-        0xAA00AA,
-        0xAAAA00,
-        0xAAAAAA,
-    },
-    {
-#ifdef RV
-          0x000000,
-#else
-          0xFFFFFF,
-#endif
-        0x555555,
-        0x5555FF,
-        0x55FF55,
-        0x55FFFF,
-        0xFF5555,
-        0xFF55FF,
-        0xFFFF55,
-        0xFFFFFF,
-    }
-};
-static int bpal[9]={
-#ifndef TL
-# ifdef RV
-      0x0fFFFFFF,
-# else
-      0x40000000,
-# endif
-#else
-      0xff000000,
-#endif
-    0x000000,
-    0x0000AA,
-    0x00AA00,
-    0x00AAAA,
-    0xAA0000,
-    0xAA00AA,
-    0xAAAA00,
-    0xAAAAAA,
-};
-
-HFONT norm_font, und_font;
-HBRUSH bg_brush;
+static HFONT fonts[2][2]; /* underline, strikethrough */
+static HBRUSH bg_brush;
 int chx, chy;
+#define ATTR_ALT_FONT (VT100_ATTR_UNDERLINE|VT100_ATTR_STRIKE)
 
 
-void draw_line(HDC dc, int x, int y, wchar_t *txt, int cnt, int attr)
+// win32 has a big endian byte order here!
+static int rgb_bgr(int c)
+{
+    union {color p;int v;} x;
+    x.v = c;
+    unsigned char t=x.p.r;
+    x.p.r=x.p.b;
+    x.p.b=t;
+    x.p.a=0;
+    return x.v;
+}
+
+
+static void draw_line(HDC dc, int x, int y, wchar_t *txt, int cnt, uint64_t attr)
 {
     union {color p;int v;} fg,bg,t;
 
-    fg.v=fpal[!!(attr&VT100_ATTR_BOLD)][(signed char)(attr)+1];
-    bg.v=bpal[(signed char)(attr>>8)+1];
+    if (attr&VT100_ATTR_COLOR_TYPE == VT100_COLOR_16<<24 && attr&VT100_ATTR_BOLD)
+        attr|=8; // bold = bright
+    if (attr&VT100_ATTR_COLOR_TYPE)
+        fg.v=rgb_bgr(tty_color_convert(attr,     VT100_COLOR_RGB));
+    else
+        fg.v=attr&VT100_ATTR_BOLD? 0xFFFFFF : 0xAAAAAA;
+    bg.v=rgb_bgr(tty_color_convert(attr>>32, VT100_COLOR_RGB));
     if (attr&VT100_ATTR_DIM)
     {
         fg.p.r/=2;
@@ -75,12 +42,12 @@ void draw_line(HDC dc, int x, int y, wchar_t *txt, int cnt, int attr)
     }
     if (attr&VT100_ATTR_BLINK)
     {
-        bg.p.r=(((unsigned int)bg.p.r)*3+0x80)/4;
-        bg.p.g=(((unsigned int)bg.p.g)*3+0x80)/4;
-        bg.p.b=(((unsigned int)bg.p.b)*3+0x80)/4;
-        fg.p.r=(((unsigned int)fg.p.r)*3+0x80)/4;
-        fg.p.g=(((unsigned int)fg.p.g)*3+0x80)/4;
-        fg.p.b=(((unsigned int)fg.p.b)*3+0x80)/4;
+        bg.p.r=(((unsigned int)bg.p.r)+0x80)/2;
+        bg.p.g=(((unsigned int)bg.p.g)+0x80)/2;
+        bg.p.b=(((unsigned int)bg.p.b)+0x80)/2;
+        fg.p.r=(((unsigned int)fg.p.r)+0x80)/2;
+        fg.p.g=(((unsigned int)fg.p.g)+0x80)/2;
+        fg.p.b=(((unsigned int)fg.p.b)+0x80)/2;
     }
     if (attr&VT100_ATTR_INVERSE)
     {
@@ -88,27 +55,27 @@ void draw_line(HDC dc, int x, int y, wchar_t *txt, int cnt, int attr)
         fg=bg;
         bg=t;
     }
-    if (attr&VT100_ATTR_UNDERLINE)
-        SelectObject(dc, und_font);
+    if (attr&ATTR_ALT_FONT)
+        SelectObject(dc, fonts[!!(attr&VT100_ATTR_UNDERLINE)][!!(attr&VT100_ATTR_STRIKE)]);
     SetTextColor(dc, fg.v);
     SetBkColor(dc, bg.v);
     TextOutW(dc, x, y, txt, cnt);
-    if (attr&VT100_ATTR_UNDERLINE)
-        SelectObject(dc, norm_font);
+    if (attr&ATTR_ALT_FONT)
+        SelectObject(dc, fonts[0][0]);
 }
 
 
-void draw_vt(HDC dc, int px, int py, vt100 vt)
+void draw_vt(HDC dc, int px, int py, tty vt)
 {
     int x,y,x0;
-    int attr;
-    wchar_t linebuf[MAX_LINE*2];
+    uint64_t attr;
+    wchar_t linebuf[512*2]; // same as the max in tty.c
     int cnt;
     attrchar *ch;
     RECT r;
     HFONT oldfont;
 
-    oldfont=SelectObject(dc, norm_font);
+    oldfont=SelectObject(dc, fonts[0][0]);
     ch=vt->scr;
     cnt=0;
     for (y=0;y<vt->sy;y++)
@@ -119,7 +86,7 @@ void draw_vt(HDC dc, int px, int py, vt100 vt)
 
         while (1)
         {
-            if (x>=vt->sx || attr!=ch->attr)
+            if (x>=vt->sx || attr!=ch->attr || ch->ch==VT100_CJK_RIGHT)
             {
                 draw_line(dc, x0*chx, y*chy, linebuf, cnt, attr);
                 cnt=0;
@@ -128,7 +95,9 @@ void draw_vt(HDC dc, int px, int py, vt100 vt)
                     break;
                 attr=ch->attr;
             }
-            if (ch->ch>0xffff)	// UTF-16 surrogates
+            if (ch->ch==VT100_CJK_RIGHT)
+                x0=x+1;
+            else if (ch->ch>0xffff)  // UTF-16 surrogates
             {
                 linebuf[cnt++]=0xD800-(0x10000>>10)+(ch->ch>>10);
                 linebuf[cnt++]=0xDC00+(ch->ch&0x3FF);
@@ -182,38 +151,35 @@ void draw_init(LOGFONT *df)
     lf.lfPitchAndFamily=FIXED_PITCH;
     lf.lfQuality=ANTIALIASED_QUALITY;
     lf.lfOutPrecision=OUT_TT_ONLY_PRECIS;
-    norm_font=CreateFontIndirect(&lf);
-    oldfont=SelectObject(dc, norm_font);
+    fonts[0][0]=CreateFontIndirect(&lf);
+    oldfont=SelectObject(dc, fonts[0][0]);
     GetTextExtentPoint(dc, "W", 1, &sf);
     chx=sf.cx;
     chy=sf.cy;
     SelectObject(dc, oldfont);
     lf.lfUnderline=1;
-    und_font=CreateFontIndirect(&lf);
+    fonts[1][0]=CreateFontIndirect(&lf);
+    lf.lfStrikeOut=1;
+    lf.lfUnderline=0;
+    fonts[0][1]=CreateFontIndirect(&lf);
+    lf.lfUnderline=1;
+    fonts[1][1]=CreateFontIndirect(&lf);
 
     ReleaseDC(0, dc);
 
-    switch(bpal[0]&0xffffff)
-    {
-    case 0x000000:
-        bg_brush=GetStockObject(BLACK_BRUSH);
-        break;
-    case 0xFFFFFF:
-        bg_brush=GetStockObject(WHITE_BRUSH);
-        break;
-    default:
-        bg_brush=CreateSolidBrush(bpal[0]&0xffffff);
-    }
+    bg_brush=GetStockObject(BLACK_BRUSH);
 }
 
-void draw_free()
+void draw_free(void)
 {
-    DeleteObject(norm_font);
-    DeleteObject(und_font);
+    DeleteObject(fonts[0][0]);
+    DeleteObject(fonts[1][0]);
+    DeleteObject(fonts[0][1]);
+    DeleteObject(fonts[1][1]);
     DeleteObject(bg_brush);
 }
 
-void draw_border(HDC dc, vt100 vt)
+void draw_border(HDC dc, tty vt)
 {
     int sx,sy;
     HPEN pen, oldpen;

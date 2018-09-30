@@ -18,21 +18,18 @@
 #include "common.h"
 
 
-extern char *optarg;
-extern int optopt;
-
-#if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
+#ifdef HAVE_GETOPT_LONG
 static struct option rec_opts[]={
-{"format",	1, 0, 'f'},
-{"exec",	1, 0, 'e'},
-{"raw",		0, 0, 'r'},
-{"append",	0, 0, 'a'},
-{"help",	0, 0, 'h'},
-{0,		0, 0, 0},
+{"format",      1, 0, 'f'},
+{"exec",        1, 0, 'e'},
+{"raw",         0, 0, 'r'},
+{"append",      0, 0, 'a'},
+{"help",        0, 0, 'h'},
+{0,             0, 0, 0},
 };
 #endif
 
-static char *comp_ext;
+static const char *comp_ext;
 
 void get_rec_parms(int argc, char **argv)
 {
@@ -47,16 +44,18 @@ void get_rec_parms(int argc, char **argv)
     comp_ext=".gz";
 #elif (defined HAVE_LIBLZMA) || (defined SHIPPED_LIBLZMA)
     comp_ext=".xz";
+#elif (defined HAVE_LIBZSTD) || (defined SHIPPED_LIBZSTD)
+    comp_ext=".zst";
 #else
     comp_ext="";
 #endif
 
     while (1)
     {
-#if (defined HAVE_GETOPT_LONG) && (defined HAVE_GETOPT_H)
-        switch(getopt_long(argc, argv, "f:e:rah", rec_opts, 0))
+#ifdef HAVE_GETOPT_LONG
+        switch (getopt_long(argc, argv, "f:e:rah", rec_opts, 0))
 #else
-        switch(getopt(argc, argv, "f:e:rah"))
+        switch (getopt(argc, argv, "f:e:rah"))
 #endif
         {
         case -1:

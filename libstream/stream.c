@@ -7,11 +7,14 @@
 #include "export.h"
 #include "compress.h"
 #include "stream.h"
+VISIBILITY_ENABLE
+#include "ttyrec.h"
+VISIBILITY_DISABLE
 
 
 // disabled: #ifdef HAVE_FORK
 #if 0
-int filter(void func(int,int,char*), int fd, int wr, char *arg, char **error)
+int filter(void func(int,int,const char*), int fd, int wr, const char *arg, const char **error)
 {
     int p[2];
 
@@ -20,7 +23,7 @@ int filter(void func(int,int,char*), int fd, int wr, char *arg, char **error)
         close(fd);
         return -1;
     }
-    switch(fork())
+    switch (fork())
     {
     case -1:
         *error="fork() failed";
@@ -41,8 +44,8 @@ int filter(void func(int,int,char*), int fd, int wr, char *arg, char **error)
 struct filterdata
 {
     int fdin, fdout;
-    void (*func)(int,int,char*);
-    char *arg;
+    void (*func)(int,int,const char*);
+    const char *arg;
 };
 
 
@@ -53,8 +56,8 @@ static mutex_t nsm;
 static void filterthr(struct filterdata *args)
 {
     int fdin, fdout;
-    void (*func)(int,int,char*);
-    char *arg;
+    void (*func)(int,int,const char*);
+    const char *arg;
 
     fdin=args->fdin;
     fdout=args->fdout;
@@ -70,7 +73,7 @@ static void filterthr(struct filterdata *args)
 }
 
 
-static void finish_up()
+static void finish_up(void)
 {
     mutex_lock(nsm);
     while (nstreams)
@@ -80,8 +83,17 @@ static void finish_up()
     mutex_unlock(nsm);
 }
 
+#ifdef IS_WIN32
+// Because of a bug in Windows' atexit, we need to export this function
+// then call it manually from users.
+export void reap_streams(void)
+{
+    finish_up();
+}
+#endif
 
-int filter(void func(int,int,char*), int fd, int wr, char *arg, char **error)
+
+int filter(void func(int,int,const char*), int fd, int wr, const char *arg, const char **error)
 {
     int p[2];
     struct filterdata *fdata;
@@ -124,11 +136,11 @@ failpipe:
 #endif
 
 
-export int open_stream(int fd, char* url, int mode, char **error)
+export int open_stream(int fd, const char* url, int mode, const char **error)
 {
-    int wr= !!(mode&M_WRITE);
+    int wr= !!(mode&SM_WRITE);
     compress_info *ci;
-    char *dummy;
+    const char *dummy;
 
     if (fd==-1)
     {
@@ -146,6 +158,10 @@ export int open_stream(int fd, char* url, int mode, char **error)
             fd=open_telnet(url+9, mode, error);
         else if (match_prefix(url, "termcast://"))
             fd=open_termcast(url+11, mode, error);
+#ifdef HAVE_CURL_CURL_H
+        else if (strstr(url, "://"))
+            fd=open_curl(url, mode, error);
+#endif
         else
             fd=open_file(url, mode, error);
     }

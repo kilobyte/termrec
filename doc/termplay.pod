@@ -21,7 +21,9 @@ Certain non-file streams can be played as well, such as:
 
 =item telnet:// (e.g. telnet://towel.blinkenlights.nl)
 
-=item termcast:// (e.g. termcast://termcast.org/FooTV)
+=item termcast:// (e.g. termcast://termcast.org/SplatTV)
+
+=item anything directly downloadable via CURL (https://, etc)
 
 =back
 
@@ -92,7 +94,11 @@ Compatible with B<nh-recorder> by Helge Dennhardt.
 
 =item dosrecorder
 
-Compatible with a program named B<DosRecorder>.
+Compatible with B<DosRecorder>.
+
+=item asciicast
+
+Compatible with B<asciinema> by Marcin Kulik, formats v1 and v2.
 
 =item live
 
@@ -104,8 +110,8 @@ your face, beware!
 =item auto (default)
 
 This pseudo-format will make B<termplay> try to guess the format, currently only
-between B<ttyrec> and B<live>.  Caveats about B<live> blasting the whole file
-right away apply!
+between B<ttyrec>, B<asciicast> and B<live>.  Caveats about B<live> blasting the
+whole file right away apply!
 
 =back
 
@@ -121,4 +127,4 @@ Shows a short explanation of parameters.
 
 =head1 SEE ALSO
 
-L<termrec(1)>, L<proxyrec(1)>, L<termcat(1)>, L<termtime(1)>.
+L<termrec(1)>, L<termcat(1)>, L<termtime(1)>.

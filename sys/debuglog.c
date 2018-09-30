@@ -1,6 +1,7 @@
 #include "config.h"
 #include <stdio.h>
 #include <stdarg.h>
+#include "utils.h"
 
 #ifdef IS_WIN32
 # define DEBUGLOG "log.txt"

@@ -1,3 +1,20 @@
+0.18
+* library API is now declared stable, ABI at soname 1.
+  + include file is <tty.h> (not <vt100.h>)
+  * identifier prefixes are tty_ not vt100_
+* asciicast support (v1 and v2).
+* .zst compression.
+* fetching (and not very useful putting) via CURL.
+* drop proxyrec.
+* tty emulation improvements:
+  + CJK full(double)width
+  + combining characters
+  * overstrike (\e[9m)
+  * 24-bit color
+  + many ANSI codes
+  + store the window title
+* license is now LGPL2+.
+
 0.17
 * Support for 256 colour codes.
 * .xz support.
@@ -36,5 +53,4 @@
   file to replay was specified on the command line.
 * Done proxyrec/unix -- it's untested on anything but Debian/unstable/i386,
   though.
-* Made some preliminary code for termrec/unix.  It's still buggy like if it
-  was done by Microsoft, though (ok, well, perhaps I'm exaggerating).
+* Made some preliminary code for termrec/unix.  It's still buggy.

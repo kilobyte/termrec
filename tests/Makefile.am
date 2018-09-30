@@ -1,18 +1,17 @@
-check_PROGRAMS = seeks tarith loadsave rec vt vtmir
-AM_CFLAGS = @WALL@ -I$(top_srcdir) -I$(top_srcdir)/libtty/
+check_PROGRAMS = seeks tarith loadsave rec vt vtmir vtgen
+AM_CFLAGS = -I$(top_srcdir) -I$(top_srcdir)/libtty/
 LDADD = -L.. -ltty ../libutils.la
 vtmir_LDFLAGS = @PTHREAD_CFLAGS@
 vtmir_LDADD = $(LDADD) @PTHREAD_LIBS@
+vt_LDADD = $(LDADD) ../libtty/wcwidth.o
 
 EXTRA_DIST = $(TESTSUITE_AT) testsuite.at testsuite package.m4 unescape
 DISTCLEANFILES       = atconfig $(check_SCRIPTS)
 MAINTAINERCLEANFILES = Makefile.in $(TESTSUITE) package.m4
 
 dist-hook:
-	mkdir $(distdir)/vt.in
-	cp -p $(srcdir)/vt.in/* $(distdir)/vt.in
-	mkdir $(distdir)/vt.out
-	cp -p $(srcdir)/vt.out/* $(distdir)/vt.out
+	for x in vt.in vt.out rec.in rec.out misc.out; do mkdir -p $(distdir)/$$x; \
+	  cp -p $(srcdir)/$$x/* $(distdir)/$$x; done
 
 ## ------------ ##
 ## package.m4.  ##

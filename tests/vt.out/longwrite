@@ -1,7 +1,7 @@
-.-===[ 20x5 ]
-| foo bar baz quux    
-| foo bar baz quux    
-| foo bar baz quux    
-| foo bar baz quux    
-|                     
-`-===[ cursor at 0,4]
++====================+
+|foo bar baz quux    |
+|foo bar baz quux    |
+|foo bar baz quux    |
+|foo bar baz quux    |
+|                    |
++-[ cursor at 0,4 ]--+

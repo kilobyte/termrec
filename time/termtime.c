@@ -5,9 +5,9 @@
 #include "sys/error.h"
 #include "gettext.h"
 
-struct timeval tt;
+static struct timeval tt;
 
-void delay(struct timeval *tm, void *arg)
+static void delay(const struct timeval *tm, void *arg)
 {
     tadd(tt, *tm);
 }
@@ -24,7 +24,7 @@ int main(int argc, char **argv)
         tt.tv_sec=tt.tv_usec=0;
         if (ttyrec_r_play(-1, 0, argv[i], 0, delay, 0, 0))
         {
-            printf("%7ld.%06lu\t%s\n", (long)tt.tv_sec, tt.tv_usec, argv[i]);
+            printf("%7ld.%06ld\t%s\n", (long)tt.tv_sec, (long)tt.tv_usec, argv[i]);
             any=1;
         }
         else

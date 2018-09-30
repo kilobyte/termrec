@@ -1,0 +1,10 @@
+#!/bin/sh
+
+v=`git describe 2>/dev/null`
+test -n "$v" || v=`cat VERSION 2>/dev/null`
+test -n "$v" || v=UNKNOWN
+
+[ ! -d .git ] || ! which git >/dev/null || { git diff-index --quiet HEAD -- || v="$v-dirty"; }
+
+[ "$1" = "-n" ] || n='\n'
+printf '%s'"$n" "${v##v}"

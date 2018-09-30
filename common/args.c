@@ -3,14 +3,15 @@
 #include <stdlib.h>
 #include "sys/error.h"
 #include "gettext.h"
-#include <ttyrec.h>
+#include "ttyrec.h"
+#include "common.h"
 
 extern char *optarg;
 
-void get_w_format(char **format)
+void get_w_format(const char **format)
 {
     int i;
-    char *fn, *fe;
+    const char *fn, *fe;
 
     if (*format)
         die(_("You can use only one format at a time.\n"));
@@ -27,10 +28,10 @@ void get_w_format(char **format)
     }
 }
 
-void get_r_format(char **format)
+void get_r_format(const char **format)
 {
     int i;
-    char *fn, *fe;
+    const char *fn, *fe;
 
     if (*format)
         die(_("You can use only one format at a time.\n"));

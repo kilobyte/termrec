@@ -1,11 +1,24 @@
+The instructions below assume you're building from the tarball.  If you're
+pulling the sources from git, you need to install libtool, automake and
+autoconf then run ./autogen.sh prior to running ./configure.
+
+
+Unix
+====
+
 On an Unix system, do:
-    + apt-get install libz-dev libbz2-dev
-       Or equivalent.  If you skip this step, the .gz/.bz2 support won't
-       get compiled in.
+    + apt-get install libz-dev libbz2-dev liblzma-dev libzstd-dev libcurl4-gnutls-dev
+       Or equivalent.  If you skip this step, the .gz/.bz2/.xz/.zst support
+       won't get compiled in.  Without libcurl, http/https/gopher/... URLs won't
+       be available.
     + ./configure
     + make
 
-Building the Win32 version from source is more tricky.  To compile it, you
+
+Windows
+=======
+
+Building the Windows version from source is more tricky.  To compile it, you
 need a way to run the GNU configure.  It can be done by:
 
 * getting MinGW and MSYS
@@ -13,7 +26,7 @@ need a way to run the GNU configure.  It can be done by:
     + ./configure
     + make
     
-* using CygWin
+* using Cygwin
     for cygwin:
     + ./configure
     + make
@@ -23,12 +36,17 @@ need a way to run the GNU configure.  It can be done by:
     + make
 
 * cross-compiling from an Unix platform
-    + CC=i586-mingw32msvc-gcc ./configure --host i586-mingw32msvc
+    + ./configure --host i586-mingw32msvc
     + make
 
 
-For the compression plugins, you'll need to grab zlib and/or libbz2.  If
-you're putting them together by hand, put the files into win32/lib/ :
+For the compression plugins, you'll need to grab zlib, libbz2 and/or lzma.
+If you're building for Cygwin (but not just on Cygwin), please install them
+from Cygwin's repositories.
+
+For native win32, it's easiest to do so by cloning the submodule:
+    + git submodule update --init
+If you're putting them together by hand, put the files into win32/lib/ :
 * zlib:
     + zconf.h
     + zlib.h
@@ -38,3 +56,12 @@ you're putting them together by hand, put the files into win32/lib/ :
     + bzlib.h
     + libbz2.dll.a
     + bzip2.dll
+* lzma:
+    + lzma.h
+    + lzma/*.h
+    + liblzma.a
+    + liblzma.dll
+* zstd:
+    + zstd.h
+    + libzstd.dll.a
+    + libzstd.dll

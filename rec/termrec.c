@@ -1,5 +1,4 @@
 #include "config.h"
-#include "error.h"
 #include <stdio.h>
 #include <unistd.h>
 #ifdef HAVE_SYS_SELECT_H
@@ -19,6 +18,8 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <locale.h>
+#include <langinfo.h>
 #include "pty.h"
 #include "compat.h"
 #include "utils.h"
@@ -26,33 +27,33 @@
 #include "common.h"
 #include "rec_args.h"
 
-volatile int need_resize;
-int need_utf;
-struct termios ta;
-int ptym;
-int sx, sy;
-int record_f;
-recorder rec;
+static volatile int need_resize;
+static int need_utf;
+static struct termios ta;
+static int ptym;
+static int sx, sy;
+static int record_f;
+static recorder rec;
 
-void sigwinch(int s)
+static void sigwinch(int s)
 {
     need_resize=1;
 }
 
-void sigpass(int s)
+static void sigpass(int s)
 {
     kill(ptym, s);
 }
 
-void tty_restore();
-void sigpipe(int s)
+static void tty_restore(void);
+static void sigpipe(int s)
 {
     tty_restore();
     fprintf(stderr, "Broken pipe.  Disk full?\n");
     exit(0);
 }
 
-void setsignals()
+static void setsignals(void)
 {
     struct sigaction act;
 
@@ -77,7 +78,7 @@ void setsignals()
         die("sigaction SIGPIPE");
 }
 
-void tty_get_size()
+static void tty_get_size(void)
 {
     struct winsize ts;
 
@@ -91,7 +92,7 @@ void tty_get_size()
     sy=ts.ws_row;
 }
 
-void record_size()
+static void record_size(void)
 {
     struct timeval tv;
     char buf[20], *bp;
@@ -109,7 +110,7 @@ void record_size()
     ttyrec_w_write(rec, &tv, buf, bp-buf);
 }
 
-void tty_raw()
+static void tty_raw(void)
 {
     struct termios rta;
 
@@ -121,7 +122,7 @@ void tty_raw()
     tcsetattr(0, TCSADRAIN, &rta);
 }
 
-void tty_restore()
+static void tty_restore(void)
 {
     tcsetattr(0, TCSADRAIN, &ta);
 }
@@ -135,6 +136,7 @@ int main(int argc, char **argv)
     int r;
     struct timeval tv;
 
+    setlocale(LC_CTYPE, "");
     get_rec_parms(argc, argv);
     record_f=open_out(&record_name, format_ext, append);
     if (record_f==-1)
@@ -152,14 +154,14 @@ int main(int argc, char **argv)
     tty_get_size();
     if ((ptym=run(command, sx, sy))==-1)
     {
-        fprintf(stderr, "Couldn't allocaty pty.\n");
+        fprintf(stderr, "Couldn't allocate pty.\n");
         return 1;
     }
 
     gettimeofday(&tv, 0);
 
     rec=ttyrec_w_open(record_f, format, record_name, &tv);
-    need_utf=is_utf8();
+    need_utf=!strcmp(nl_langinfo(CODESET), "UTF-8");
     record_size();
 
     setsignals();
@@ -179,7 +181,7 @@ int main(int argc, char **argv)
             record_size();
         }
 
-        switch(r)
+        switch (r)
         {
         case 0:
             continue;
@@ -211,8 +213,8 @@ int main(int argc, char **argv)
     }
 
     close(ptym);
-    ttyrec_w_close(rec);
+    int err=!ttyrec_w_close(rec);
     tty_restore();
     wait(0);
-    return 0;
+    return err;
 }

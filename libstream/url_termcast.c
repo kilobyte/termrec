@@ -7,22 +7,25 @@
 #include "export.h"
 #include "stream.h"
 #include "gettext.h"
+VISIBILITY_ENABLE
+#include "ttyrec.h"
+VISIBILITY_DISABLE
 
 
 #define EAT_COLOUR \
-    if (*rp=='\e')					\
-    {							\
-        rp++;						\
-        if (*rp++!='[')					\
-            return 0;					\
-        while ((*rp>='0' && *rp<='9') || *rp==';')	\
-            rp++;					\
-        if (*rp++!='m')					\
-            return 0;					\
+    if (*rp=='\e')                                      \
+    {                                                   \
+        rp++;                                           \
+        if (*rp++!='[')                                 \
+            return 0;                                   \
+        while ((*rp>='0' && *rp<='9') || *rp==';')      \
+            rp++;                                       \
+        if (*rp++!='m')                                 \
+            return 0;                                   \
     }
 
-static int match(char *rp, char *rest)
-{	// pattern is /\r\n\e\[\d+d ([a-z])\) $rest (\e\[[0-9;]*m)?\(/
+static int match(const char *rp, const char *rest)
+{       // pattern is /\r\n\e\[\d+d ([a-z])\) $rest (\e\[[0-9;]*m)?\(/
     char res;
 
     if (*rp++!='\r')
@@ -65,14 +68,14 @@ struct filterarg
 };
 
 
-static void termcast(int in, int out, char *arg)
+static void termcast(int in, int out, const char *arg)
 {
     char buf[BUFSIZ+64], *cp, ses;
-    char *rp;	// potential \r
+    char *rp;   // potential \r
     int len, inbuf;
     int sock=((struct filterarg *)arg)->sock;
     char *rest=((struct filterarg *)arg)->rest;
-    free(arg);
+    free((char*)arg);
 
     inbuf=0;
     rp=buf;
@@ -96,11 +99,16 @@ static void termcast(int in, int out, char *arg)
                 len=snprintf(buf, BUFSIZ, "\e[0m%s\n", strerror(errno));
             else
                 len=snprintf(buf, BUFSIZ, "\e[0m%s\n", _("Input terminated."));
-            if (write(out, buf, len)); // ignore result, we're failing already
-            return free(rest);
+            if (write(out, buf, len))
+                {}; // ignore the result, we're failing already
+            free(rest);
+            goto end;
         }
         if (write(out, buf+inbuf, len) != len)
-            return free(rest);
+        {
+            free(rest);
+            goto end;
+        }
         inbuf+=len;
         memset(buf+inbuf, 0, 64);
 
@@ -118,18 +126,22 @@ found:
         return;
     while ((len=read(in, buf, BUFSIZ))>0)
         if (write(out, buf, len)!=len)
-            return;
+            break;;
 
-    // TODO: try to guess when the session ends, then quit or re-scrape
+    // Alas, there's no real way to detect when the session ends, other
+    // than a server disconnect.
+end:
+    close(sock);
+    close(out);
 }
 
 
-int open_termcast(char* url, int mode, char **error)
+int open_termcast(const char* url, int mode, const char **error)
 {
     int fd, fdmid;
-    char *rest;
+    const char *rest;
 
-    if (mode&M_WRITE)
+    if (mode&SM_WRITE)
     {
         *error="Writing to termcast streams is not supported (yet?)";
         return -1;
@@ -143,10 +155,10 @@ int open_termcast(char* url, int mode, char **error)
         *error=_("What termcast session to look for?");
         return -1;
     }
-    if ((fdmid=filter(telnet, fd, !!(mode&M_WRITE), 0, error))==-1)
+    if ((fdmid=filter(telnet, fd, !!(mode&SM_WRITE), 0, error))==-1)
         return -1;
     struct filterarg *fa = malloc(sizeof(struct filterarg));
     fa->sock=fd;
     fa->rest=strdup(rest);
-    return filter(termcast, fdmid, !!(mode&M_WRITE), (char*)fa, error);
+    return filter(termcast, fdmid, !!(mode&SM_WRITE), (const char*)fa, error);
 }

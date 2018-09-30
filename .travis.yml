@@ -1,0 +1,19 @@
+language: c
+matrix:
+  include:
+    - os: linux
+      dist: bionic
+      addons:
+        apt:
+          packages:
+          - libz-dev
+          - libbz2-dev
+          - liblzma-dev
+          - libzstd-dev
+          - libcurl4-gnutls-dev
+    - os: osx
+      before_install:
+        brew update && brew install libtool
+
+script: ./autogen.sh && ./configure && make check
+after_failure: cat tests/testsuite.log

@@ -8,25 +8,28 @@
 #include "error.h"
 #include "export.h"
 #include "stream.h"
+VISIBILITY_ENABLE
+#include "ttyrec.h"
+VISIBILITY_DISABLE
 #include "compat.h"
 
 
-int open_file(char* url, int mode, char **error)
+int open_file(const char* url, int mode, const char **error)
 {
     int fmode, fd;
 
     switch (mode)
     {
-    case M_READ:
+    case SM_READ:
         fmode=O_RDONLY;
         break;
-    case M_WRITE:
+    case SM_WRITE:
         fmode=O_WRONLY|O_CREAT|O_TRUNC;
         break;
-    case M_REPREAD:
+    case SM_REPREAD:
         fmode=O_RDONLY;
         break;
-    case M_APPEND:
+    case SM_APPEND:
         fmode=O_WRONLY|O_APPEND|O_CREAT;
         break;
     default:

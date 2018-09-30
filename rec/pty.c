@@ -17,15 +17,22 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <stdio.h>
+#include <sys/ioctl.h>
+#ifdef HAVE_PTY_H
+# include <pty.h>
+#endif
+#if defined(HAVE_FORKPTY) && defined(HAVE_LIBUTIL_H)
+# include <libutil.h>
+#endif
 
 extern char **environ;
 
 
 #ifndef HAVE_FORKPTY
-# if !(defined(HAVE__GETPTY) || defined(HAVE_GRANTPT))
-/*
- * if no PTYRANGE[01] is in the config file, we pick a default
- */
+# if !(defined(HAVE__GETPTY) || defined(HAVE_GRANTPT) \
+    && (defined(HAVE_GETPT) || defined(HAVE_DEV_PTMX) \
+    || defined(HAVE_POSIX_OPENPT)))
+// if no PTYRANGE[01] is in the config file, we pick a default
 #  ifndef PTYRANGE0
 #   define PTYRANGE0 "qpr"
 #  endif
@@ -40,7 +47,6 @@ static char PtyProto[] = "/dev/ptyXY";
 static char TtyProto[] = "/dev/ttyXY";
 #  endif
 # endif
-
 
 
 int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsize *wp)
@@ -62,8 +68,7 @@ int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsize *wp)
     }
     master=filedes[0];
     slave=filedes[1];
-#else
-#ifdef HAVE_GRANTPT
+#elif defined(HAVE_GRANTPT) && (defined(HAVE_GETPT) || defined(HAVE_DEV_PTMX) || defined(HAVE_POSIX_OPENPT))
 # ifdef HAVE_PTSNAME
     char *name;
 # else
@@ -72,6 +77,8 @@ int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsize *wp)
 
 # ifdef HAVE_GETPT
     master=getpt();
+# elif HAVE_POSIX_OPENPT
+    master=posix_openpt(O_RDWR);
 # else
     master=open("/dev/ptmx", O_RDWR);
 # endif
@@ -83,7 +90,7 @@ int forkpty(int *amaster,char *dummy,struct termios *termp, struct winsize *wp)
         goto close_master;
 
 # ifdef HAVE_PTSNAME
-    if (!(name=(char*)ptsname(master)))
+    if (!(name=ptsname(master)))
         goto close_master;
 # else
     if (ptsname_r(master,name,80))
@@ -136,16 +143,15 @@ ok:
               continue;
             }
           if ((slave=open(TtyName, O_RDWR|O_NOCTTY))==-1)
-	  {
-	  	close(master);
-	  	continue;
-	  }
+          {
+                close(master);
+                continue;
+          }
           goto ok;
         }
     }
   return -1;
   ok:
-#endif
 #endif
 
     if (termp)
@@ -155,7 +161,7 @@ ok:
     // let's ignore errors on this ioctl silently
 
     pid=fork();
-    switch(pid)
+    switch (pid)
     {
     case -1:
         close(master);
@@ -177,16 +183,6 @@ ok:
 }
 #endif
 
-void pty_resize(int fd, int sx, int sy)
-{
-    struct winsize ws;
-    ws.ws_row=sy;
-    ws.ws_col=sx;
-    ws.ws_xpixel=0;
-    ws.ws_ypixel=0;
-    ioctl(fd,TIOCSWINSZ,&ws);
-}
-
 void pty_makeraw(struct termios *ta)
 {
     memset(ta, 0, sizeof(*ta));
@@ -201,7 +197,7 @@ void pty_makeraw(struct termios *ta)
     ta->c_cc[VTIME]=0;
 }
 
-int run(char *command, int sx, int sy)
+int run(const char *command, int sx, int sy)
 {
     int fd;
 
@@ -212,13 +208,14 @@ int run(char *command, int sx, int sy)
     ws.ws_xpixel=0;
     ws.ws_ypixel=0;
 
-    switch(forkpty(&fd,0,0,(sx&&sy)?&ws:0))
+    switch (forkpty(&fd,0,0,(sx&&sy)?&ws:0))
     {
     case -1:
         return -1;
     case 0:
         {
-            char *argv[4], *cmd;
+            const char *argv[4];
+            char *cmd;
 
             if (asprintf(&cmd, "exec %s", command) == -1)
                 abort();
@@ -226,7 +223,7 @@ int run(char *command, int sx, int sy)
             argv[1]="-c";
             argv[2]=cmd;
             argv[3]=0;
-            execve("/bin/sh",argv,environ);
+            execve("/bin/sh",(char*const*)argv,environ);
             fprintf(stderr,"#ERROR: Couldn't exec `%s'\n",command);
             exit(127);
         }
@@ -235,57 +232,4 @@ int run(char *command, int sx, int sy)
     }
 
     return -1;
-}
-
-
-FILE *mypopen(const char *command, const char *wr)
-{
-    int p[2];
-
-    if (pipe(p))
-        return 0;
-    switch(fork())
-    {
-    case -1:
-        close(p[0]);
-        close(p[1]);
-        return 0;
-    case 0:
-        {
-            char *argv[4], *cmd;
-
-            if (*wr=='r')
-            {
-                close(p[0]);
-                close(0);
-                open("/dev/null",O_RDONLY);
-                dup2(p[1],1);
-                dup2(p[1],2);
-            }
-            else
-            {
-                close(p[1]);
-                close(1);
-                close(2);
-                open("/dev/null",O_WRONLY);
-                dup2(1,2);
-                dup2(p[0],0);
-                signal(SIGINT, SIG_IGN);
-                signal(SIGHUP, SIG_IGN);
-                signal(SIGTSTP, SIG_IGN);
-            }
-            if (asprintf(&cmd, "exec %s", command) == -1)
-                abort();
-            argv[0]="sh";
-            argv[1]="-c";
-            argv[2]=cmd;
-            argv[3]=0;
-            execve("/bin/sh",argv,environ);
-            fprintf(stderr,"#ERROR: Couldn't exec `%s'\n",command);
-            exit(127);
-        }
-    default:
-        close(p[!wr]);
-        return fdopen(p[*wr=='w'], wr);
-    }
 }
