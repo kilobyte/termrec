@@ -36,6 +36,14 @@ enum
 
 #define VT100_CJK_RIGHT 0xffffffff /* ch value of right-half of a CJK char */
 
+#define VT100_ATTR_COLOR_MASK 0x3ffffff
+#define VT100_ATTR_COLOR_TYPE 0x3000000
+
+#define VT100_COLOR_OFF 0
+#define VT100_COLOR_16  1
+#define VT100_COLOR_256 2
+#define VT100_COLOR_RGB 3
+
 typedef struct tty
 {
     /*=[ basic data ]=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
@@ -120,6 +128,7 @@ void    tty_write(tty vt, const char *buf, int len);
 void    tty_printf(tty vt, const char *fmt, ...) \
             __attribute__((format (printf, 2, 3)));
 tty     tty_copy(tty vt);
+uint32_t tty_color_convert(uint32_t c, uint32_t to);
 
 void    vtvt_dump(tty vt);
 void    vtvt_resize(tty vt, int sx, int sy);

@@ -6,6 +6,7 @@ libtty_la_SOURCES = $(LIBSTREAM) \
 	libtty/charsets.h \
 	libtty/wcwidth.c \
 	libtty/wcwidth.h \
+	libtty/colors.c \
 	libtty/formats.c \
 	libtty/formats.h \
 	libtty/timeline.c \

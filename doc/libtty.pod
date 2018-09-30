@@ -46,6 +46,11 @@ Does a B<printf> into the terminal.
 Allocates a new vt100 terminal, making it an exact copy of an existing one,
 including its internal state.  Attached event callbacks are not copied.
 
+=item B<uint32_t tty_color_convert(uint32_t >I<c>B<, uint32_t >I<to>B<);>
+
+Converts color values between modes: VT100_COLOR_OFF, VT100_COLOR_16,
+VT100_COLOR_256, VT100_COLOR_RGB.
+
 =back
 
 =head2 Inside the terminal
