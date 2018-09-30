@@ -38,10 +38,8 @@ typedef struct
     uint32_t fg;
     uint32_t bg;
 } fb_fields;
-#define FGF ((fb_fields*)&vt->attr)->fg
-#define BGF ((fb_fields*)&vt->attr)->bg
-#define FG(t,x) FGF=FGF&~VT100_ATTR_COLOR_MASK|VT100_COLOR_##t<<24|(x)
-#define BG(t,x) BGF=BGF&~VT100_ATTR_COLOR_MASK|VT100_COLOR_##t<<24|(x)
+#define FG(t,x) vt->attr=vt->attr&~VT100_ATTR_COLOR_MASK|VT100_COLOR_##t<<24|(x)&0xffffff
+#define BG(t,x) vt->attr=vt->attr&~0x3ffffff00000000|((uint64_t)VT100_COLOR_##t<<24|(x)&0xffffff)<<32
 
 enum { ESnormal, ESesc, ESgetpars, ESsquare, ESques, ESsetG0, ESsetG1,
        ESpercent, ESosc, ESoscstr };
