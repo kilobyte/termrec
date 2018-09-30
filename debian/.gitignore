@@ -2,6 +2,11 @@ files
 *.debhelper.log
 *.debhelper
 *.substvars
+debhelper-build-stamp
 libtty-dev
 libtty1
 tmp
+build-stamp
+check-stamp
+/patches
+/autoreconf.*
