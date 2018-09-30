@@ -797,6 +797,11 @@ export void tty_write(tty vt, const char *buf, int len)
                             FG(256, vt->tok[++i]);
                             break;
                         case 2:
+                            if (i>=VT100_MAXTOK-3)
+                                break;
+                            FG(RGB, (vt->tok[i+1]&0xff)<<16
+                                  | (vt->tok[i+2]&0xff)<<8
+                                  | (vt->tok[i+3]&0xff));
                         case 3:
                             i+=3;
                             break;
@@ -822,6 +827,11 @@ export void tty_write(tty vt, const char *buf, int len)
                             BG(256, vt->tok[++i]);
                             break;
                         case 2:
+                            if (i>=VT100_MAXTOK-3)
+                                break;
+                            BG(RGB, (vt->tok[i+1]&0xff)<<16
+                                  | (vt->tok[i+2]&0xff)<<8
+                                  | (vt->tok[i+3]&0xff));
                         case 3:
                             i+=3;
                             break;

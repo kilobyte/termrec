@@ -1,7 +1,7 @@
 +====================+
 |{fg=C85}cdefghijklmnop{}qr    |
-|efghijklmnopqrst    |
+|{fg=#4080c0}efghijklmnop{}qrst    |
 |{bg=C85}cdefghijklmnop{}qr    |
-|efghijklmnopqrst    |
+|{bg=#4080c0}efghijklmnop{}qrst    |
 |                    |
 +-[ cursor at 16,3 ]-+
