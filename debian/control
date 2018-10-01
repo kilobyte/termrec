@@ -1,5 +1,6 @@
 Source: termrec
 Priority: optional
+Section: misc
 Maintainer: Adam Borowski <kilobyte@angband.pl>
 Build-Depends: debhelper (>= 11~), libbz2-dev, zlib1g-dev,
   liblzma-dev
