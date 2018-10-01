@@ -1,31 +1,5 @@
-termrec (0.17-1) unstable; urgency=medium
+termrec (0.18-1) unstable; urgency=medium
 
-  * New release.
-  * Convert to dh and dh-autoreconf.
+  * Initial release (closes: #909961)
 
- -- Adam Borowski <kilobyte@angband.pl>  Tue, 04 Feb 2014 02:28:01 +0100
-
-termrec (0.16-1) unstable; urgency=low
-
-  * New release.
-  * Amended description.
-
- -- Adam Borowski <kilobyte@angband.pl>  Wed, 17 Dec 2008 12:30:31 +0100
-
-termrec (0.15-2) unstable; urgency=low
-
-  * Add libbz2 and zlib to build-depends.
-
- -- Adam Borowski <kilobyte@angband.pl>  Sat, 13 Dec 2008 18:43:34 +0100
-
-termrec (0.15-1) unstable; urgency=low
-
-  * New release.
-
- -- Adam Borowski <kilobyte@angband.pl>  Thu, 11 Dec 2008 16:50:14 +0100
-
-termrec (0.15~1-1) unstable; urgency=low
-
-  * Initial private release
-
- -- Adam Borowski <kilobyte@angband.pl>  Wed, 12 Nov 2008 09:36:02 +0100
+ -- Adam Borowski <kilobyte@angband.pl>  Sun, 30 Sep 2018 14:57:10 +0200
