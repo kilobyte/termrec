@@ -1,4 +1,5 @@
 =encoding utf8
+
 =head1 NAME
 
 libtty - a library for handling vt100-like pseudo-terminals
