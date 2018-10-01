@@ -392,7 +392,9 @@ static inline void tty_write_char(tty vt, ucs c)
     {
         if (!CX)
             return; // combining are illegal at left edge of the screen
-        return tty_add_comb(vt, &vt->scr[CY*SX+CX-1], c);
+        // on CJK, attach to left side not to the fillet
+        int cjk=(vt->scr[CY*SX+CX-1].ch==VT100_CJK_RIGHT);
+        return tty_add_comb(vt, &vt->scr[CY*SX+CX-1-cjk], c);
     }
 
     if (c<128 && vt->G&(1<<vt->curG))
