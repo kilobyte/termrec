@@ -65,6 +65,7 @@ AC_SEARCH_LIBS(curl_easy_init, curl, , [AC_MSG_WARN([
 CURL is not available: support for http/etc URLs will be disabled.
 ])])
 AC_CHECK_HEADERS([curl/curl.h])
+AC_ZSTD
 
 # Checks for Winblows.
 AC_CHECK_WIN32
