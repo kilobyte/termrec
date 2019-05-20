@@ -3,7 +3,7 @@ Priority: optional
 Section: misc
 Maintainer: Adam Borowski <kilobyte@angband.pl>
 Build-Depends: debhelper (>= 11~), libbz2-dev, zlib1g-dev,
-  liblzma-dev
+  liblzma-dev, libzstd-dev, libcurl4-gnutls-dev
 Standards-Version: 4.2.1
 Rules-Requires-Root: no
 Homepage: http://angband.pl/termrec.html
