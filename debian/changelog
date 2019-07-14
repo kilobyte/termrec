@@ -1,3 +1,12 @@
+termrec (0.18-2) unstable; urgency=medium
+
+  * Fix missing zstd and curl support (B-Deps).
+  * Enable hardening and --as-needed.
+  * Add VCS links.
+  * dh 12.
+
+ -- Adam Borowski <kilobyte@angband.pl>  Sun, 14 Jul 2019 15:05:55 +0200
+
 termrec (0.18-1) unstable; urgency=medium
 
   * Initial release (closes: #909961)
