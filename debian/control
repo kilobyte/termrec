@@ -13,6 +13,7 @@ Vcs-Browser: https://github.com/kilobyte/termrec/tree/debian
 Package: termrec
 Section: misc
 Architecture: any
+Multi-Arch: foreign
 Depends: libtty1 (>= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: terminal videos/scripts recorder and player
  This package contains "termrec", a program which can record a terminal
@@ -24,6 +25,7 @@ Description: terminal videos/scripts recorder and player
 Package: libtty-dev
 Section: libdevel
 Architecture: any
+Multi-Arch: same
 Depends: libtty1 (= ${binary:Version}), ${misc:Depends}
 Description: terminal/ttyrec library -- development
  libtty is a library for handling terminal output.  It is kind of "reverse
