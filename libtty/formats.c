@@ -375,6 +375,8 @@ static void play_nh_recorder(FILE *f,
         if (i0<i)
             synch_print(buf+i0, i-i0, arg);
     block_end:;
+        // FIXME: frames shouldn't get split just because not being aligned
+        // to our read block
     }
 }
 
