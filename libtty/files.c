@@ -31,7 +31,7 @@ static int find_w_format(const char *format, const char *filename, const char *f
 {
     int nf;
 
-    // given explicitely
+    // given explicitly
     if (format)
     {
         for (nf=0; rec[nf].name; nf++)
@@ -148,7 +148,7 @@ static int find_r_format(const char *format, const char *filename, const char *f
 {
     int nf;
 
-    // given explicitely
+    // given explicitly
     if (format)
     {
         for (nf=0; play[nf].name; nf++)

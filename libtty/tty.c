@@ -576,7 +576,7 @@ export void tty_write(tty vt, const char *buf, int len)
 
                 /* The following code deals with malformed UTF-16
                  * surrogates encoded in UTF-8 text.  While the
-                 * standard explicitely forbids this, some (usually
+                 * standard explicitly forbids this, some (usually
                  * Windows) programs generate them, and thus we'll
                  * better support such encapsulation anyway.
                  * We don't go out of our way to detect unpaired

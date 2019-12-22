@@ -40,7 +40,7 @@
 * proxyrec: IPv6 support for outgoing connections.
 * If you specify a format, you need to append requested compression type
   to it (like, .nh.gz).  This allows disabling compression, before it was
-  always .bz2 unless a file name was explicitely set.
+  always .bz2 unless a file name was explicitly set.
 
 0.13
 * New format: RealLogs (write-only).
