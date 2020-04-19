@@ -65,15 +65,15 @@
 
 struct interval
 {
-  int first;
-  int last;
+  uint32_t first;
+  uint32_t last;
 };
 
 /* auxiliary function for binary search in interval table */
-static int bisearch(uint32_t ucs, const struct interval *table, int max)
+static int bisearch(uint32_t ucs, const struct interval *table, uint32_t max)
 {
-  int min = 0;
-  int mid;
+  uint32_t min = 0;
+  uint32_t mid;
 
   if (ucs < table[0].first || ucs > table[max].last)
     return 0;

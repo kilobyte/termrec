@@ -392,7 +392,9 @@ static inline void tty_write_char(tty vt, ucs c)
     {
         if (!CX)
             return; // combining are illegal at left edge of the screen
-        return tty_add_comb(vt, &vt->scr[CY*SX+CX-1], c);
+        // on CJK, attach to left side not to the fillet
+        int cjk=(vt->scr[CY*SX+CX-1].ch==VT100_CJK_RIGHT);
+        return tty_add_comb(vt, &vt->scr[CY*SX+CX-1-cjk], c);
     }
 
     if (c<128 && vt->G&(1<<vt->curG))
@@ -574,7 +576,7 @@ export void tty_write(tty vt, const char *buf, int len)
 
                 /* The following code deals with malformed UTF-16
                  * surrogates encoded in UTF-8 text.  While the
-                 * standard explicitely forbids this, some (usually
+                 * standard explicitly forbids this, some (usually
                  * Windows) programs generate them, and thus we'll
                  * better support such encapsulation anyway.
                  * We don't go out of our way to detect unpaired
@@ -802,6 +804,7 @@ export void tty_write(tty vt, const char *buf, int len)
                             FG(RGB, (vt->tok[i+1]&0xff)<<16
                                   | (vt->tok[i+2]&0xff)<<8
                                   | (vt->tok[i+3]&0xff));
+                            // fallthru
                         case 3:
                             i+=3;
                             break;
@@ -832,6 +835,7 @@ export void tty_write(tty vt, const char *buf, int len)
                             BG(RGB, (vt->tok[i+1]&0xff)<<16
                                   | (vt->tok[i+2]&0xff)<<8
                                   | (vt->tok[i+3]&0xff));
+                            // fallthru
                         case 3:
                             i+=3;
                             break;

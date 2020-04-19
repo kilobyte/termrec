@@ -1,10 +1,10 @@
-ttyrec tr;
+extern ttyrec tr;
 
-int speed;
-tty term;
+extern int speed;
+extern tty term;
 
-int waiting, loaded;
-mutex_t waitm;
-cond_t waitc;
+extern int waiting, loaded;
+extern mutex_t waitm;
+extern cond_t waitc;
 
 void replay(void);

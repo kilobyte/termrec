@@ -2,9 +2,9 @@
 #include "tty.h"
 #include "export.h"
 
-#define R(x) (((x)>>16)&0xff)
-#define G(x) (((x)>> 8)&0xff)
-#define B(x) ( (x)     &0xff)
+#define R(x) ((uint8_t)((x)>>16))
+#define G(x) ((uint8_t)((x)>> 8))
+#define B(x) ((uint8_t) (x)     )
 
 static uint32_t col256_to_rgb(uint32_t i)
 {

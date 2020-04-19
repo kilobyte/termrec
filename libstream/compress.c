@@ -268,7 +268,7 @@ xz_write_end:
 }
 #endif
 
-#if (defined HAVE_LIBZSTD) || (defined SHIPPED_LIBZSTD)
+#ifdef WORKING_ZSTD
 static void read_zstd(int f, int fd, const char *arg)
 {
     ZSTD_inBuffer  zin;
@@ -371,7 +371,7 @@ compress_info compressors[]={
 #if (defined HAVE_LIBLZMA) || (defined SHIPPED_LIBLZMA)
 {"xz", ".xz",  write_xz},
 #endif
-#if (defined HAVE_LIBZSTD) || (defined SHIPPED_LIBZSTD)
+#ifdef WORKING_ZSTD
 {"zstd", ".zst",  write_zstd},
 #endif
 {0, 0, 0},
@@ -387,7 +387,7 @@ compress_info decompressors[]={
 #if (defined HAVE_LIBLZMA) || (defined SHIPPED_LIBLZMA)
 {"xz", ".xz",  read_xz},
 #endif
-#if (defined HAVE_LIBZSTD) || (defined SHIPPED_LIBZSTD)
+#ifdef WORKING_ZSTD
 {"zstd", ".zst",  read_zstd},
 #endif
 {0, 0, 0},

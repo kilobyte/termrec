@@ -17,6 +17,11 @@
 #include "gettext.h"
 #include "common.h"
 
+const char *command, *format, *format_ext;
+int lport,rport;
+char *record_name;
+int raw;
+int append;
 
 #ifdef HAVE_GETOPT_LONG
 static struct option rec_opts[]={
