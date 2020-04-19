@@ -6,6 +6,10 @@ export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
 %:
 	dh $@
 
+override_dh_autoreconf:
+	dpkg-parsechangelog -SVersion|rev|cut -d- -f2-|rev >VERSION
+	dh_autoreconf ./autogen.sh
+
 override_dh_auto_test:
 ifeq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
 	LC_ALL=C.UTF-8 $(MAKE) check || debian/rules testfail
