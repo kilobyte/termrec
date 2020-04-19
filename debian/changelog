@@ -1,3 +1,12 @@
+termrec (0.19-1) unstable; urgency=medium
+
+  * New upstream release.
+    + Fixes FTBFS with gcc-10 (closes: #957868)
+  * Fix VERSION being unset.
+  * Multi-Arch settings.
+
+ -- Adam Borowski <kilobyte@angband.pl>  Sun, 19 Apr 2020 09:33:54 +0200
+
 termrec (0.18-2) unstable; urgency=medium
 
   * Fix missing zstd and curl support (B-Deps).
