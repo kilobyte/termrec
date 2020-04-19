@@ -1,3 +1,7 @@
+0.19
+* Fix build failure with gcc-10 (-fno-common).
+* A bunch of minor and warning fixes.
+
 0.18
 * library API is now declared stable, ABI at soname 1.
   + include file is <tty.h> (not <vt100.h>)
