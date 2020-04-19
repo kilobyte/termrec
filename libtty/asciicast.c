@@ -181,37 +181,37 @@ static char* eat_string(NIH_FILE *f, char *buf)
               | eat_hexdigit(f)<<4
               | eat_hexdigit(f);
 
-            if (c >= 0)
-            {
-                if (c < 0x80)
-                    OUT(c);
-                else if (c < 0x800)
-                {
-                    OUT(0xc0|c>>6);
-                    OUT(0x80|c&0x3f);
-                }
-                else if (c < 0xD800 || c > 0xDFFF)
-                {
-                    OUT(0xe0|c>>12);
-                    OUT(0x80|c>>6&0x3f);
-                    OUT(0x80|c&0x3f);
-                }
-                // Note: we allow erroneous surrogate pairs separated by
-                // something, silently ignore lone lead or trailing ones.
-                else if (c < 0xDC00)
-                    surrogate = c;
-                else if (surrogate)
-                {
-                    c=((uint32_t)surrogate)<<10&0xffc00|c&0x3ff;
-                    c+=0x10000;
-                    OUT(0xf0|c>>18);
-                    OUT(0x80|c>>12&0x3f);
-                    OUT(0x80|c>>6&0x3f);
-                    OUT(0x80|c&0x3f);
-                    surrogate=0;
-                }
+            if (c < 0) // not a valid 16-bit hex value
                 break;
+
+            if (c < 0x80)
+                OUT(c);
+            else if (c < 0x800)
+            {
+                OUT(0xc0|c>>6);
+                OUT(0x80|c&0x3f);
             }
+            else if (c < 0xD800 || c > 0xDFFF)
+            {
+                OUT(0xe0|c>>12);
+                OUT(0x80|c>>6&0x3f);
+                OUT(0x80|c&0x3f);
+            }
+            // Note: we allow erroneous surrogate pairs separated by
+            // something, silently ignore lone lead or trailing ones.
+            else if (c < 0xDC00)
+                surrogate = c;
+            else if (surrogate)
+            {
+                c=((uint32_t)surrogate)<<10&0xffc00|c&0x3ff;
+                c+=0x10000;
+                OUT(0xf0|c>>18);
+                OUT(0x80|c>>12&0x3f);
+                OUT(0x80|c>>6&0x3f);
+                OUT(0x80|c&0x3f);
+                surrogate=0;
+            }
+            break;
         case '"': case '\\': case '/':
         default:
             OUT(c);    break;
