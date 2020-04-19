@@ -804,6 +804,7 @@ export void tty_write(tty vt, const char *buf, int len)
                             FG(RGB, (vt->tok[i+1]&0xff)<<16
                                   | (vt->tok[i+2]&0xff)<<8
                                   | (vt->tok[i+3]&0xff));
+                            // fallthru
                         case 3:
                             i+=3;
                             break;
@@ -834,6 +835,7 @@ export void tty_write(tty vt, const char *buf, int len)
                             BG(RGB, (vt->tok[i+1]&0xff)<<16
                                   | (vt->tok[i+2]&0xff)<<8
                                   | (vt->tok[i+3]&0xff));
+                            // fallthru
                         case 3:
                             i+=3;
                             break;
