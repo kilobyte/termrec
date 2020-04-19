@@ -12,6 +12,14 @@
 static ttyrec_frame fr;
 static struct timeval t0, tc;
 
+ttyrec tr;
+
+int speed;
+tty term;
+
+int waiting, loaded;
+mutex_t waitm;
+cond_t waitc;
 
 static void waitm_unlock(void *arg)
 {
