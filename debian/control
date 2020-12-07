@@ -43,7 +43,8 @@ Package: libtty1
 Section: libs
 Architecture: any
 Multi-Arch: same
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Pre-Depends: ${misc:Pre-Depends}
 Description: terminal/ttyrec library -- runtime
  libtty is a library for handling terminal output.  It is kind of "reverse
  curses" -- it is on the receiving end of tty data, accepting vt100 codes
