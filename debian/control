@@ -6,7 +6,7 @@ Build-Depends: debhelper-compat (= 12), libbz2-dev, zlib1g-dev,
   liblzma-dev, libzstd-dev, libcurl4-gnutls-dev
 Standards-Version: 4.5.0
 Rules-Requires-Root: no
-Homepage: http://angband.pl/termrec.html
+Homepage: https://angband.pl/termrec.html
 Vcs-Git: https://github.com/kilobyte/termrec.git -b debian
 Vcs-Browser: https://github.com/kilobyte/termrec/tree/debian
 
