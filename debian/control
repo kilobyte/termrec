@@ -11,7 +11,6 @@ Vcs-Git: https://github.com/kilobyte/termrec.git -b debian
 Vcs-Browser: https://github.com/kilobyte/termrec/tree/debian
 
 Package: termrec
-Section: misc
 Architecture: any
 Multi-Arch: foreign
 Depends: libtty1 (>= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
