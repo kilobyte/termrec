@@ -1,0 +1,88 @@
+env:
+  LC_ALL: C.UTF-8
+
+freebsd_13_task:
+  freebsd_instance:
+    image: freebsd-13-0-release-amd64
+  install_script:
+    pkg install -y automake bzip2 zstd gnutls perl5 libtool
+  build_script:
+    - ./autogen.sh
+    - ./configure
+    - gmake -j$(getconf _NPROCESSORS_ONLN)
+  test_script:
+      # run tests as user "cirrus" instead of root
+    - pw useradd cirrus -m
+    - chown -R cirrus:cirrus .
+    - gmake -j$(getconf _NPROCESSORS_ONLN) check
+
+macos_x_task:
+  macos_instance:
+    image: big-sur-xcode
+  install_script:
+    - brew update
+    - brew install automake bzip2 zstd gnutls libtool
+  build_script:
+    - ./autogen.sh
+    - ./configure
+    - make -j$(getconf _NPROCESSORS_ONLN)
+  test_script:
+    make -j$(getconf _NPROCESSORS_ONLN) check
+
+ubuntu_amd64_task:
+  container:
+    image: ubuntu:focal
+  install_script:
+    - apt-get update
+    - DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade
+    - DEBIAN_FRONTEND=noninteractive apt-get -y install autotools-dev libbz2-dev zlib1g-dev liblzma-dev libzstd-dev libcurl4-gnutls-dev libtool
+  build_script:
+    - ./autogen.sh
+    - ./configure
+    - make -j$(getconf _NPROCESSORS_ONLN)
+  test_script:
+    make -j$(getconf _NPROCESSORS_ONLN) check
+
+ubuntu_i386_task:
+  container:
+    image: ubuntu:focal
+  install_script:
+    - dpkg --add-architecture i386
+    - apt-get update
+    - DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade
+    - DEBIAN_FRONTEND=noninteractive apt-get -y install gcc-i686-linux-gnu libc6:i386 autotools-dev libbz2-dev:i386 zlib1g-dev:i386 liblzma-dev:i386 libzstd-dev:i386 libcurl4-gnutls-dev:i386 libtool
+  build_script:
+    - ./autogen.sh
+    - ./configure CC=i686-linux-gnu-gcc --host=i686-linux-gnu
+    - make -j$(getconf _NPROCESSORS_ONLN)
+  test_script:
+    make -j$(getconf _NPROCESSORS_ONLN) check
+
+ubuntu_arm64_task:
+  arm_container:
+    image: ubuntu:focal
+  install_script:
+    - apt-get update
+    - DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade
+    - DEBIAN_FRONTEND=noninteractive apt-get -y install autotools-dev libbz2-dev zlib1g-dev liblzma-dev libzstd-dev libcurl4-gnutls-dev libtool
+  build_script:
+    - ./autogen.sh
+    - ./configure
+    - make -j$(getconf _NPROCESSORS_ONLN)
+  test_script:
+    make -j$(getconf _NPROCESSORS_ONLN) check
+
+ubuntu_armhf_task:
+  arm_container:
+    image: ubuntu:focal
+  install_script:
+    - dpkg --add-architecture armhf
+    - apt-get update
+    - DEBIAN_FRONTEND=noninteractive apt-get -y dist-upgrade
+    - DEBIAN_FRONTEND=noninteractive apt-get -y install gcc-arm-linux-gnueabihf libc6:armhf libgnutls28-dev:armhf libz-dev:armhf libtool
+  build_script:
+    - ./autogen.sh
+    - ./configure CC=arm-linux-gnueabihf-gcc --host=arm-linux-gnueabihf
+    - make -j$(getconf _NPROCESSORS_ONLN)
+  test_script:
+    make -j$(getconf _NPROCESSORS_ONLN) check
