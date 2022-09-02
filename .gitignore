@@ -32,7 +32,6 @@ ar-lib
 proxyrec
 stamp-h1
 stamp-h.in
-_stdint.h
 svn-commit*.tmp
 termplay
 termrec
