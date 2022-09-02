@@ -1,12 +1,12 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.59)
-AC_INIT(termrec, m4_esyscmd([./get_version -n]), [kilobyte@angband.pl])
+AC_PREREQ([2.71])
+AC_INIT([termrec],[m4_esyscmd(./get_version -n)],[kilobyte@angband.pl])
 AM_INIT_AUTOMAKE([-Wall dist-xz no-dist-gzip foreign subdir-objects])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR([libtty/tty.h])
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES(Makefile
         win32/icons/Makefile
         )
@@ -31,10 +31,9 @@ AX_CHECK_COMPILE_FLAG(-std=gnu11, [CFLAGS="$CFLAGS -std=gnu11"],
 AC_SCO
 
 # Checks for header files.
-AC_HEADER_STDC
 #AC_HEADER_TIOCGWINSZ
 AX_CREATE_STDINT_H
-AC_HEADER_TIME
+AC_CHECK_HEADERS_ONCE([sys/time.h])
 AC_CHECK_HEADERS([fcntl.h stdlib.h string.h strings.h sys/ioctl.h termios.h \
         unistd.h bzlib.h zlib.h sys/time.h sys/select.h langinfo.h \
         netinet/in.h lzma.h pty.h libutil.h zstd.h])
