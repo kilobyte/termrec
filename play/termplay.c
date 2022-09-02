@@ -10,7 +10,7 @@
 # include <termios.h>
 # include <unistd.h>
 #endif
-#include "_stdint.h"
+#include <stdint.h>
 #include "gettext.h"
 #include "common.h"
 #include "sys/threads.h"

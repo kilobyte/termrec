@@ -8,7 +8,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include "config.h"
-#include "_stdint.h"
+#include <stdint.h>
 #include "sys/utils.h"
 #include "tty.h"
 #include "draw.h"

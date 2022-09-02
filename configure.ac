@@ -32,7 +32,6 @@ AC_SCO
 
 # Checks for header files.
 #AC_HEADER_TIOCGWINSZ
-AX_CREATE_STDINT_H
 AC_CHECK_HEADERS_ONCE([sys/time.h])
 AC_CHECK_HEADERS([fcntl.h stdlib.h string.h strings.h sys/ioctl.h termios.h \
         unistd.h bzlib.h zlib.h sys/time.h sys/select.h langinfo.h \

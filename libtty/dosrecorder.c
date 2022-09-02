@@ -9,7 +9,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
-#include "_stdint.h"
+#include <stdint.h>
 #include "gettext.h"
 #include "export.h"
 #include "formats.h"

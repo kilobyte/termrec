@@ -4,7 +4,7 @@
 #include "sys/compat.h"
 #include "sys/threads.h"
 #include "sys/error.h"
-#include "_stdint.h"
+#include <stdint.h>
 #include <unistd.h>
 
 

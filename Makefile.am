@@ -6,7 +6,6 @@ endif
 
 EXTRA_DIST= BUGS autogen.sh gettext.h export.h win32/termrec.iss \
 	VERSION get_version
-DISTCLEANFILES = _stdint.h
 ACLOCAL_AMFLAGS = -I m4
 
 CLEANFILES =

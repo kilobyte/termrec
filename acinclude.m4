@@ -1,4 +1,3 @@
-m4_include([m4/ax_create_stdint_h.m4])
 m4_include([m4/ac_ptyranges.m4])
 m4_include([m4/ac_check_win32.m4])
 m4_include([m4/ac_shipped_lib.m4])
