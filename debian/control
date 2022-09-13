@@ -4,7 +4,7 @@ Section: misc
 Maintainer: Adam Borowski <kilobyte@angband.pl>
 Build-Depends: debhelper-compat (= 12), libbz2-dev, zlib1g-dev,
   liblzma-dev, libzstd-dev, libcurl4-gnutls-dev
-Standards-Version: 4.5.1
+Standards-Version: 4.6.1
 Rules-Requires-Root: no
 Homepage: https://angband.pl/termrec.html
 Vcs-Git: https://github.com/kilobyte/termrec.git -b debian
