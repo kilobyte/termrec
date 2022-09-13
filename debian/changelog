@@ -1,3 +1,12 @@
+termrec (0.19-2) unstable; urgency=medium
+
+  * Bump watch file to version 4.
+  * dh 13.
+  * Apply janitor fixes.
+  * Mark libtool droppings as non-installed.
+
+ -- Adam Borowski <kilobyte@angband.pl>  Tue, 13 Sep 2022 17:24:35 +0200
+
 termrec (0.19-1) unstable; urgency=medium
 
   * New upstream release.
