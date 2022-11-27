@@ -7,7 +7,7 @@ Build-Depends: debhelper-compat (= 13), libbz2-dev, zlib1g-dev,
 Standards-Version: 4.6.1
 Rules-Requires-Root: no
 Homepage: https://angband.pl/termrec.html
-Vcs-Git: https://github.com/kilobyte/termrec.git -b debian
+Vcs-Git: https://github.com/kilobyte/termrec -b debian
 Vcs-Browser: https://github.com/kilobyte/termrec/tree/debian
 
 Package: termrec
