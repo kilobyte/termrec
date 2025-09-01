@@ -487,7 +487,7 @@ void record_asciicast(FILE *f, void* state, const struct timeval *tm, const char
         fprintf(f, "{\"version\":%d, \"width\":%d, \"height\":%d",
             as->version, vt->sx, vt->sy);
         if (as->ts.tv_sec)
-            fprintf(f, ", \"timestamp\":%ld", as->ts.tv_sec);
+            fprintf(f, ", \"timestamp\":%lld", (long long int)as->ts.tv_sec);
         if (as->version == 1)
             fprintf(f, ", \"stdout\":[\n");
         else

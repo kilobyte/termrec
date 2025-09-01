@@ -50,7 +50,7 @@ static const char* describe_attr(uint64_t attr)
         b+=sprintf(b, " bg="), b+=describe_color(b, attr>>32);
 #define INVALID_ATTRS 0x7000000080000000
     if (attr & INVALID_ATTRS)
-        b+=sprintf(b, "bad_attr:%lx", attr & INVALID_ATTRS);
+        b+=sprintf(b, "bad_attr:%"PRIx64, attr & INVALID_ATTRS);
 
     return *buf? buf+1 : buf;
 }
