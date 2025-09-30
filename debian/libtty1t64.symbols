@@ -1,4 +1,4 @@
-libtty.so.1 libtty1 #MINVER#
+libtty.so.1 libtty1t64 #MINVER#
  open_stream@Base 0.18
  tty_color_convert@Base 0.18
  tty_copy@Base 0.18

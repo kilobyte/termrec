@@ -2,7 +2,7 @@ Source: termrec
 Priority: optional
 Section: misc
 Maintainer: Adam Borowski <kilobyte@angband.pl>
-Build-Depends: debhelper-compat (= 13), libbz2-dev, zlib1g-dev,
+Build-Depends: dpkg-dev (>= 1.22.5), debhelper-compat (= 13), libbz2-dev, zlib1g-dev,
   liblzma-dev, libzstd-dev, libcurl4-gnutls-dev
 Standards-Version: 4.6.1
 Rules-Requires-Root: no
@@ -13,7 +13,7 @@ Vcs-Browser: https://github.com/kilobyte/termrec/tree/debian
 Package: termrec
 Architecture: any
 Multi-Arch: foreign
-Depends: libtty1 (>= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Depends: libtty1t64 (>= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Description: terminal videos/scripts recorder and player
  This package contains "termrec", a program which can record a terminal
  session and "termplay" to play it back.  They can handle both line-based
@@ -25,7 +25,7 @@ Package: libtty-dev
 Section: libdevel
 Architecture: any
 Multi-Arch: same
-Depends: libtty1 (= ${binary:Version}), ${misc:Depends}
+Depends: libtty1t64 (= ${binary:Version}), ${misc:Depends}
 Description: terminal/ttyrec library -- development
  libtty is a library for handling terminal output.  It is kind of "reverse
  curses" -- it is on the receiving end of tty data, accepting vt100 codes
@@ -38,7 +38,10 @@ Description: terminal/ttyrec library -- development
  .
  This package contains the library headers.
 
-Package: libtty1
+Package: libtty1t64
+Provides: ${t64:Provides}
+Replaces: libtty1
+Breaks: libtty1 (<< ${source:Version})
 Section: libs
 Architecture: any
 Multi-Arch: same

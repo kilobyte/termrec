@@ -1,3 +1,10 @@
+termrec (0.19-2.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Rename libraries for 64-bit time_t transition.  Closes: #1062972
+
+ -- Benjamin Drung <bdrung@debian.org>  Thu, 29 Feb 2024 18:07:07 +0000
+
 termrec (0.19-2) unstable; urgency=medium
 
   * Bump watch file to version 4.
